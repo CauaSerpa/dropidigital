@@ -1,0 +1,149 @@
+Return-Path: <bounces+23773710-26d3-suporte=softhash.com.br@em4578.joinpioneer.app>
+Delivered-To: softhashcom@vps-6439567.tokenwevirtual.com.br
+Received: from vps-6439567.tokenwevirtual.com.br
+	by vps-6439567.tokenwevirtual.com.br with LMTP
+	id 5oZPEp8+D2RXKgAAi1uw4w
+	(envelope-from <bounces+23773710-26d3-suporte=softhash.com.br@em4578.joinpioneer.app>)
+	for <softhashcom@vps-6439567.tokenwevirtual.com.br>; Mon, 13 Mar 2023 12:17:51 -0300
+Return-path: <bounces+23773710-26d3-suporte=softhash.com.br@em4578.joinpioneer.app>
+Envelope-to: suporte@softhash.com.br
+Delivery-date: Mon, 13 Mar 2023 12:17:51 -0300
+Received: from o2.ptr5693.joinpioneer.app ([149.72.67.117]:41080)
+	by vps-6439567.tokenwevirtual.com.br with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.96)
+	(envelope-from <bounces+23773710-26d3-suporte=softhash.com.br@em4578.joinpioneer.app>)
+	id 1pbjvl-0002oe-1U
+	for suporte@softhash.com.br;
+	Mon, 13 Mar 2023 12:17:51 -0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=joinpioneer.app;
+	h=content-type:mime-version:subject:from:references:to:cc:content-type:
+	from:subject:to;
+	s=s1; bh=HVoYlBUj1jHra4X+Vkt+Oo6cTOJ/Q/UyAzBf4OlmAzQ=;
+	b=NYrvG7UL80NKxqy14f+Z4BStW/tlJapy9nzhdA2J8ymXW62rBiX5c7BtD5UEkR00lfeT
+	mpYGtfdpRI6hnmOjq5dR3JwL5qIEqsSwVXqzFho2UEPTeCOIn4c+P/vFSM4KBVGIsleOBS
+	asfPpDN2m68eprClM6qWerZtrEAHTUAcNuQV3h3bV8E2a7ztimeuJ1BT2hZv5HQhtp8Df8
+	icAf2y/DJ2iqsWNrXmnbu2oDf7k6tJ9GtX8vDeYt3vkHI1SmxTPUbf6WLkTi/Oqi7u1PR6
+	oEPWw2J18q87FDAGzjNbb3QDvIHz0a+RlltPQTKM0CGHmR2+bxypmVdXpYVKMTIg==
+Received: by filterdrecv-68f8d557c9-5hs8d with SMTP id filterdrecv-68f8d557c9-5hs8d-1-640F3D42-44
+        2023-03-13 15:12:02.736505432 +0000 UTC m=+1698032.590745845
+Received: from smtpgw.close.com (unknown)
+	by geopod-ismtpd-canary-0 (SG)
+	with ESMTP id xPhjrYIvRyCkxhrEM3W7sA
+	for <suporte@softhash.com.br>;
+	Mon, 13 Mar 2023 15:12:02.607 +0000 (UTC)
+Content-Type: multipart/mixed; boundary="===============8588329220920438999=="
+MIME-Version: 1.0
+Subject: SoftHash
+From: Rishi Narang <rishi@joinpioneer.app>
+Date: Mon, 13 Mar 2023 15:12:02 +0000 (UTC)
+Message-ID: <167872032108.7698.9641034857486790887@smtpgw.close.com>
+X-CLOSEIO-EMAIL-ID: acti_x3d49bc9pvQyNzvV1Q5mX9MWXsqvnJl8lPWHniiml20
+References: <167872032108.7698.13607294590034775392@smtpgw.close.com>
+X-SG-EID: 
+ =?us-ascii?Q?G6qnxdAQbKYHNzdDfDwSFlLU=2FCA5AHB6Gl4mebAQjcsc2z5liy1CH6ZKgAR36Z?=
+ =?us-ascii?Q?JNnJzixUYixBkgMKP=2FP5BMFaBxnx=2F5btE9D50tV?=
+ =?us-ascii?Q?yJ5p2+OgaXgsjgL5EVJCOwz6IKyazGioJDI45zi?=
+ =?us-ascii?Q?opBoYa4TUO64g2XZUmAxtbb05N4AumHkuVJZe5I?=
+ =?us-ascii?Q?gBisUy6iFi+OviHsl7SeMuAxgpWcJQIGgJNRKtQ?=
+ =?us-ascii?Q?SN+vAiPPe9ADkdRNjMX6cUZgpmUxPSwNnonf1P?=
+To: suporte@softhash.com.br
+X-Entity-ID: vwl6YJmuxH66eelQzURiug==
+X-Spam-Status: No, score=0.5
+X-Spam-Score: 5
+X-Spam-Bar: /
+X-Ham-Report: Spam detection software, running on the system "vps-6439567.tokenwevirtual.com.br",
+ has NOT identified this incoming email as spam.  The original
+ message has been attached to this so you can view it or label
+ similar future email.  If you have any questions, see
+ root\@localhost for details.
+ Content preview:  Hi there! Rishi here, one of the co-founders of [Pioneer](https://pioneer.app/?t=1).
+    We’re a network for early founders around the world. Thought you might
+   find it useful for [SoftHash](http://softhash.com.br [...] 
+ Content analysis details:   (0.5 points, 5.0 required)
+  pts rule name              description
+ ---- ---------------------- --------------------------------------------------
+  0.0 URIBL_BLOCKED          ADMINISTRATOR NOTICE: The query to URIBL was
+                             blocked.  See
+                             http://wiki.apache.org/spamassassin/DnsBlocklists#dnsbl-block
+                              for more information.
+                             [URIs: closeml.com]
+ -0.0 SPF_PASS               SPF: sender matches SPF record
+  0.7 HTML_IMAGE_ONLY_20     BODY: HTML: images with 1600-2000 bytes of
+                             words
+  0.0 HTML_MESSAGE           BODY: HTML included in message
+  0.1 DKIM_SIGNED            Message has a DKIM or DK signature, not necessarily
+                             valid
+ -0.1 DKIM_VALID_EF          Message has a valid DKIM or DK signature from
+                             envelope-from domain
+ -0.1 DKIM_VALID             Message has at least one valid DKIM or DK signature
+ -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from
+                             author's domain
+  0.0 LOTS_OF_MONEY          Huge... sums of money
+X-Spam-Flag: NO
+
+--===============8588329220920438999==
+Content-Type: multipart/alternative; boundary="===============7165419616299135810=="
+MIME-Version: 1.0
+
+--===============7165419616299135810==
+Content-Type: text/plain; charset=utf-8
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+
+Hi there!
+
+Rishi here, one of the co-founders of [Pioneer](https://pioneer.app/?t=3D1)=
+.
+We=E2=80=99re a network for early founders around the world. Thought you mi=
+ght find it
+useful for [SoftHash](http://softhash.com.br)! =20
+ =20
+We=E2=80=99ve funded 130+ companies from 50+ countries who=E2=80=99ve colle=
+ctively gone on to
+raise over $100M from Sequoia, a16z, General Catalyst, Y Combinator, Khosla
+Ventures, and many more. =20
+ =20
+Would love to have you join. Consider giving it a go & let me know if you h=
+ave
+any questions! =20
+ =20
+Best, =20
+Rishi
+
+ =20
+Not interested? Feel free to
+[unsubscribe](https://www.pioneer.app/close_unsubscribes?email=3Dsuporte@so=
+fthash.com.br&code=3D841b017c229e727eb8c5015ba2063548).
+--===============7165419616299135810==
+Content-Type: text/html; charset=utf-8
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">Hi there!</p><p dir=3D"ltr">Rishi here, one of the co-founde=
+rs of <a href=3D"https://pioneer.app/?t=3D1" rel=3D"noopener noreferrer noo=
+pener">Pioneer</a>. We=E2=80=99re a network for early founders around the w=
+orld. Thought you might find it useful for <span class=3D"template-tag-high=
+light"></span><a href=3D"http://softhash.com.br" rel=3D"noopener noreferrer=
+">SoftHash</a><span class=3D"template-tag-highlight"></span>!<br><br>We=E2=
+=80=99ve funded 130+ companies from 50+ countries who=E2=80=99ve collective=
+ly gone on to raise over $100M from Sequoia, a16z, General Catalyst, Y Comb=
+inator, Khosla Ventures, and many more.<br><br>Would love to have you join.=
+ Consider giving it a go &amp; let me know if you have any questions!<br><b=
+r>Best,<br>Rishi</p><p dir=3D"ltr" style=3D"line-height:16px; font-size:11p=
+x; color: #aaa; font-weight: normal;"><br>Not interested? Feel free to <a h=
+ref=3D"https://www.pioneer.app/close_unsubscribes?email=3Dsuporte@softhash.=
+com.br&code=3D841b017c229e727eb8c5015ba2063548" rel=3D"noopener noreferrer"=
+ style=3D"color: #aaa;">unsubscribe</a>.</p><img src=3D"https://ml.closeml.=
+com/t/x3d49bc9pvQyNzvV1Q5mX9MWXsqvnJl8lPWHniiml20/ThAY6Hv8oc.png" alt=3D"" =
+width=3D"1" height=3D"1" /><img src=3D"http://click.joinpioneer.app/wf/open=
+?upn=3DfALtSlDLiUJCjSqZrB4vD6TBKpobUwFsy9rQTxTTJTaPw9gpYGAWa6aPNAH-2BX2r-2F=
+NqcBhTOJ6FMD3OFIoI3Y4UWVO-2B8-2BOl3fB0wxPqdugaM9wTSwsO1l6Zb4JvrD943TEtwMt8W=
+C4hD68a28JtRWsYSUf3mNTidA1cOtNV9Iwk5g3j8G2Cm7Fvzsaetavse3klnORXw7s-2BBruzQn=
+-2BfSy7napEkmBQ5f5y62gxBm8GBw-3D" alt=3D"" width=3D"1" height=3D"1" border=
+=3D"0" style=3D"height:1px !important;width:1px !important;border-width:0 !=
+important;margin-top:0 !important;margin-bottom:0 !important;margin-right:0=
+ !important;margin-left:0 !important;padding-top:0 !important;padding-botto=
+m:0 !important;padding-right:0 !important;padding-left:0 !important;"/>
+--===============7165419616299135810==--
+
+--===============8588329220920438999==--
