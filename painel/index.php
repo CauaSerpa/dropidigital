@@ -304,20 +304,21 @@
                     <li><a class="link_name" href="#">Category</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('criar-produto'); ?> <?php activeSidebarLink('categorias'); ?> <?php showSidebarLinks('produtos'); ?> <?php showSidebarLinks('criar-produto'); ?> <?php showSidebarLinks('categorias'); ?>">
+            <li class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('criar-produto'); ?> <?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('avaliacoes'); ?> <?php showSidebarLinks('produtos'); ?> <?php showSidebarLinks('criar-produto'); ?> <?php showSidebarLinks('avaliacoes'); ?> <?php showSidebarLinks('categorias'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="sidebar_link">
-                                <i class='bx bx-collection' ></i>
+                                <i class='bx bx-package' ></i>
                             </a>
                             <span class="link_name">Produtos</span>
                         </p>
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
                 <ul class="sub-menu">
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto" class="<?php activeSidebarLink('criar-produto'); ?>" style="border-bottom: 1px solid #c4c4c4;">+ Criar Produto</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="<?php activeSidebarLink('produtos'); ?>">Listar Produtos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto" class="<?php activeSidebarLink('criar-produto'); ?>" style="border-bottom: 1px solid #c4c4c4;">+ Criar Produto</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="<?php activeSidebarLink('categorias'); ?>">Categorias</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>avaliacoes" class="<?php activeSidebarLink('avaliacoes'); ?>">Avaliações</a></li>
                 </ul>
             </li>
             <li>
@@ -388,12 +389,12 @@
             </li>
             <div class="sidebar_bottom">
                 <li>
-                    <a href="#">
+                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto">
                         <i class='bx bx-plus' ></i>
-                        <span class="link_name">New product</span>
+                        <span class="link_name">Criar produto</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">New product</a></li>
+                        <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto">Criar produto</a></li>
                     </ul>
                 </li>
                 <div class="line"></div>

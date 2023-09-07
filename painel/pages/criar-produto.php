@@ -1,9 +1,113 @@
-<head>
-    <!-- Link para o Dropzone CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.css">
-    <!-- Link para o TinyMCE CSS -->
-    <script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-</head>
+<!-- Codigo da Imagem dos produtos -->
+<style>
+    label.image-container {
+        background-color: #f9f9f9;
+        width: 100%;
+        padding: 3.12em 1.87em;
+        border: 2px dashed #c4c4c4;
+        border-radius: 0.5em;
+        cursor: pointer;
+    }
+    input[type="file"] {
+        display: none;
+    }
+    .dropzone {
+        min-height: 0px;
+        display: block;
+        position: relative;
+        color: #000;
+        background: none;
+        font-size: 1.1em;
+        text-align: center;
+        padding: 1em 0;
+        border: none;
+        border-radius: 0.3em;
+        margin: 0 auto;
+        cursor: pointer;
+    }
+    .sortable-container {
+        overflow: hidden;
+    }
+    #image-display {
+        position: relative;
+        width: 100%;
+        display: flex;
+        gap: 1.25em;
+        flex-wrap: wrap;
+    }
+    #image-display figure {
+        position: relative;
+        width: 118px;
+        height: 118px;
+        background: #f9f9f9;
+    }
+    #image-display img {
+        width: 118px;
+        height: 118px;
+        object-fit: cover;
+        border: 1px solid #c4c4c4;
+        border-radius: .5rem;
+    }
+    #image-display img:hover
+    {
+        cursor: -webkit-grab;
+        cursor: grab;
+    }
+    #image-display button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        border: 1px solid #c4c4c4;
+        border-radius: 0.3rem;
+        background: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: .3s;
+    }
+    #image-display button::before {
+        -webkit-text-stroke: 2px #f4f6f8;
+        align-items: center;
+        border-radius: 8px;
+        color: #666;
+        content: "\f00d";
+        display: flex;
+        font-family: Font Awesome\ 5 Free;
+        font-size: 22px;
+        font-weight: 700;
+        height: 32px;
+        justify-content: center;
+    }
+    #image-display figcaption {
+        font-size: 0.8em;
+        text-align: center;
+        color: #5a5861;
+    }
+    .sortable-image:first-of-type::before {
+        content: 'Capa';
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        color: #c4c4c4;
+        font-size: .875rem;
+        background: #f9f9f9;
+        padding: 0 0.5rem;
+        border: 1px solid #c4c4c4;
+        border-radius: 0.3rem;
+    }
+    .dropzone-active {
+        border: 0.2em dashed #025bee;
+    }
+    #error {
+        text-align: center;
+        color: #ff3030;
+    }
+</style>
+
+<!-- Codigo do site -->
 <style>
     #imagePreviews {
         display: flex;
@@ -30,6 +134,17 @@
         padding: 2px 5px;
         cursor: pointer;
     }
+
+    /* Image */
+    #imageInput
+    {
+        display: none;
+    }
+    /* .dropzone
+    {
+        height: 100px;
+        background: #c4c4c4;
+    } */
     
     /* SEO Preview */
     .seo-preview
@@ -38,7 +153,7 @@
     }
 </style>
 
-<form id="myForm position-relative">
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_product.php" method="post" enctype="multipart/form-data">
 
     <div class="page__header center">
         <div class="header__title">
@@ -56,10 +171,10 @@
         <div class="card-body row px-4 py-3">
             <div class="mb-3">
                 <div class="d-flex justify-content-between">
-                    <label for="exampleInputEmail1" class="form-label small">Nome do produto *</label>
-                    <small id="textCounter" class="form-text text-muted">0 / 120 caracteres</small>
+                    <label for="name" class="form-label small">Nome do produto *</label>
+                    <small id="nameCounter" class="form-text text-muted">0 de 120 caracteres</small>
                 </div>
-                <input type="email" class="form-control" id="exampleInputEmail1" maxlength="120" aria-describedby="emailHelp">
+                <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require>
             </div>
             <!-- <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
@@ -71,51 +186,51 @@
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Preços</div>
         <div class="card-body row px-4 py-3">
-            <div class="col-md-4 mb-2">
-                <label for="moneyInput1" class="form-label small">Preço de Custo</label>
+            <div class="col-md-6 mb-2">
+                <label for="moneyInput1" class="form-label small">Preço de Custo *</label>
                 <div class="input-group">
                     <span class="input-group-text">R$</span>
-                    <input type="text" class="form-control text-end" id="moneyInput1" placeholder="0,00">
+                    <input type="text" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00">
                 </div>
             </div>
-            <div class="col-md-4 mb-2">
-                <label for="moneyInput2" class="form-label small">Preço de Custo *</label>
+            <div class="col-md-6 mb-2">
+                <label for="moneyInput2" class="form-label small">Preço promocional</label>
                 <div class="input-group">
                     <span class="input-group-text">R$</span>
-                    <input type="text" class="form-control text-end" id="moneyInput2" placeholder="0,00">
-                </div>
-            </div>
-            <div class="col-md-4 mb-2">
-                <label for="moneyInput3" class="form-label small">Preço promocional</label>
-                <div class="input-group">
-                    <span class="input-group-text">R$</span>
-                    <input type="text" class="form-control text-end" id="moneyInput3" placeholder="0,00">
+                    <input type="text" step="0.01" class="form-control text-end" name="discount" id="moneyInput2" placeholder="0,00">
                 </div>
             </div>
         </div>
     </div>
 
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Preços</div>
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Imagens
+            <label for="upload-button" class="small" style="cursor: pointer;">Selecionar imagem</label>
+        </div>
         <div class="card-body px-5 py-3">
-            <!-- Input File para seleção de imagem -->
-            <input id="imageInput" type="file" accept="image/*" class="form-control">
-
-            <!-- Dropzone para arrastar e soltar imagens -->
-            <form action="#" class="dropzone" id="myDropzone"></form>
-
-            <!-- Espaço para visualização das imagens -->
-            <div id="imagePreviews"></div>
+            <label for="upload-button" class="image-container mt-3">
+                <input type="file" name="imagens[]" id="upload-button" multiple accept="image/*" />
+                <div for="upload-button" class="dropzone">
+                    <i class='bx bx-image fs-1'></i>
+                    <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
+                </div>
+                <div id="error"></div>
+            </label>
+            <div class="sortable-container mt-3">
+                <div id="image-display"></div>
+            </div>
         </div>
         <div class="card-footer fw-semibold px-4 py-3 bg-transparent">
             <div class="d-flex justify-content-between">
                 <label for="exampleInputEmail" class="form-label small">Vídeo do produto</label>
-                <small class="form-text text-muted">Aceitamos apenas vídeos do YouTube</small>
+                <p class="form-text text-muted fw-normal small">Aceitamos apenas vídeos do YouTube</p>
             </div>
             <div class="position-relative">
                 <i class='bx bxl-youtube input-icon' ></i>
-                <input type="email" class="form-control icon-padding" id="exampleInputEmail" placeholder="https://www.youtube.com/watch?v=000" aria-label="https://www.youtube.com/watch?v=000" aria-describedby="emailHelp">
+                <input type="text" class="form-control icon-padding" name="video" id="video-url" placeholder="https://www.youtube.com/watch?v=000" aria-label="https://www.youtube.com/watch?v=000">
             </div>
+            <div id="video-display" class="d-flex justify-content-center"></div>
         </div>
     </div>
 
@@ -123,7 +238,7 @@
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Descrição do produto</div>
         <div class="card-body px-5 py-3">
             <label for="editor" class="form-label small">Descrição do produto</label>
-            <textarea id="editor"></textarea>
+            <textarea name="description" id="editor"></textarea>
         </div>
     </div>
 
@@ -135,7 +250,7 @@
                 <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
             </label>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" id="skuResult" placeholder="LEV-JN-SL-36-GN" aria-label="LEV-JN-SL-36-GN" aria-describedby="button-addon2" style="max-width: 250px;">
+                <input type="text" class="form-control" name="sku" id="skuResult" placeholder="LEV-JN-SL-36-GN" aria-label="LEV-JN-SL-36-GN" aria-describedby="button-addon2" style="max-width: 250px;">
                 <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="button-addon2" onclick="generateSKU()">GERAR</button>
             </div>
         </div>
@@ -152,7 +267,7 @@
                 <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
             </label>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" id="skuResult" placeholder="Buscar categorias já cadastradas" aria-label="Buscar categorias já cadastradas" aria-describedby="button-addon2">
+                <input type="text" class="form-control" name="categories" id="skuResult" placeholder="Buscar categorias já cadastradas" aria-label="Buscar categorias já cadastradas" aria-describedby="button-addon2">
                 <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="button-addon2" onclick="generateSKU()">Ver Categorias</button>
             </div>
             <small class="d-flex mb-3 px-3 py-2" style="color: #4A90E2; background: #ECF3FC;">Nenhuma categoria adicionada</small>
@@ -167,9 +282,9 @@
         <div class="card-body row px-4 py-3">
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label for="moneyInput1" class="form-label small">Tipo do checkout *</label>
+                    <label for="checkout" class="form-label small">Tipo do checkout *</label>
                     <div class="input-group">
-                        <select class="form-select" aria-label="Default select example">
+                        <select class="form-select" name="checkout" id="checkout" aria-label="Default select example">
                             <option value="" selected disabled>Escolha o redirecionamento</option>
                             <option value="1">Link para WhatsApp</option>
                             <option value="2">Two</option>
@@ -178,9 +293,9 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <label for="moneyInput1" class="form-label small">Botão *</label>
+                    <label for="button" class="form-label small">Botão *</label>
                     <div class="input-group">
-                        <select class="form-select" aria-label="Default select example">
+                        <select class="form-select" name="button" id="button" aria-label="Default select example">
                             <option value="" selected disabled>Escolha o tipo do botão</option>
                             <option value="1">Saiba mais</option>
                             <option value="2">Chamar no WhatsApp</option>
@@ -192,7 +307,7 @@
             </div>
             <div class="mb-3">
                 <label for="button-url" class="form-label small">URL de redirecionamento do botão *</label>
-                <input type="email" class="form-control" id="button-url" placeholder="https://..." aria-label="https://..." aria-describedby="emailHelp">
+                <input type="text" class="form-control" name="redirect_url" id="button-url" placeholder="https://..." aria-label="https://..." aria-describedby="emailHelp">
             </div>
         </div>
     </div>
@@ -205,20 +320,20 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <label for="textInput1" class="form-label small">Nome do produto *</label>
-                            <small id="textCounter1" class="form-text text-muted">0 / 120 caracteres</small>
+                            <small id="textCounter1" class="form-text text-muted">0 de 70 caracteres</small>
                         </div>
-                        <input type="email" class="form-control" id="textInput1" maxlength="120" aria-describedby="emailHelp">
+                        <input type="text" class="form-control" name="seo_name" id="textInput1" maxlength="70" aria-describedby="emailHelp">
                     </div>
                     <div class="mb-3">
                         <label for="textInput2" class="form-label small">Link da página</label>
-                        <input type="email" class="form-control" id="textInput2" placeholder="link-da-pagina" aria-label="link-da-pagina" aria-describedby="emailHelp">
+                        <input type="text" class="form-control" name="seo_link" id="textInput2" placeholder="link-da-pagina" aria-label="link-da-pagina" aria-describedby="emailHelp">
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <label for="textInput3" class="form-label small">Descrição da página</label>
-                            <small id="textCounter3" class="form-text text-muted">0 / 160 caracteres</small>
+                            <small id="textCounter3" class="form-text text-muted">0 de 160 caracteres</small>
                         </div>
-                        <textarea class="form-control" id="textInput3" maxlength="160" rows="3"></textarea>
+                        <textarea class="form-control" name="seo_description" id="textInput3" maxlength="160" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -233,31 +348,45 @@
         </div>
     </div>
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed; width: 100%; left: 78px; bottom: 0; display: none; z-index: 99999;">
+    <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
         <div class="container-save-button container card-header fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="text-decoration-none text-reset">Cancelar</a>
-            <button href="#" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+            <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
         </div>
     </div>
 
 </form>
 
 <!-- Link para o Bootstrap JS (junto com jQuery) -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+
+<!-- Link para o TinyMCE CSS -->
+<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- jQuery and jQuery UI -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script>
     $(document).ready(function() {
-        $('#exampleInputEmail1').on('input', function() {
-            var currentText = $(this).val();
-            var currentLength = currentText.length;
-            var maxLength = parseInt($(this).attr('maxlength'));
-            $('#textCounter').text(currentLength + ' de ' + maxLength + ' caracteres');
-        });
+        function inputCounter(inputId, textId) {
+            $('#' + inputId).on('input', function() {
+                var currentText = $(this).val();
+                var currentLength = currentText.length;
+                var maxLength = parseInt($(this).attr('maxlength'));
+                $('#' + textId).text(currentLength + ' de ' + maxLength + ' caracteres');
+            });
+        }
+
+        inputCounter('name', 'nameCounter');
     });
 </script>
 
+<!-- Validacao de valores -->
 <script>
     function formatMoneyInput(input) {
         input.addEventListener("input", function () {
@@ -271,84 +400,168 @@
 
     const moneyInput2 = document.getElementById("moneyInput2");
     formatMoneyInput(moneyInput2);
+</script>
+<script>
+    function validarDesconto() {
+        var valor = parseFloat(document.getElementById("moneyInput1").value);
+        var desconto = parseFloat(document.getElementById("moneyInput2").value);
+        
+        if (isNaN(valor) || isNaN(desconto)) {
+            alert("Por favor, insira valores numéricos válidos. Desconto: "+desconto+"Valor: "+valor);
+            return false;
+        }
 
-    const moneyInput3 = document.getElementById("moneyInput3");
-    formatMoneyInput(moneyInput3);
+        if (desconto < 0) {
+            alert("O desconto não pode ser um valor negativo.");
+            return false;
+        }
+
+        if (desconto < valor) {
+            alert("O desconto não pode ser menor que o valor do produto.");
+            return false;
+        }
+
+        return true;
+    }
 </script>
 
-<!-- Link para o Dropzone JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script>
+<!-- Imagens -->
 <script>
-    // Inicializa o Dropzone
-    Dropzone.options.myDropzone = {
-        acceptedFiles: "image/*",
-        init: function() {
-            this.on("addedfile", function(file) {
-                // Cria um elemento de div para a nova pré-visualização
-                const div = document.createElement("div");
-                div.classList.add("image-preview");
+    let uploadButton = document.getElementById("upload-button");
+    let container = document.querySelector(".image-container");
+    let error = document.getElementById("error");
+    let imageDisplay = document.getElementById("image-display");
+    let loadedImages = [];
+    const maxImages = 5; // Define o número máximo de imagens
 
-                // Cria um elemento de imagem para a nova pré-visualização
-                const img = document.createElement("img");
-                img.src = URL.createObjectURL(file);
-                img.classList.add("img-fluid");
-                img.addEventListener("click", function() {
-                    // Ao clicar na imagem, remove-a
-                    div.parentNode.removeChild(div);
-                });
-
-                // Cria um botão de remoção
-                const removeBtn = document.createElement("button");
-                removeBtn.innerText = "Remove";
-                removeBtn.classList.add("remove-image");
-                removeBtn.addEventListener("click", function() {
-                    div.parentNode.removeChild(div);
-                });
-
-                // Adiciona a imagem e o botão à div de pré-visualização
-                div.appendChild(img);
-                div.appendChild(removeBtn);
-
-                // Adiciona a div à área de pré-visualização
-                document.getElementById("imagePreviews").appendChild(div);
-            });
+    const fileHandler = (file, name, type, index) => {
+        if (loadedImages.length >= maxImages) {
+            // Imagens atingiram o limite
+            error.innerText = `You can only upload up to ${maxImages} images.`;
+            return false;
         }
+
+        if (type.split("/")[0] !== "image") {
+            //File Type Error
+            error.innerText = "Please upload an image file";
+            return false;
+        }
+
+        if (loadedImages.includes(name)) {
+            // Image already loaded
+            error.innerText = "This image has already been loaded";
+            return false;
+        }
+
+        loadedImages.push(name);
+        error.innerText = "";
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+            //image and file name
+            let imageContainer = document.createElement("figure");
+            let img = document.createElement("img");
+            img.src = reader.result;
+            imageContainer.appendChild(img);
+            
+            // Add a delete button
+            let deleteButton = document.createElement("button");
+            deleteButton.addEventListener("click", () => {
+                loadedImages = loadedImages.filter(imgName => imgName !== name);
+                imageContainer.remove();
+            });
+            imageContainer.appendChild(deleteButton);
+
+            // Add class for sorting
+            imageContainer.className = "sortable-image";
+
+            imageDisplay.appendChild(imageContainer);
+        };
+
+        // Initialize sortable
+        $(".sortable-container").sortable({
+            items: ".sortable-image",
+            cursor: "grabbing"
+        });
     };
 
-    // Ao selecionar uma imagem usando o input file
-    document.getElementById("imageInput").addEventListener("change", function() {
-        const file = this.files[0];
-
-        // Cria um elemento de div para a nova pré-visualização
-        const div = document.createElement("div");
-        div.classList.add("image-preview");
-
-        // Cria um elemento de imagem para a nova pré-visualização
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.classList.add("img-fluid");
-        img.addEventListener("click", function() {
-            // Ao clicar na imagem, remove-a
-            div.parentNode.removeChild(div);
+    const handleFiles = (files) => {
+        // Dentro da função handleFiles
+        Array.from(files).forEach((file, index) => {
+            fileHandler(file, file.name, file.type, index);
         });
+    };
 
-        // Cria um botão de remoção
-        const removeBtn = document.createElement("button");
-        removeBtn.innerText = "Remove";
-        removeBtn.classList.add("remove-image");
-        removeBtn.addEventListener("click", function() {
-            div.parentNode.removeChild(div);
-        });
-
-        // Adiciona a imagem e o botão à div de pré-visualização
-        div.appendChild(img);
-        div.appendChild(removeBtn);
-
-        // Adiciona a div à área de pré-visualização
-        document.getElementById("imagePreviews").appendChild(div);
+    // Upload Button
+    uploadButton.addEventListener("change", () => {
+        handleFiles(uploadButton.files);
     });
+
+    // Container Drag Events
+    container.addEventListener("dragenter", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.add("dropzone-active");
+    }, false);
+
+    container.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.remove("dropzone-active");
+    }, false);
+
+    container.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.add("dropzone-active");
+    }, false);
+
+    container.addEventListener("drop", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.remove("dropzone-active");
+        let draggedData = e.dataTransfer;
+        let files = draggedData.files;
+        handleFiles(files);
+    }, false);
+
+    window.onload = () => {
+        error.innerText = "";
+    };
 </script>
 
+<!-- Video Preview -->
+<script>
+    const videoForm = document.getElementById("video-url");
+    const videoDisplay = document.getElementById("video-display");
+
+    videoForm.addEventListener("input", function(event) {
+        event.preventDefault();
+
+        const videoUrl = document.getElementById("video-url").value.trim(); // Remove espaços em branco no início e fim
+        if (videoUrl === "") {
+            videoDisplay.innerHTML = ""; // Não mostrar nada se o input estiver vazio
+            return;
+        }
+
+        const videoId = getYouTubeVideoId(videoUrl);
+
+        if (videoId) {
+            const embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="mt-3"></iframe>`;
+            videoDisplay.innerHTML = embedCode;
+        } else {
+            videoDisplay.innerHTML = "<p class='fw-normal small mt-3'>URL de vídeo inválida.</p>";
+        }
+    });
+
+    function getYouTubeVideoId(url) {
+        const regex = /(?:\?v=|\/embed\/|\.be\/)([a-zA-Z0-9_-]+)/;
+        const matches = url.match(regex);
+        return matches ? matches[1] : null;
+    }
+</script>
+
+<!-- Editor de texto -->
 <script>
     tinymce.init({
         selector: '#editor',
@@ -360,6 +573,7 @@
     });
 </script>
 
+<!-- SKU -->
 <script>
     document.getElementById('skuForm').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -379,26 +593,14 @@
     });
 </script>
 
+<!-- Tooltip -->
 <script>
     $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
 
-<script>
-    $(document).ready(function(){
-        var inputText = $('#textInput'); // Referência ao input text
-        var textPreview = $('#textPreview'); // Referência ao elemento de preview
-
-        inputText.on('input', function () {
-            var newText = inputText.val(); // Obtém o valor do input text
-            if (newText === '') {
-                newText = 'Título da página'; // Texto padrão quando o input estiver vazio
-            }
-            textPreview.text(newText); // Atualiza o texto do preview
-        });
-    });
-</script>
+<!-- SEO -->
 <script>
     $(document).ready(function(){
         var inputText1 = $('#textInput1');
@@ -434,6 +636,7 @@
     });
 </script>
 
+<!-- Text Counter -->
 <script>
     $(document).ready(function() {
         $('#textInput1').on('input', function() {
@@ -445,6 +648,7 @@
     });
 </script>
 
+<!-- Text Counter -->
 <script>
     $(document).ready(function() {
         $('#textInput3').on('input', function() {
@@ -456,46 +660,45 @@
     });
 </script>
 
+<!-- Save Button -->
 <script>
-$(document).ready(function(){
-    var originalFormValues = {};
-    var formChanged = false;
+    $(document).ready(function(){
+        var originalFormValues = {};
+        var formChanged = false;
 
-    // Salva os valores originais dos campos do formulário
-    $('input, textarea').each(function () {
-        originalFormValues[$(this).attr('id')] = $(this).val();
+        // Salva os valores originais dos campos do formulário
+        $('input, textarea').each(function () {
+            originalFormValues[$(this).attr('id')] = $(this).val();
+        });
+
+        $('input, textarea').on('input', function () {
+            formChanged = true;
+            $('#saveButton').show();
+            $('.main.container').addClass('save-button-show');
+        });
+
+        $('#saveButton button').click(function () {
+            if (formChanged) {
+                formChanged = false;
+                $('#saveButton').hide();
+                $('.main.container').removeClass('save-button-show');
+            }
+        });
+
+        // Verifica quando os campos do formulário voltam ao valor original
+        $('input, textarea').on('input', function () {
+            if ($(this).val() === originalFormValues[$(this).attr('id')]) {
+                $(this).removeClass('changed');
+            } else {
+                $(this).addClass('changed');
+            }
+
+            // Verifica se há algum campo com alterações
+            var hasChanges = $('input.changed, textarea.changed').length > 0;
+            if (!hasChanges) {
+                $('#saveButton').hide();
+                $('.main.container').removeClass('save-button-show');
+            }
+        });
     });
-
-    $('input, textarea').on('input', function () {
-        formChanged = true;
-        $('#saveButton').show();
-        $('.main.container').addClass('save-button-show');
-    });
-
-    $('#saveButton button').click(function () {
-        if (formChanged) {
-            // Aqui você pode adicionar a lógica para salvar os dados do formulário
-            alert('Dados salvos!');
-            formChanged = false;
-            $('#saveButton').hide();
-            $('.main.container').removeClass('save-button-show');
-        }
-    });
-
-    // Verifica quando os campos do formulário voltam ao valor original
-    $('input, textarea').on('input', function () {
-        if ($(this).val() === originalFormValues[$(this).attr('id')]) {
-            $(this).removeClass('changed');
-        } else {
-            $(this).addClass('changed');
-        }
-
-        // Verifica se há algum campo com alterações
-        var hasChanges = $('input.changed, textarea.changed').length > 0;
-        if (!hasChanges) {
-            $('#saveButton').hide();
-            $('.main.container').removeClass('save-button-show');
-        }
-    });
-});
 </script>

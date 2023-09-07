@@ -97,22 +97,122 @@
         </div>
     </div>
 </div>
-<div class="card__container row">
-    <div class="card__box col-sm-12">
+
+<div class="card__container grid one tabPanel" style="display: grid;">
+    <div class="card__box grid">
         <div class="card table">
+    <?php
+        // Nome da tabela para a busca
+        $tabela = 'tb_products';
+
+        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $id);
+        $stmt->execute();
+
+        $countProduct = $stmt->rowCount();
+
+        if ($stmt->rowCount() > 0) {
+    ?>
             <table>
                 <thead>
                     <tr>
-                        <th>Nome</th>
-                        <th>E-mail Público</th>
-                        <th>Link</th>
-                        <th>Descrição</th>
+                        <th>
+                            <input type="checkbox" class="form-check-input" id="checkAll">
+                        </th>
+                        <th class="small">Nome</th>
+                        <th class="small">Valor</th>
+                        <th class="small">Categoria</th>
+                        <th class="small">SKU</th>
+                        <th class="small">Data de Criação</th>
+                        <th class="small">Eventos</th>
                     </tr>
                 </thead>
-                <tbody>
+                <?php
+                // Nome da tabela para a busca
+                $tabela = 'tb_products';
+
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+                // Preparar e executar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':shop_id', $id);
+                $stmt->execute();
+
+                // Recuperar os resultados
+                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Loop através dos resultados e exibir todas as colunas
+                foreach ($resultados as $usuario) {
+                    //Formatacao preco
+                    // $price = str_replace(',', '.', str_replace('.', '', $usuario['price']));
+                    $preco = $usuario['price'];
+
+                    // Transforma o número no formato "R$ 149,90"
+                    $price = "R$ " . number_format($preco, 2, ",", ".");
+
+                    //Formatacao para data
+                    $date_create = date("d/m/Y", strtotime($usuario['date_create']));
+
+                    echo '
+                        <tbody>
+                            <tr>
+                                <td scope="row">
+                                    <input class="form-check-input itemCheckbox" type="checkbox" name="selected_ids[]" value="' . $usuario['id'] . '" id="defaultCheck2">
+                                </td>
+                                <td>
+                    ';
+
+                    // Consulta SQL para selecionar todas as colunas com base no ID
+                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':usuario_id', $usuario['id']);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Loop através dos resultados e exibir todas as colunas
+                    foreach ($imagens as $imagem) {
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
+                    }
                     
-                </tbody>
+                    echo '
+                                    ' . $usuario['name'] . '
+                                </td>
+                                <td>' . $price . '</td>
+                                <td>' . $usuario['categories'] . '</td>
+                                <td>' . $usuario['sku'] . '</td>
+                                <td>' . $date_create . '</td>
+                                <td>
+                                    <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-produto?id=' . $usuario['id'] . '" class="btn btn-primary">
+                                        <i class="bx bx-show-alt" ></i>
+                                    </a>
+                                    <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-produto?id=' . $usuario['id'] . '" class="btn btn-danger">
+                                        <i class="bx bxs-trash" ></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    ';
+                }
+            ?>
             </table>
         </div>
+        <?php
+            } else {
+                echo '
+                        <div class="p-2 text-center">
+                            <i class="bx bx-package" style="font-size: 3.5rem;"></i>
+                            <p class="fw-semibold mb-4">Você não possui nenhum produto ativo!</p>
+                            <a href="' . INCLUDE_PATH_DASHBOARD . 'criar-produto" class="btn btn-success btn-create-product text-decoration-none">+ Criar Produto</a>
+                        </div>
+                    ';
+            }
+        ?>
     </div>
 </div>
