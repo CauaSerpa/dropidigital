@@ -72,7 +72,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Habilide</title>
+    <title>Painel | Dropidigital</title>
 
     <!--Favicon-->
     <link rel="shortcut icon" href="<?php echo INCLUDE_PATH; ?>assets/images/favicon.png" type="image/x-icon">
@@ -83,7 +83,7 @@
     <!-- Bootstrap -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <!--Font Awesome-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Intro JS -->
     <link href="https://cdn.jsdelivr.net/npm/intro.js@7.0.1/minified/introjs.min.css" rel="stylesheet">
 </head>
@@ -301,7 +301,7 @@
                     <span class="link_name">Dashboard</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Category</a></li>
+                    <li><a class="link_name" href="#">Dashboard</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('criar-produto'); ?> <?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('avaliacoes'); ?> <?php showSidebarLinks('produtos'); ?> <?php showSidebarLinks('criar-produto'); ?> <?php showSidebarLinks('avaliacoes'); ?> <?php showSidebarLinks('categorias'); ?>">
@@ -315,76 +315,148 @@
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
                 <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos">Produtos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="<?php activeSidebarLink('produtos'); ?>">Listar Produtos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto" class="<?php activeSidebarLink('criar-produto'); ?>" style="border-bottom: 1px solid #c4c4c4;">+ Criar Produto</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="<?php activeSidebarLink('categorias'); ?>">Categorias</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>avaliacoes" class="<?php activeSidebarLink('avaliacoes'); ?>">Avaliações</a></li>
                 </ul>
             </li>
-            <li>
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php activeSidebarLink('video-youtube'); ?> <?php activeSidebarLink('tarja'); ?> <?php activeSidebarLink('paginas'); ?>
+                    <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?> <?php showSidebarLinks('video-youtube'); ?> <?php showSidebarLinks('tarja'); ?> <?php showSidebarLinks('paginas'); ?>">
                 <div class="iocn-link">
-                    <p>
-                        <i class='bx bx-book-alt' ></i>
-                        <span class="link_name">Posts</span>
-                    </p>
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="sidebar_link">
+                                <i class='bx bx-layout'></i>
+                            </a>
+                            <span class="link_name">Personalizar</span>
+                        </p>
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
                 <ul class="sub-menu">
-                    <li><a class="link_name" href="#">Posts</a></li>
-                    <li><a href="#">Web Design</a></li>
-                    <li><a href="#">Login Form</a></li>
-                    <li><a href="#">Card Design</a></li>
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners">Personalizar</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="<?php activeSidebarLink('banners'); ?>">Banners</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>logo" class="<?php activeSidebarLink('logo'); ?>">Logo</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>feed-instagram" class="<?php activeSidebarLink('feed-instagram'); ?>">Feed Instagram</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>botao-whatsapp" class="<?php activeSidebarLink('botao-whatsapp'); ?>">Botão WhatsApp</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>video-youtube" class="<?php activeSidebarLink('video-youtube'); ?>">Vídeo do Youtube</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>tarja" class="<?php activeSidebarLink('tarja'); ?>">Tarja Superior / Central</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>incluir-codigo-html" class="<?php activeSidebarLink('incluir-codigo-html'); ?>">Incluir código HTML</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?>">Incluir pág. conteúdo</a></li>
                 </ul>
             </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-pie-chart-alt-2' ></i>
-                    <span class="link_name">Analytics</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Analytics</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-line-chart' ></i>
-                    <span class="link_name">Chart</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Chart</a></li>
-                </ul>
-            </li>
-            <li>
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
                 <div class="iocn-link">
-                    <p>
-                        <i class='bx bx-plug' ></i>
-                        <span class="link_name">Plugins</span>
-                    </p>
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="sidebar_link">
+                                <i class='bx bx-dollar-circle' ></i>
+                            </a>
+                            <span class="link_name">Financeiro</span>
+                        </p>
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
                 <ul class="sub-menu">
-                    <li><a class="link_name" href="#">Plugins</a></li>
-                    <li><a href="#">UI Face</a></li>
-                    <li><a href="#">Pigments</a></li>
-                    <li><a href="#">Box Icons</a></li>
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos">Financeiro</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="<?php activeSidebarLink('planos'); ?>">Planos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dados-para-pagamento" class="<?php activeSidebarLink('dados-para-pagamento'); ?>">Dados para pagamento</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>historico-de-faturas" class="<?php activeSidebarLink('historico-de-faturas'); ?>">Histórico de Faturas</a></li>
                 </ul>
             </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-compass' ></i>
-                    <span class="link_name">Explore</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Explore</a></li>
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="sidebar_link">
+                                <i class='bx bx-message-alt-detail' ></i>
+                            </a>
+                            <span class="link_name">Depoimentos</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos">Depoimentos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="<?php activeSidebarLink('depoimentos'); ?>">Criar Depoimento</a></li>
                 </ul>
             </li>
-            <li>
-                <a href="#">
-                    <i class='bx bx-history'></i>
-                    <span class="link_name">History</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">History</a></li>
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configurar-dominio" class="sidebar_link">
+                                <i class='bx bx-globe' ></i>
+                            </a>
+                            <span class="link_name">Domínio</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configurar-dominio">Domínio</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configurar-dominio" class="<?php activeSidebarLink('configurar-dominio'); ?>">Configurar</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>email-profissional" class="<?php activeSidebarLink('email-profissional'); ?>">Conf. E-mail profissional</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>telefone" class="sidebar_link">
+                                <i class='bx bx-conversation' ></i>
+                            </a>
+                            <span class="link_name">Atendimento</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>telefone">Atendimento</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>telefone" class="<?php activeSidebarLink('telefone'); ?>">Telefone</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>email" class="<?php activeSidebarLink('email'); ?>">E-mail</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>endereco" class="<?php activeSidebarLink('endereco'); ?>">Endereço</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('redes-sociais'); ?> <?php showSidebarLinks('redes-sociais'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="sidebar_link">
+                                <i class='bx bx-user-circle' ></i>
+                            </a>
+                            <span class="link_name">Redes Sociais</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">Redes Sociais</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">Instagram</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">Facebook</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">Tiktok</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">YouTube</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="sidebar_link">
+                                <i class='bx bx-desktop' ></i>
+                            </a>
+                            <span class="link_name">Blog</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo">Blog</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">Criar Artigo</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lista-de-artigos" class="<?php activeSidebarLink('lista-de-artigos'); ?>">Lista de Artigos</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('newsletter'); ?> <?php showSidebarLinks('newsletter'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter" class="sidebar_link">
+                                <i class='bx bx-envelope-open' ></i>
+                            </a>
+                            <span class="link_name">Newsletter</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter">Newsletter</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter" class="<?php activeSidebarLink('newsletter'); ?>">E-mails Cadastrados</a></li>
                 </ul>
             </li>
             <div class="sidebar_bottom">
@@ -399,12 +471,12 @@
                 </li>
                 <div class="line"></div>
                 <li>
-                    <a href="#">
+                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">
                         <i class='bx bx-cog' ></i>
-                        <span class="link_name">Setting</span>
+                        <span class="link_name">Configurações</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Setting</a></li>
+                        <li><a class="link_name ms-0" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">Configurações</a></li>
                     </ul>
                 </li>
                 <li>
@@ -454,6 +526,41 @@
                 </div>
             </div>
         </div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Ferramentas para E-mail Marketing</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 px-4 py-3">
+            <a href="#" target="_black" class="col-sm-4">
+                <div class="card">
+                    <img src="https://cdn.awsli.com.br/parceiros/bling.png" alt="Bling">
+                </div>
+            </a>
+            <a href="#" target="_black" class="col-sm-4">
+                <div class="card">
+                    <img src="https://cdn.awsli.com.br/production/static-v2/painel/img/comparadores-de-preco/googlemerchant.png?v=fc240ec" alt="Google Merchant">
+                </div>
+            </a>
+            <a href="https://mailchimp.com/pt-br/landers/email-marketing-platform/?ds_c=DEPT_AOC_Google_Search_BR_POR_Brand_Acquire_Exact_MKAG_T4&gclid=Cj0KCQjw06-oBhC6ARIsAGuzdw29513Q_IL4QCxW-5gIOEAIVMGx-gQ5IMyk08sRf00g1F_VuOUFfRQaAiV5EALw_wcB&gclsrc=aw.ds" target="_black" class="col-sm-4">
+                <div class="card">
+                    <img src="https://www.cdnlogo.com/logos/m/86/mailchimp.svg" alt="Mailchimp" style="height: 125.05px;">
+                </div>
+            </a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
         <?php
             if(file_exists('pages/'.$url.'.php')){

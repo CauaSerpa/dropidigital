@@ -3084,8 +3084,8 @@ h6, .h6 {
     z-index: 9;
     padding: 2px 0;
     position: relative; }
-  a img {
-    height: 60px; }
+  /* a img {
+    height: 60px; } */
   .main-header.menu-absolute .header-upper {
     position: absolute; }
   .main-header.fixed-header .header-upper {

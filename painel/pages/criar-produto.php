@@ -190,14 +190,14 @@
                 <label for="moneyInput1" class="form-label small">Preço de Custo *</label>
                 <div class="input-group">
                     <span class="input-group-text">R$</span>
-                    <input type="text" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00">
+                    <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00">
                 </div>
             </div>
             <div class="col-md-6 mb-2">
                 <label for="moneyInput2" class="form-label small">Preço promocional</label>
                 <div class="input-group">
                     <span class="input-group-text">R$</span>
-                    <input type="text" step="0.01" class="form-control text-end" name="discount" id="moneyInput2" placeholder="0,00">
+                    <input type="number" step="0.01" class="form-control text-end" name="discount" id="moneyInput2" placeholder="0,00">
                 </div>
             </div>
         </div>
@@ -387,7 +387,7 @@
 </script>
 
 <!-- Validacao de valores -->
-<script>
+<!-- <script>
     function formatMoneyInput(input) {
         input.addEventListener("input", function () {
             const value = this.value.replace(/\D/g, ""); // Remove não números
@@ -400,30 +400,7 @@
 
     const moneyInput2 = document.getElementById("moneyInput2");
     formatMoneyInput(moneyInput2);
-</script>
-<script>
-    function validarDesconto() {
-        var valor = parseFloat(document.getElementById("moneyInput1").value);
-        var desconto = parseFloat(document.getElementById("moneyInput2").value);
-        
-        if (isNaN(valor) || isNaN(desconto)) {
-            alert("Por favor, insira valores numéricos válidos. Desconto: "+desconto+"Valor: "+valor);
-            return false;
-        }
-
-        if (desconto < 0) {
-            alert("O desconto não pode ser um valor negativo.");
-            return false;
-        }
-
-        if (desconto < valor) {
-            alert("O desconto não pode ser menor que o valor do produto.");
-            return false;
-        }
-
-        return true;
-    }
-</script>
+</script> -->
 
 <!-- Imagens -->
 <script>
@@ -700,5 +677,19 @@
                 $('.main.container').removeClass('save-button-show');
             }
         });
+    });
+</script>
+
+<!-- Valor de desconto menor que o valor normal -->
+<script>
+    // Adicione um manipulador de eventos para o evento blur
+    $("#moneyInput1").blur(function () {
+        // Dentro deste manipulador, você pode acessar o valor atual do campo de entrada
+        var valorInserido = $(this).val();
+        
+        $('#moneyInput1').addClass(valorInserido);
+        // Faça algo com o valor (por exemplo, exiba-o em um alerta)
+        alert("Você inseriu: " + valorInserido);
+
     });
 </script>

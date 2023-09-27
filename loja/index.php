@@ -98,6 +98,10 @@
     <link rel="stylesheet" href="<?php echo INCLUDE_PATH; ?>assets/css/style.css">
     <!--Box Icons-->
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Feed Instagram -->
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
 </head>
 <body>
     <header class="header fixed-top">
@@ -606,74 +610,55 @@
             </a>
         </div>
 
-        <div>
-            <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
-                <div class="d-flex align-items-center justify-content-center">
-                    <p class="d-flex align-items-center fs-4 mb-3 me-3">
-                        <i class='bx bxl-instagram fs-1 me-2' ></i>
-                        Siga nosso instagram
-                    </p>
-                    <h4>
-                        @dropidigital
-                    </h4>
-                </div>
-                <div style="width: 100px; height: 5px; background: #000;"></div>
+        <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
+            <div class="d-flex align-items-baseline justify-content-center">
+                <p class="d-flex align-items-baseline fs-4 mb-3 me-3">
+                    <i class='bx bxl-instagram fs-1 me-2' ></i>
+                    Siga nosso instagram
+                </p>
+                <h4 id="username"></h4>
             </div>
-
-            <div id="carouselInstagram" class="container carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <div class="row p-4">
-                            <div class="col-sm-3">
-                                <div class="card">
-                                    <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <div class="card">
-                                    <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <div class="card">
-                                    <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <div class="card">
-                                    <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row p-4">
-                            <div class="col-sm-3">
-                                <div class="card">
-                                    <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <div class="card">
-                                    <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                </div>
-                            </div>
-                            <!-- Adicione mais produtos aqui -->
-                        </div>
-                    </div>
-                </div>
-
-                <a class="carousel-control-prev" href="#carouselInstagram" role="button" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Anterior</span>
-                </a>
-                <a class="carousel-control-next" href="#carouselInstagram" role="button" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Próximo</span>
-                </a>
-            </div>
+            <div style="width: 100px; height: 5px; background: #000;"></div>
         </div>
-        
+
+        <!-- Feed Instagram -->
+        <style>
+            .item::before
+            {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: black;
+                opacity: 0;
+                transition: .6s;
+                pointer-events: none;
+            }
+            .bxl-instagram
+            {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%,-50%);
+                font-size: 2.5rem;
+                color: white;
+                opacity: 0;
+                transition: .3s;
+                pointer-events: none;
+            }
+            .item:hover .bxl-instagram
+            {
+                opacity: 1;
+            }
+            .item:hover::before
+            {
+                opacity: .5;
+            }
+        </style>
+
+        <!-- Div para mostrar as imagens do feed do Instagram -->
+        <div id="instafeed" class="owl-carousel owl-theme owl-loaded owl-drag carousel-inner mb-4"></div>
+    
         <div class="container">
             <div class="d-flex justify-content-between p-4">
                 <p class="d-flex align-items-center fs-4">
@@ -867,12 +852,15 @@
             wrap: true // Se o carrossel deve voltar ao primeiro produto após o último (opcional)
         });
     </script>
+
+    <!-- Tooltips -->
     <script>
         // Ative todos os tooltips na página
         $(document).ready(function(){
             $('[data-bs-toggle="tooltip"]').tooltip();
         });
     </script>
+
     <!-- Nav Categorias -->
     <script>
         $(document).ready(function () {
@@ -885,6 +873,57 @@
                 }
             );
         });
+    </script>
+
+    <!-- Feed Instagram -->
+    <script type="text/javascript" src="js/instafeed.min.js"></script>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+
+    <script type="text/javascript">
+        var feed = new Instafeed({
+            accessToken: 'SEU_TOKEN_DO_INSTAGRAM',
+            limit: 8,
+            template: '<div class="item"><i class="bx bxl-instagram"></i><a href="{{link}}" target="_blank"><img title="{{caption}}" src="{{image}}" /></a></div>',
+            after: function () {
+                $('.owl-carousel').owlCarousel({
+                    loop: true,
+                    nav: true,
+                    responsiveClass: true,
+                    responsive: {
+                        0: {
+                            items: 1
+                        },
+                        600: {
+                            items: 3
+                        },
+                        1000: {
+                            items: 5
+                        }
+                    }
+                });
+            }
+        });
+
+        feed.run();
+
+        // Função para obter o nome de usuário e exibi-lo
+        function getUsername() {
+            const accessToken = 'SEU_TOKEN_DO_INSTAGRAM';
+            const profileUrl = `https://graph.instagram.com/v12.0/me?fields=username&access_token=${accessToken}`;
+
+            fetch(profileUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const username = data.username;
+                    // Exiba o nome de usuário na div com o id "username"
+                    document.getElementById('username').innerHTML = "<a href='https://www.instagram.com/" + username + "/' target='_blank'>@" + username + "</a>";
+                })
+        }
+
+        // Chame a função para obter e exibir o nome de usuário
+        getUsername();
     </script>
 </body>
 </html>

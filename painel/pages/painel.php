@@ -98,6 +98,36 @@
     </div>
 </div>
 
+<div class="row g-3">
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+    <div class="col-sm-4">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+    </div>
+</div>
+
 <div class="card__container grid one tabPanel" style="display: grid;">
     <div class="card__box grid">
         <div class="card table">

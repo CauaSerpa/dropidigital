@@ -15,7 +15,7 @@
 <div class="page__header center">
     <div class="header__title">
         <h2 class="title">Produtos</h2>
-        <p class="products-counter"><?php echo $countProduct; ?> produtos</p>
+        <p class="products-counter"><?php echo $countProduct; echo ($countProduct == 0 || $countProduct == 1) ? ' produto' : ' produtos'; ?></p>
     </div>
     <div class="header__actions">
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="export text-black text-decoration-none">

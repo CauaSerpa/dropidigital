@@ -6,7 +6,7 @@
     </nav>
     <div class="error-404">
         <h2>Página não encontrada</h2>
-        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">Voltar</a>
+        <a href="javascript:history.back()">Voltar</a>
     </div>
     <div class="bottom__text signup">
         <p>Ainda possui uma loja na DropiDigital?</p>
