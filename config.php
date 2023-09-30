@@ -1,9 +1,20 @@
 <?php
-    $dbHost = 'Localhost';
-    $dbUsername = 'root';
-    $dbPassword = '';
-    $dbName = 'habilide';
-    $port = 3306;
+    // Caso prefira o .env apenas descomente o codigo e comente o "include('parameters.php');" acima
+	// Carrega as variáveis de ambiente do arquivo .env
+
+    // Caminho para o diretório pai
+    $parentDir = __DIR__;
+
+	require $parentDir . '/vendor/autoload.php';
+	$dotenv = Dotenv\Dotenv::createImmutable($parentDir);
+	$dotenv->load();
+
+	// Acessa as variáveis de ambiente
+	$dbHost = $_ENV['DB_HOST'];
+	$dbUsername = $_ENV['DB_USERNAME'];
+	$dbPassword = $_ENV['DB_PASSWORD'];
+	$dbName = $_ENV['DB_NAME'];
+	$port = $_ENV['DB_PORT'];
 
     $conn = new mysqli($dbHost,$dbUsername,$dbPassword,$dbName);
 
@@ -18,8 +29,8 @@
         //echo "Erro: Conexão com banco de dados não realizado com sucesso. Erro gerado " . $err->getMessage();
     }
 
-    define('INCLUDE_PATH','http://localhost/Habilide/landing-page/');
-    define('INCLUDE_PATH_DASHBOARD',INCLUDE_PATH.'dashboard/');
+    define('INCLUDE_PATH','http://localhost/dropidigital/app/');
+    define('INCLUDE_PATH_DASHBOARD',INCLUDE_PATH.'painel/');
     
     //Pega cargo
     function pegaCargo($cargo) {
@@ -37,20 +48,16 @@
         $url = explode('/',@$_GET['url'])[0];
         if ($url == $par)
         {
-            echo 'class="active"';
+            echo 'active';
         }
     }
 
-    //Funcao '.bx => bxs' Icon
-    function activeSidebarIcon($par) {
+    //Funcao '.showMenu' Sidebar
+    function showSidebarLinks($par) {
         $url = explode('/',@$_GET['url'])[0];
         if ($url == $par)
         {
-            echo 'bxs';
-        }
-        else
-        {
-            echo 'bx';
+            echo 'showMenu';
         }
     }
 

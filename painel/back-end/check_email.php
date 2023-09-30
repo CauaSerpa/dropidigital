@@ -1,7 +1,7 @@
 <?php
     session_start();
     ob_start();
-    include_once('../config.php');
+    include_once('../../config.php');
     if (isset($_POST['email'])) {
     // Verificar o email no banco de dados
     // Aqui você deve usar a lógica para verificar se o email já existe

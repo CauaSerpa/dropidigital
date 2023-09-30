@@ -1,7 +1,7 @@
 <?php
     session_start();
     ob_start();
-    include_once('../config.php');
+    include_once('../../config.php');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada

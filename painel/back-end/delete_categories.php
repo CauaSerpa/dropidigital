@@ -2,7 +2,7 @@
     session_start();
     ob_start();
 
-    include_once('../config.php');
+    include_once('../../config.php');
 
     if (isset($_POST['selected_ids']) && is_array($_POST['selected_ids'])) {
         foreach ($_POST['selected_ids'] as $selectedId) {

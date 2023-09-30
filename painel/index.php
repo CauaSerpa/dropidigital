@@ -4,7 +4,7 @@
 
     session_start();
     ob_start();
-    include('config.php');
+    include('../config.php');
 
     // Tabela que sera feita a consulta
     $tabela = "tb_users";
