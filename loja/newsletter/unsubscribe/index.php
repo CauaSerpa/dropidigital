@@ -1,6 +1,6 @@
 <?php
 // Conecte-se ao banco de dados aqui
-require('../../../painel/config.php');
+require('../../../config.php');
 
 // Saber qual e o subdominio para pegar o id do shop que o email esta sendo deletado
 $dominioCompleto = $_SERVER['HTTP_HOST'];
