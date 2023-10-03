@@ -1,3 +1,17 @@
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_shop';
+
+    $sql = "SELECT (token_instagram) FROM $tabela WHERE user_id = :user_id";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':user_id', $id);
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $shop = $stmt->fetch(PDO::FETCH_ASSOC);
+?>
 <!-- Codigo da Imagem dos produtos -->
 <style>
     label.image-container {
@@ -171,7 +185,7 @@
     </div>
 </div>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_category.php" method="post" enctype="multipart/form-data">
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/feed_instagram.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Feed Instagram</div>
         <div class="card-body row px-4 py-3">
@@ -180,7 +194,7 @@
                     <label for="token" class="form-label small">Token *</label>
                 </div>
                 <div class="input-group">
-                    <input type="text" class="form-control" name="token" id="token" aria-describedby="nameHelp" require>
+                    <input type="text" class="form-control" name="token" id="token" aria-describedby="tokenHelp" value="<?php echo $shop['token_instagram']; ?>">
                     <button type="button" class="btn btn-secondary px-4" id="botaoColar">Colar Token</button>
                 </div>
             </div>

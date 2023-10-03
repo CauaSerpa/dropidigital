@@ -383,7 +383,7 @@
                             Na nova estrutura o tamaho dos banners variam de acordo com a disposição escolhida no menu configurar tema e a resolução da tela, <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda" style="color: var(--green-color) !important;">clique aqui</a> para saber mais detalhes sobre as dimensões.
                         </p>
                         <div class="banner full-banner card bg-body-secondary text-center p-5 mb-3">
-                            <i class='bx bx-help-circle banner-size' data-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="Largura recomendada: 1920px<br>Altura recomendada: 300px"></i>
+                            <i class='bx bx-help-circle banner-size' data-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="Largura recomendada: 1920px<br>Altura recomendada: 535px"></i>
                             <p class="small fw-semibold">FULL BANNER</p>
                         </div>
                         <div class="banner row g-3 mb-3">
