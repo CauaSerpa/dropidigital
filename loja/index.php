@@ -178,7 +178,23 @@
     {
         text-decoration: none !important;
     }
-    
+
+    .show-categories
+    {
+        padding: var(--bs-navbar-toggler-padding-y) var(--bs-navbar-toggler-padding-x);
+        font-size: var(--bs-navbar-toggler-font-size);
+        line-height: 1;
+        color: var(--bs-navbar-color);
+        background-color: transparent;
+        border: var(--bs-border-width) solid var(--bs-navbar-toggler-border-color);
+        border-radius: var(--bs-navbar-toggler-border-radius);
+        transition: var(--bs-navbar-toggler-transition);
+    }
+    .categories.nav-show-categories
+    {
+        transform: translateY(0px) !important;
+    }
+
     .container.highlight-center .highlight
     {
         position: relative;
@@ -255,6 +271,9 @@
         <nav class="navbar bg-white navbar-expand-lg border-bottom border-body z-3" data-bs-theme="white">
             <div class="container container-fluid" style="padding-right: calc(1.5rem + 15px); padding-left: calc(1.5rem + 15px);">
                 <a class="navbar-brand" href="#"><?php echo ($logo !== "") ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 150px;">' : $loja; ?></a>
+                <button class="show-categories me-3 d-none" id="show-categories" type="button">
+                    <i class='bx bx-menu fs-3' id="toggle-icon"></i>
+                </button>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -292,13 +311,6 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav categorias me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tooltip para produtos">Features</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Pricing</a>
-                        </li>
-                        
 
 
 
@@ -319,8 +331,15 @@
                                 margin-right: 20px;
                             }
 
+                            .nav-link i.bx#toggle-categories
+                            {
+                                line-height: inherit;
+                                display: flex;
+                            }
+
+                            .todas-categorias,
                             .subcategorias {
-                                width: 400px;
+                                width: max-content;
                                 display: none;
                                 position: absolute;
                                 top: 100%;
@@ -331,15 +350,42 @@
                                 z-index: 1;
                             }
 
+                            .categorias li:hover .todas-categorias,
                             .categorias li:hover .subcategorias {
                                 display: flex;
                             }
 
                             /* Estilo do tooltip */
+                            .todas-categorias li,
                             .subcategorias li {
                                 margin: 5px;
                             }
+
+                            /* Para tooltip todas as categorias */
+                            .todas-categorias
+                            {
+                                width: 300px;
+                            }
+                            .todas-categorias li a
+                            {
+                                font-weight: 500;
+                            }
                         </style>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class='bx bx-menu fs-3' id="toggle-categories"></i>
+                            </a>
+                            <ul class="todas-categorias">
+                                <div style="display: flex; flex-direction: column; margin-right: 5px;">
+                                    <li><a href="#">Categoria 1</a></li>
+                                    <li><a href="#">Categoria 2</a></li>
+                                    <li><a href="#">Categoria 3</a></li>
+                                    <li><a href="#">Categoria 4</a></li>
+                                    <li><a href="#">Categoria 5</a></li>
+                                    <li><a href="#">Categoria 6</a></li>
+                                </div>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Categoria</a>
                             <ul class="subcategorias">
@@ -1001,32 +1047,98 @@
         <div id="instafeed" class="owl-carousel owl-theme owl-loaded owl-drag carousel-inner mb-4"></div>
     
         <div class="container">
-            <div class="d-flex justify-content-between p-4">
+            <div class="d-flex justify-content-between p-4" id="newsletterContainer">
                 <p class="d-flex align-items-center fs-4">
                     <i class='bx bx-mail-send fs-2 me-2'></i>
                     Receba Ofertas e Novidades de nossa loja
                 </p>
-                <form class="d-flex" role="text">
-                    <input class="form-control py-1 px-3 me-2" type="text" placeholder="E-mail" aria-label="E-mail">
-                    <button class="btn btn-dark" type="submit" style="width: 270px;">
+                <form class="d-flex" role="text" id="newsletterForm">
+                    <input class="form-control py-1 px-3 me-2" type="text" name="email" id="email" placeholder="E-mail" aria-label="E-mail">
+                    <button class="btn btn-dark" id="btn-newsletter" type="submit" style="width: 270px;">
                         Quero receber!
                     </button>
                 </form>
             </div>
+            <p class="d-none fs-4 justify-content-center p-4" id="success">
+                <i class='bx bx-check fs-2 me-2' style="color: rgb(1, 200, 155);"></i>
+                Obrigado por se inscrever! Aguarde novidades da nossa loja em breve.
+            </p>
         </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+                // Quando o formulário for enviado
+                $('#newsletterForm').submit(function(e) {
+                    e.preventDefault();
+
+                    // Coleta o email inserido pelo usuário
+                    var email = $('#email').val();
+                    var id = <?php echo $shop_id; ?>
+
+                    // Envia uma solicitação AJAX para o servidor
+                    $.ajax({
+                        url: './newsletter/subscribe/index.php', // Nome do arquivo PHP para processar a inscrição
+                        type: 'POST',
+                        data: { id: id, email: email },
+                        success: function(response) {
+                            // Trata a resposta do servidor
+                            if (response === 'success') {
+                                $('#newsletterContainer').removeClass('d-flex');
+                                $('#newsletterContainer').addClass('d-none');
+                                
+                                $('#success').removeClass('d-none');
+                                $('#success').addClass('d-flex');
+                            } else {
+                                $('#btn-newsletter').text('Erro!');
+                                $('#btn-newsletter').removeClass('btn-dark');
+                                $('#btn-newsletter').addClass('btn-danger');
+
+                                setTimeout(resetarBotao, 3000); // 3000 milissegundos = 3 segundos
+                            }
+                        }
+                    });
+                });
+            });
+
+            function resetarBotao() {
+                $("#btn-newsletter").removeClass("btn-danger");
+
+                $('#btn-newsletter').addClass('btn-dark');
+                $('#btn-newsletter').text('Quero receber!');
+
+                // Define o valor do campo como uma string vazia
+                $("#email").val("");
+            }
+        </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <a href="#" class="to-top btn btn-dark p-2 rounded-1">
             <i class='bx bx-chevron-up fs-2' ></i>
         </a>
 
-        <a href="#" class="whatsapp-button btn btn-dark p-2 rounded-1">
+        <a href="https://api.whatsapp.com/send?phone=<?php echo $phone; ?>" target="_blank" class="whatsapp-button btn btn-dark p-2 rounded-1">
             <i class='bx bxl-whatsapp fs-2'></i>
         </a>
     </main>
 
     <!-- Footer -->
     <footer id="rodape" style="background-color: #fff; border-top: 1px solid #ddd; position: relative; z-index: 10; display: block !important; margin-bottom: 2rem;">
-    <div class="container">
+        <div class="container">
                 <h1 class="logo text-primary">
                     <a href="https://alpha-shoes-max-demo.lojaintegrada.com.br/" title="Alpha Shoes Max">
                         <?php echo ($logo !== "") ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 250px;">' : $loja; ?>
@@ -1325,6 +1437,26 @@
     <!-- Inclua o JavaScript do Bootstrap (certifique-se de que jQuery esteja incluído) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <!-- Mostrar menu categorias -->
+    <script>
+        $(document).ready(function() {
+            // Variável para controlar o estado do botão
+            let botaoAtivo = false;
+
+            // Função para alternar a classe do botão e a classe "minha-classe"
+            function alternarClasse() {
+                botaoAtivo = !botaoAtivo; // Inverte o estado do botão
+                $("#show-categories i").toggleClass("bx-menu bx-x"); // Alterna entre as classes
+                $(".categories").toggleClass("nav-show-categories"); // Alterna a classe "minha-classe"
+            }
+
+            // Adiciona um ouvinte de evento de clique ao botão
+            $("#show-categories").click(function() {
+                alternarClasse();
+            });
+        });
+    </script>
+
     <script>
         // Ative o carrossel
         var meuCarrossel = new bootstrap.Carousel(document.getElementById('myCarousel'), {
@@ -1415,12 +1547,19 @@
     <!-- Ocultar categorias -->
     <script>
         const categories = document.querySelector(".categories");
+        const showButton = document.querySelector("#show-categories");
 
         window.addEventListener("scroll", () => {
             if (window.pageYOffset > 100) {
                 categories.classList.add("scroll");
+
+                showButton.classList.remove("d-none");
+                showButton.classList.add("d-flex");
             } else {
                 categories.classList.remove("scroll");
+                
+                showButton.classList.remove("d-flex");
+                showButton.classList.add("d-none");
             }
         });
     </script>
