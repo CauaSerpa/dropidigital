@@ -13,6 +13,20 @@
         $subdominio = '';
     }
 
+    // Obtém o protocolo (HTTP ou HTTPS)
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+
+    // Obtém o domínio
+    $domain = $_SERVER['HTTP_HOST'];
+
+    // Obtém o caminho da URL atual
+    $path = $_SERVER['REQUEST_URI'];
+
+    // Combina todas as partes para obter a URL completa
+    $urlCompleta = $protocol . "://" . $domain . $path;
+
+    define('INCLUDE_PATH_LOJA',$urlCompleta);
+
     //Url Amigavel
     $url = isset($_GET['url']) ? $_GET['url'] : 'painel';
 
@@ -130,6 +144,28 @@
         echo "ID não encontrado.";
     }
 ?>
+<?php
+$contagemArquivo = 'contagem_visitas.txt';
+
+// Verifica se o arquivo de contagem existe
+if (file_exists($contagemArquivo)) {
+    // Lê o número atual de visitas do arquivo
+    $contagem = (int) file_get_contents($contagemArquivo);
+} else {
+    // Se o arquivo não existe, cria-o com a contagem inicial igual a 1
+    $contagem = 1;
+    file_put_contents($contagemArquivo, $contagem);
+}
+
+// Incrementa a contagem de visitas
+$contagem++;
+
+// Salva a nova contagem de visitas no arquivo
+file_put_contents($contagemArquivo, $contagem);
+
+// Exibe a contagem de visitas
+echo "Total de visitas: " . $contagem;
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -195,6 +231,21 @@
         transform: translateY(0px) !important;
     }
 
+    /* Carrossel */
+    .carousel-control-next:not(.banner-full),
+    .carousel-control-prev:not(.banner-full)
+    {
+        width: initial;
+    }
+    .carousel-control-prev-icon:not(.banner-full span)
+    {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+    }
+    .carousel-control-next-icon:not(.banner-full span)
+    {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+
     .container.highlight-center .highlight
     {
         position: relative;
@@ -214,6 +265,30 @@
     .container.highlight-center .highlight:last-child:before
     {
         display: none;
+    }
+
+    /* Product */
+    a.category-link,
+    a.product-link
+    {
+        text-decoration: none;
+    }
+    .product-image
+    {
+        position: relative;
+    }
+    .product-image .card-discount
+    {
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        width: 100px;
+        header: 5px;
+        font-weight: 600;
+        border-radius: .6rem;
+        text-align: center;
+        background: #000;
+        color: #fff;
     }
 
     .social-medias li a
@@ -284,23 +359,81 @@
                             <i class='bx bx-search-alt-2'></i>
                         </button>
                     </form>
+                    <style>
+                        /* Tooltip */
+                        .service,
+                        .discount {
+                            position: relative;
+                        }
+
+                        .service-tooltip,
+                        .discount-tooltip {
+                            width: 220px;
+                            display: none;
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            background-color: #fff;
+                            text-align: center;
+                            line-height: 1.5;
+                            padding: 10px;
+                            border-radius: .3rem;
+                            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+                            z-index: 1;
+                        }
+
+                        .service-tooltip {
+                            width: max-content;
+                            text-align: start;
+                        }
+
+                        .service:hover .service-tooltip,
+                        .discount:hover .discount-tooltip {
+                            display: block;
+                        }
+                    </style>
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item me-2">
+                        <li class="discount nav-item me-2">
                             <a class="nav-link d-flex align-items-center active" aria-current="page" href="#">
                                 <i class='bx bxs-discount fs-1 me-2' ></i>
                                 <small class="fw-semibold lh-sm">Retire seu cupom<br>de desconto</small>
                             </a>
+                            <div class="discount-tooltip">
+                                <span class="small text-black fw-semibold m-0">Ainda não comprou na loja?</span>
+                                <h5 class="fw-semibold mb-2 mt-2">QUERODESCONTO10</h5>
+                                <span class="small text-secondary fw-semibold m-0">Use o cupom acima para ganhar 10% off em sua primeira compra</span>
+                            </div>
                         </li>
-                        <li class="nav-item me-2">
+                        <li class="service nav-item me-2">
                             <a class="nav-link d-flex align-items-center active" aria-current="page" href="#">
                                 <i class='bx bxl-whatsapp fs-1 me-2' ></i>
                                 <small class="fw-semibold lh-sm">Central de<br>Suporte</small>
                             </a>
+                            <div class="service-tooltip">
+                                <ul class="p-2">
+                                    <span class="fw-semibold">Atendimento:</span>
+                                    <li class="mt-2 mb-2">
+                                        <i class='bx bxs-phone' ></i> Telefone: 
+                                        <a href="tel:<?php echo $phone; ?>">
+                                            <?php echo $phone; ?>
+                                        </a>
+                                    </li>
+                                    <li class="tel-whatsapp mb-2">
+                                        <i class="bx bxl-whatsapp"></i> Whatsapp: 
+                                        <a href="https://api.whatsapp.com/send?phone=<?php echo $phone; ?>" target="_blank">
+                                            <?php echo $phone; ?>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <i class="bx bxs-envelope"></i> E-mail: 
+                                        <a href="mailto:<?php echo $email; ?>">
+                                            <?php echo $email; ?>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                     </ul>
-                    <span class="navbar-text">
-                        Navbar text with an inline element
-                    </span>
                 </div>
             </div>
         </nav>
@@ -311,16 +444,6 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav categorias me-auto mb-2 mb-lg-0">
-
-
-
-
-
-
-
-
-
-
                         <style>
                             .categorias {
                                 list-style: none;
@@ -346,6 +469,7 @@
                                 left: 0;
                                 background-color: #fff;
                                 padding: 10px;
+                                border-radius: .3rem;
                                 box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
                                 z-index: 1;
                             }
@@ -372,40 +496,118 @@
                             }
                         </style>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class='bx bx-menu fs-3' id="toggle-categories"></i>
+                            <a class="nav-link d-flex" href="#">
+                                <i class='bx bx-menu fs-3 me-2' id="toggle-categories"></i>
+                                Todas as Categorias
                             </a>
                             <ul class="todas-categorias">
-                                <div style="display: flex; flex-direction: column; margin-right: 5px;">
-                                    <li><a href="#">Categoria 1</a></li>
-                                    <li><a href="#">Categoria 2</a></li>
-                                    <li><a href="#">Categoria 3</a></li>
-                                    <li><a href="#">Categoria 4</a></li>
-                                    <li><a href="#">Categoria 5</a></li>
-                                    <li><a href="#">Categoria 6</a></li>
-                                </div>
+                                <?php
+                                    // Nome da tabela para a busca
+                                    $tabela = 'tb_categories';
+
+                                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
+
+                                    // Preparar e executar a consulta
+                                    $stmt = $conn_pdo->prepare($sql);
+                                    $stmt->bindParam(':shop_id', $shop_id);
+                                    $stmt->bindValue(':status', 1);
+                                    $stmt->bindValue(':parent_category', 1);
+                                    $stmt->execute();
+
+                                    // Recuperar os resultados
+                                    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                    if ($stmt->rowCount() > 0) {
+                                        // Inicialize um contador
+                                        $contador = 0;
+
+                                        // Loop através dos resultados e exibir todas as colunas
+                                        foreach ($categories as $category) {
+                                            // Se o contador for um múltiplo de 6, adicione a div
+                                            if ($contador % 6 === 0) {
+                                                echo '<div style="display: flex; flex-direction: column; margin-right: 5px;">';
+                                            }
+
+                                            echo "<li>";
+                                            echo "<a href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>" . $category['name'] . "</a>";
+                                            echo "</li>";
+
+                                            // Se o contador for um múltiplo de 6, feche a div
+                                            if ($contador % 6 === 5) {
+                                                echo '</div>';
+                                            }
+
+                                            // Incrementar o contador
+                                            $contador++;
+                                        }
+
+                                        // Certifique-se de fechar a div se o total de itens não for um múltiplo de 6
+                                        if ($contador % 6 !== 0) {
+                                            echo '</div>';
+                                        }
+                                    }
+                                ?>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Categoria</a>
-                            <ul class="subcategorias">
-                                <div style="display: flex; flex-direction: column; margin-right: 5px;">
-                                    <li><a href="#">Subcategoria 1</a></li>
-                                    <li><a href="#">Subcategoria 2</a></li>
-                                    <li><a href="#">Subcategoria 3</a></li>
-                                    <li><a href="#">Subcategoria 4</a></li>
-                                    <li><a href="#">Subcategoria 5</a></li>
-                                    <li><a href="#">Subcategoria 6</a></li>
-                                </div>
-                                <div style="display: flex; flex-direction: column;">
-                                    <li><a href="#">Subcategoria 7</a></li>
-                                    <li><a href="#">Subcategoria 8</a></li>
-                                    <li><a href="#">Subcategoria 9</a></li>
-                                    <li><a href="#">Subcategoria 10</a></li>
-                                    <!-- Adicione mais subcategorias aqui -->
-                                </div>
-                            </ul>
-                        </li>
+                        <?php
+                            // Aqui você pode popular a tabela com dados do banco de dados
+                            // Vamos supor que cada linha tem um ID único
+                            
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_categories';
+
+                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis AND parent_category = :parent_category ORDER BY id DESC";
+
+                            // Preparar e executar a consulta
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $shop_id);
+                            $stmt->bindValue(':status', 1);
+                            $stmt->bindValue(':emphasis', 1);
+                            $stmt->bindValue(':parent_category', 1);
+                            $stmt->execute();
+
+                            // Recuperar os resultados
+                            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            // Loop através dos resultados e exibir todas as colunas
+                            $contador = 0; // Inicializa o contador
+                            foreach ($categories as $category) {
+                                // Consulta SQL para selecionar todas as colunas com base no ID
+                                $sql = "SELECT * FROM tb_categories WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category";
+        
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindParam(':shop_id', $shop_id);
+                                $stmt->bindValue(':status', 1);
+                                $stmt->bindParam(':parent_category', $category['id']);
+                                $stmt->execute();
+        
+                                // Recuperar os resultados
+                                $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+                                echo "<li class='nav-item d-flex'>";
+                                echo "<a class='nav-link d-flex align-items-center' href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>";
+                                echo "<img src='" . INCLUDE_PATH_DASHBOARD . "back-end/category/" . $shop_id . "/" . $category['icon'] . "' alt='Ícone " . $category['name'] . "' class='me-2' style='width: 32px; height: 32px;'>";
+                                echo $category['name'];
+                                echo "</a>";
+                                echo "<ul class='subcategorias'>";
+                                // Loop através dos resultados e exibir todas as colunas
+                                foreach ($subcategories as $subcategory) {
+                                    if ($contador % 6 == 0) {
+                                        echo "<div style='display: flex; flex-direction: column; margin-right: 5px;'>";
+                                    }
+                                    echo "<li>";
+                                    echo "<a href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>" . $subcategory['name'] . "</a>";
+                                    echo "</li>";
+                                    if (($contador + 1) % 6 == 0 || ($contador == count($subcategories) - 1)) {
+                                        echo "</div>"; // Fecha a <div> a cada 6 elementos ou no último elemento
+                                    }
+                                    $contador++;
+                                }
+                                echo "</ul>";
+                                echo "</li>";
+                            }
+                        ?>
                     </ul>
                 </div>
             </div>
@@ -413,30 +615,21 @@
     </header>
     <main>
         <div id="myCarousel" class="carousel slide mb-4" data-bs-ride="carousel" style="margin-top: <?php echo ($top_highlight_bar == 1) ? "186.39px" : "154.39px"; ?>;">
-
-
-
-
             <!-- Indicators (pontos de navegação) -->
             <ol class="carousel-indicators">
-
-
-
             <?php
                 // Nome da tabela para a busca
                 $tabela = 'tb_banner_info';
 
-                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND location = :location ORDER BY id DESC";
 
                 // Preparar e executar a consulta
                 $stmt = $conn_pdo->prepare($sql);
                 $stmt->bindParam(':shop_id', $id);
+                $stmt->bindValue(':location', 'full-banner');
                 $stmt->execute();
 
                 $countBanners = $stmt->rowCount();
-
-
-
 
                 // Inicializa uma variável para contar os IDs
                 $contador = 0;
@@ -447,16 +640,8 @@
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                         $currentId = $row['id'];
 
-
-
-
-
-
                         $active = ($contador == 0) ? 'active' : ''; // Adicione a classe active ao ID 1
                         echo "<li data-bs-target='#myCarousel' data-bs-slide-to='" . $contador . "' class='" . $active . "'></li>";
-
-
-
 
                         $contador++;
                     }
@@ -464,32 +649,17 @@
                     echo "Nenhum ID encontrado.";
                 }
             ?>
-
-
-
-
-
             </ol>
 
             <!-- Slides (itens do carrossel) -->
             <div class="carousel-inner">
-
-
-
-
-
-
-
-
-
-
-
                 <?php
-                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND location = :location ORDER BY id DESC";
 
                     // Preparar e executar a consulta
                     $stmt = $conn_pdo->prepare($sql);
                     $stmt->bindParam(':shop_id', $shop_id);
+                    $stmt->bindValue(':location', 'full-banner');
                     $stmt->execute();
 
                     // Recuperar os resultados
@@ -527,46 +697,14 @@
                         }
                     }
                 ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             </div>
 
             <!-- Controles (setas de navegação) -->
-            <a class="carousel-control-prev" href="#myCarousel" role="button" data-bs-slide="prev">
+            <a class="carousel-control-prev banner-full" href="#myCarousel" role="button" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Anterior</span>
             </a>
-            <a class="carousel-control-next" href="#myCarousel" role="button" data-bs-slide="next">
+            <a class="carousel-control-next banner-full" href="#myCarousel" role="button" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Próximo</span>
             </a>
@@ -617,25 +755,72 @@
             </div>
         </div>
 
-        <div class="container">
-            <div class="row p-4">
-                <div class="col-sm-4">
-                    <div class="card">
-                        <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="card">
-                        <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="card">
-                        <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php
+            // Função para buscar e dividir as imagens em dois conjuntos
+            function dividirImagens($conn_pdo, $shop_id, $location) {
+                // Nome da tabela para a busca
+                $tabela = 'tb_banner_info';
+
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND location = :location ORDER BY id ASC";
+
+                // Preparar e executar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindValue(':status', 1);
+                $stmt->bindParam(':location', $location);
+                $stmt->execute();
+
+                // Recuperar os resultados
+                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Dividir as imagens em dois conjuntos
+                $conjunto1 = array();
+                $conjunto2 = array();
+
+                // Variável de controle para alternar entre conjuntos
+                $alternarConjunto = true;
+
+                // Loop através dos resultados e dividir as imagens
+                foreach ($resultados as $banner) {
+                    // Consulta SQL para selecionar todas as imagens com base no ID
+                    $sql = "SELECT * FROM tb_banner_img WHERE banner_id = :banner_id ORDER BY id ASC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':banner_id', $banner['id']);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Adicionar as imagens aos conjuntos alternadamente
+                    foreach ($imagens as $imagem) {
+                        if ($alternarConjunto) {
+                            $conjunto1[] = $imagem;
+                        } else {
+                            $conjunto2[] = $imagem;
+                        }
+                        $alternarConjunto = !$alternarConjunto;
+                    }
+                }
+
+                return array($conjunto1, $conjunto2);
+            }
+
+            // Exibir as imagens do primeiro conjunto
+            echo '<div class="container">';
+            echo '    <div class="row g-4 p-4">';
+            $conjuntos = dividirImagens($conn_pdo, $shop_id, 'shelf-banner');
+            foreach ($conjuntos[0] as $imagem) {
+                echo '    <a href="' . $banner['link'] . '" target="' . $banner['target'] . '" class="col-md-6">';
+                echo '        <div class="card border-0">';
+                echo '            <img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] . '" alt="' . $banner['name'] . '" class="card-img-top shelf-banner" style="height: 245.81px; object-fit: cover;">';
+                echo '        </div>';
+                echo '    </a>';
+            }
+            echo '    </div>';
+            echo '</div>';
+        ?>
 
         <div id="carouselCategorias" class="container carousel slide" data-bs-ride="carousel">
             <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
@@ -643,79 +828,66 @@
                 <div style="width: 100px; height: 5px; background: #000;"></div>
             </div>    
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="row p-4">
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="row p-4">
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="card border-0">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top rounded-circle" alt="Produto 1">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Produto 1</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Adicione mais produtos aqui -->
-                    </div>
-                </div>
+
+
+
+
+                <?php
+                    // Nome da tabela para a busca
+                    $tabela = 'tb_categories';
+
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis AND parent_category = :parent_category ORDER BY id DESC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':shop_id', $shop_id);
+                    $stmt->bindValue(':status', 1);
+                    $stmt->bindValue(':emphasis', 1);
+                    $stmt->bindValue(':parent_category', 1);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Inicialize uma variável de controle e um contador
+                    $primeiroElemento = true;
+                    $contador = 0;
+
+                    // Loop através dos resultados e exibir todas as colunas
+                    foreach ($resultados as $product) {
+                        // Adicione a classe especial apenas ao primeiro elemento
+                        $active = $primeiroElemento ? 'active' : '';
+
+                        // Se o contador for múltiplo de 4, insira uma nova div carousel-item
+                        if ($contador % 6 == 0) {
+                            echo '<div class="carousel-item ' . $active . '">';
+                            echo '<div class="row p-4">';
+                        }
+
+                        echo '<div class="col-sm-2">';
+                        echo '<div class="card border-0">';
+                        echo '<a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="category-link">';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/' . $product['image'] . '" class="card-img-top rounded-circle" alt="' . $product['name'] . '">';
+                        echo '<div class="card-body text-center">';
+                        echo '<h5 class="card-title">' . $product['name'] . '</h5>';
+                        echo '</div>';
+                        echo '</a>';
+                        echo '</div>';
+                        echo '</div>';
+
+                        // Se o contador for múltiplo de 4, feche a div row e carousel-item
+                        if ($contador % 6 == 5 || $contador == count($resultados) - 1) {
+                            echo '</div>';
+                            echo '</div>';
+                        }
+
+                        // Marque que o primeiro elemento foi processado
+                        $primeiroElemento = false;
+
+                        // Incrementar o contador
+                        $contador++;
+                    }
+                ?>
             </div>
 
             <a class="carousel-control-prev" href="#carouselCategorias" role="button" data-bs-slide="prev">
@@ -736,83 +908,113 @@
                 </div>
                 <div style="width: 100px; height: 5px; background: #000;"></div>
             </div>
-
-            <ol class="carousel-indicators">
-                <li data-bs-target="#carouselProdutos" data-bs-slide-to="0" class="active"></li>
-                <li data-bs-target="#carouselProdutos" data-bs-slide-to="1"></li>
-                <!-- Adicione mais indicadores conforme necessário -->
-            </ol>
         
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="row p-4">
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Produto 1</h5>
-                                    <p class="card-text">Descrição do Produto 1.</p>
-                                    <a href="#" class="btn btn-primary">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Produto 1</h5>
-                                    <p class="card-text">Descrição do Produto 1.</p>
-                                    <a href="#" class="btn btn-primary">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Produto 1</h5>
-                                    <p class="card-text">Descrição do Produto 1.</p>
-                                    <a href="#" class="btn btn-primary">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Produto 1</h5>
-                                    <p class="card-text">Descrição do Produto 1.</p>
-                                    <a href="#" class="btn btn-primary">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="row p-4">
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Produto 1</h5>
-                                    <p class="card-text">Descrição do Produto 1.</p>
-                                    <a href="#" class="btn btn-primary">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <img src="../assets/images/shop/thumb1.jpg" class="card-img-top" alt="Produto 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Produto 1</h5>
-                                    <p class="card-text">Descrição do Produto 1.</p>
-                                    <a href="#" class="btn btn-primary">Ver Detalhes</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Adicione mais produtos aqui -->
-                    </div>
-                </div>
+                <?php
+                    // Nome da tabela para a busca
+                    $tabela = 'tb_products';
+
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':shop_id', $shop_id);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Inicialize uma variável de controle e um contador
+                    $primeiroElemento = true;
+                    $contador = 0;
+
+                    // Loop através dos resultados e exibir todas as colunas
+                    foreach ($resultados as $product) {
+                        // Consulta SQL para selecionar todas as colunas com base no ID
+                        $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':usuario_id', $product['id']);
+                        $stmt->execute();
+
+                        // Recuperar os resultados
+                        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        // Formatação preço
+                        $preco = $product['price'];
+
+                        // Transforma o número no formato "R$ 149,90"
+                        $price = "R$ " . number_format($preco, 2, ",", ".");
+
+                        // Formatação preço com desconto
+                        $desconto = $product['discount'];
+
+                        // Transforma o número no formato "R$ 149,90"
+                        $discount = "R$ " . number_format($desconto, 2, ",", ".");
+
+                        // Calcula a porcentagem de desconto
+                        $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+
+                        // Arredonda o resultado para duas casas decimais
+                        $porcentagemDesconto = round($porcentagemDesconto, 0);
+
+                        if ($product['discount'] == "0.00") {
+                            $activeDiscount = "d-none";
+
+                            $priceAfterDiscount = $price;
+                        } else {
+                            $activeDiscount = "";
+
+                            $priceAfterDiscount = $discount;
+                            $discount = $price;
+                        }
+
+                        // Link do produto
+                        $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
+
+                        // Adicione a classe especial apenas ao primeiro elemento
+                        $active = $primeiroElemento ? 'active' : '';
+
+                        // Se o contador for múltiplo de 4, insira uma nova div carousel-item
+                        if ($contador % 4 == 0) {
+                            echo '<div class="carousel-item ' . $active . '">';
+                            echo '<div class="row p-4">';
+                        }
+
+                        echo '<div class="col-sm-3">';
+                        echo '<a href="' . $link . '" class="product-link">';
+                        echo '<div class="card">';
+                        foreach ($imagens as $imagem) {
+                        echo '<div class="product-image">';
+                        echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
+                        echo '</div>';
+                        }
+                        echo '<div class="card-body">';
+                        echo '<p class="card-title mb-0">' . $product['name'] . '</p>';
+                        echo '<div class="d-flex mb-3">';
+                        echo '<small class="fw-semibold text-body-secondary text-decoration-line-through me-2 ' . $activeDiscount . '">' . $discount . '</small>';
+                        echo '<h4 class="card-text">' . $priceAfterDiscount . '</h4>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</a>';
+                        echo '</div>';
+
+                        // Se o contador for múltiplo de 4, feche a div row e carousel-item
+                        if ($contador % 4 == 3 || $contador == count($resultados) - 1) {
+                            echo '</div>';
+                            echo '</div>';
+                        }
+
+                        // Marque que o primeiro elemento foi processado
+                        $primeiroElemento = false;
+
+                        // Incrementar o contador
+                        $contador++;
+                    }
+                ?>
             </div>
 
             <a class="carousel-control-prev" href="#carouselProdutos" role="button" data-bs-slide="prev">
@@ -825,55 +1027,51 @@
             </a>
         </div>
 
-        <div class="container">
-            <div class="row p-4">
-                <div class="col-sm-6">
-                    <div class="card">
-                        <img src="../assets/images/background/video.jpg" class="card-img-top" alt="Produto 1">
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="card">
-                        <img src="../assets/images/background/video.jpg" class="card-img-top" alt="Produto 1">
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php
+            foreach ($conjuntos[1] as $imagem) {
+            // Exibir as imagens do segundo conjunto
+            echo '<div class="container">';
+            echo '    <div class="row g-4 p-4">';
+                echo '    <a href="' . $banner['link'] . '" target="' . $banner['target'] . '" class="col-md-6">';
+                echo '        <div class="card border-0">';
+                echo '            <img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] . '" alt="' . $banner['name'] . '" class="card-img-top shelf-banner" style="height: 245.81px; object-fit: cover;">';
+                echo '        </div>';
+                echo '    </a>';
+            echo '    </div>';
+            echo '</div>';
+            }
+        ?>
 
         <div class="container">
             <div class="row p-4">
                 <div class="col-sm-12">
-                    <div class="card">
-                        <div id="video-display" class="d-flex justify-content-center">
-                            <div class="d-flex justify-content-center">
-                                <?php
-                                    // Função para extrair o código do vídeo do URL do YouTube
-                                    function getYoutubeEmbedCode($url) {
-                                        // Verifica se o URL é um link válido do YouTube
-                                        if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
-                                            $videoCode = $matches[1];
+                    <div id="video-display" class="d-flex justify-content-center">
+                        <div class="d-flex justify-content-center">
+                            <?php
+                                // Função para extrair o código do vídeo do URL do YouTube
+                                function getYoutubeEmbedCode($url) {
+                                    // Verifica se o URL é um link válido do YouTube
+                                    if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                                        $videoCode = $matches[1];
 
-                                            // Gera o código de incorporação
-                                            $embedCode = '<iframe width="1240" height="527" src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen></iframe>';
+                                        // Gera o código de incorporação
+                                        $embedCode = '<iframe width="1240" height="527" src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen></iframe>';
 
-                                            return $embedCode;
-                                        } else {
-                                            // URL inválido do YouTube
-                                            return 'URL do YouTube inválido.';
-                                        }
-                                    }
-
-                                    // Exemplo de uso:
-                                    $youtubeURL = $video;
-                                    $embedCode = getYoutubeEmbedCode($youtubeURL);
-
-                                    if ($embedCode !== 'URL do YouTube inválido.') {
-                                        echo $embedCode;
+                                        return $embedCode;
                                     } else {
-                                        echo 'O URL do YouTube não é válido.';
+                                        // URL inválido do YouTube
+                                        return 'URL do YouTube inválido.';
                                     }
-                                ?>
-                            </div>
+                                }
+
+                                // Exemplo de uso:
+                                $youtubeURL = $video;
+                                $embedCode = getYoutubeEmbedCode($youtubeURL);
+
+                                if ($embedCode !== 'URL do YouTube inválido.') {
+                                    echo $embedCode;
+                                }
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -888,103 +1086,80 @@
                 </div>
                 <div style="width: 100px; height: 5px; background: #000;"></div>
             </div>
-
-            <ol class="carousel-indicators">
-                <li data-bs-target="#carouselDepoimentos" data-bs-slide-to="0" class="active"></li>
-                <li data-bs-target="#carouselDepoimentos" data-bs-slide-to="1"></li>
-                <!-- Adicione mais indicadores conforme necessário -->
-            </ol>
         
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="row p-4">
-                        <div class="col-sm-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <img src="../assets/images/blog/post-next.jpg" class="rounded-circle mb-2" alt="Produto 1">
-                                    <p class="card-title">Produto 1</p>
-                                    <p class="card-text text-black-50 mb-2">"Descrição do Produto 1."</p>
-                                    <span class="dep-stars text-warning">
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <img src="../assets/images/blog/post-next.jpg" class="rounded-circle mb-2" alt="Produto 1">
-                                    <p class="card-title">Produto 1</p>
-                                    <p class="card-text text-black-50 mb-2">"Descrição do Produto 1."</p>
-                                    <span class="dep-stars text-warning">
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star'></i>
-                                        <i class='bx bxs-star-half'></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <img src="../assets/images/blog/post-next.jpg" class="rounded-circle mb-2" alt="Produto 1">
-                                    <p class="card-title">Produto 1</p>
-                                    <p class="card-text text-black-50 mb-2">"Descrição do Produto 1."</p>
-                                    <span class="dep-stars text-warning">
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star-half'></i>
-                                        <i class='bx bx-star'></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="row p-4">
-                        <div class="col-sm-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <img src="../assets/images/blog/post-next.jpg" class="rounded-circle mb-2" alt="Produto 1">
-                                    <p class="card-title">Produto 1</p>
-                                    <p class="card-text text-black-50 mb-2">"Descrição do Produto 1."</p>
-                                    <span class="dep-stars text-warning">
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <img src="../assets/images/blog/post-next.jpg" class="rounded-circle mb-2" alt="Produto 1">
-                                    <p class="card-title">Produto 1</p>
-                                    <p class="card-text text-black-50 mb-2">"Descrição do Produto 1."</p>
-                                    <span class="dep-stars text-warning">
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star' ></i>
-                                        <i class='bx bxs-star-half'></i>
-                                        <i class='bx bx-star' ></i>
-                                        <i class='bx bx-star'></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Adicione mais produtos aqui -->
-                    </div>
-                </div>
+                <?php
+                    // Nome da tabela para a busca
+                    $tabela = 'tb_depositions';
+
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':shop_id', $shop_id);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Inicialize uma variável de controle e um contador
+                    $primeiroElemento = true;
+                    $contador = 0;
+
+                    // Loop através dos resultados e exibir todas as colunas
+                    foreach ($resultados as $product) {
+                        // Adicione a classe especial apenas ao primeiro elemento
+                        $active = $primeiroElemento ? 'active' : '';
+
+                        // Se o contador for múltiplo de 4, insira uma nova div carousel-item
+                        if ($contador % 3 == 0) {
+                            echo '<div class="carousel-item ' . $active . '">';
+                            echo '<div class="row p-4">';
+                        }
+
+                        echo '<div class="col-sm-4">';
+                        echo '<div class="card border-0">';
+                        echo '<div class="card-body text-center">';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/depositions/' . $product['img'] . '" class="rounded-circle mb-2" alt="Produto 1" style="width: 150px; height: 150px;">';
+                        echo '<p class="card-title">' . $product['name'] . '</p>';
+                        echo '<p class="card-text small lh-sm text-black-50 mb-2">"' . $product['testimony'] . '"</p>';
+                        echo '<div class="rating' . $contador . ' dep-stars text-warning">';
+                        
+                        // Código JavaScript para gerar as estrelas de classificação com base na coluna 'rating' do banco de dados
+                        echo '<script>';
+                        echo 'const classificacao' . $contador . ' = ' . $product['qualification'] . ';';
+                        echo 'const ratingContainer' . $contador . ' = document.createElement("div");';
+                        echo 'ratingContainer' . $contador . '.className = "stars";';
+                        echo 'for (let i = 0; i < 5; i++) {';
+                        echo '  const star = document.createElement("i");';
+                        echo '  if (i < classificacao' . $contador . ') {';
+                        echo '    star.className = "bx bxs-star";'; // Estrela ativa
+                        echo '  } else {';
+                        echo '    star.className = "bx bx-star";'; // Estrela inativa
+                        echo '  }';
+                        echo '  ratingContainer' . $contador . '.appendChild(star);';
+                        echo '}';
+                        echo 'document.querySelector(".rating' . $contador . '").appendChild(ratingContainer' . $contador . ');';
+                        echo '</script>';
+                        
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+
+                        // Se o contador for múltiplo de 4, feche a div row e carousel-item
+                        if ($contador % 3 == 2 || $contador == count($resultados) - 1) {
+                            echo '</div>';
+                            echo '</div>';
+                        }
+
+                        // Marque que o primeiro elemento foi processado
+                        $primeiroElemento = false;
+
+                        // Incrementar o contador
+                        $contador++;
+                    }
+                ?>
             </div>
 
             <a class="carousel-control-prev" href="#carouselDepoimentos" role="button" data-bs-slide="prev">
@@ -1047,12 +1222,12 @@
         <div id="instafeed" class="owl-carousel owl-theme owl-loaded owl-drag carousel-inner mb-4"></div>
     
         <div class="container">
-            <div class="d-flex justify-content-between p-4" id="newsletterContainer">
-                <p class="d-flex align-items-center fs-4">
+            <div class="row p-4" id="newsletterContainer">
+                <p class="col-md-6 d-flex align-items-center fs-4">
                     <i class='bx bx-mail-send fs-2 me-2'></i>
                     Receba Ofertas e Novidades de nossa loja
                 </p>
-                <form class="d-flex" role="text" id="newsletterForm">
+                <form class="col-md-6 d-flex" role="text" id="newsletterForm">
                     <input class="form-control py-1 px-3 me-2" type="text" name="email" id="email" placeholder="E-mail" aria-label="E-mail">
                     <button class="btn btn-dark" id="btn-newsletter" type="submit" style="width: 270px;">
                         Quero receber!
@@ -1113,20 +1288,6 @@
             }
         </script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <a href="#" class="to-top btn btn-dark p-2 rounded-1">
             <i class='bx bx-chevron-up fs-2' ></i>
         </a>
@@ -1139,297 +1300,268 @@
     <!-- Footer -->
     <footer id="rodape" style="background-color: #fff; border-top: 1px solid #ddd; position: relative; z-index: 10; display: block !important; margin-bottom: 2rem;">
         <div class="container">
-                <h1 class="logo text-primary">
-                    <a href="https://alpha-shoes-max-demo.lojaintegrada.com.br/" title="Alpha Shoes Max">
-                        <?php echo ($logo !== "") ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 250px;">' : $loja; ?>
-                    </a>
-                </h1>
-        <div class="row">
-            <div class="col-md-4" style="margin-bottom: 4rem;">
-                <span class="titulo fw-semibold">Sobre a loja</span>
-                <p class="mt-3" id="meuParagrafo"></p>
-                <button class="btn btn-dark more mb-4" id="verMaisBotao">Ver Mais</button>
+            <h1 class="logo text-primary">
+                <a href="https://alpha-shoes-max-demo.lojaintegrada.com.br/" title="Alpha Shoes Max">
+                    <?php echo ($logo !== "") ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 250px;">' : $loja; ?>
+                </a>
+            </h1>
+            <div class="row">
+                <div class="col-md-4" style="margin-bottom: 4rem;">
+                    <span class="titulo fw-semibold">Sobre a loja</span>
+                    <p class="mt-3" id="meuParagrafo"></p>
+                    <button class="btn btn-dark more mb-4" id="verMaisBotao">Ver Mais</button>
 
-
-
-                <script>
-                    function limitarTexto(texto, limite) {
-                        if (texto.length > limite) {
-                            return {
-                                texto: texto.slice(0, limite),
-                                cortado: true
-                            };
-                        } else {
-                            return {
-                                texto: texto,
-                                cortado: false
-                            };
+                    <script>
+                        function limitarTexto(texto, limite) {
+                            if (texto.length > limite) {
+                                return {
+                                    texto: texto.slice(0, limite),
+                                    cortado: true
+                                };
+                            } else {
+                                return {
+                                    texto: texto,
+                                    cortado: false
+                                };
+                            }
                         }
-                    }
 
-                    function toggleTexto() {
+                        function toggleTexto() {
+                            var paragrafo = document.getElementById("meuParagrafo");
+                            var textoCompleto = paragrafo.getAttribute("data-texto-completo");
+                            var estadoAtual = paragrafo.getAttribute("data-estado");
+
+                            if (estadoAtual === "colapsado") {
+                                // Expandir o texto
+                                paragrafo.textContent = textoCompleto;
+                                paragrafo.setAttribute("data-estado", "expandido");
+                                document.getElementById("verMaisBotao").textContent = "Ver Menos";
+                            } else {
+                                // Colapsar o texto
+                                var limiteInicial = 200; // Limite de caracteres inicial
+                                var resultado = limitarTexto(textoCompleto, limiteInicial);
+                                paragrafo.textContent = resultado.texto + "...";
+                                paragrafo.setAttribute("data-estado", "colapsado");
+                                document.getElementById("verMaisBotao").textContent = "Ver Mais";
+                            }
+                        }
+
+                        // Exemplo de uso:
+                        var textoCompleto = "<?php echo $description; ?>";
+                        var limiteInicial = 200; // Limite de caracteres inicial
+                        var resultado = limitarTexto(textoCompleto, limiteInicial);
+
+                        // Selecione o elemento <p> pelo ID
                         var paragrafo = document.getElementById("meuParagrafo");
-                        var textoCompleto = paragrafo.getAttribute("data-texto-completo");
-                        var estadoAtual = paragrafo.getAttribute("data-estado");
 
-                        if (estadoAtual === "colapsado") {
-                            // Expandir o texto
-                            paragrafo.textContent = textoCompleto;
-                            paragrafo.setAttribute("data-estado", "expandido");
-                            document.getElementById("verMaisBotao").textContent = "Ver Menos";
-                        } else {
-                            // Colapsar o texto
-                            var limiteInicial = 200; // Limite de caracteres inicial
-                            var resultado = limitarTexto(textoCompleto, limiteInicial);
+                        if (resultado.cortado) {
                             paragrafo.textContent = resultado.texto + "...";
+                            paragrafo.setAttribute("data-texto-completo", textoCompleto);
                             paragrafo.setAttribute("data-estado", "colapsado");
-                            document.getElementById("verMaisBotao").textContent = "Ver Mais";
+
+                            // Adicione um botão "Ver Mais"
+                            var verMaisBotao = document.getElementById("verMaisBotao");
+                            verMaisBotao.addEventListener("click", toggleTexto);
+                        } else {
+                            paragrafo.textContent = resultado.texto;
+                            document.getElementById("verMaisBotao").style.display = "none"; // Esconde o botão se o texto não for cortado
                         }
-                    }
+                    </script>
 
-                    // Exemplo de uso:
-                    var textoCompleto = "<?php echo $description; ?>";
-                    var limiteInicial = 200; // Limite de caracteres inicial
-                    var resultado = limitarTexto(textoCompleto, limiteInicial);
-
-                    // Selecione o elemento <p> pelo ID
-                    var paragrafo = document.getElementById("meuParagrafo");
-
-                    if (resultado.cortado) {
-                        paragrafo.textContent = resultado.texto + "...";
-                        paragrafo.setAttribute("data-texto-completo", textoCompleto);
-                        paragrafo.setAttribute("data-estado", "colapsado");
-
-                        // Adicione um botão "Ver Mais"
-                        var verMaisBotao = document.getElementById("verMaisBotao");
-                        verMaisBotao.addEventListener("click", toggleTexto);
-                    } else {
-                        paragrafo.textContent = resultado.texto;
-                        document.getElementById("verMaisBotao").style.display = "none"; // Esconde o botão se o texto não for cortado
-                    }
-                </script>
-
-
-
-
-
-
-
-
-
-
-
-                <div class="lista-redes">
-                    <?php if (!empty($facebook) || !empty($x) || !empty($pinterest) || !empty($instagram) || !empty($youtube)) : ?>
-                        <h5 class="fw-semibold">Siga-nos</h5>
-                    <?php endif; ?>
-
-                    <ul class="social-medias d-flex">
-                        <?php if (!empty($facebook)) : ?>
-                            <li class="me-2">
-                                <a href="<?php echo $facebook; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Facebook">
-                                    <i class='bx bxl-facebook'></i>
-                                </a>
-                            </li>
+                    <div class="lista-redes">
+                        <?php if (!empty($facebook) || !empty($x) || !empty($pinterest) || !empty($instagram) || !empty($youtube)) : ?>
+                            <h5 class="fw-semibold">Siga-nos</h5>
                         <?php endif; ?>
 
-                        <?php if (!empty($x)) : ?>
-                            <li class="me-2">
-                                <a href="<?php echo $x; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Twitter">
-                                    <i class="fa-brands fa-x-twitter" style="font-size: 14px;"></i>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                        <ul class="social-medias d-flex">
+                            <?php if (!empty($facebook)) : ?>
+                                <li class="me-2">
+                                    <a href="<?php echo $facebook; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Facebook">
+                                        <i class='bx bxl-facebook'></i>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (!empty($pinterest)) : ?>
-                            <li class="me-2">
-                                <a href="<?php echo $pinterest; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Pinterest">
-                                    <i class='bx bxl-pinterest'></i>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (!empty($x)) : ?>
+                                <li class="me-2">
+                                    <a href="<?php echo $x; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Twitter">
+                                        <i class="fa-brands fa-x-twitter" style="font-size: 14px;"></i>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (!empty($instagram)) : ?>
-                            <li class="me-2">
-                                <a href="<?php echo $instagram; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Instagram">
-                                    <i class='bx bxl-instagram'></i>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (!empty($pinterest)) : ?>
+                                <li class="me-2">
+                                    <a href="<?php echo $pinterest; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Pinterest">
+                                        <i class='bx bxl-pinterest'></i>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (!empty($youtube)) : ?>
-                            <li class="me-2">
-                                <a href="<?php echo $youtube; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no YouTube">
-                                    <i class='bx bxl-youtube'></i>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (!empty($instagram)) : ?>
+                                <li class="me-2">
+                                    <a href="<?php echo $instagram; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no Instagram">
+                                        <i class='bx bxl-instagram'></i>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php if (!empty($youtube)) : ?>
+                                <li class="me-2">
+                                    <a href="<?php echo $youtube; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no YouTube">
+                                        <i class='bx bxl-youtube'></i>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <span class="titulo fw-semibold">Categorias</span>
+                    <ul class="total-itens_8 mt-3">
+
+                        <?php
+                            // Aqui você pode popular a tabela com dados do banco de dados
+                            // Vamos supor que cada linha tem um ID único
+                            
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_categories';
+
+                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
+
+                            // Preparar e executar a consulta
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $shop_id);
+                            $stmt->bindValue(':status', 1);
+                            $stmt->bindValue(':parent_category', 1);
+                            $stmt->execute();
+
+                            // Recuperar os resultados
+                            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            if ($stmt->rowCount() > 0) {
+                                // Loop através dos resultados e exibir todas as colunas
+                                foreach ($resultados as $usuario) {
+                                    echo "<li>";
+                                    echo "<a href='https://" . $subdominio . "dropidigital.com.br/" . $usuario['link'] . "'>" . $usuario['name'] . "</a>";
+                                    echo "</li>";
+                                }
+                            }
+                        ?>
+
+                        <li class="mt-2" id="menu_blog">
+                            <a href="/pagina/artigos.html" class="btn btn-light">
+                                <img style="height: 28px; margin-right: 7px;" src="https://cdn.awsli.com.br/2544/2544943/arquivos/blog.svg">
+                                <strong class="titulo text-dark">Blog</strong>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3">
+                    <span class="titulo fw-semibold">Institucional</span>
+                    <ul class="mt-3">
+                        <?php
+                            // Aqui você pode popular a tabela com dados do banco de dados
+                            // Vamos supor que cada linha tem um ID único
+                            
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_pages';
+
+                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+                            // Preparar e executar a consulta
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $shop_id);
+                            $stmt->execute();
+
+                            // Recuperar os resultados
+                            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            if ($stmt->rowCount() > 0) {
+                                // Loop através dos resultados e exibir todas as colunas
+                                foreach ($resultados as $usuario) {
+                                    echo "<li>";
+                                    echo "<a href='https://" . $_SERVER['HTTP_HOST'] . "/" . $usuario['link'] . "'>" . $usuario['name'] . "</a>";
+                                    echo "</li>";
+                                }
+                            }
+                        ?>
+                    </ul>
+                </div>
+
+                <div class="col-md-3">
+                    <span class="titulo fw-semibold">Atendimento</span>
+                    <ul class="contact mt-3">
+                        <li>
+                            <i class='bx bxs-phone' ></i> Telefone: 
+                            <a href="tel:<?php echo $phone; ?>">
+                                <?php echo $phone; ?>
+                            </a>
+                        </li>
+                        <li class="tel-whatsapp">
+                            <i class="bx bxl-whatsapp"></i> Whatsapp: 
+                            <a href="https://api.whatsapp.com/send?phone=<?php echo $phone; ?>" target="_blank">
+                                <?php echo $phone; ?>
+                            </a>
+                        </li>
+                        <li>
+                            <i class="bx bxs-envelope"></i> E-mail: 
+                            <a href="mailto:<?php echo $email; ?>">
+                                <?php echo $email; ?>
+                            </a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <div class="location">
+                        <div class="title-location mb-2">
+                            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="14.593" height="20.008" viewBox="0 0 14.593 20.008">
+                                <g id="placeholder-for-map" transform="translate(0.5 0.5)">
+                                    <path id="Path_6073" data-name="Path 6073" d="M80.353,0A6.8,6.8,0,0,0,73.323,6.8c0,4.347,4.172,7.5,6.511,12.04a.321.321,0,0,0,.57,0c2.115-4.083,5.731-6.821,6.4-10.754A6.893,6.893,0,0,0,80.353,0Zm-.235,10.35A3.559,3.559,0,1,1,83.677,6.8,3.559,3.559,0,0,1,80.118,10.354Z" transform="translate(-73.323 0)" fill="none" stroke="#838694" stroke-width="1.5"></path>
+                                </g>
+                            </svg>
+                            <span class="fw-semibold me-1">Endereço</span>
+                            <a href="https://www.google.com/maps/place/<?php echo $endereco . ", " . $numero . " - " . $bairro . ", " . $cidade . " - " . $estado . ", " . $cep; ?>" target="_blank">Ver mapa</a>
+                        </div>
+                        <p class="small lh-sm">
+                            <?php echo $endereco . ", " . $numero . " - " . $bairro . ", " . $cidade . " - " . $estado . ", " . $cep; ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="payment-seals mb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 seals">
+                    <span class="titulo text-dark">Selos</span>
+                    <ul>
+                        <li>
+                            <img loading="lazy" src="https://cdn.awsli.com.br/production/static/img/struct/stamp_encryptssl.png" alt="Site Seguro">
+                        </li>
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="col-md-2">
-                <span class="titulo fw-semibold">Categorias</span>
-                <ul class="total-itens_8 mt-3">
-
-
-
-
-
-                    <?php
-                        // Aqui você pode popular a tabela com dados do banco de dados
-                        // Vamos supor que cada linha tem um ID único
-                        
-                        // Nome da tabela para a busca
-                        $tabela = 'tb_categories';
-
-                        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
-
-                        // Preparar e executar a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':shop_id', $shop_id);
-                        $stmt->execute();
-
-                        // Recuperar os resultados
-                        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        if ($stmt->rowCount() > 0) {
-                            // Loop através dos resultados e exibir todas as colunas
-                            foreach ($resultados as $usuario) {
-                                echo "<li>";
-                                echo "<a href='https://" . $subdominio . "dropidigital.com.br/" . $usuario['link'] . "'>" . $usuario['name'] . "</a>";
-                                echo "</li>";
-                            }
-                        }
-                    ?>
-
-
-
-
-
-
-
-
-
-                    <li class="mt-2" id="menu_blog">
-                        <a href="/pagina/artigos.html" class="btn btn-light">
-                            <img style="height: 28px; margin-right: 7px;" src="https://cdn.awsli.com.br/2544/2544943/arquivos/blog.svg">
-                            <strong class="titulo text-dark">Blog</strong>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="col-md-3">
-                <span class="titulo fw-semibold">Institucional</span>
-                <ul class="mt-3">
-
-
-
-
-                    <?php
-                        // Aqui você pode popular a tabela com dados do banco de dados
-                        // Vamos supor que cada linha tem um ID único
-                        
-                        // Nome da tabela para a busca
-                        $tabela = 'tb_pages';
-
-                        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
-
-                        // Preparar e executar a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':shop_id', $shop_id);
-                        $stmt->execute();
-
-                        // Recuperar os resultados
-                        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        if ($stmt->rowCount() > 0) {
-                            // Loop através dos resultados e exibir todas as colunas
-                            foreach ($resultados as $usuario) {
-                                echo "<li>";
-                                echo "<a href='https://" . $subdominio . "dropidigital.com.br/" . $usuario['link'] . "'>" . $usuario['name'] . "</a>";
-                                echo "</li>";
-                            }
-                        }
-                    ?>
-
-
-
-                </ul>
-            </div>
-
-            <div class="col-md-3">
-                <span class="titulo fw-semibold">Atendimento</span>
-                <ul class="contact mt-3">
-                    <li>
-                        <i class='bx bxs-phone' ></i> Telefone: 
-                        <a href="tel:<?php echo $phone; ?>">
-                            <?php echo $phone; ?>
-                        </a>
-                    </li>
-                    <li class="tel-whatsapp">
-                        <i class="bx bxl-whatsapp"></i> Whatsapp: 
-                        <a href="https://api.whatsapp.com/send?phone=<?php echo $phone; ?>" target="_blank">
-                            <?php echo $phone; ?>
-                        </a>
-                    </li>
-                    <li>
-                        <i class="bx bxs-envelope"></i> E-mail: 
-                        <a href="mailto:<?php echo $email; ?>">
-                            <?php echo $email; ?>
-                        </a>
-                    </li>
-                </ul>
-                <hr>
-                <div class="location">
-                    <div class="title-location mb-2">
-                        <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="14.593" height="20.008" viewBox="0 0 14.593 20.008">
-                            <g id="placeholder-for-map" transform="translate(0.5 0.5)">
-                                <path id="Path_6073" data-name="Path 6073" d="M80.353,0A6.8,6.8,0,0,0,73.323,6.8c0,4.347,4.172,7.5,6.511,12.04a.321.321,0,0,0,.57,0c2.115-4.083,5.731-6.821,6.4-10.754A6.893,6.893,0,0,0,80.353,0Zm-.235,10.35A3.559,3.559,0,1,1,83.677,6.8,3.559,3.559,0,0,1,80.118,10.354Z" transform="translate(-73.323 0)" fill="none" stroke="#838694" stroke-width="1.5"></path>
-                            </g>
-                        </svg>
-                        <span class="fw-semibold me-1">Endereço</span>
-                        <a href="https://www.google.com/maps/place/<?php echo $endereco . ", " . $numero . " - " . $bairro . ", " . $cidade . " - " . $estado . ", " . $cep; ?>" target="_blank">Ver mapa</a>
-                    </div>
-                    <p class="small lh-sm">
-                        <?php echo $endereco . ", " . $numero . " - " . $bairro . ", " . $cidade . " - " . $estado . ", " . $cep; ?>
+    <div style="background-color: #fff; border-top: 1px solid #ddd; position: relative; z-index: 10; font-size: 11px; display: block !important; margin-bottom: 2rem;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 col-12 text-center" style="min-height: 20px; width: 100%;">
+                    <p style="margin-bottom: 0;">
+                        Singularis Tecnologia Web LTDA - CNPJ: 32.155.999/0001-34 © Todos os direitos reservados. 2023
                     </p>
+                    <a href="<?php echo INCLUDE_PATH; ?>" target="_blank">
+                        <img src="../assets/images/logos/logo-one.png" alt="Logo DropiDigital" style="width: 150px;">
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</footer>
-
-<div class="payment-seals mb-4">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-9 seals">
-                <span class="titulo text-dark">Selos</span>
-                <ul>
-                    <li>
-                        <img loading="lazy" src="https://cdn.awsli.com.br/production/static/img/struct/stamp_encryptssl.png" alt="Site Seguro">
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div style="background-color: #fff; border-top: 1px solid #ddd; position: relative; z-index: 10; font-size: 11px; display: block !important; margin-bottom: 2rem;">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-9 col-12 text-center" style="min-height: 20px; width: 100%;">
-                <p style="margin-bottom: 0;">
-                    Singularis Tecnologia Web LTDA - CNPJ: 32.155.999/0001-34 © Todos os direitos reservados. 2023
-                </p>
-                <a href="<?php echo INCLUDE_PATH; ?>" target="_blank">
-                    <img src="../assets/images/logos/logo-one.png" alt="Logo DropiDigital" style="width: 150px;">
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
 
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>

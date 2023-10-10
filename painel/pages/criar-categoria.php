@@ -1,109 +1,25 @@
-<!-- Codigo da Imagem dos produtos -->
 <style>
-    label.image-container {
-        background-color: #f9f9f9;
-        width: 100%;
-        padding: 3.12em 1.87em;
-        border: 2px dashed #c4c4c4;
-        border-radius: 0.5em;
-        cursor: pointer;
-    }
-    input[type="file"] {
-        display: none;
-    }
-    .dropzone {
-        min-height: 0px;
-        display: block;
-        position: relative;
-        color: #000;
-        background: none;
-        font-size: 1.1em;
-        text-align: center;
-        padding: 1em 0;
-        border: none;
-        border-radius: 0.3em;
-        margin: 0 auto;
-        cursor: pointer;
-    }
-    .sortable-container {
-        overflow: hidden;
-    }
-    #image-display {
-        position: relative;
-        width: 100%;
-        display: flex;
-        gap: 1.25em;
-        flex-wrap: wrap;
-    }
-    #image-display figure {
-        position: relative;
-        width: 118px;
-        height: 118px;
-        background: #f9f9f9;
-    }
-    #image-display img {
-        width: 118px;
-        height: 118px;
-        object-fit: cover;
-        border: 1px solid #c4c4c4;
-        border-radius: .5rem;
-    }
-    #image-display img:hover
+    .image-container
     {
-        cursor: -webkit-grab;
-        cursor: grab;
-    }
-    #image-display button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 30px;
-        height: 30px;
-        border: 1px solid #c4c4c4;
-        border-radius: 0.3rem;
-        background: #f9f9f9;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
-        cursor: pointer;
-        transition: .3s;
-    }
-    #image-display button::before {
-        -webkit-text-stroke: 2px #f4f6f8;
-        align-items: center;
-        border-radius: 8px;
-        color: #666;
-        content: "\f00d";
-        display: flex;
-        font-family: Font Awesome\ 5 Free;
-        font-size: 22px;
-        font-weight: 700;
-        height: 32px;
-        justify-content: center;
-    }
-    #image-display figcaption {
-        font-size: 0.8em;
         text-align: center;
-        color: #5a5861;
     }
-    .sortable-image:first-of-type::before {
-        content: 'Capa';
-        position: absolute;
-        left: 10px;
-        bottom: 10px;
-        color: #c4c4c4;
-        font-size: .875rem;
-        background: #f9f9f9;
-        padding: 0 0.5rem;
-        border: 1px solid #c4c4c4;
-        border-radius: 0.3rem;
+
+    /* Image Preview */
+    .person-image .image-preview
+    {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: #ccc;
     }
-    .dropzone-active {
-        border: 0.2em dashed #025bee;
-    }
-    #error {
-        text-align: center;
-        color: #ff3030;
+    .person-image .image-preview.icon
+    {
+        border-radius: 0%;
+        width: 40px;
+        height: 40px;
     }
 </style>
 
@@ -168,12 +84,13 @@
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
-        <div class="card-body row px-4 py-3">
+        <div class="card-body px-4 py-3">
             <div class="mb-3">
                 <div class="d-flex justify-content-between">
                     <label for="name" class="form-label small">Nome da categoria *</label>
                 </div>
                 <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" require>
+                <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
             <div class="mb-3">
                 <div class="d-flex justify-content-between">
@@ -183,56 +100,93 @@
                 <textarea class="form-control" name="description" id="description" maxlength="4000" rows="3"></textarea>
             </div>
             <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="moneyInput1" class="form-label small">Categoria pai *</label>
-                        <div class="input-group">
-                            <select class="form-select" name="parent_category" aria-label="Default select example">
-                                <option value="1" selected>[ Raiz ]</option>
-                                <?php
-                                    // Aqui você pode popular a tabela com dados do banco de dados
-                                    // Vamos supor que cada linha tem um ID único
-                                    
-                                    // Nome da tabela para a busca
-                                    $tabela = 'tb_categories';
+                <div class="col-md-6 mb-3">
+                    <label for="moneyInput1" class="form-label small">Categoria pai *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="parent_category" id="parentCategory" aria-label="Default select example">
+                            <option value="1" selected>[ Raiz ]</option>
+                            <?php
+                                // Aqui você pode popular a tabela com dados do banco de dados
+                                // Vamos supor que cada linha tem um ID único
+                                
+                                // Nome da tabela para a busca
+                                $tabela = 'tb_categories';
 
-                                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND parent_category = :parent_category ORDER BY id DESC";
 
-                                    // Preparar e executar a consulta
-                                    $stmt = $conn_pdo->prepare($sql);
-                                    $stmt->bindParam(':shop_id', $id);
-                                    $stmt->execute();
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindParam(':shop_id', $id);
+                                $stmt->bindValue(':parent_category', 1);
+                                $stmt->execute();
 
-                                    // Recuperar os resultados
-                                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                // Recuperar os resultados
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                    if ($stmt->rowCount() > 0) {
-                                        // Loop através dos resultados e exibir todas as colunas
-                                        foreach ($resultados as $usuario) {
-                                            echo "<option value='" . $usuario['id'] . "'>" . $usuario['name'] . "</option>";
-                                        }
+                                if ($stmt->rowCount() > 0) {
+                                    // Loop através dos resultados e exibir todas as colunas
+                                    foreach ($resultados as $usuario) {
+                                        echo "<option value='" . $usuario['id'] . "'>" . $usuario['name'] . "</option>";
                                     }
-                                ?>
-                            </select>
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 d-flex justify-content-between mb-3">
+                    <div>
+                        <label for="activeCategory1" class="form-label small">Categoria ativa?</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeCategory1" value="1" checked>
+                            <label class="form-check-label" id="textCheckbox1" for="activeCategory1">Sim</label>
                         </div>
                     </div>
-                    <div class="mb-3 row">
-                        <div class="col-md-6">
-                            <label for="activeCategory1" class="form-label small">Categoria ativa?</label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeCategory1" value="1" checked>
-                                <label class="form-check-label" id="textCheckbox1" for="activeCategory1">Sim</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="activeCategory2" class="form-label small">Destacar no menu?</label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="activeCategory2" value="1">
-                                <label class="form-check-label" id="textCheckbox2" for="activeCategory2">Não</label>
-                            </div>
+                    <div id="containerEmphasis">
+                        <label for="emphasis" class="form-label small">Destacar no menu?</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasis" value="1">
+                            <label class="form-check-label" id="emphasisCheckbox" for="emphasis">Não</label>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0" id="images">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Imagens</div>
+        <div class="card-body row px-4 py-3">
+            <div class="col-md-6 image-container" id="shop-banner">
+                <p class="fw-semibold mb-3">Imagem para banner</p>
+                <div class="person-image mb-3">
+                    <img id="imagemPreview" class="image-preview" src="../assets/images/services/service-next.jpg" alt="Preview da imagem">
+                </div>
+                <label for="imagemInput" class="btn btn btn-outline-secondary d-flex align-items-center fw-semibold mb-1">
+                    <i class='bx bx-image fs-5 me-2'></i>
+                    Adicionar Foto
+                </label>
+                <small class="mb-1">
+                    Imagem em .jpg com<br>
+                    150 px x 150 px
+                </small>
+                <input type="file" name="image" id="imagemInput" accept="image/*" class="d-none">
+            </div>
+            <div class="col-md-6 image-container" id="header-icon">
+                <p class="fw-semibold mb-3">Ícone para header</p>
+                <div class="person-image mb-3">
+                    <img id="iconPreview" class="image-preview icon" src="../assets/images/blog/author.jpg" alt="Preview da imagem">
+                </div>
+                <label for="iconInput" class="btn btn btn-outline-secondary d-flex align-items-center fw-semibold mb-1">
+                    <i class='bx bx-image fs-5 me-2'></i>
+                    Adicionar Foto
+                </label>
+                <small class="mb-1">
+                    Imagem em .png com<br>
+                    40 px x 40 px
+                </small>
+                <input type="file" name="icon" id="iconInput" accept="image/*" class="d-none">
             </div>
         </div>
     </div>
@@ -244,18 +198,18 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
-                            <label for="textInput1" class="form-label small">Nome do produto *</label>
+                            <label for="textInput1" class="form-label small">Nome da categoria *</label>
                             <small id="textCounter1" class="form-text text-muted">0 de 70 caracteres</small>
                         </div>
                         <input type="text" class="form-control" name="seo_name" id="textInput1" maxlength="70" aria-describedby="emailHelp">
                     </div>
                     <div class="mb-3">
-                        <label for="textInput2" class="form-label small">Link da página</label>
+                        <label for="textInput2" class="form-label small">Link da categoria</label>
                         <input type="text" class="form-control" name="seo_link" id="textInput2" placeholder="link-da-pagina" aria-label="link-da-pagina" aria-describedby="emailHelp">
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
-                            <label for="textInput3" class="form-label small">Descrição da página</label>
+                            <label for="textInput3" class="form-label small">Descrição da categoria</label>
                             <small id="textCounter3" class="form-text text-muted">0 de 160 caracteres</small>
                         </div>
                         <textarea class="form-control" name="seo_description" id="textInput3" maxlength="160" rows="3"></textarea>
@@ -273,6 +227,7 @@
         </div>
     </div>
 
+    <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
@@ -291,6 +246,45 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+<!-- Imagens -->
+<script>
+    $(document).ready(function() {
+        // Função para verificar e atualizar o estado dos elementos
+        function verificarMostrando() {
+            // Verifica o valor selecionado no parentCategory
+            if ($("#parentCategory").val() === "1") {
+                $("#shop-banner").show();
+                $("#containerEmphasis").show();
+            } else {
+                $("#shop-banner").hide();
+                $("#containerEmphasis").hide();
+            }
+
+            // Verifica se o checkbox emphasis está marcado
+            if ($("#emphasis").is(":checked")) {
+                $("#header-icon").show();
+            } else {
+                $("#header-icon").hide();
+            }
+
+            // Verifica se algum dos dois elementos está sendo mostrado e atualiza #images
+            if ($("#emphasis").is(":checked") || $("#parentCategory").val() === "1") {
+                $("#images").show();
+            } else {
+                $("#images").hide();
+            }
+        }
+
+        // Quando ocorrer uma mudança no parentCategory ou no estado do checkbox emphasis
+        $("#parentCategory, #emphasis").change(function() {
+            verificarMostrando();
+        });
+
+        // Chame a função inicialmente para verificar o estado na carga da página
+        verificarMostrando();
+    });
+</script>
+
 <script>
     $(document).ready(function() {
         function inputCounter(inputId, textId) {
@@ -303,6 +297,63 @@
         }
 
         inputCounter('description', 'descriptionCounter');
+    });
+</script>
+
+<!-- Image Preview -->
+<script>
+    // Função para ativar a visualização de imagem em um elemento de entrada de arquivo
+    function ativarVisualizacaoImagem(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+
+        input.addEventListener('change', function () {
+            const file = input.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '../assets/images/services/service-next.jpg'; // Defina a imagem de fallback aqui
+            }
+        });
+    }
+
+    // Chame a função para ativar a visualização de imagem para cada input
+    ativarVisualizacaoImagem('imagemInput', 'imagemPreview');
+    ativarVisualizacaoImagem('iconInput', 'iconPreview');
+</script>
+
+<!-- Link -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Selecione o campo de entrada e o span
+        var input = $("#name");
+        var span = $("#linkPreview");
+
+        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        input.on("input", function() {
+            // Obtenha o valor atual do campo de entrada
+            var valor = input.val();
+
+            if (valor === '') {
+                valor = '...';
+            }
+            
+            // Substitua espaços extras por um único traço e converta para letras minúsculas
+            valor = valor.replace(/\s+/g, "-").toLowerCase();
+            
+            // Atualize o texto no span com o valor formatado
+            span.text(valor);
+
+            $('#link').val(valor);
+        });
     });
 </script>
 
@@ -321,9 +372,9 @@
     const textCheckbox1 = document.getElementById("textCheckbox1");
     updateCheckboxText(activeCategory1, textCheckbox1, "Sim", "Não");
 
-    const activeCategory2 = document.getElementById("activeCategory2");
-    const textCheckbox2 = document.getElementById("textCheckbox2");
-    updateCheckboxText(activeCategory2, textCheckbox2, "Sim", "Não");
+    const emphasis = document.getElementById("emphasis");
+    const emphasisCheckbox = document.getElementById("emphasisCheckbox");
+    updateCheckboxText(emphasis, emphasisCheckbox, "Sim", "Não");
 </script>
 
 <!-- Imagens -->

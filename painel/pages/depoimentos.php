@@ -1,6 +1,6 @@
 <?php
         // Nome da tabela para a busca
-        $tabela = 'tb_products';
+        $tabela = 'tb_depositions';
 
         $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
 
@@ -11,15 +11,6 @@
 
         $countPages = $stmt->rowCount();
 ?>
-<!-- Codigo do site -->
-<style>
-    /* Estilos para as estrelas */
-.star {
-  font-size: 24px;
-  cursor: pointer;
-  color: #ccc;
-}
-</style>
 
 <div class="page__header center">
     <div class="header__title">
@@ -27,24 +18,15 @@
         <p class="products-counter"><?php echo $countPages; echo ($countPages == 0 || $countPages == 1) ? ' depoimento' : ' depoimentos'; ?></p>
     </div>
     <div class="header__actions">
-        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda/criar-pagina" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-decoration-none d-flex align-items-center me-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda/criar-depoimento" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-decoration-none d-flex align-items-center me-3">
             <i class='bx bx-help-circle me-1' ></i>
             <b>Obtenha ajuda sobre</b>
         </a>
         <div class="container__button">
-            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-pagina" class="button button--flex new text-decoration-none">+ Criar Página</a>
+            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-depoimento" class="button button--flex new text-decoration-none">+ Criar Depoimento</a>
         </div>
     </div>
 </div>
-
-<div class="rating">
-  <span class="star" data-rating="1">&#9733;</span>
-  <span class="star" data-rating="2">&#9733;</span>
-  <span class="star" data-rating="3">&#9733;</span>
-  <span class="star" data-rating="4">&#9733;</span>
-  <span class="star" data-rating="5">&#9733;</span>
-</div>
-<p id="rating-value">Avaliação: 0 estrelas</p>
 
 <form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/delete_tables.php" method="post" class="table__actions">
     <div class="card__container grid one tabPanel" style="display: grid;">
@@ -75,16 +57,14 @@
                                 <input type="checkbox" class="form-check-input" id="checkAll">
                             </th>
                             <th class="small">Nome</th>
-                            <th class="small">Valor</th>
-                            <th class="small">Categoria</th>
-                            <th class="small">SKU</th>
-                            <th class="small">Data de Criação</th>
+                            <th class="small">Depoimento</th>
+                            <th class="small">Quantidade de estrelas</th>
                             <th class="small">Eventos</th>
                         </tr>
                     </thead>
                     <?php
                     // Nome da tabela para a busca
-                    $tabela = 'tb_products';
+                    $tabela = 'tb_depositions';
 
                     $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
 
@@ -96,18 +76,11 @@
                     // Recuperar os resultados
                     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+                    
+                    $contador = 0;
+
                     // Loop através dos resultados e exibir todas as colunas
                     foreach ($resultados as $usuario) {
-                        //Formatacao preco
-                        // $price = str_replace(',', '.', str_replace('.', '', $usuario['price']));
-                        $preco = $usuario['price'];
-
-                        // Transforma o número no formato "R$ 149,90"
-                        $price = "R$ " . number_format($preco, 2, ",", ".");
-
-                        //Formatacao para data
-                        $date_create = date("d/m/Y", strtotime($usuario['date_create']));
-
                         echo '
                             <tbody>
                                 <tr>
@@ -115,42 +88,47 @@
                                         <input class="form-check-input itemCheckbox" type="checkbox" name="selected_ids[]" value="' . $usuario['id'] . '" id="defaultCheck2">
                                     </td>
                                     <td>
-                        ';
-
-                        // Consulta SQL para selecionar todas as colunas com base no ID
-                        $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
-
-                        // Preparar e executar a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':usuario_id', $usuario['id']);
-                        $stmt->execute();
-
-                        // Recuperar os resultados
-                        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        // Loop através dos resultados e exibir todas as colunas
-                        foreach ($imagens as $imagem) {
-                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
-                        }
-                        
-                        echo '
+                                        <img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/depositions/' . $usuario['img'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">
                                         ' . $usuario['name'] . '
                                     </td>
-                                    <td>' . $price . '</td>
-                                    <td>' . $usuario['categories'] . '</td>
-                                    <td>' . $usuario['sku'] . '</td>
-                                    <td>' . $date_create . '</td>
+                                    <td>' . $usuario['testimony'] . '</td>
+                                    <td><div class="d-flex fw-semibold"><div class="rating' . $contador . ' dep-stars text-warning me-2">
+                        ';
+                        
+                        // Código JavaScript para gerar as estrelas de classificação com base na coluna 'rating' do banco de dados
+                        echo '<script>';
+                        echo 'const classificacao' . $contador . ' = ' . $usuario['qualification'] . ';';
+                        echo 'const ratingContainer' . $contador . ' = document.createElement("div");';
+                        echo 'ratingContainer' . $contador . '.className = "stars";';
+                        echo 'for (let i = 0; i < 5; i++) {';
+                        echo '  const star = document.createElement("i");';
+                        echo '  if (i < classificacao' . $contador . ') {';
+                        echo '    star.className = "bx bxs-star";'; // Estrela ativa
+                        echo '  } else {';
+                        echo '    star.className = "bx bx-star";'; // Estrela inativa
+                        echo '  }';
+                        echo '  ratingContainer' . $contador . '.appendChild(star);';
+                        echo '}';
+                        echo 'document.querySelector(".rating' . $contador . '").appendChild(ratingContainer' . $contador . ');';
+                        echo '</script>';
+
+                        echo '</div> ' . $usuario['qualification'] . '</div></td>';
+
+                        echo '
                                     <td>
-                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-produto?id=' . $usuario['id'] . '" class="btn btn-primary">
+                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-depoimento?id=' . $usuario['id'] . '" class="btn btn-primary">
                                             <i class="bx bx-show-alt" ></i>
                                         </a>
-                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-produto?id=' . $usuario['id'] . '" class="btn btn-danger">
+                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-depoimento?id=' . $usuario['id'] . '" class="btn btn-danger">
                                             <i class="bx bxs-trash" ></i>
                                         </a>
                                     </td>
                                 </tr>
                             </tbody>
                         ';
+
+                        // Incrementar o contador
+                        $contador++;
                     }
                 ?>
                 </table>
@@ -181,8 +159,8 @@
                     echo '
                             <div class="p-5 text-center">
                                 <i class="bx bx-package" style="font-size: 3.5rem;"></i>
-                                <p class="fw-semibold mb-4">Você não possui nenhuma página ativa!</p>
-                                <a href="' . INCLUDE_PATH_DASHBOARD . 'criar-pagina" class="btn btn-success btn-create-product px-3 py-2 text-decoration-none">+ Criar Página</a>
+                                <p class="fw-semibold mb-4">Você não possui nenhum depoimento ativo!</p>
+                                <a href="' . INCLUDE_PATH_DASHBOARD . 'criar-depoimento" class="btn btn-success btn-create-product px-3 py-2 text-decoration-none">+ Criar Depoimento</a>
                             </div>
                         ';
                 }
@@ -248,53 +226,4 @@
         toggleDivVisibility("modal-1", "targetDiv1");
         toggleDivVisibility("modal-2", "targetDiv2");
     });
-</script>
-
-<!-- Estrelas -->
-<script>
-    // Seleciona todas as estrelas
-const stars = document.querySelectorAll(".star");
-
-// Seleciona o elemento de exibição do valor da avaliação
-const ratingValue = document.getElementById("rating-value");
-
-// Inicializa o valor da avaliação como 0
-let currentRating = 0;
-
-// Adiciona ouvintes de evento às estrelas
-stars.forEach((star) => {
-  star.addEventListener("click", () => {
-    // Obtém o valor da estrela clicada
-    const rating = parseInt(star.getAttribute("data-rating"));
-
-    // Define o valor da avaliação atual
-    currentRating = rating;
-
-    // Atualiza a exibição do valor da avaliação
-    ratingValue.innerText = `Avaliação: ${rating} estrela(s)`;
-
-    // Define a cor das estrelas selecionadas
-    stars.forEach((s) => {
-      const starRating = parseInt(s.getAttribute("data-rating"));
-      if (starRating <= rating) {
-        s.style.color = "#ffdd00";
-      } else {
-        s.style.color = "#ccc";
-      }
-    });
-  });
-});
-
-// Adiciona um ouvinte de evento para redefinir a avaliação quando o mouse sai da área de avaliação
-document.querySelector(".rating").addEventListener("mouseleave", () => {
-  // Redefine a cor das estrelas
-  stars.forEach((s) => {
-    const starRating = parseInt(s.getAttribute("data-rating"));
-    if (starRating <= currentRating) {
-      s.style.color = "#ffdd00";
-    } else {
-      s.style.color = "#ccc";
-    }
-  });
-});
 </script>

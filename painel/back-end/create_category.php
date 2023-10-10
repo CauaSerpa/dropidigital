@@ -10,6 +10,7 @@
         // Recebe os dados do formulário
         $shop_id = $_POST['shop_id'];
         $name = $_POST['name'];
+        $link = $_POST['link'];
         $description = $_POST['description'];
         $parent_category = $_POST['parent_category'];
 
@@ -32,32 +33,74 @@
         $seo_link = $_POST['seo_link'];
         $seo_description = $_POST['seo_description'];
 
-        // Faça a validação dos campos, evitando SQL injection e outros ataques
-        // Por exemplo, use a função filter_input() e hash para a senha:
+        // Processar o upload de imagens
+        $uploadDir = "category/$shop_id/";
 
-        // Insere a categoria no banco de dados
-        $sql = "INSERT INTO $tabela (shop_id, name, description, parent_category, status, emphasis, seo_name, seo_link, seo_description) VALUES 
-                                    (:shop_id, :name, :description, :parent_category, :status, :emphasis, :seo_name, :seo_link, :seo_description)";
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindValue(':shop_id', $shop_id);
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':description', $description);
-        $stmt->bindValue(':parent_category', $parent_category);
-        $stmt->bindValue(':status', $status);
-        $stmt->bindValue(':emphasis', $emphasis);
-        $stmt->bindValue(':seo_name', $seo_name);
-        $stmt->bindValue(':seo_link', $seo_link);
-        $stmt->bindValue(':seo_description', $seo_description);
+        // Verifique se o diretório de upload existe, se não, crie-o
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
 
-        if ($stmt->execute()) {
-            $_SESSION['msgcad'] = "<p class='green'>Categoria cadastrada com sucesso!</p>";
-            // Redireciona para a página de login ou exibe uma mensagem de sucesso
-            header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
-            exit;
+        $fileName = time() . '.jpg';
+        $iconFileName = uniqid() . '.jpg';
+        $uploadFile = $uploadDir . basename($fileName);
+        $uploadIconFile = $uploadDir . basename($iconFileName);
+
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile) && move_uploaded_file($_FILES['icon']['tmp_name'], $uploadIconFile)) {
+            // Insere a categoria no banco de dados
+            $sql = "INSERT INTO $tabela (shop_id, name, icon, image, link, description, parent_category, status, emphasis, seo_name, seo_link, seo_description) VALUES 
+                                        (:shop_id, :name, :icon, :image, :link, :description, :parent_category, :status, :emphasis, :seo_name, :seo_link, :seo_description)";
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindValue(':shop_id', $shop_id);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':icon', $iconFileName);
+            $stmt->bindValue(':image', $fileName);
+            $stmt->bindValue(':link', $link);
+            $stmt->bindValue(':description', $description);
+            $stmt->bindValue(':parent_category', $parent_category);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':emphasis', $emphasis);
+            $stmt->bindValue(':seo_name', $seo_name);
+            $stmt->bindValue(':seo_link', $seo_link);
+            $stmt->bindValue(':seo_description', $seo_description);
+
+            if ($stmt->execute()) {
+                $_SESSION['msgcad'] = "<p class='green'>Categoria cadastrada com sucesso!</p>";
+                // Redireciona para a página de login ou exibe uma mensagem de sucesso
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+                exit;
+            } else {
+                $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar a categoria!</p>";
+                // Redireciona para a página de login ou exibe uma mensagem de sucesso
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+                exit;
+            }
         } else {
-            $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar a categoria!</p>";
-            // Redireciona para a página de login ou exibe uma mensagem de sucesso
-            header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
-            exit;
+            // Insere a categoria no banco de dados
+            $sql = "INSERT INTO $tabela (shop_id, name, link, description, parent_category, status, emphasis, seo_name, seo_link, seo_description) VALUES 
+                                        (:shop_id, :name, :link, :description, :parent_category, :status, :emphasis, :seo_name, :seo_link, :seo_description)";
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindValue(':shop_id', $shop_id);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':link', $link);
+            $stmt->bindValue(':description', $description);
+            $stmt->bindValue(':parent_category', $parent_category);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':emphasis', $emphasis);
+            $stmt->bindValue(':seo_name', $seo_name);
+            $stmt->bindValue(':seo_link', $seo_link);
+            $stmt->bindValue(':seo_description', $seo_description);
+
+            if ($stmt->execute()) {
+                $_SESSION['msgcad'] = "<p class='green'>Categoria cadastrada com sucesso!</p>";
+                // Redireciona para a página de login ou exibe uma mensagem de sucesso
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+                exit;
+            } else {
+                $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar a categoria!</p>";
+                // Redireciona para a página de login ou exibe uma mensagem de sucesso
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+                exit;
+            }
         }
     }

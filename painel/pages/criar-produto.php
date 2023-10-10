@@ -175,6 +175,7 @@
                     <small id="nameCounter" class="form-text text-muted">0 de 120 caracteres</small>
                 </div>
                 <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require>
+                <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/produto/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
             <!-- <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
@@ -348,6 +349,7 @@
         </div>
     </div>
 
+    <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
@@ -401,6 +403,34 @@
     const moneyInput2 = document.getElementById("moneyInput2");
     formatMoneyInput(moneyInput2);
 </script> -->
+
+<!-- Link -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Selecione o campo de entrada e o span
+        var input = $("#name");
+        var span = $("#linkPreview");
+
+        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        input.on("input", function() {
+            // Obtenha o valor atual do campo de entrada
+            var valor = input.val();
+
+            if (valor === '') {
+                valor = '...';
+            }
+            
+            // Substitua espaços extras por um único traço e converta para letras minúsculas
+            valor = valor.replace(/\s+/g, "-").toLowerCase();
+            
+            // Atualize o texto no span com o valor formatado
+            span.text(valor);
+
+            $('#link').val(valor);
+        });
+    });
+</script>
 
 <!-- Imagens -->
 <script>

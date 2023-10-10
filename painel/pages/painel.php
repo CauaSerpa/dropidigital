@@ -149,15 +149,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th>
-                            <input type="checkbox" class="form-check-input" id="checkAll">
-                        </th>
                         <th class="small">Nome</th>
                         <th class="small">Valor</th>
                         <th class="small">Categoria</th>
                         <th class="small">SKU</th>
                         <th class="small">Data de Criação</th>
-                        <th class="small">Eventos</th>
                     </tr>
                 </thead>
                 <?php
@@ -189,9 +185,6 @@
                     echo '
                         <tbody>
                             <tr>
-                                <td scope="row">
-                                    <input class="form-check-input itemCheckbox" type="checkbox" name="selected_ids[]" value="' . $usuario['id'] . '" id="defaultCheck2">
-                                </td>
                                 <td>
                     ';
 
@@ -218,14 +211,6 @@
                                 <td>' . $usuario['categories'] . '</td>
                                 <td>' . $usuario['sku'] . '</td>
                                 <td>' . $date_create . '</td>
-                                <td>
-                                    <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-produto?id=' . $usuario['id'] . '" class="btn btn-primary">
-                                        <i class="bx bx-show-alt" ></i>
-                                    </a>
-                                    <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-produto?id=' . $usuario['id'] . '" class="btn btn-danger">
-                                        <i class="bx bxs-trash" ></i>
-                                    </a>
-                                </td>
                             </tr>
                         </tbody>
                     ';

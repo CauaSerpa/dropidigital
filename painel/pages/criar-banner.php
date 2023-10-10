@@ -287,7 +287,6 @@
                             <select class="form-select" name="location" id="location" aria-label="Default select example">
                                 <option value="" selected disabled>Selecione a posição</option>
                                 <option value="full-banner">Full Banner</option>
-                                <option value="mini-banner">Mini banner</option>
                                 <option value="shelf-banner">Banner prateleira</option>
                             </select>
                         </div>
@@ -387,22 +386,6 @@
                             <p class="small fw-semibold">FULL BANNER</p>
                         </div>
                         <div class="banner row g-3 mb-3">
-                            <div class="col-md-4 d-grid">
-                                <div class="mini-banner card p-4 bg-body-secondary">
-                                </div>
-                            </div>
-                            <div class="col-md-4 d-grid">
-                                <div class="mini-banner card p-4 bg-body-secondary text-center">
-                                    <p class="small fw-semibold">MINI BANNER</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4 d-grid">
-                                <div class="mini-banner card p-4 bg-body-secondary">
-                                    <i class='bx bx-help-circle banner-size' data-toggle="tooltip" data-bs-placement="top" data-bs-title="Largura recomendada: 360px Altura recomendada: 360px"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="banner row g-3">
                             <div class="col-md-6 d-grid">
                                 <div class="shelf-banner card p-4 bg-body-secondary text-center">
                                     <p class="small fw-semibold">BANNER PRATELEIRA</p>
@@ -411,6 +394,16 @@
                             <div class="col-md-6 d-grid">
                                 <div class="shelf-banner card p-4 bg-body-secondary text-center">
                                     <i class='bx bx-help-circle banner-size' data-toggle="tooltip" data-bs-placement="top" data-bs-title="Largura recomendada: 500px Altura recomendada: 200px"></i>
+                                    <p class="small fw-semibold">BANNER PRATELEIRA</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 d-grid">
+                                <div class="shelf-banner card p-4 bg-body-secondary text-center">
+                                    <p class="small fw-semibold">BANNER PRATELEIRA</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 d-grid">
+                                <div class="shelf-banner card p-4 bg-body-secondary text-center">
                                     <p class="small fw-semibold">BANNER PRATELEIRA</p>
                                 </div>
                             </div>

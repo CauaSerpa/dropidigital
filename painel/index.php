@@ -304,7 +304,7 @@
                     <li><a class="link_name" href="#">Dashboard</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('criar-produto'); ?> <?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('avaliacoes'); ?> <?php showSidebarLinks('produtos'); ?> <?php showSidebarLinks('criar-produto'); ?> <?php showSidebarLinks('avaliacoes'); ?> <?php showSidebarLinks('categorias'); ?>">
+            <li class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('criar-produto'); ?> <?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('criar-categoria'); ?> <?php activeSidebarLink('avaliacoes'); ?> <?php showSidebarLinks('produtos'); ?> <?php showSidebarLinks('criar-produto'); ?> <?php showSidebarLinks('avaliacoes'); ?> <?php showSidebarLinks('categorias'); ?> <?php showSidebarLinks('criar-categoria'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="sidebar_link">
@@ -318,7 +318,7 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos">Produtos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="<?php activeSidebarLink('produtos'); ?>">Listar Produtos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto" class="<?php activeSidebarLink('criar-produto'); ?>" style="border-bottom: 1px solid #c4c4c4;">+ Criar Produto</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="<?php activeSidebarLink('categorias'); ?>">Categorias</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="<?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('criar-categoria'); ?>">Categorias</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>avaliacoes" class="<?php activeSidebarLink('avaliacoes'); ?>">Avaliações</a></li>
                 </ul>
             </li>
@@ -362,7 +362,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>historico-de-faturas" class="<?php activeSidebarLink('historico-de-faturas'); ?>">Histórico de Faturas</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink('depoimentos'); ?> <?php activeSidebarLink('criar-depoimento'); ?> <?php showSidebarLinks('depoimentos'); ?> <?php showSidebarLinks('criar-depoimento'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="sidebar_link">
@@ -374,7 +374,8 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos">Depoimentos</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="<?php activeSidebarLink('depoimentos'); ?>">Criar Depoimento</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="<?php activeSidebarLink('depoimentos'); ?>">Depoimento</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-depoimento" class="<?php activeSidebarLink('criar-depoimento'); ?>">Criar Depoimento</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
@@ -470,6 +471,15 @@
                     </ul>
                 </li>
                 <div class="line"></div>
+                <li>
+                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>influenciadores">
+                        <i class='bx bx-cog' ></i>
+                        <span class="link_name">Influenciadores</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name ms-0" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>influenciadores">Influenciadores</a></li>
+                    </ul>
+                </li>
                 <li>
                     <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">
                         <i class='bx bx-cog' ></i>
