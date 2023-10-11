@@ -145,26 +145,28 @@
     }
 ?>
 <?php
-$contagemArquivo = 'contagem_visitas.txt';
+    // Data atual
+    $dataAtual = date("Y-m-d");
 
-// Verifica se o arquivo de contagem existe
-if (file_exists($contagemArquivo)) {
-    // Lê o número atual de visitas do arquivo
-    $contagem = (int) file_get_contents($contagemArquivo);
-} else {
-    // Se o arquivo não existe, cria-o com a contagem inicial igual a 1
-    $contagem = 1;
-    file_put_contents($contagemArquivo, $contagem);
-}
+    // Consulta para verificar se já há uma entrada para a data atual
+    $sql = "SELECT * FROM tb_visits WHERE data = :data";
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':data', $dataAtual);
+    $stmt->execute();
 
-// Incrementa a contagem de visitas
-$contagem++;
-
-// Salva a nova contagem de visitas no arquivo
-file_put_contents($contagemArquivo, $contagem);
-
-// Exibe a contagem de visitas
-echo "Total de visitas: " . $contagem;
+    // Se não houver entrada para a data atual, insira uma nova entrada
+    if ($stmt->rowCount() == 0) {
+        $sql = "INSERT INTO tb_visits (data, contagem) VALUES (:data, 1)";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+    } else {
+        // Se houver entrada para a data atual, apenas atualize a contagem
+        $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE data = :data";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+    }
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
