@@ -294,7 +294,7 @@
         </nav>
     </header>
     <nav class="sidebar close">
-        <ul class="nav-links">
+        <ul class="nav-links overflow-y-scroll">
             <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?>">
                 <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">
                     <i class='bx bx-grid-alt' ></i>
