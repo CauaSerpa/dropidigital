@@ -129,7 +129,7 @@
                                     <td>' . $status . '</td>
                                     <td>
                                         <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-banner?id=' . $usuario['id'] . '" class="btn btn-primary">
-                                            <i class="bx bx-show-alt" ></i>
+                                            <i class="bx bxs-edit" ></i>
                                         </a>
                                         <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-banner?id=' . $usuario['id'] . '" class="btn btn-danger">
                                             <i class="bx bxs-trash" ></i>

@@ -29,7 +29,7 @@
         //echo "Erro: Conexão com banco de dados não realizado com sucesso. Erro gerado " . $err->getMessage();
     }
 
-    define('INCLUDE_PATH','http://localhost/dropidigital/app/');
+    define('INCLUDE_PATH', $_ENV['URL']);
     define('INCLUDE_PATH_DASHBOARD',INCLUDE_PATH.'painel/');
     
     //Pega cargo

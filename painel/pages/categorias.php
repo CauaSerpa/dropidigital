@@ -148,7 +148,7 @@
                                         echo "<td style='width:100%;'>" . $usuario['name'] . "</td>";
                                         echo '<td>
                                                 <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-categoria?id=' . $usuario['id'] . '" class="btn btn-primary">
-                                                    <i class="bx bx-show-alt" ></i>
+                                                    <i class="bx bxs-edit" ></i>
                                                 </a>
                                                 <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-categoria?id=' . $usuario['id'] . '" class="btn btn-danger">
                                                     <i class="bx bxs-trash" ></i>

@@ -26,25 +26,32 @@
             $emphasis = 0;
         }
 
-        echo $status;
-        echo $emphasis;
-
         $seo_name = $_POST['seo_name'];
         $seo_link = $_POST['seo_link'];
         $seo_description = $_POST['seo_description'];
 
-        // Processar o upload de imagens
-        $uploadDir = "category/$shop_id/";
+        // Id da loja
+        $shop_id = $_POST['shop_id'];
 
-        // Verifique se o diretório de upload existe, se não, crie-o
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+        // Diretório para salvar as imagens de 'image'
+        $diretorioImage = "./category/$shop_id/image/";
+
+        // Diretório para salvar as imagens de 'icon'
+        $diretorioIcon = "./category/$shop_id/icon/";
+
+        // Certifique-se de que os diretórios de destino existam
+        if (!is_dir($diretorioImage)) {
+            mkdir($diretorioImage, 0755, true);
+        }
+
+        if (!is_dir($diretorioIcon)) {
+            mkdir($diretorioIcon, 0755, true);
         }
 
         $fileName = time() . '.jpg';
         $iconFileName = uniqid() . '.jpg';
-        $uploadFile = $uploadDir . basename($fileName);
-        $uploadIconFile = $uploadDir . basename($iconFileName);
+        $uploadFile = $diretorioImage . basename($fileName);
+        $uploadIconFile = $diretorioIcon . basename($iconFileName);
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile) && move_uploaded_file($_FILES['icon']['tmp_name'], $uploadIconFile)) {
             // Insere a categoria no banco de dados

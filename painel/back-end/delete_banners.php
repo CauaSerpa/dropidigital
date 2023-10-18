@@ -43,7 +43,6 @@
 
                 $_SESSION['msg'] = "<p class='green'>Banners deletados com sucesso!</p>";
                 header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
-                exit;
             } else {
                 $_SESSION['msg'] = "<p class='red'>Nenhum banner encontrado para exclusão.</p>";
                 header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");

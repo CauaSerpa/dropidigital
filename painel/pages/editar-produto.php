@@ -180,14 +180,14 @@ if(!empty($id)){
     }
 </style>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_product.php" method="post" enctype="multipart/form-data">
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_product.php" method="post" enctype="multipart/form-data">
 
     <div class="page__header center">
         <div class="header__title">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb align-items-center mb-3">
                     <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>produtos" class="fs-5 text-decoration-none text-reset">Produtos</a></li>
-                    <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Criar Produto</li>
+                    <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Editar Produto</li>
                 </ol>
             </nav>
         </div>
@@ -237,7 +237,7 @@ if(!empty($id)){
         </div>
         <div class="card-body px-5 py-3">
             <label for="upload-button" class="image-container mt-3">
-                <input type="file" name="imagens[]" id="upload-button" multiple accept="image/*" />
+                <input type="file" name="imagens[]" id="upload-button" multiple accept="image/*">
                 <div for="upload-button" class="dropzone">
                     <i class='bx bx-image fs-1'></i>
                     <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
@@ -246,33 +246,27 @@ if(!empty($id)){
             </label>
             <div class="sortable-container mt-3">
                 <div id="image-display">
+                    <?php
+                        // Consulta SQL para selecionar todas as colunas com base no ID
+                        $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC";
 
-                <?php
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':usuario_id', $product['id']);
+                        $stmt->execute();
 
-                    // Consulta SQL para selecionar todas as colunas com base no ID
-                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id DESC";
+                        // Recuperar os resultados
+                        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Preparar e executar a consulta
-                    $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':usuario_id', $product['id']);
-                    $stmt->execute();
-
-                    // Recuperar os resultados
-                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    // Loop através dos resultados e exibir todas as colunas
-                    foreach ($imagens as $imagem) {
-
-                        echo '
-                            <figure class="sortable-image">
-                                <img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '">
-                            </figure>
-                                ';
-                        
-                        $encontrouProduto = true;
-                    }
-            ?>
-
+                        // Loop através dos resultados e exibir todas as colunas
+                        foreach ($imagens as $imagem) {
+                            echo '
+                                <figure class="sortable-image">
+                                    <img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '">
+                                    <button class="remove-image" data-image-id="' . $imagem['id'] . '"></button>
+                                </figure>';
+                        }
+                    ?>
                 </div>
             </div>
         </div>
@@ -402,7 +396,8 @@ if(!empty($id)){
             </div>
         </div>
     </div>
-
+    
+    <input type="hidden" name="delete_images" id="delete-images-input" value="">
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
@@ -555,6 +550,54 @@ if(!empty($id)){
     window.onload = () => {
         error.innerText = "";
     };
+
+    // Adicione um evento de clique para remover a imagem
+    imageDisplay.addEventListener("click", (event) => {
+        if (event.target.classList.contains("remove-image")) {
+            const imageName = event.target.getAttribute("data-image-name");
+            // Adicione lógica aqui para remover a imagem do servidor ou do banco de dados
+            // Você também deve remover a imagem da lista no front-end
+            const imageFigure = event.target.parentElement;
+            imageFigure.remove();
+        }
+    });
+
+    // Inicialize o sortable
+    $(".sortable-container").sortable({
+        items: ".sortable-image",
+        cursor: "grabbing"
+    });
+</script>
+
+<script>
+// Dentro do evento de clique para remover a imagem
+imageDisplay.addEventListener("click", (event) => {
+    if (event.target.classList.contains("remove-image")) {
+        //Input onde sera inserido o valor
+        const deleteImagesInput = document.getElementById("delete-images-input");
+
+        const imageId = event.target.getAttribute("data-image-id");
+
+        // Obtém o valor atual no campo de entrada
+        const valorAtual = deleteImagesInput.value;
+        
+        // Valor que você deseja adicionar
+        const novoValor = imageId;
+
+        // Verifica se o campo já possui um valor
+        if (valorAtual.trim() !== "") {
+            // Se o campo já tem um valor, adicione uma vírgula e o novo valor
+            deleteImagesInput.value = valorAtual + ", " + novoValor;
+        } else {
+            // Se o campo estiver vazio, defina apenas o novo valor
+            deleteImagesInput.value = novoValor;
+        }
+
+        // Remove a imagem da lista no front-end
+        const imageFigure = event.target.parentElement;
+        imageFigure.remove();
+    }
+});
 </script>
 
 <!-- Video Preview -->
@@ -707,7 +750,7 @@ if(!empty($id)){
         $('#saveButton button').click(function () {
             if (formChanged) {
                 // Aqui você pode adicionar a lógica para salvar os dados do formulário
-                alert('Dados salvos!');
+                // alert('Dados salvos!');
                 formChanged = false;
                 $('#saveButton').hide();
                 $('.main.container').removeClass('save-button-show');

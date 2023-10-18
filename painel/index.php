@@ -345,7 +345,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?>">Incluir pág. conteúdo</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks(''); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="sidebar_link">
@@ -378,7 +378,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-depoimento" class="<?php activeSidebarLink('criar-depoimento'); ?>">Criar Depoimento</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks(''); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configurar-dominio" class="sidebar_link">
@@ -394,7 +394,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>email-profissional" class="<?php activeSidebarLink('email-profissional'); ?>">Conf. E-mail profissional</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks(''); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>telefone" class="sidebar_link">
@@ -429,7 +429,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">YouTube</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks(''); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="sidebar_link">

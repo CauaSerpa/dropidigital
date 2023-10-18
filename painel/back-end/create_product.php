@@ -34,39 +34,40 @@
         // Recupere o ID do último registro inserido
         $ultimo_id = $conn_pdo->lastInsertId();
 
-        // Processar o upload de imagens
-        $uploadDir = "imagens/$ultimo_id/";
+        $total = count($_FILES['imagens']['name']);
 
-        // Criar o diretório
-        mkdir($uploadDir, 0755);
+        // Loop através de cada arquivo
+        for ($i = 0; $i < $total; $i++) {
+            // Certifique-se de que a pasta para as imagens exista
+            $uploadDir = "imagens/$ultimo_id/";
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
 
-        foreach ($_FILES['imagens']['tmp_name'] as $key => $tmp_name) {
-            $fileName = $_FILES['imagens']['name'][$key];
+            $fileName = $_FILES['imagens']['name'][$i];
+            $tmp_name = $_FILES['imagens']['tmp_name'][$i];
             $uploadFile = $uploadDir . basename($fileName);
 
             if (move_uploaded_file($tmp_name, $uploadFile)) {
                 // Inserir informações da imagem no banco de dados, associando-a ao registro principal
-                $sql = "INSERT INTO imagens (usuario_id, nome_imagem) VALUES (:usuario_id, :nome_imagem)";
-                $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':usuario_id', $ultimo_id);
-                $stmt->bindParam(':nome_imagem', $fileName);
+                $sqlInsertImagem = "INSERT INTO imagens (usuario_id, nome_imagem) VALUES (:usuario_id, :nome_imagem)";
+                $stmtInsertImagem = $conn_pdo->prepare($sqlInsertImagem);
+                $stmtInsertImagem->bindParam(':usuario_id', $ultimo_id);
+                $stmtInsertImagem->bindParam(':nome_imagem', $fileName);
 
-                if ($stmt->execute()) {
+                if ($stmtInsertImagem->execute()) {
                     $_SESSION['msgcad'] = "<p class='green'>Usuário cadastrado com sucesso!</p>";
                     // Redireciona para a página de login ou exibe uma mensagem de sucesso
                     header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
-                    exit;
                 } else {
                     $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar a imagem!</p>";
                     // Redireciona para a página de login ou exibe uma mensagem de sucesso
                     header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
-                    exit;
                 }
             } else {
-                $_SESSION['msg'] = "<p class='red'>>Erro ao cadastrar a imagem!</p>";
+                $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar a imagem!</p>";
                 // Redireciona para a página de login ou exibe uma mensagem de sucesso
                 header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
-                exit;
             }
         }
     }

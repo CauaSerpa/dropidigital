@@ -218,9 +218,9 @@
                 <div class="col-md-6">
                     <label for="exampleInputEmail2" class="form-label small">Visualização</label>
                     <div class="seo-preview p-3 rounded-2">
-                        <h5 class="mb-0" id="textPreview1">Título da página</h5>
-                        <p class="text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="textPreview2">link-da-pagina</span></p>
-                        <p class="small" id="textPreview3">Descrição da página</p>
+                        <h5 class="mb-0" id="textPreview1">Título da categoria</h5>
+                        <p class="text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="textPreview2">link-da-categoria</span></p>
+                        <p class="small" id="textPreview3">Descrição da categoria</p>
                     </div>
                 </div>
             </div>
