@@ -11,6 +11,56 @@
 
         $countBanners = $stmt->rowCount();
 ?>
+<style>
+    .card.table
+    {
+        overflow: hidden;
+    }
+    .checkbox
+    {
+        width: 0 !important;
+    }
+    .form-check-input
+    {
+        position: relative;
+        margin-left: 0;
+    }
+    .move-icon
+    {
+        font-size: var(--h3-font-size);
+        color: var(--text-color-light);
+        vertical-align: middle;
+    }
+    .sortable tbody tr .glyphicon:hover
+    {
+        cursor: -webkit-grab;
+        cursor: grab;
+    }
+    .sortable tbody tr .glyphicon:active
+    {
+        cursor: -webkit-grabbing;
+        cursor: grabbing;
+    }
+    .ui-sortable-handle.ui-sortable-helper
+    {
+        background-color: #000 !important;
+    }
+    .table>:not(caption)>*>*
+    {
+        max-width: 1246px !important;
+        padding: 0;
+    }
+    .table>:not(caption)>*>* th,
+    .table>:not(caption)>*>* td
+    {
+        padding: .75rem;
+    }
+    table tbody td
+    {
+        border-top: 1px solid var(--border-color);
+    }
+</style>
+
 <div class="page__header center">
     <div class="header__title">
         <h2 class="title">Banners</h2>

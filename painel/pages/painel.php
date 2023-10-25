@@ -4,9 +4,6 @@
 </head>
 
 <?php
-    // Conecte-se ao banco de dados (substitua as credenciais pelo seu próprio banco de dados)
-    $pdo = new PDO("mysql:host=localhost;dbname=dropidigital", "root", "");
-
     // Calcule a data de hoje
     $dataAtual = date('Y-m-d');
 
@@ -16,7 +13,7 @@
     // Recupere os dados da tabela de visitas para o período desejado e armazene-os em um array PHP chamado $dadosPorDia
     // Consulta SQL para recuperar os dados da tabela de visitas no período desejado
     $sql = "SELECT * FROM tb_visits WHERE data BETWEEN :dataUmMesAtras AND :dataAtual ORDER BY data ASC";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':dataUmMesAtras', $dataUmMesAtras);
     $stmt->bindParam(':dataAtual', $dataAtual);
     $stmt->execute();
@@ -71,7 +68,7 @@
     $sqlMesAtual = "SELECT SUM(contagem) AS visitas_mes_atual
     FROM tb_visits
     WHERE MONTH(data) = 10 AND YEAR(data) = 2023";
-    $stmtMesAtual = $pdo->query($sqlMesAtual);
+    $stmtMesAtual = $conn_pdo->query($sqlMesAtual);
     $resultadoMesAtual = $stmtMesAtual->fetch(PDO::FETCH_ASSOC);
     $visitasMesAtual = $resultadoMesAtual['visitas_mes_atual'];
 
@@ -79,7 +76,7 @@
     $sqlMesAnterior = "SELECT SUM(contagem) AS visitas_mes_anterior
     FROM tb_visits
     WHERE MONTH(data) = 9 AND YEAR(data) = 2023";
-    $stmtMesAnterior = $pdo->query($sqlMesAnterior);
+    $stmtMesAnterior = $conn_pdo->query($sqlMesAnterior);
     $resultadoMesAnterior = $stmtMesAnterior->fetch(PDO::FETCH_ASSOC);
     $visitasMesAnterior = $resultadoMesAnterior['visitas_mes_anterior'];
 
@@ -117,7 +114,7 @@
             FROM tb_visits
             WHERE MONTH(data) = :mes AND YEAR(data) = :ano
             GROUP BY dia";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':mes', $mes);
     $stmt->bindParam(':ano', $ano);
     $stmt->execute();
@@ -235,7 +232,7 @@
     <p>Boa Noite</p>
     <h2><?php echo $name; ?></h2>
 </div>
-<div class="card__container row">
+<div class="card__container row g-3">
     <div class="card__box shop__info col-sm-4 grid">
         <div class="card grid">
             <div class="card__header">
@@ -266,7 +263,7 @@
 
     // Consulta SQL para contar os produtos na tabela
     $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela";
-    $stmt = $pdo->query($sql);
+    $stmt = $conn_pdo->query($sql);
 
     // Recupere o resultado da consulta
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -435,7 +432,7 @@
         </div>
     </div>
 </div>
-<div class="card__container row">
+<div class="card__container row g-3">
     <div class="card__box shop__info col-sm-8 grid">
         <div class="card grid">
             <div class="card__header">
@@ -475,37 +472,41 @@
 
 <div class="row g-3">
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-1.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-2.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-3.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-4.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-5.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-6.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-7.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-8.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
     <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/dashboard/home-banner.jpg" class="w-100" alt="Anúncio Banner">
+        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-9.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>
 </div>
 
 <div class="card__container grid one tabPanel" style="display: grid;">
     <div class="card__box grid">
         <div class="card table">
+            <div class="card__header">
+                <h3 class="title h5 fw-semibold">Produtos Cadastrados</h3>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="link">Ver Mais</a>
+            </div>
     <?php
         // Nome da tabela para a busca
         $tabela = 'tb_products';
@@ -535,7 +536,7 @@
                 // Nome da tabela para a busca
                 $tabela = 'tb_products';
 
-                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT 10";
 
                 // Preparar e executar a consulta
                 $stmt = $conn_pdo->prepare($sql);
@@ -582,8 +583,28 @@
                     echo '
                                     ' . $usuario['name'] . '
                                 </td>
-                                <td>' . $price . '</td>
-                                <td>' . $usuario['categories'] . '</td>
+                                <td>' . $price . '</td>';
+
+                    // Nome da tabela para a busca
+                    $tabela = 'tb_categories';
+
+                    $sql = "SELECT (name) FROM $tabela WHERE id = :id ORDER BY id DESC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':id', $usuario['categories']);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($categories as $category) {
+                        echo "<td>";
+                        echo $category['name'];
+                        echo "</td>";
+                    }
+        
+                    echo '
                                 <td>' . $usuario['sku'] . '</td>
                                 <td>' . $date_create . '</td>
                             </tr>

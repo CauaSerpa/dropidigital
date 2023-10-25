@@ -604,11 +604,13 @@ if(!empty($id)){
             textPreview1.text(newText);
         });
 
-        inputText2.on('input', function () {
-            var newText = inputText2.val();
-            if (newText === '') {
-                newText = 'link-da-pagina';
+        inputText2.on("input", function() {
+            var text = inputText2.val();
+            if (text === '') {
+                text = 'link-da-pagina';
             }
+            newText = text.replace(/\s+/g, "-").toLowerCase();
+            $(this).val($(this).val().replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
         });
 
@@ -625,24 +627,31 @@ if(!empty($id)){
 <!-- Text Counter -->
 <script>
     $(document).ready(function() {
-        $('#textInput1').on('input', function() {
+        // Esta função será chamada quando a página carregar
+        $('#textInput1, #textInput3').on('input', function() {
             var currentText = $(this).val();
             var currentLength = currentText.length;
             var maxLength = parseInt($(this).attr('maxlength'));
-            $('#textCounter1').text(currentLength + ' de ' + maxLength + ' caracteres');
-        });
-    });
-</script>
 
-<!-- Text Counter -->
-<script>
-    $(document).ready(function() {
-        $('#textInput3').on('input', function() {
-            var currentText = $(this).val();
-            var currentLength = currentText.length;
-            var maxLength = parseInt($(this).attr('maxlength'));
-            $('#textCounter3').text(currentLength + ' de ' + maxLength + ' caracteres');
+            if ($(this).is('#textInput1')) {
+                $('#textCounter1').text(currentLength + ' de ' + maxLength + ' caracteres');
+            } else if ($(this).is('#textInput3')) {
+                $('#textCounter3').text(currentLength + ' de ' + maxLength + ' caracteres');
+            }
         });
+
+        // Defina o valor inicial do contador quando a página carregar
+        var seoName = "<?php echo $category['seo_name']; ?>";
+        var seoDescription = "<?php echo $category['seo_description']; ?>";
+
+        var currentLength1 = seoName.length;
+        var currentLength3 = seoDescription.length;
+
+        var maxLength1 = parseInt($('#textInput1').attr('maxlength'));
+        var maxLength3 = parseInt($('#textInput3').attr('maxlength'));
+
+        $('#textCounter1').text(currentLength1 + ' de ' + maxLength1 + ' caracteres');
+        $('#textCounter3').text(currentLength3 + ' de ' + maxLength3 + ' caracteres');
     });
 </script>
 

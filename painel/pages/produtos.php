@@ -12,6 +12,56 @@
 
         $countProduct = $stmt->rowCount();
 ?>
+<style>
+    .card.table
+    {
+        overflow: hidden;
+    }
+    .checkbox
+    {
+        width: 0 !important;
+    }
+    .form-check-input
+    {
+        position: relative;
+        margin-left: 0;
+    }
+    .move-icon
+    {
+        font-size: var(--h3-font-size);
+        color: var(--text-color-light);
+        vertical-align: middle;
+    }
+    .sortable tbody tr .glyphicon:hover
+    {
+        cursor: -webkit-grab;
+        cursor: grab;
+    }
+    .sortable tbody tr .glyphicon:active
+    {
+        cursor: -webkit-grabbing;
+        cursor: grabbing;
+    }
+    .ui-sortable-handle.ui-sortable-helper
+    {
+        background-color: #000 !important;
+    }
+    .table>:not(caption)>*>*
+    {
+        max-width: 1246px !important;
+        padding: 0;
+    }
+    .table>:not(caption)>*>* th,
+    .table>:not(caption)>*>* td
+    {
+        padding: .75rem;
+    }
+    table tbody td
+    {
+        border-top: 1px solid var(--border-color);
+    }
+</style>
+
 <div class="page__header center">
     <div class="header__title">
         <h2 class="title">Produtos</h2>
@@ -120,8 +170,28 @@
                         echo '
                                         ' . $usuario['name'] . '
                                     </td>
-                                    <td>' . $price . '</td>
-                                    <td>' . $usuario['categories'] . '</td>
+                                    <td>' . $price . '</td>';
+
+                        // Nome da tabela para a busca
+                        $tabela = 'tb_categories';
+
+                        $sql = "SELECT (name) FROM $tabela WHERE id = :id ORDER BY id DESC";
+
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':id', $usuario['categories']);
+                        $stmt->execute();
+
+                        // Recuperar os resultados
+                        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($categories as $category) {
+                            echo "<td>";
+                            echo $category['name'];
+                            echo "</td>";
+                        }
+
+                        echo '
                                     <td>' . $usuario['sku'] . '</td>
                                     <td>' . $date_create . '</td>
                                     <td>

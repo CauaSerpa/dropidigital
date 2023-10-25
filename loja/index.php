@@ -13,6 +13,8 @@
         $subdominio = '';
     }
 
+    $subdominio = "minha-loja";
+
     // Obtém o protocolo (HTTP ou HTTPS)
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
 
@@ -202,6 +204,28 @@
     <link rel="stylesheet" href="css/owl.carousel.min.css">
     <link rel="stylesheet" href="css/owl.theme.default.min.css">
 </head>
+
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_scripts';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status ORDER BY id DESC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->bindValue(':status', 1);
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $scripts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Loop através dos resultados e exibir todas as colunas
+    foreach ($scripts as $script) {
+        echo $script['script'];
+    }
+?>
+
 <style>
     a:hover
     {
@@ -725,35 +749,77 @@
         </div>
 
         <?php
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'];
+            $uri = $_SERVER['REQUEST_URI'];
+            
+            $url = $protocol . "://" . $host . $uri;
+            
+            $substring = "produto/";
+            
             // Obtenha a rota da URL
             $route = isset($_GET['url']) ? $_GET['url'] : '';
-
-            // Tabela que sera pesquisada
-            $tabela = "tb_categories";
-
-            // Consulta SQL
-            $sql = "SELECT * FROM $tabela WHERE link = :link";
-
-            // Preparar a consulta
-            $stmt = $conn_pdo->prepare($sql);
-
-            // Vincular o valor do parâmetro
-            $stmt->bindParam(':link', $route, PDO::PARAM_STR);
-
-            // Executar a consulta
-            $stmt->execute();
-
-            // Obter o categoria como um array associativo
-            $categoria = $stmt->fetch(PDO::FETCH_ASSOC);
-
+            
+            $categoria = null; // Inicializa $categoria fora do bloco condicional
+            
+            if (strpos($url, $substring) !== false) {
+                // Removendo "produto/" da URL
+                $link = preg_replace("/^produto\//", "", $route);
+            
+                // Tabela que sera pesquisada
+                $tabela = "tb_products";
+            
+                // Consulta SQL
+                $sql = "SELECT * FROM $tabela WHERE link = :link";
+            
+                // Preparar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+            
+                // Vincular o valor do parâmetro
+                $stmt->bindParam(':link', $link, PDO::PARAM_STR);
+            
+                // Executar a consulta
+                $stmt->execute();
+            
+                // Obter o produto como um array associativo
+                $product = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                if ($product) {
+                    $product_id = $product['id'];
+                }
+            } else {
+                // Tabela que sera pesquisada
+                $tabela = "tb_categories";
+            
+                // Consulta SQL
+                $sql = "SELECT * FROM $tabela WHERE link = :link";
+            
+                // Preparar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+            
+                // Vincular o valor do parâmetro
+                $stmt->bindParam(':link', $route, PDO::PARAM_STR);
+            
+                // Executar a consulta
+                $stmt->execute();
+            
+                // Obter o categoria como um array associativo
+                $category = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                if ($category) {
+                    $category_id = $category['id'];
+                }
+            }
+            
             // Analise a rota e determine qual página carregar
             if (empty($route)) {
                 // Página inicial da loja
                 include('pages/loja.php');
-            } elseif ($categoria) {
-                $categoria_id = $categoria['id'];
-                
-                // Página de detalhes do categoria
+            } elseif (@$product) {
+                // Página de detalhes do produto
+                include('pages/produto.php');
+            } elseif (@$category) {
+                // Página de detalhes da categoria
                 include('pages/categoria.php');
             } else {
                 // Página de erro 404 para rotas não encontradas

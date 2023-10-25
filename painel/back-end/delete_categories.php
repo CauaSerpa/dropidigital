@@ -66,7 +66,6 @@
 
         // Redirecionar após a exclusão
         header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
-        exit;
     } else {
         $_SESSION['msg'] = "<p class='red'>Nenhuma categoria selecionada para exclusão.</p>";
         // Redirecionar se nenhum ID de categoria foi passado

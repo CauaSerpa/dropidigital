@@ -1,6 +1,6 @@
 <?php
         // Nome da tabela para a busca
-        $tabela = 'tb_pages';
+        $tabela = 'tb_scripts';
 
         $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
 
@@ -9,7 +9,7 @@
         $stmt->bindParam(':shop_id', $id);
         $stmt->execute();
 
-        $countPages = $stmt->rowCount();
+        $countScripts = $stmt->rowCount();
 ?>
 <!-- Codigo do site -->
 <style>
@@ -108,21 +108,21 @@
 
 <div class="page__header center">
     <div class="header__title">
-        <h2 class="title">Páginas</h2>
-        <p class="products-counter"><?php echo $countPages; echo ($countPages == 0 || $countPages == 1) ? ' página' : ' páginas'; ?></p>
+        <h2 class="title">Códigos HTML</h2>
+        <p class="products-counter"><?php echo $countScripts; echo ($countScripts == 0 || $countScripts == 1) ? ' código' : ' códigos'; ?></p>
     </div>
     <div class="header__actions">
-        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda/criar-pagina" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-decoration-none d-flex align-items-center me-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda/incluir-codigo-html" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-decoration-none d-flex align-items-center me-3">
             <i class='bx bx-help-circle me-1' ></i>
             <b>Obtenha ajuda sobre</b>
         </a>
         <div class="container__button">
-            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-pagina" class="button button--flex new text-decoration-none">+ Criar Página</a>
+            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>incluir-codigo-html" class="button button--flex new text-decoration-none">+ Incluir Código HTML</a>
         </div>
     </div>
 </div>
 
-<form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/delete_pages.php" method="post" class="table__actions">
+<form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/delete_html.php" method="post" class="table__actions">
     <div class="card__container grid one tabPanel" style="display: grid;">
         <div class="card__box grid">
             <div class="card table">
@@ -158,9 +158,6 @@
                     </thead>
                     <tbody>
                         <?php
-                            // Nome da tabela para a busca
-                            $tabela = 'tb_pages';
-
                             $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
 
                             // Preparar e executar a consulta
@@ -193,10 +190,10 @@
                                             <td>' . $date_create . '</td>
                                             <td>' . $status . '</td>
                                             <td>
-                                                <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-pagina?id=' . $usuario['id'] . '" class="btn btn-primary">
+                                                <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-codigo-html?id=' . $usuario['id'] . '" class="btn btn-primary">
                                                     <i class="bx bxs-edit" ></i>
                                                 </a>
-                                                <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-pagina?id=' . $usuario['id'] . '" class="btn btn-danger">
+                                                <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-codigo-html?id=' . $usuario['id'] . '" class="btn btn-danger">
                                                     <i class="bx bxs-trash" ></i>
                                                 </a>
                                             </td>
@@ -221,7 +218,7 @@
                                 <div onclick="show('50')">50</div>
                             </div>
                         </div>
-                        <label>Produtos por página</label>
+                        <label>Códigos por página</label>
                     </div>
                 </div>
                 <div class="right grid">
@@ -234,8 +231,8 @@
                     echo '
                             <div class="p-5 text-center">
                                 <i class="bx bx-package" style="font-size: 3.5rem;"></i>
-                                <p class="fw-semibold mb-4">Você não possui nenhuma página ativa!</p>
-                                <a href="' . INCLUDE_PATH_DASHBOARD . 'criar-pagina" class="btn btn-success btn-create-product px-3 py-2 text-decoration-none">+ Criar Página</a>
+                                <p class="fw-semibold mb-4">Você não possui nenhum código ativo!</p>
+                                <a href="' . INCLUDE_PATH_DASHBOARD . 'incluir-codigo-html" class="btn btn-success btn-create-product px-3 py-2 text-decoration-none">+ Incluir Código HTML</a>
                             </div>
                         ';
                 }

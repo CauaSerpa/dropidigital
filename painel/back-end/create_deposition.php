@@ -17,7 +17,7 @@
         // Processar o upload de imagens
         $uploadDir = "depositions/";
 
-        $fileName = $_FILES['img']['name'];
+        $fileName = time() . '.jpg';
         $uploadFile = $uploadDir . basename($fileName);
 
         if (move_uploaded_file($_FILES['img']['tmp_name'], $uploadFile)) {

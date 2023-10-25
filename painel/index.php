@@ -293,13 +293,72 @@
             </div>
         </nav>
     </header>
+
+    <style>
+        .sidebar
+        {
+            width: 266px !important;
+            background: none !important;
+        }
+        .sidebar.close
+        {
+            width: 266px !important;
+            border-right: none !important;
+        }
+        .sidebar .nav-links
+        {
+            overflow-y: scroll;
+        }
+        .sidebar.close .nav-links::before
+        {
+            content: "";
+            position: absolute;
+            left: 77px;
+            height: 100%;
+            width: 1px;
+            background: var(--border-color);
+        }
+
+        .sidebar.close .nav-links li
+        {
+            width: min-content;
+        }
+        .sidebar.close .nav-links li .iocn-link
+        {
+            width: 78px !important;
+            border-right: 1px solid var(--border-color) !important;
+        }
+        .sidebar.close .nav-links li .sub-menu
+        {
+            border-left: none !important;
+        }
+
+        .sidebar .sidebar_bottom
+        {
+            transition: none !important;
+        }
+
+        .offcanvas-filter
+        {
+            left: 266px !important;
+        }
+        .offcanvas-backdrop.fade.show
+        {
+            left: 266px !important;
+        }
+    </style>
+
     <nav class="sidebar close">
-        <ul class="nav-links overflow-y-scroll">
+        <ul class="nav-links">
             <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?>">
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">
-                    <i class='bx bx-grid-alt' ></i>
-                    <span class="link_name">Dashboard</span>
-                </a>
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">
+                            <i class='bx bx-grid-alt' ></i>
+                        </a>
+                        <span class="link_name">Dashboard</span>
+                    </p>
+                </div>
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="#">Dashboard</a></li>
                 </ul>
@@ -322,8 +381,8 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>avaliacoes" class="<?php activeSidebarLink('avaliacoes'); ?>">Avaliações</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php activeSidebarLink('video-youtube'); ?> <?php activeSidebarLink('tarja'); ?> <?php activeSidebarLink('paginas'); ?>
-                    <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?> <?php showSidebarLinks('video-youtube'); ?> <?php showSidebarLinks('tarja'); ?> <?php showSidebarLinks('paginas'); ?>">
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php activeSidebarLink('video-youtube'); ?> <?php activeSidebarLink('tarja'); ?> <?php activeSidebarLink('codigos-html'); ?> <?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('editar-pagina'); ?>
+                    <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?> <?php showSidebarLinks('video-youtube'); ?> <?php showSidebarLinks('tarja'); ?> <?php showSidebarLinks('codigos-html'); ?> <?php showSidebarLinks('paginas'); ?> <?php showSidebarLinks('editar-pagina'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="sidebar_link">
@@ -341,8 +400,8 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>botao-whatsapp" class="<?php activeSidebarLink('botao-whatsapp'); ?>">Botão WhatsApp</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>video-youtube" class="<?php activeSidebarLink('video-youtube'); ?>">Vídeo do Youtube</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>tarja" class="<?php activeSidebarLink('tarja'); ?>">Tarja Superior / Central</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>incluir-codigo-html" class="<?php activeSidebarLink('incluir-codigo-html'); ?>">Incluir código HTML</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?>">Incluir pág. conteúdo</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>codigos-html" class="<?php activeSidebarLink('codigos-html'); ?>">Incluir código HTML</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('editar-pagina'); ?>">Incluir pág. conteúdo</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
@@ -461,39 +520,55 @@
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('influenciadores'); ?>">
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>influenciadores">
-                    <i class='bx bx-group'></i>
-                    <span class="link_name">Influenciadores</span>
-                </a>
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>influenciadores">
+                            <i class='bx bx-group'></i>
+                        </a>
+                        <span class="link_name">Influenciadores</span>
+                    </p>
+                </div>
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>influenciadores">Influenciadores</a></li>
                 </ul>
             </li>
             <div class="sidebar_bottom">
                 <li>
-                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto">
-                        <i class='bx bx-plus' ></i>
-                        <span class="link_name">Criar produto</span>
-                    </a>
+                    <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto">
+                                <i class='bx bx-plus' ></i>
+                                <span class="link_name">Criar produto</span>
+                            </a>
+                        </p>
+                    </div>
                     <ul class="sub-menu blank">
                         <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto">Criar produto</a></li>
                     </ul>
                 </li>
                 <div class="line"></div>
                 <li>
-                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">
-                        <i class='bx bx-cog' ></i>
-                        <span class="link_name">Configurações</span>
-                    </a>
+                    <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">
+                                <i class='bx bx-cog' ></i>
+                            </a>
+                            <span class="link_name">Configurações</span>
+                        </p>
+                    </div>
                     <ul class="sub-menu blank">
                         <li><a class="link_name ms-0" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">Configurações</a></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="#">
-                        <i class='bx bx-log-out' ></i>
-                        <span class="link_name">Sair</span>
-                    </a>
+                    <div class="iocn-link">
+                        <p>
+                            <a href="#">
+                                <i class='bx bx-log-out' ></i>
+                            </a>
+                            <span class="link_name">Sair</span>
+                        </p>
+                    </div>
                     <ul class="sub-menu blank">
                         <li><a class="link_name" href="#">Sair</a></li>
                     </ul>

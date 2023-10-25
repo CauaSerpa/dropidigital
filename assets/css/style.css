@@ -3997,15 +3997,8 @@ h6, .h6 {
       text-decoration: underline;
       text-underline-offset: 2px;
       text-decoration-thickness: 1px; }
-    .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
-      margin-left: 15px;
-      margin-right: 15px;
-      -webkit-box-flex: 0;
-      -ms-flex: none;
-      flex: none;
-      color: white;
-      content: "\f105";
-      font-family: "Font Awesome 5 Pro"; }
+      .breadcrumb .breadcrumb-item.small {
+        font-size: 14px; }
 
 /*******************************************************/
 /******************* ## Main Slider *******************/

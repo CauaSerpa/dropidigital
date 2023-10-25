@@ -1,3 +1,31 @@
+<?php
+$shop_id = $id;
+
+//Apagar Card
+$id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+
+if(!empty($id)){
+    // Tabela que sera feita a consulta
+    $tabela = "tb_depositions";
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $deposition = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificar se o resultado foi encontrado
+    if ($deposition) {
+?>
 <style>
     .image-container
     {
@@ -44,15 +72,14 @@
     </div>
 </div>
 
-
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_deposition.php" method="post" enctype="multipart/form-data">
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_deposition.php" method="post" enctype="multipart/form-data">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
         <div class="card-body row px-4 py-3">
             <div class="row">
                 <div class="col-md-5 image-container">
                     <div class="person-image mb-3">
-                        <img id="imagemPreview" class="image-preview" src="../assets/images/services/service-next.jpg" alt="Preview da imagem">
+                        <img id="imagemPreview" class="image-preview object-fit-cover" src="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/depositions/" . $deposition['img']; ?>" alt="Preview da imagem">
                     </div>
                     <label for="imagemInput" class="btn btn btn-outline-secondary d-flex align-items-center fw-semibold mb-1">
                         <i class='bx bx-image fs-5 me-2'></i>
@@ -76,20 +103,20 @@
                             <span class="star" data-rating="4">&#9733;</span>
                             <span class="star" data-rating="5">&#9733;</span>
                         </div>
-                        <p class="fw-semibold" id="rating-value">0</p>
+                        <p class="fw-semibold" id="rating-value"><?php echo $deposition['qualification']; ?></p>
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <label for="name" class="form-label small">Nome da pessoa *</label>
                         </div>
-                        <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" require>
+                        <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" value="<?php echo $deposition['name']; ?>" required>
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <label for="testimony" class="form-label small">Depoimento</label>
                             <small id="testimonyCounter" class="form-text text-muted">0 de 150 caracteres</small>
                         </div>
-                        <textarea class="form-control" name="testimony" id="testimony" maxlength="150" rows="3"></textarea>
+                        <textarea class="form-control" name="testimony" id="testimony" maxlength="150" rows="3"><?php echo $deposition['testimony']; ?></textarea>
                     </div>
                 </div>
             </div>
@@ -97,7 +124,8 @@
     </div>
 
     <input type="hidden" name="qualification" id="qualification" value="">
-    <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+    <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
+    <input type="hidden" name="id" value="<?php echo $id; ?>">
 
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
         <div class="container-save-button container card-header fw-semibold bg-transparent d-flex align-items-center justify-content-between">
@@ -122,8 +150,8 @@
     // Input onde sera salvo o valor
     const qualification = document.getElementById("qualification");
 
-    // Inicializa o valor da avaliação como 0
-    let currentRating = 0;
+    // Inicializa o valor da avaliação a partir do PHP
+    let currentRating = parseInt(ratingValue.innerText);
 
     // Adiciona ouvintes de evento às estrelas
     stars.forEach((star) => {
@@ -136,7 +164,7 @@
 
             // Atualiza a exibição do valor da avaliação
             ratingValue.innerText = `${rating}`;
-            
+
             // Adiciona o valor no input
             qualification.value = `${rating}`;
 
@@ -152,8 +180,18 @@
         });
     });
 
+    // Adiciona um ouvinte de evento para destacar as estrelas correspondentes ao valor da qualificação
+    stars.forEach((star) => {
+        const rating = parseInt(star.getAttribute("data-rating"));
+        if (rating <= currentRating) {
+            star.style.color = "#ffdd00";
+        } else {
+            star.style.color = "#ccc";
+        }
+    });
+
     // Adiciona um ouvinte de evento para redefinir a avaliação quando o mouse sai da área de avaliação
-    document.querySelector(".rating").addEventListener("mouseleave", () => {
+    document.querySelector(".rating").addEventListener("click", () => {
         // Redefine a cor das estrelas
         stars.forEach((s) => {
             const starRating = parseInt(s.getAttribute("data-rating"));
@@ -248,3 +286,13 @@
         });
     });
 </script>
+<?php
+
+    } else {
+        // ID não encontrado ou não existente
+        echo "ID não encontrado.";
+    }
+} else {
+    echo "É necessário selecionar um produto!";
+}
+?>

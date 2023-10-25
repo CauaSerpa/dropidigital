@@ -6,6 +6,12 @@
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
+    if (isset($_POST['status']) && $_POST['status'] == '1') {
+        $status = $_POST['status'];
+    } else {
+        $status = 0;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_categories';
@@ -17,7 +23,7 @@
         $stmt->bindValue(':link', $dados['link']);
         $stmt->bindValue(':description', $dados['description']);
         $stmt->bindValue(':parent_category', $dados['parent_category']);
-        $stmt->bindValue(':status', $dados['status']);
+        $stmt->bindValue(':status', $status);
         $stmt->bindValue(':emphasis', $dados['emphasis']);
         $stmt->bindValue(':seo_name', $dados['seo_name']);
         $stmt->bindValue(':seo_link', $dados['seo_link']);
@@ -120,15 +126,13 @@
             }
         }
 
-        print_r($_FILES['image']);
-        echo "<br>";
-        print_r($_FILES['icon']);
-
         $_SESSION['msgcad'] = "<p class='green'>Categoria editada com sucesso!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
-        // header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+        exit;
     } else {
         $_SESSION['msg'] = "<p class='red'>Erro ao atualizar a categoria!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
-        // header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
+        exit;
     }
