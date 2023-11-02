@@ -30,7 +30,6 @@
     define('INCLUDE_PATH_LOJA', $urlCompleta);
 
     session_start();
-    ob_start();
     include('../config.php');
 
     // Tabela que sera feita a consulta
@@ -100,6 +99,14 @@
         $youtube = $resultado['youtube'];
         $token_instagram = $resultado['token_instagram'];
         $phone = $resultado['phone'];
+
+        $whatsapp = $resultado['whatsapp'];
+        // Fomatando celular
+        $formatted_whatsapp = preg_replace('/\D/', '', $resultado['whatsapp']);
+
+        $email = $resultado['email'];
+
+
         $top_highlight_bar = $resultado['top_highlight_bar'];
         $top_highlight_bar_location = $resultado['top_highlight_bar_location'];
         $top_highlight_bar_text = $resultado['top_highlight_bar_text'];
@@ -144,6 +151,8 @@
     }
 ?>
 <?php
+    // Fuso horario Sao Paulo
+    date_default_timezone_set('America/Sao_Paulo');
     // Data atual
     $dataAtual = date("Y-m-d");
 
@@ -392,8 +401,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <form class="d-flex me-3" role="search">
-                        <input class="form-control py-1 px-3" type="search" placeholder="Buscar..." aria-label="Search" style="border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);">
-                        <button class="btn btn-outline-success" type="submit" style="border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;">
+                        <input class="form-control py-1 px-3" type="search" placeholder="Buscar produto" aria-label="Search" style="border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);">
+                        <button class="btn btn-dark" type="submit" style="border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;">
                             <i class='bx bx-search-alt-2'></i>
                         </button>
                     </form>
@@ -449,20 +458,20 @@
                             </a>
                             <div class="service-tooltip">
                                 <ul class="p-2">
-                                    <span class="fw-semibold">Atendimento:</span>
-                                    <li class="mt-2 mb-2">
+                                    <span class="text-black fw-semibold">Atendimento:</span>
+                                    <li class="text-secondary mt-2 mb-2 <?php echo ($phone == "") ? "d-none" : ""; ?>">
                                         <i class='bx bxs-phone' ></i> Telefone: 
                                         <a href="tel:<?php echo $phone; ?>">
                                             <?php echo $phone; ?>
                                         </a>
                                     </li>
-                                    <li class="tel-whatsapp mb-2">
+                                    <li class="text-secondary tel-whatsapp mb-2 <?php echo ($whatsapp == "") ? "d-none" : ""; ?>">
                                         <i class="bx bxl-whatsapp"></i> Whatsapp: 
-                                        <a href="https://api.whatsapp.com/send?phone=<?php echo $phone; ?>" target="_blank">
-                                            <?php echo $phone; ?>
+                                        <a href="https://api.whatsapp.com/send?phone=<?php echo $formatted_whatsapp; ?>" target="_blank">
+                                            <?php echo $whatsapp; ?>
                                         </a>
                                     </li>
-                                    <li>
+                                    <li class="text-secondary <?php echo ($email == "") ? "d-none" : ""; ?>">
                                         <i class="bx bxs-envelope"></i> E-mail: 
                                         <a href="mailto:<?php echo $email; ?>">
                                             <?php echo $email; ?>
@@ -755,28 +764,32 @@
             
             $url = $protocol . "://" . $host . $uri;
             
-            $substring = "produto/";
+            $substring_product = "produto/";
+            $substring_page = "atendimento/";
+            $substring_article = "blog/";
             
             // Obtenha a rota da URL
             $route = isset($_GET['url']) ? $_GET['url'] : '';
             
             $categoria = null; // Inicializa $categoria fora do bloco condicional
             
-            if (strpos($url, $substring) !== false) {
+            if (strpos($url, $substring_product) !== false) {
                 // Removendo "produto/" da URL
                 $link = preg_replace("/^produto\//", "", $route);
             
-                // Tabela que sera pesquisada
+                // Tabela que será pesquisada
                 $tabela = "tb_products";
             
                 // Consulta SQL
-                $sql = "SELECT * FROM $tabela WHERE link = :link";
+                $sql = "SELECT * FROM $tabela WHERE link = :link AND shop_id = :shop_id AND status = :status";
             
                 // Preparar a consulta
                 $stmt = $conn_pdo->prepare($sql);
             
                 // Vincular o valor do parâmetro
                 $stmt->bindParam(':link', $link, PDO::PARAM_STR);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindValue(':status', 1);
             
                 // Executar a consulta
                 $stmt->execute();
@@ -787,18 +800,76 @@
                 if ($product) {
                     $product_id = $product['id'];
                 }
+            } elseif (strpos($url, $substring_page) !== false) {
+                // Removendo "atendimento/" da URL
+                $link = preg_replace("/^atendimento\//", "", $route);
+            
+                // Tabela que será pesquisada
+                $tabela = "tb_pages";
+            
+                // Consulta SQL
+                $sql = "SELECT * FROM $tabela WHERE link = :link AND shop_id = :shop_id AND status = :status";
+            
+                // Preparar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+            
+                // Vincular o valor do parâmetro
+                $stmt->bindParam(':link', $link, PDO::PARAM_STR);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindValue(':status', 1);
+            
+                // Executar a consulta
+                $stmt->execute();
+            
+                // Obter o atendimento como um array associativo
+                $page = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                if ($page) {
+                    $page_id = $page['id'];
+                }
+            } elseif ($route === "blog/") {
+                echo "blog";
+            } elseif (strpos($url, $substring_article) !== false) {
+                // Removendo "atendimento/" da URL
+                $link = preg_replace("/^blog\//", "", $route);
+            
+                // Tabela que será pesquisada
+                $tabela = "tb_articles";
+            
+                // Consulta SQL
+                $sql = "SELECT * FROM $tabela WHERE link = :link AND shop_id = :shop_id AND status = :status";
+            
+                // Preparar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+            
+                // Vincular o valor do parâmetro
+                $stmt->bindParam(':link', $link, PDO::PARAM_STR);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindValue(':status', 1);
+            
+                // Executar a consulta
+                $stmt->execute();
+            
+                // Obter o atendimento como um array associativo
+                $article = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                if ($article) {
+                    $article_id = $article['id'];
+                }
             } else {
-                // Tabela que sera pesquisada
+                // Tabela que será pesquisada
                 $tabela = "tb_categories";
             
                 // Consulta SQL
-                $sql = "SELECT * FROM $tabela WHERE link = :link";
+                $sql = "SELECT * FROM $tabela WHERE link = :link AND shop_id = :shop_id AND status = :status";
             
                 // Preparar a consulta
                 $stmt = $conn_pdo->prepare($sql);
             
                 // Vincular o valor do parâmetro
                 $stmt->bindParam(':link', $route, PDO::PARAM_STR);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindValue(':status', 1);
             
                 // Executar a consulta
                 $stmt->execute();
@@ -814,16 +885,25 @@
             // Analise a rota e determine qual página carregar
             if (empty($route)) {
                 // Página inicial da loja
-                include('pages/loja.php');
+                include_once('pages/loja.php');
             } elseif (@$product) {
                 // Página de detalhes do produto
-                include('pages/produto.php');
-            } elseif (@$category) {
+                include_once('pages/produto.php');
+            } elseif (@$page) {
+                // Página de detalhes da página
+                include_once('pages/pagina.php');
+            } elseif (@$article) {
+                // Remove o banner padrao da loja
+                echo '<script>document.getElementById("myCarousel").classList.add("d-none");</script>';
+
+                // Página de detalhes da página
+                include_once('pages/artigo.php');
+            } elseif ($stmt->rowCount() > 0) {
                 // Página de detalhes da categoria
-                include('pages/categoria.php');
+                include_once('pages/categoria.php');
             } else {
                 // Página de erro 404 para rotas não encontradas
-                include('pages/404.php');
+                include_once('pages/404.php');
             }
         ?>
 
@@ -947,7 +1027,7 @@
             <i class='bx bx-chevron-up fs-2' ></i>
         </a>
 
-        <a href="https://api.whatsapp.com/send?phone=<?php echo $phone; ?>" target="_blank" class="whatsapp-button btn btn-dark p-2 rounded-1">
+        <a href="https://api.whatsapp.com/send?phone=<?php echo $formatted_whatsapp; ?>" target="_blank" class="whatsapp-button btn btn-dark p-2 rounded-1 <?php echo ($whatsapp == "") ? "d-none" : ""; ?>">
             <i class='bx bxl-whatsapp fs-2'></i>
         </a>
     </main>
@@ -1092,14 +1172,14 @@
                             $stmt->bindValue(':parent_category', 1);
                             $stmt->execute();
 
-                            // Recuperar os resultados
-                            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            // Recuperar os categories
+                            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             if ($stmt->rowCount() > 0) {
                                 // Loop através dos resultados e exibir todas as colunas
-                                foreach ($resultados as $usuario) {
+                                foreach ($categories as $category) {
                                     echo "<li>";
-                                    echo "<a href='https://" . $subdominio . "dropidigital.com.br/" . $usuario['link'] . "'>" . $usuario['name'] . "</a>";
+                                    echo "<a href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>" . $category['name'] . "</a>";
                                     echo "</li>";
                                 }
                             }
@@ -1124,21 +1204,22 @@
                             // Nome da tabela para a busca
                             $tabela = 'tb_pages';
 
-                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status ORDER BY id DESC";
 
                             // Preparar e executar a consulta
                             $stmt = $conn_pdo->prepare($sql);
                             $stmt->bindParam(':shop_id', $shop_id);
+                            $stmt->bindValue(':status', 1);
                             $stmt->execute();
 
-                            // Recuperar os resultados
-                            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            // Recuperar os pages
+                            $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             if ($stmt->rowCount() > 0) {
-                                // Loop através dos resultados e exibir todas as colunas
-                                foreach ($resultados as $usuario) {
+                                // Loop através dos pages e exibir todas as colunas
+                                foreach ($pages as $page) {
                                     echo "<li>";
-                                    echo "<a href='https://" . $_SERVER['HTTP_HOST'] . "/" . $usuario['link'] . "'>" . $usuario['name'] . "</a>";
+                                    echo "<a href='" . INCLUDE_PATH_LOJA . "atendimento/" . $page['link'] . "'>" . $page['name'] . "</a>";
                                     echo "</li>";
                                 }
                             }
@@ -1149,19 +1230,19 @@
                 <div class="col-md-3">
                     <span class="titulo fw-semibold">Atendimento</span>
                     <ul class="contact mt-3">
-                        <li>
+                        <li class="<?php echo ($phone == "") ? "d-none" : ""; ?>">
                             <i class='bx bxs-phone' ></i> Telefone: 
                             <a href="tel:<?php echo $phone; ?>">
                                 <?php echo $phone; ?>
                             </a>
                         </li>
-                        <li class="tel-whatsapp">
+                        <li class="tel-whatsapp <?php echo ($whatsapp == "") ? "d-none" : ""; ?>">
                             <i class="bx bxl-whatsapp"></i> Whatsapp: 
-                            <a href="https://api.whatsapp.com/send?phone=<?php echo $phone; ?>" target="_blank">
-                                <?php echo $phone; ?>
+                            <a href="https://api.whatsapp.com/send?phone=<?php echo $formatted_whatsapp; ?>" target="_blank">
+                                <?php echo $whatsapp; ?>
                             </a>
                         </li>
-                        <li>
+                        <li class="<?php echo ($email == "") ? "d-none" : ""; ?>">
                             <i class="bx bxs-envelope"></i> E-mail: 
                             <a href="mailto:<?php echo $email; ?>">
                                 <?php echo $email; ?>
@@ -1210,8 +1291,8 @@
                     <p style="margin-bottom: 0;">
                         Singularis Tecnologia Web LTDA - CNPJ: 32.155.999/0001-34 © Todos os direitos reservados. 2023
                     </p>
-                    <a href="<?php echo INCLUDE_PATH; ?>" target="_blank">
-                        <img src="../assets/images/logos/logo-one.png" alt="Logo DropiDigital" style="width: 150px;">
+                    <a href="https://dropidigital.com.br" target="_blank">
+                        <img src="<?php echo INCLUDE_PATH; ?>assets/images/logos/logo-one.png" alt="Logo DropiDigital" style="width: 150px;">
                     </a>
                 </div>
             </div>

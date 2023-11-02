@@ -130,15 +130,15 @@
             $stmt->bindValue(':parent_category', 1);
             $stmt->execute();
 
-            // Recuperar os resultados
-            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Recuperar os categories
+            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Inicialize uma variável de controle e um contador
             $primeiroElemento = true;
             $contador = 0;
 
-            // Loop através dos resultados e exibir todas as colunas
-            foreach ($resultados as $product) {
+            // Loop através dos categories e exibir todas as colunas
+            foreach ($categories as $category) {
                 // Adicione a classe especial apenas ao primeiro elemento
                 $active = $primeiroElemento ? 'active' : '';
 
@@ -151,16 +151,16 @@
                 echo '<div class="col-sm-2">';
                 echo '<div class="card border-0">';
                 echo '<a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="category-link">';
-                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/image/' . $product['image'] . '" class="card-img-top rounded-circle" alt="' . $product['name'] . '">';
+                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/image/' . $category['image'] . '" class="card-img-top rounded-circle" alt="' . $category['name'] . '">';
                 echo '<div class="card-body text-center">';
-                echo '<h5 class="card-title">' . $product['name'] . '</h5>';
+                echo '<h5 class="card-title">' . $category['name'] . '</h5>';
                 echo '</div>';
                 echo '</a>';
                 echo '</div>';
                 echo '</div>';
 
                 // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 6 == 5 || $contador == count($resultados) - 1) {
+                if ($contador % 6 == 5 || $contador == count($categories) - 1) {
                     echo '</div>';
                     echo '</div>';
                 }
@@ -198,11 +198,13 @@
             // Nome da tabela para a busca
             $tabela = 'tb_products';
 
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC";
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC";
 
             // Preparar e executar a consulta
             $stmt = $conn_pdo->prepare($sql);
             $stmt->bindParam(':shop_id', $shop_id);
+            $stmt->bindValue(':status', 1);
+            $stmt->bindValue(':emphasis', 1);
             $stmt->execute();
 
             // Recuperar os resultados

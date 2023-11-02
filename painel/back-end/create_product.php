@@ -6,14 +6,35 @@
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
+    if (isset($_POST['status']) && $_POST['status'] == '1') {
+        $status = $_POST['status'];
+    } else {
+        $status = 0;
+    }
+
+    if (isset($_POST['emphasis']) && $_POST['emphasis'] == '1') {
+        $emphasis = $_POST['emphasis'];
+    } else {
+        $emphasis = 0;
+    }
+
+    if ($_POST['button_type'] == 2)
+    {
+        $redirect_link = $dados['redirect_link_whatsapp'];
+    } else {
+        $redirect_link = $dados['redirect_link'];
+    }
+
     // Acessa o IF quando o usuário clicar no botão
     if (empty($dados['SendAddProduct'])) {
-        $sql = "INSERT INTO tb_products (shop_id, name, link, price, discount, video, description, categories, sku, checkout, button, redirect_url, seo_name, seo_link, seo_description) VALUES 
-                                    (:shop_id, :name, :link, :price, :discount, :video, :description, :categories, :sku, :checkout, :button, :redirect_url, :seo_name, :seo_link, :seo_description)";
+        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, name, link, price, discount, video, description, categories, sku, button_type, redirect_link, seo_name, seo_link, seo_description) VALUES 
+                                    (:shop_id, :status, :emphasis, :name, :link, :price, :discount, :video, :description, :categories, :sku, :button_type, :redirect_link, :seo_name, :seo_link, :seo_description)";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
         $stmt->bindParam(':shop_id', $dados['shop_id']);
+        $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
         $stmt->bindParam(':link', $dados['link']);
         $stmt->bindParam(':price', $dados['price']);
@@ -22,9 +43,8 @@
         $stmt->bindParam(':description', $dados['description']);
         $stmt->bindParam(':categories', $dados['categories']);
         $stmt->bindParam(':sku', $dados['sku']);
-        $stmt->bindParam(':checkout', $dados['checkout']);
-        $stmt->bindParam(':button', $dados['button']);
-        $stmt->bindParam(':redirect_url', $dados['redirect_url']);
+        $stmt->bindParam(':button_type', $dados['button_type']);
+        $stmt->bindParam(':redirect_link', $redirect_link);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
         $stmt->bindParam(':seo_link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);

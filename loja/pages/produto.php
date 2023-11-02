@@ -2,20 +2,16 @@
     // Nome da tabela para a busca
     $tabela = 'tb_categories';
 
-    $sql = "SELECT * FROM $tabela WHERE id = :id AND shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
+    $sql = "SELECT * FROM $tabela WHERE id = :id AND shop_id = :shop_id ORDER BY id DESC";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':id', $product['categories']);
     $stmt->bindParam(':shop_id', $shop_id);
-    $stmt->bindValue(':status', 1);
-    $stmt->bindValue(':parent_category', 1);
     $stmt->execute();
 
     // Recuperar os resultados
     $category = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    /*<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png*/
 ?>
 <style>
     .container-images {
@@ -40,8 +36,9 @@
     }
 
     .thumbnail img {
-        max-width: 50px;
-        max-height: 50px;
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
         border: 1px solid #c4c4c4;
         border-radius: .3rem;
     }
@@ -106,35 +103,83 @@
     <div class="row p-4">
         <nav class="mb-2" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item small"><a href="<?php echo INCLUDE_PATH_LOJA; ?>" class="text-decoration-none">Página inicial</a></li>
-                <li class="breadcrumb-item small ms-2"><a href="<?php echo INCLUDE_PATH_LOJA . $category['link']; ?>" class="text-decoration-none"><?php echo $category['name']; ?></a></li>
+                <?php
+                    // Nome da tabela para a busca
+                    $tabela = 'tb_categories';
+
+                    $sql = "SELECT name, link FROM $tabela WHERE id = :id";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':id', $category['parent_category']);
+                    $stmt->execute();
+
+                    // Recuperar o nome
+                    $parent_category = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($category['parent_category'] == 1)
+                    {
+                        echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
+                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
+                    } else {
+                        echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
+                        echo '<li class="breadcrumb-item small ms-2"><a href="' . INCLUDE_PATH_LOJA . $parent_category['link'] . '" class="text-decoration-none">' . $parent_category['name'] . '</a></li>';
+                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
+                    }
+                ?>
                 <li class="breadcrumb-item small fw-semibold text-body-secondary text-decoration-none ms-2 active" aria-current="page"><?php echo $product['name']; ?></li>
             </ol>
         </nav>
 
         <div class="col-md-6 container-images">
             <div class="product-images">
-                <div class="thumbnail active" data-index="1" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png', this)">
+
+
+
+
+
+                <?php
+                    // Consulta SQL para selecionar todas as colunas com base no ID
+                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':usuario_id', $product['id']);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $index = 1; // Inicializa o contador de índice
+
+                    foreach ($imagens as $imagem) {
+                        // Verifica se é o primeiro elemento
+                        $class = ($index === 1) ? 'thumbnail active' : 'thumbnail';
+
+                        echo '<div class="' . $class . '" data-index="' . $index . '" onclick="showImage(`' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $product['id'] . '/' . $imagem['nome_imagem'] . '`, this)">';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $product['id'] . '/' . $imagem['nome_imagem'] . '" alt="' . $imagem['nome_imagem'] . '">';
+                        echo '</div>';
+
+                        // Incrementa o contador de índice
+                        $index++;
+                    }
+                ?>
+
+
+
+                <!-- <div class="thumbnail active" data-index="1" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png', this)">
                     <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png" alt="Imagem 1">
-                </div>
-                <div class="thumbnail" data-index="2" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/produto-teste.jpg', this)">
-                    <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/produto-teste.jpg" alt="Imagem 2">
-                </div>
-                <div class="thumbnail" data-index="3" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png', this)">
-                    <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png" alt="Imagem 3">
-                </div>
-                <div class="thumbnail" data-index="4" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/produto-teste.jpg', this)">
-                    <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/produto-teste.jpg" alt="Imagem 2">
-                </div>
-                <div class="thumbnail" data-index="5" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png', this)">
-                    <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png" alt="Imagem 3">
-                </div>
-                <div class="thumbnail" data-index="6" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/produto-teste.jpg', this)">
-                    <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/produto-teste.jpg" alt="Imagem 2">
-                </div>
-                <div class="thumbnail" data-index="7" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png', this)">
-                    <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png" alt="Imagem 3">
-                </div>
+                </div> -->
+
+
+
+
+
+
+
+
+
+
             </div>
 
             <div class="content-image">
@@ -186,9 +231,20 @@
                 echo '<h4 class="card-text mb-3">' . $priceAfterDiscount . '</h4>';
             ?>
             
-            <a href="<?php echo $product['redirect_url']; ?>" class="btn btn-dark d-inline-flex align-items-center px-3">
-                <i class="bx bxl-whatsapp me-1"></i>
-                Chamar no WhatsApp
+            <a href="<?php echo $product['redirect_link']; ?>" target="_blank" class="btn btn-dark d-inline-flex align-items-center px-3">
+                <?php
+                    if ($product['button_type'] == 1) {
+                        echo "Comprar";
+                    } elseif ($product['button_type'] == 2) {
+                        echo "<i class='bx bxl-whatsapp me-1'></i>";
+                        echo "Chamar no WhatsApp";
+                    } elseif ($product['button_type'] == 3) {
+                        echo "Saiba mais";
+                    } else {
+                        echo "<i class='bx bx-calendar me-1'></i>";
+                        echo "Agenda";
+                    }
+                ?>
             </a>
         </div>
     </div>
@@ -225,132 +281,137 @@
     </div>
 
     
-<div id="carouselProdutos" class="container carousel slide" data-bs-ride="carousel">
-    <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
-        <div class="d-flex justify-content-center">
-            <h4 class="mb-3 me-3">Produtos relacionados</h4>
+    <div id="carouselProdutos" class="container carousel slide" data-bs-ride="carousel">
+        <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
+            <div class="d-flex justify-content-center">
+                <h4 class="mb-3 me-3">Produtos relacionados</h4>
+            </div>
+            <div style="width: 100px; height: 5px; background: #000;"></div>
         </div>
-        <div style="width: 100px; height: 5px; background: #000;"></div>
-    </div>
 
-    <div class="carousel-inner">
-        <?php
-            // Nome da tabela para a busca
-            $tabela = 'tb_products';
+        <div class="carousel-inner">
+            <?php
+                // Nome da tabela para a busca
+                $tabela = 'tb_products';
 
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND categories = :categories ORDER BY id ASC";
-
-            // Preparar e executar a consulta
-            $stmt = $conn_pdo->prepare($sql);
-            $stmt->bindParam(':shop_id', $shop_id);
-            $stmt->bindParam(':categories', $product['categories']);
-            $stmt->execute();
-
-            // Recuperar os resultados
-            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
-            $contador = 0;
-
-            // Loop através dos resultados e exibir todas as colunas
-            foreach ($resultados as $product) {
-                // Consulta SQL para selecionar todas as colunas com base no ID
-                $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND categories = :categories AND id != :current_product ORDER BY id ASC";
 
                 // Preparar e executar a consulta
                 $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':usuario_id', $product['id']);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindParam(':categories', $product['categories']);
+                $stmt->bindParam(':current_product', $product['id']);
                 $stmt->execute();
 
                 // Recuperar os resultados
-                $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Formatação preço
-                $preco = $product['price'];
+                // Inicialize uma variável de controle e um contador
+                $primeiroElemento = true;
+                $contador = 0;
 
-                // Transforma o número no formato "R$ 149,90"
-                $price = "R$ " . number_format($preco, 2, ",", ".");
+                // Loop através dos resultados e exibir todas as colunas
+                foreach ($resultados as $product) {
+                    // Consulta SQL para selecionar todas as colunas com base no ID
+                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
 
-                // Formatação preço com desconto
-                $desconto = $product['discount'];
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':usuario_id', $product['id']);
+                    $stmt->execute();
 
-                // Transforma o número no formato "R$ 149,90"
-                $discount = "R$ " . number_format($desconto, 2, ",", ".");
+                    // Recuperar os resultados
+                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Calcula a porcentagem de desconto
-                $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                    // Formatação preço
+                    $preco = $product['price'];
 
-                // Arredonda o resultado para duas casas decimais
-                $porcentagemDesconto = round($porcentagemDesconto, 0);
+                    // Transforma o número no formato "R$ 149,90"
+                    $price = "R$ " . number_format($preco, 2, ",", ".");
 
-                if ($product['discount'] == "0.00") {
-                    $activeDiscount = "d-none";
+                    // Formatação preço com desconto
+                    $desconto = $product['discount'];
 
-                    $priceAfterDiscount = $price;
-                } else {
-                    $activeDiscount = "";
+                    // Transforma o número no formato "R$ 149,90"
+                    $discount = "R$ " . number_format($desconto, 2, ",", ".");
 
-                    $priceAfterDiscount = $discount;
-                    $discount = $price;
-                }
+                    // Calcula a porcentagem de desconto
+                    $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
 
-                // Link do produto
-                $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
+                    // Arredonda o resultado para duas casas decimais
+                    $porcentagemDesconto = round($porcentagemDesconto, 0);
 
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
+                    if ($product['discount'] == "0.00") {
+                        $activeDiscount = "d-none";
 
-                // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                if ($contador % 4 == 0) {
-                    echo '<div class="carousel-item ' . $active . '">';
-                    echo '<div class="row p-4">';
-                }
+                        $priceAfterDiscount = $price;
+                    } else {
+                        $activeDiscount = "";
 
-                echo '<div class="col-sm-3">';
-                echo '<a href="' . $link . '" class="product-link">';
-                echo '<div class="card">';
-                foreach ($imagens as $imagem) {
-                echo '<div class="product-image">';
-                echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
-                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
-                echo '</div>';
-                }
-                echo '<div class="card-body">';
-                echo '<p class="card-title mb-0">' . $product['name'] . '</p>';
-                echo '<div class="d-flex mb-3">';
-                echo '<small class="fw-semibold text-body-secondary text-decoration-line-through me-2 ' . $activeDiscount . '">' . $discount . '</small>';
-                echo '<h4 class="card-text">' . $priceAfterDiscount . '</h4>';
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-                echo '</a>';
-                echo '</div>';
+                        $priceAfterDiscount = $discount;
+                        $discount = $price;
+                    }
 
-                // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 4 == 3 || $contador == count($resultados) - 1) {
+                    // Link do produto
+                    $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
+
+                    // Adicione a classe especial apenas ao primeiro elemento
+                    $active = $primeiroElemento ? 'active' : '';
+
+                    // Se o contador for múltiplo de 4, insira uma nova div carousel-item
+                    if ($contador % 4 == 0) {
+                        echo '<div class="carousel-item ' . $active . '">';
+                        echo '<div class="row p-4">';
+                    }
+
+                    echo '<div class="col-sm-3">';
+                    echo '<a href="' . $link . '" class="product-link">';
+                    echo '<div class="card">';
+                    foreach ($imagens as $imagem) {
+                    echo '<div class="product-image">';
+                    echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                    echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
+                    echo '</div>';
+                    }
+                    echo '<div class="card-body">';
+                    echo '<p class="card-title mb-0">' . $product['name'] . '</p>';
+                    echo '<div class="d-flex mb-3">';
+                    echo '<small class="fw-semibold text-body-secondary text-decoration-line-through me-2 ' . $activeDiscount . '">' . $discount . '</small>';
+                    echo '<h4 class="card-text">' . $priceAfterDiscount . '</h4>';
                     echo '</div>';
                     echo '</div>';
+                    echo '</div>';
+                    echo '</a>';
+                    echo '</div>';
+
+                    // Se o contador for múltiplo de 4, feche a div row e carousel-item
+                    if ($contador % 4 == 3 || $contador == count($resultados) - 1) {
+                        echo '</div>';
+                        echo '</div>';
+                    }
+
+                    // Marque que o primeiro elemento foi processado
+                    $primeiroElemento = false;
+
+                    // Incrementar o contador
+                    $contador++;
                 }
 
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
+                if ($stmt->rowCount() <= 0) {
+                    echo '<script>document.getElementById("carouselProdutos").classList.add("d-none");</script>';
+                }
+            ?>
+        </div>
 
-                // Incrementar o contador
-                $contador++;
-            }
-        ?>
+        <a class="carousel-control-prev" href="#carouselProdutos" role="button" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselProdutos" role="button" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Próximo</span>
+        </a>
     </div>
-
-    <a class="carousel-control-prev" href="#carouselProdutos" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselProdutos" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
-    </a>
-</div>
 </div>
 <script>
     const container = document.getElementById("container");

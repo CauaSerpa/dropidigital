@@ -2721,7 +2721,10 @@ input[type="number"]::-webkit-inner-spin-button
     border-color: #0f0;
     transform: rotate(45deg) translate(5px, -10px);
 }
-
+.form-check-input:focus
+{
+    border-color: #212529 !important;
+}
 .card__container .card__box .card .form .container__button
 {
     text-align: right;

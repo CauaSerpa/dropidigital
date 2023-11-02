@@ -453,10 +453,10 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>email-profissional" class="<?php activeSidebarLink('email-profissional'); ?>">Conf. E-mail profissional</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink('atendimento'); ?> <?php showSidebarLinks('atendimento'); ?>">
                 <div class="iocn-link">
                         <p>
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>telefone" class="sidebar_link">
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="sidebar_link">
                                 <i class='bx bx-conversation' ></i>
                             </a>
                             <span class="link_name">Atendimento</span>
@@ -464,10 +464,10 @@
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
                 <ul class="sub-menu">
-                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>telefone">Atendimento</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>telefone" class="<?php activeSidebarLink('telefone'); ?>">Telefone</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>email" class="<?php activeSidebarLink('email'); ?>">E-mail</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>endereco" class="<?php activeSidebarLink('endereco'); ?>">Endereço</a></li>
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento">Atendimento</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="<?php activeSidebarLink('atendimento'); ?>">Telefone</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="<?php activeSidebarLink('atendimento'); ?>">E-mail</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="<?php activeSidebarLink('atendimento'); ?>">Endereço</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('redes-sociais'); ?> <?php showSidebarLinks('redes-sociais'); ?>">
@@ -488,10 +488,10 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">YouTube</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?>">
                 <div class="iocn-link">
                         <p>
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="sidebar_link">
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="sidebar_link">
                                 <i class='bx bx-desktop' ></i>
                             </a>
                             <span class="link_name">Blog</span>
@@ -499,9 +499,9 @@
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
                 <ul class="sub-menu">
-                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo">Blog</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">Criar Artigo</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lista-de-artigos" class="<?php activeSidebarLink('lista-de-artigos'); ?>">Lista de Artigos</a></li>
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos">Blog</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="<?php activeSidebarLink('artigos'); ?>">Listar Artigos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">+ Criar Artigo</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('newsletter'); ?> <?php showSidebarLinks('newsletter'); ?>">

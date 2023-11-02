@@ -190,9 +190,7 @@
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Feed Instagram</div>
         <div class="card-body row px-4 py-3">
             <div class="mb-3">
-                <div class="d-flex justify-content-between">
-                    <label for="token" class="form-label small">Token *</label>
-                </div>
+                <label for="token" class="form-label small">Token *</label>
                 <div class="input-group">
                     <input type="text" class="form-control" name="token" id="token" aria-describedby="tokenHelp" value="<?php echo $shop['token_instagram']; ?>">
                     <button type="button" class="btn btn-secondary px-4" id="botaoColar">Colar Token</button>

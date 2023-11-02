@@ -12,6 +12,12 @@
         $status = 0;
     }
 
+    if (isset($_POST['emphasis']) && $_POST['emphasis'] == '1') {
+        $emphasis = $_POST['emphasis'];
+    } else {
+        $emphasis = 0;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_categories';
@@ -24,7 +30,7 @@
         $stmt->bindValue(':description', $dados['description']);
         $stmt->bindValue(':parent_category', $dados['parent_category']);
         $stmt->bindValue(':status', $status);
-        $stmt->bindValue(':emphasis', $dados['emphasis']);
+        $stmt->bindValue(':emphasis', $emphasis);
         $stmt->bindValue(':seo_name', $dados['seo_name']);
         $stmt->bindValue(':seo_link', $dados['seo_link']);
         $stmt->bindValue(':seo_description', $dados['seo_description']);

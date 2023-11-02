@@ -171,7 +171,7 @@
     <div class="header__title">
         <div class="page__header center">
             <div class="header__title">
-                <h2 class="title">Vídeo YouTube</h2>
+                <h2 class="title">Redes Sociais</h2>
             </div>
         </div>
     </div>
@@ -187,7 +187,7 @@
 
 <form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/social_medias.php" method="post" enctype="multipart/form-data">
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Vídeo YouTube</div>
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Redes Sociais</div>
         <div class="card-body row px-4 py-3">
             <div class="col-sm-6 mb-3">
                 <label for="facebook" class="form-label small">Facebook</label>

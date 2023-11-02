@@ -6,15 +6,36 @@
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
+    if (isset($_POST['status']) && $_POST['status'] == '1') {
+        $status = $_POST['status'];
+    } else {
+        $status = 0;
+    }
+
+    if (isset($_POST['emphasis']) && $_POST['emphasis'] == '1') {
+        $emphasis = $_POST['emphasis'];
+    } else {
+        $emphasis = 0;
+    }
+
+    if ($_POST['button_type'] == 2)
+    {
+        $redirect_link = $dados['redirect_link_whatsapp'];
+    } else {
+        $redirect_link = $dados['redirect_link'];
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_products';
 
         // Edita o produto no banco de dados da loja
-        $sql = "UPDATE $tabela SET name = :name, link = :link, price = :price, discount = :discount, video = :video, description = :description, categories = :categories, sku = :sku, checkout = :checkout, button = :button, redirect_url = :redirect_url, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description WHERE id = :id";
+        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, link = :link, price = :price, discount = :discount, video = :video, description = :description, categories = :categories, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
+        $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
         $stmt->bindParam(':link', $dados['link']);
         $stmt->bindParam(':price', $dados['price']);
@@ -23,15 +44,14 @@
         $stmt->bindParam(':description', $dados['description']);
         $stmt->bindParam(':categories', $dados['categories']);
         $stmt->bindParam(':sku', $dados['sku']);
-        $stmt->bindParam(':checkout', $dados['checkout']);
-        $stmt->bindParam(':button', $dados['button']);
-        $stmt->bindParam(':redirect_url', $dados['redirect_url']);
+        $stmt->bindParam(':button_type', $dados['button_type']);
+        $stmt->bindParam(':redirect_link', $redirect_link);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
         $stmt->bindParam(':seo_link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
 
         // Id que sera editado
-        $stmt->bindParam(':id', $dados['shop_id']);
+        $stmt->bindParam(':id', $dados['id']);
 
         $stmt->execute();
         

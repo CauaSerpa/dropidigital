@@ -180,6 +180,124 @@ if(!empty($id)){
     }
 </style>
 
+<!-- Estilo do celular -->
+<style>
+    .text-preview
+    {
+        width: 150px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .text-preview i
+    {
+        font-size: 4rem;
+    }
+
+    .cell-phone
+    {
+        width: 300px;
+        height: 500px;
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: .6rem;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, .25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .cell-phone .screen
+    {
+        position: relative;
+        width: 280px;
+        height: 420px;
+        background: url("<?php echo INCLUDE_PATH; ?>assets/images/whatsapp/wallpaper.jpg") no-repeat;
+        background-size: cover;
+    }
+    .cell-phone .screen .header
+    {
+        width: 100%;
+        height: 40px;
+        background: #ededed;
+        display: flex;
+        align-items: center;
+        padding: 0 .75rem;
+    }
+    .cell-phone .screen .header .profile-picture
+    {
+        width: 30px;
+        height: 30px;
+        margin-right: .5rem;
+    }
+    .cell-phone .screen .header .profile-picture img
+    {
+        border-radius: 50%;
+    }
+    .cell-phone .screen .screen-container
+    {
+        position: relative;
+        width: 100%;
+        height: calc(420px - 90px);
+    }
+    .cell-phone .screen .screen-container .preview-message
+    {
+        position: absolute;
+        right: 15px;
+        bottom: 10px;
+        max-width: 240px;
+        height: min-content;
+        background: #DCF8C6;
+        padding: .5rem;
+        border-radius: .3rem;
+        z-index: 1;
+    }
+    .cell-phone .screen .screen-container .preview-message::before
+    {
+        content: "";
+        width: 0;
+        height: 0;
+        border-right: 20px solid transparent;
+        border-top: 20px solid #DCF8C6;
+        position: absolute;
+        right: -10px;
+        top: 0;
+        z-index: 0;
+    }
+    .cell-phone .screen .message-container
+    {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: max-content;
+        background: #f0f0f0;
+        display: flex;
+        align-items: flex-end;
+        padding: .5rem .75rem;
+    }
+    .cell-phone .screen .message-container .message
+    {
+        width: 85%;
+        min-height: 30px;
+        height: max-content;
+        padding: 0 1rem;
+        background: #fff;
+        border-radius: 15px;
+    }
+    .cell-phone .screen .message-container .papper-plane
+    {
+        width: 15%;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .cell-phone .screen .message-container .papper-plane i.bx
+    {
+        font-size: 1.5rem;
+        color: #cacdcf;
+    }
+</style>
+
 <form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_product.php" method="post" enctype="multipart/form-data">
 
     <div class="page__header center">
@@ -202,11 +320,26 @@ if(!empty($id)){
                     <small id="textCounter" class="form-text text-muted">0 de 120 caracteres</small>
                 </div>
                 <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require value="<?php echo $product['name']; ?>">
+                <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/produto/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
-            <!-- <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Default switch checkbox input</label>
-            </div> -->
+            <div class="row">
+                <div class="col-md-6 d-flex justify-content-between mb-3">
+                    <div>
+                        <label for="activeProduct" class="form-label small">Categoria ativa?</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" <?php echo ($product['status'] == 1) ? "checked" : ""; ?>>
+                            <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($product['status'] == 1) ? "Sim" : "Não"; ?></label>
+                        </div>
+                    </div>
+                    <div id="containerEmphasis">
+                        <label for="emphasisProduct" class="form-label small">Destacar no menu?</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasisProduct" value="1" <?php echo ($product['emphasis'] == 1) ? "checked" : ""; ?>>
+                            <label class="form-check-label" id="emphasisCheckbox" for="emphasisProduct"><?php echo ($product['emphasis'] == 1) ? "Sim" : "Não"; ?></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -292,20 +425,6 @@ if(!empty($id)){
     </div>
 
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">SKU</div>
-        <div class="card-body px-5 py-3">
-            <label for="skuResult" class="form-label small">
-                Código SKU
-                <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
-            </label>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" name="sku" id="skuResult" placeholder="LEV-JN-SL-36-GN" aria-label="LEV-JN-SL-36-GN" aria-describedby="button-addon2" style="max-width: 250px;" value="<?php echo $product['sku']; ?>">
-                <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="button-addon2" onclick="generateSKU()">GERAR</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">
             Categorias
             <a href="#" class="text-decoration-none text-reset small">+ Cadastrar categoria</a>
@@ -327,37 +446,102 @@ if(!empty($id)){
     </div>
 
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">Formato do checkout</div>
-        <div class="card-body row px-4 py-3">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="moneyInput1" class="form-label small">Tipo do checkout *</label>
-                    <div class="input-group">
-                        <select class="form-select" name="checkout" aria-label="Default select example">
-                            <option value="" selected disabled>Escolha o redirecionamento</option>
-                            <option value="1">Link para WhatsApp</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">SKU</div>
+        <div class="card-body px-5 py-3">
+            <label for="skuResult" class="form-label small">
+                Código SKU
+                <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
+            </label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="sku" id="skuResult" placeholder="LEV-JN-SL-36-GN" aria-label="LEV-JN-SL-36-GN" aria-describedby="button-addon2" style="max-width: 250px;" value="<?php echo $product['sku']; ?>">
+                <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="button-addon2" onclick="generateSKU()">GERAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">Chamada de ação</div>
+        <div class="card-body px-4 py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="button_type" class="form-label small">Tipo do botão *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="button_type" id="buttonType" aria-label="Default select example" required>
+                                <option value="" disabled>-- Selecione uma opção --</option>
+                                <option value="1" <?php echo ($product['button_type'] == "1") ? "selected" : ""; ?>>Comprar</option>
+                                <option value="2" <?php echo ($product['button_type'] == "2") ? "selected" : ""; ?>>Número de whatsapp</option>
+                                <option value="3" <?php echo ($product['button_type'] == "3") ? "selected" : ""; ?>>Saiba mais</option>
+                                <option value="4" <?php echo ($product['button_type'] == "4") ? "selected" : ""; ?>>Agenda</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Opcao do whatsapp -->
+                    <div class="<?php echo ($product['button_type'] == "2") ? "" : "d-none"; ?>" id="container-whatsapp">
+                        <div class="mb-3 row">
+                            <label for="phone-number" class="form-label small">Número do WhatsApp *</label>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control" name="country-code" id="country-code" placeholder="+55">
+                            </div>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" name="phone-number" id="phone-number" placeholder="(00) 00000-0000">
+                            </div>
+                            <small class="m-0">Lembre-se de verificar o código de seu país</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label small">Mensagem personalizada</label>
+                            <textarea class="form-control" name="message" id="message" rows="3" placeholder="Use esse espaço para adicionar uma mensagem personalizada que será enviada pelo seu link de WhatsApp :)"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="linkWhatsapp" class="form-label small">Link gerado</label>
+                            <p><a href="<?php echo ($product['button_type'] == "2") ? $product['redirect_link'] : ""; ?>" target="_blank" class="small text-decoration-none" id="linkWhatsapp" style="color: #01C89B;"><?php echo ($product['button_type'] == "2") ? $product['redirect_link'] : ""; ?></a></p>
+                        </div>
+                        <input type="hidden" name="redirect_link_whatsapp" id="inputLinkWhatsapp" value="<?php echo ($product['button_type'] == "2") ? $product['redirect_link'] : ""; ?>">
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label for="moneyInput1" class="form-label small">Botão *</label>
-                    <div class="input-group">
-                        <select class="form-select" name="button" aria-label="Default select example">
-                            <option value="" selected disabled>Escolha o tipo do botão</option>
-                            <option value="1">Saiba mais</option>
-                            <option value="2">Chamar no WhatsApp</option>
-                            <option value="3">Comprar</option>
-                            <option value="4">Agenda</option>
-                        </select>
+
+                <!-- Celular para opcao do whatsapp -->
+                <div class="col-md-6 <?php echo ($product['button_type'] == "2") ? "" : "d-none"; ?>" id="container-cell-phone">
+                    <div class="preview-cell-phone d-flex align-items-center justify-content-around">
+                        <div class="text-preview">
+                            <div class="arrow">
+                                <i class='bx bx-chevron-right' ></i>
+                            </div>
+                            <small>É assim que seus usuários o verão</small>    
+                        </div>
+                        <div class="cell-phone">
+                            <div class="screen">
+                                <div class="header">
+                                    <div class="profile-picture">
+                                        <img src="<?php echo INCLUDE_PATH; ?>assets/images/whatsapp/user.svg" alt="Foto de perfil">
+                                    </div>
+                                    <div class="phone-number" id="preview-phone-number">
+                                        +55 (00) 00000-0000
+                                    </div>
+                                </div>
+                                <div class="screen-container">
+                                    <div class="preview-message d-none" id="preview-message"></div>
+                                </div>
+                                <div class="message-container">
+                                    <div class="message" id="writing-message"></div>
+                                    <div class="papper-plane">
+                                        <i class='bx bxs-paper-plane'></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="button-url" class="form-label small">URL de redirecionamento do botão *</label>
-                <input type="text" class="form-control" name="redirect_url" id="button-url" placeholder="https://..." aria-label="https://..." aria-describedby="emailHelp" value="<?php echo $product['redirect_url']; ?>">
+
+            <div class="mb-3 <?php echo ($product['button_type'] == 2) ? "d-none" : ""; ?>" id="container-redirect-link">
+                <label for="redirectLink" class="form-label small">Link de redirecionamento *</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="redirect_link" id="redirectLink" aria-describedby="redirect-linkHelp" value="<?php echo ($product['button_type'] !== "2") ? $product['redirect_link'] : ""; ?>">
+                    <button type="button" class="btn btn-secondary px-4" id="botaoColar">Colar Link</button>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -397,8 +581,10 @@ if(!empty($id)){
         </div>
     </div>
     
+    <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="delete_images" id="delete-images-input" value="">
-    <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+    <input type="hidden" name="shop_id" value="<?php echo $product['shop_id']; ?>">
+    <input type="hidden" name="id" value="<?php echo $id; ?>">
 
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
         <div class="container-save-button container card-header fw-semibold bg-transparent d-flex align-items-center justify-content-between">
@@ -420,6 +606,257 @@ if(!empty($id)){
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- Mask -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+
+<!-- Separando o numero de whatsapp e o texto do link -->
+<script>
+    // O link do WhatsApp
+    var whatsappLink = "<?php echo $product['redirect_link']; ?>";
+
+    // Use uma expressão regular para extrair o número de telefone e o texto
+    var regex = /(?:https?:\/\/)?(?:wa.me\/|wa.me\/\/)?(\d+)(?:\?text=([^&]+))?/;
+    var match = whatsappLink.match(regex);
+
+    if (match) {
+        // Se houver uma correspondência na expressão regular
+        var phoneNumber = match[1]; // Extrai o número de telefone
+
+        // Decodifique o texto da URL, se presente
+        var text = match[2] ? decodeURIComponent(match[2]) : '';
+
+        // Comprimento do código do país (no caso do Brasil, são 2 dígitos)
+        var countryCodeLength = 2;
+
+        // Extrair o código do país e o número restante
+        var countryCode = phoneNumber.substring(0, countryCodeLength);
+        var restOfNumber = phoneNumber.substring(countryCodeLength);
+
+        // Atualize os valores nos campos e no preview
+        $("#country-code").val(countryCode);
+        $("#phone-number").val(restOfNumber);
+        $("#preview-phone-number").text(phoneNumber);
+
+        if (text) {
+            $("#message").text(text);
+            $("#preview-message").removeClass("d-none");
+            $("#preview-message").text(text);
+        }
+    } else {
+        // Se não houver correspondência na expressão regular, trate-o conforme necessário
+        console.log("Link do WhatsApp inválido.");
+    }
+</script>
+
+<!-- Mostrar container com base no input select -->
+<script>
+    $(document).ready(function() {
+        $('#buttonType').change(function() {
+            if ($(this).val() === "1" || $(this).val() === "3"|| $(this).val() === "4") {
+                //Se for comprar, saiba mais ou agenda
+                //Mostra container link
+                $('#container-redirect-link').removeClass("d-none");
+                $('#container-whatsapp').addClass("d-none");
+                $('#container-cell-phone').addClass("d-none");
+            } else {
+                //Se for whatsapp
+                //Mostra container whatsapp
+                $('#container-redirect-link').addClass("d-none");
+                $('#container-whatsapp').removeClass("d-none");
+                $('#container-cell-phone').removeClass("d-none");
+            }
+        });
+    });
+</script>
+
+<!-- Colar texto copiado -->
+<script>
+    document.getElementById("botaoColar").addEventListener("click", function () {
+        // Verifique se a área de transferência (clipboard) é suportada pelo navegador
+        if (navigator.clipboard) {
+            navigator.clipboard.readText().then(function (text) {
+                // Coloque o texto copiado no campo de entrada
+                document.getElementById("redirectLink").value = text;
+            });
+        } else {
+            // Fallback para navegadores que não suportam a área de transferência
+            alert("A funcionalidade de área de transferência não é suportada neste navegador.");
+        }
+    });
+</script>
+
+<!-- Mask -->
+<script>
+    //Country Mask
+    new Cleave('#country-code', {
+        delimiters: ['+'],
+        blocks: [0, 4],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Phone Mask
+    new Cleave('#phone-number', {
+        delimiters: ['(', ')', ' ', '-'],
+        blocks: [0, 2, 0, 5, 4],
+        numericOnly: true
+    });
+</script>
+
+<!-- Phone -->
+<script>
+    // Função para formatar o número de telefone
+    function formatPhoneNumber() {
+        var input = $("#phone-number");
+        var span = $("#preview-phone-number");
+        var countryCodeInput = $("#country-code");
+
+        var valor = input.val();
+        if (valor === '') {
+            valor = countryCodeInput.val() + ' (00) 00000-0000';
+        } else {
+            valor = countryCodeInput.val() + ' ' + valor;
+        }
+        span.text(valor);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Chame a função quando o documento estiver pronto
+        formatPhoneNumber();
+
+        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        $("#phone-number").on("input", formatPhoneNumber);
+
+        // Adicione um ouvinte de evento de entrada ao campo de código do país
+        $("#country-code").on("input", formatPhoneNumber);
+    });
+</script>
+
+<!-- Message -->
+<script>
+    $(document).ready(function(){
+        var timeout;
+
+        $('#message').on('input', function(){
+            clearTimeout(timeout);
+            var textoDigitado = $(this).val();
+            $('#writing-message').text(textoDigitado);
+
+            $('#preview-message').text('');
+            $('#preview-message').removeClass("d-block");
+            $('#preview-message').addClass("d-none");
+
+            timeout = setTimeout(function(){
+                $('#writing-message').text('');
+
+                $('#preview-message').text(textoDigitado);
+
+                // Remover a mensagem se estiver vazio
+                if ($('#message').val() === '') {
+                    $('#preview-message').removeClass("d-block");
+                    $('#preview-message').addClass("d-none");
+                } else {
+                    $('#preview-message').removeClass("d-none");
+                    $('#preview-message').addClass("d-block");
+                }
+            }, 2000);
+        });
+    });
+</script>
+
+<!-- Convertendo numero e texto em link -->
+<script>
+    // Função para gerar o link do WhatsApp
+    function generateWhatsAppLink() {
+        var countryNumberInput = $("#country-code");
+        var phoneNumberInput = $("#phone-number");
+        var messageTextArea = $("#message");
+
+        var countryCode = countryNumberInput.val();
+        var phoneNumber = phoneNumberInput.val();
+        var message = encodeURIComponent(messageTextArea.val());
+
+        countryCode = countryCode.replace(/\D/g, "");
+        phoneNumber = phoneNumber.replace(/[^\d]/g, "");
+
+        phoneNumber = countryCode + phoneNumber;
+
+        var whatsappLink;
+        if (message === '') {
+            whatsappLink = "https://wa.me/" + phoneNumber;
+        } else {
+            whatsappLink = "https://wa.me//" + phoneNumber + "?text=" + message;
+        }
+
+        $('#linkWhatsapp').text(whatsappLink);
+        $('#linkWhatsapp').attr("href", whatsappLink);
+        $('#inputLinkWhatsapp').val(whatsappLink);
+    }
+
+    $(document).ready(function() {
+        // Adicione um ouvinte de evento change ao campo <select>
+        $("#buttonType").on("change", function() {
+            // Verifique o novo valor do campo <select>
+            var selectValue = $(this).val(); // O valor do campo <select> alterado
+
+            if (selectValue === "2") {
+                // Chame a função se o novo valor do campo <select> for igual a 2
+                generateWhatsAppLink();
+
+                // Adicione ouvintes de evento de entrada aos campos relevantes
+                $("#country-code, #phone-number, #message").on("input", generateWhatsAppLink);
+            }
+        });
+    });
+</script>
+
+<!-- Link -->
+<script>
+    function atualizarLink() {
+        var input = $("#name");
+        var span = $("#linkPreview");
+
+        var valor = input.val();
+
+        if (valor === '') {
+            valor = '...';
+        }
+
+        valor = valor.replace(/\s+/g, "-").toLowerCase();
+
+        span.text(valor);
+        $('#link').val(valor);
+    }
+
+    $(document).ready(function() {
+        // Chame a função quando a página estiver pronta
+        atualizarLink();
+
+        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        $("#name").on("input", atualizarLink);
+    });
+</script>
+
+<!-- Checkbox -->
+<script>
+    function updateCheckboxText(checkbox, contentText, trueText, falseText) {
+        checkbox.addEventListener("change", function () {
+            const text = this.checked ? trueText : falseText;
+            // Aqui você pode atualizar o elemento de texto desejado com o texto correspondente
+            // Por exemplo, se você tiver um <span id="checkboxText">Texto</span>
+            // Pode ser atualizado assim:
+            contentText.textContent = text;
+        });
+    }
+
+    const activeProduct = document.getElementById("activeProduct");
+    const activeCheckbox = document.getElementById("activeCheckbox");
+    updateCheckboxText(activeProduct, activeCheckbox, "Sim", "Não");
+
+    const emphasisProduct = document.getElementById("emphasisProduct");
+    const emphasisCheckbox = document.getElementById("emphasisCheckbox");
+    updateCheckboxText(emphasisProduct, emphasisCheckbox, "Sim", "Não");
+</script>
 
 <script>
     $(document).ready(function() {

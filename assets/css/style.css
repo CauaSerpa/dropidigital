@@ -162,7 +162,7 @@ button:focus,
   outline: none;
   -webkit-box-shadow: none;
   box-shadow: none;
-  border-color: #cfdbf1; }
+  border-color: #212529; }
 
 input[type=search]::-ms-clear {
   display: none;
@@ -3976,8 +3976,7 @@ h6, .h6 {
   padding: 0;
   margin: 0;
   font-size: 22px;
-  background: transparent;
-  text-transform: capitalize; }
+  background: transparent; }
   @media only screen and (max-width: 375px) {
     .breadcrumb {
       font-size: 18px; } }
@@ -7544,8 +7543,6 @@ blockquote {
   border-radius: 0;
   padding: 10px 0 15px;
   border-width: 0 0 1px; }
-  .form-style-one .form-control:focus {
-    border-color: var(--heading-color); }
 
 .form-style-two .form-group {
   margin-bottom: 30px; }
@@ -8006,10 +8003,6 @@ blockquote {
     .review-form .form-group .nice-select::placeholder,
     .review-form .form-group .form-control::placeholder {
       color: var(--heading-color); }
-    .review-form .form-group .nice-select:focus,
-    .review-form .form-group .form-control:focus {
-      background: transparent;
-      border-color: var(--heading-color); }
     .review-form .form-group .nice-select .current,
     .review-form .form-group .form-control .current {
       font-weight: 400; }
