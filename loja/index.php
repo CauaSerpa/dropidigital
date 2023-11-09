@@ -637,25 +637,49 @@
                                 echo "<img src='" . INCLUDE_PATH_DASHBOARD . "back-end/category/" . $shop_id . "/icon/" . $category['icon'] . "' alt='Ícone " . $category['name'] . "' class='me-2' style='width: 32px; height: 32px;'>";
                                 echo $category['name'];
                                 echo "</a>";
-                                echo "<ul class='subcategorias'>";
-                                // Loop através dos resultados e exibir todas as colunas
-                                foreach ($subcategories as $subcategory) {
-                                    if ($contador % 6 == 0) {
-                                        echo "<div style='display: flex; flex-direction: column; margin-right: 5px;'>";
+                                if (!empty($subcategories)) { // Verifica se há resultados em $subcategories
+                                    echo "<ul class='subcategorias'>"; // Abre a lista apenas se houver resultados
+                                
+                                    $contador = 0; // Inicializa o contador
+                                
+                                    // Loop através dos resultados e exibir todas as colunas
+                                    foreach ($subcategories as $subcategory) {
+                                        if ($contador % 6 == 0) {
+                                            echo "<div style='display: flex; flex-direction: column; margin-right: 5px;'>";
+                                        }
+                                        echo "<li>";
+                                        echo "<a href='" . INCLUDE_PATH_LOJA . $subcategory['link'] . "'>" . $subcategory['name'] . "</a>";
+                                        echo "</li>";
+                                        if (($contador + 1) % 6 == 0 || ($contador == count($subcategories) - 1)) {
+                                            echo "</div>"; // Fecha a <div> a cada 6 elementos ou no último elemento
+                                        }
+                                        $contador++;
                                     }
-                                    echo "<li>";
-                                    echo "<a href='" . INCLUDE_PATH_LOJA . $subcategory['link'] . "'>" . $subcategory['name'] . "</a>";
-                                    echo "</li>";
-                                    if (($contador + 1) % 6 == 0 || ($contador == count($subcategories) - 1)) {
-                                        echo "</div>"; // Fecha a <div> a cada 6 elementos ou no último elemento
-                                    }
-                                    $contador++;
+                                
+                                    echo "</ul>"; // Fecha a lista
                                 }
-                                echo "</ul>";
                                 echo "</li>";
                             }
                         ?>
                     </ul>
+
+                    <?php
+                        // Nome da tabela para a busca
+                        $tabela = 'tb_articles';
+
+                        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':shop_id', $id);
+                        $stmt->execute();
+
+                        $countArticles = $stmt->rowCount();
+                    ?>
+                    <a href="<?php echo INCLUDE_PATH_LOJA; ?>blog/" class="btn btn-light d-flex justify-content-end align-items-center <?php echo ($countArticles == 0) ? "d-none" : ""; ?>">
+                        <img style="height: 28px; margin-right: 7px;" src="https://cdn.awsli.com.br/2544/2544943/arquivos/blog.svg">
+                        <strong class="titulo text-dark">Blog</strong>
+                    </a>
                 </div>
             </div>
         </nav>
@@ -827,8 +851,6 @@
                 if ($page) {
                     $page_id = $page['id'];
                 }
-            } elseif ($route === "blog/") {
-                echo "blog";
             } elseif (strpos($url, $substring_article) !== false) {
                 // Removendo "atendimento/" da URL
                 $link = preg_replace("/^blog\//", "", $route);
@@ -892,6 +914,12 @@
             } elseif (@$page) {
                 // Página de detalhes da página
                 include_once('pages/pagina.php');
+            } elseif ($route === "blog" || $route === "blog/") {
+                // Remove o banner padrao da loja
+                echo '<script>document.getElementById("myCarousel").classList.add("d-none");</script>';
+
+                // Página de detalhes da página
+                include_once('pages/blog.php');
             } elseif (@$article) {
                 // Remove o banner padrao da loja
                 echo '<script>document.getElementById("myCarousel").classList.add("d-none");</script>';
@@ -1185,8 +1213,8 @@
                             }
                         ?>
 
-                        <li class="mt-2" id="menu_blog">
-                            <a href="/pagina/artigos.html" class="btn btn-light">
+                        <li id="menu_blog" class="mt-2 <?php echo ($countArticles == 0) ? "d-none" : ""; ?>">
+                            <a href="<?php echo INCLUDE_PATH_LOJA; ?>blog/" class="btn btn-light">
                                 <img style="height: 28px; margin-right: 7px;" src="https://cdn.awsli.com.br/2544/2544943/arquivos/blog.svg">
                                 <strong class="titulo text-dark">Blog</strong>
                             </a>
@@ -1336,6 +1364,12 @@
         var carouselProdutos = new bootstrap.Carousel(document.getElementById('carouselProdutos'), {
             interval: 3000, // Tempo de exibição de cada produto em milissegundos (opcional)
             wrap: true // Se o carrossel deve voltar ao primeiro produto após o último (opcional)
+        });
+    </script>
+    <script>
+        var blogCarrossel = new bootstrap.Carousel(document.getElementById('blogCarousel'), {
+            interval: 2000, // Tempo de exibição de cada slide em milissegundos (opcional)
+            wrap: true // Se o carrossel deve voltar ao primeiro slide após o último (opcional)
         });
     </script>
 

@@ -176,10 +176,20 @@ if(!empty($id)){
                             <label class="form-check-label" id="textCheckbox1" for="activeCategory1"><?php echo ($category['status'] == 1) ? "Sim" : "Não"; ?></label>
                         </div>
                     </div>
+
+                    <style>
+                        input.disabled, input:disabled
+                        {
+                            background-image: var(--bs-form-switch-bg) !important;
+                            background-position: left center !important;
+                            background-repeat: no-repeat !important;
+                        }
+                    </style>
+
                     <div id="containerEmphasis">
                         <label for="emphasis" class="form-label small">Destacar no menu?</label>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasis" value="1" <?php echo ($category['emphasis'] == 1) ? "checked" : ""; ?>>
+                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasis" value="1" <?php echo ($category['emphasis'] == 1) ? "checked" : ""; ?> <?php if ($category['emphasis'] !== 1) {echo "disabled";} ?>>
                             <label class="form-check-label" id="emphasisCheckbox" for="emphasis"><?php echo ($category['emphasis'] == 1) ? "Sim" : "Não"; ?></label>
                         </div>
                     </div>
@@ -194,7 +204,7 @@ if(!empty($id)){
             <div class="col-md-6 image-container" id="shop-banner">
                 <p class="fw-semibold mb-3">Imagem para banner</p>
                 <div class="person-image mb-3">
-                    <img id="imagemPreview" class="image-preview" src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/image/' . $category['image']; ?>" alt="Preview da imagem">
+                    <img id="imagemPreview" class="image-preview object-fit-cover" src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/image/' . $category['image']; ?>" alt="Preview da imagem">
                 </div>
                 <label for="imagemInput" class="btn btn btn-outline-secondary d-flex align-items-center fw-semibold mb-1">
                     <i class='bx bx-image fs-5 me-2'></i>
@@ -209,7 +219,7 @@ if(!empty($id)){
             <div class="col-md-6 image-container" id="header-icon">
                 <p class="fw-semibold mb-3">Ícone para header</p>
                 <div class="person-image mb-3">
-                    <img id="iconPreview" class="image-preview icon" src="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/category/" . $shop_id . "/icon/" . $category['icon']; ?>" alt="Preview do ícone">
+                    <img id="iconPreview" class="image-preview icon object-fit-cover" src="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/category/" . $shop_id . "/icon/" . $category['icon']; ?>" alt="Preview do ícone">
                 </div>
                 <label for="iconInput" class="btn btn btn-outline-secondary d-flex align-items-center fw-semibold mb-1">
                     <i class='bx bx-image fs-5 me-2'></i>
@@ -260,7 +270,7 @@ if(!empty($id)){
         </div>
     </div>
 
-    <input type="hidden" name="link" id="link" value="">
+    <input type="hidden" name="link" id="link" value="<?php echo $category['link']; ?>">
     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
 
@@ -607,11 +617,12 @@ if(!empty($id)){
         inputText2.on("input", function() {
             var text = inputText2.val();
             if (text === '') {
-                text = 'link-da-pagina';
+                text = 'link-da-categoria';
             }
             newText = text.replace(/\s+/g, "-").toLowerCase();
             $(this).val($(this).val().replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
+            $('#link').val(newText);
         });
 
         inputText3.on('input', function () {

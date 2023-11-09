@@ -6,6 +6,12 @@
 
 <div class="container">
     <div class="row p-4">
+        <nav class="mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item small"><a href="<?php echo INCLUDE_PATH_LOJA; ?>blog/" class="text-decoration-none">Blog</a></li>
+                <li class="breadcrumb-item small fw-semibold text-body-secondary text-decoration-none ms-2 active" aria-current="page"><?php echo $article['name']; ?></li>
+            </ol>
+        </nav>
         <div class="col-md-8">
             <?php
                 //Formatacao para data

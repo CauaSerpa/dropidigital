@@ -143,10 +143,38 @@
                             <label class="form-check-label" id="textCheckbox1" for="activeCategory1">Sim</label>
                         </div>
                     </div>
+
+                    <?php
+                        // Nome da tabela para a busca
+                        $tabela = 'tb_categories';
+
+                        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND emphasis = :emphasis ORDER BY id DESC";
+
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':shop_id', $id);
+                        $stmt->bindValue(':emphasis', 1);
+                        $stmt->execute();
+
+                        $countCategoriesEmphasis = $stmt->rowCount();
+                    ?>
+
+                    <style>
+                        input.disabled, input:disabled
+                        {
+                            background-image: var(--bs-form-switch-bg) !important;
+                            background-position: left center !important;
+                            background-repeat: no-repeat !important;
+                        }
+                    </style>
+
                     <div id="containerEmphasis">
-                        <label for="emphasis" class="form-label small">Destacar no menu?</label>
+                        <label for="emphasis" class="form-label small">
+                            Destacar no menu?
+                            <i class="bx bx-help-circle" data-toggle="tooltip" data-placement="top" aria-label="É possível destacar até 6 categorias no menu." data-bs-original-title="É possível destacar até 6 categorias no menu."></i>
+                        </label>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasis" value="1">
+                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasis" value="1" <?php echo ($countCategoriesEmphasis >= 4) ? "disabled" : ""; ?>>
                             <label class="form-check-label" id="emphasisCheckbox" for="emphasis">Não</label>
                         </div>
                     </div>
@@ -161,7 +189,7 @@
             <div class="col-md-6 image-container" id="shop-banner">
                 <p class="fw-semibold mb-3">Imagem para banner</p>
                 <div class="person-image mb-3">
-                    <img id="imagemPreview" class="image-preview" src="../assets/images/services/service-next.jpg" alt="Preview da imagem">
+                    <img id="imagemPreview" class="image-preview object-fit-cover" src="../assets/images/services/service-next.jpg" alt="Preview da imagem">
                 </div>
                 <label for="imagemInput" class="btn btn btn-outline-secondary d-flex align-items-center fw-semibold mb-1">
                     <i class='bx bx-image fs-5 me-2'></i>
@@ -176,7 +204,7 @@
             <div class="col-md-6 image-container" id="header-icon">
                 <p class="fw-semibold mb-3">Ícone para header</p>
                 <div class="person-image mb-3">
-                    <img id="iconPreview" class="image-preview icon" src="../assets/images/blog/author.jpg" alt="Preview da imagem">
+                    <img id="iconPreview" class="image-preview icon object-fit-cover" src="../assets/images/blog/author.jpg" alt="Preview da imagem">
                 </div>
                 <label for="iconInput" class="btn btn btn-outline-secondary d-flex align-items-center fw-semibold mb-1">
                     <i class='bx bx-image fs-5 me-2'></i>
@@ -570,12 +598,15 @@
             textPreview1.text(newText);
         });
 
-        inputText2.on('input', function () {
-            var newText = inputText2.val();
-            if (newText === '') {
-                newText = 'link-da-pagina';
+        inputText2.on("input", function() {
+            var text = inputText2.val();
+            if (text === '') {
+                text = 'link-da-categoria';
             }
+            newText = text.replace(/\s+/g, "-").toLowerCase();
+            $(this).val($(this).val().replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
+            $('#link').val(newText);
         });
 
         inputText3.on('input', function () {

@@ -114,19 +114,18 @@
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <h4 class="mb-3">Navegue por Departamento</h4>
         <div style="width: 100px; height: 5px; background: #000;"></div>
-    </div>    
+    </div>
     <div class="carousel-inner">
         <?php
             // Nome da tabela para a busca
             $tabela = 'tb_categories';
 
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis AND parent_category = :parent_category ORDER BY id DESC";
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
 
             // Preparar e executar a consulta
             $stmt = $conn_pdo->prepare($sql);
             $stmt->bindParam(':shop_id', $shop_id);
             $stmt->bindValue(':status', 1);
-            $stmt->bindValue(':emphasis', 1);
             $stmt->bindValue(':parent_category', 1);
             $stmt->execute();
 

@@ -267,3 +267,8 @@
         });
     });
 </script>
+
+<!-- Aterar o <title> da pagina -->
+<script>
+    document.title = "Produtos | Dropidigital";
+</script>

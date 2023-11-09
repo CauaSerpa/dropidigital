@@ -446,7 +446,6 @@
                             <label for="message" class="form-label small">Mensagem personalizada</label>
                             <textarea class="form-control" name="message" id="message" rows="3" placeholder="Use esse espaço para adicionar uma mensagem personalizada que será enviada pelo seu link de WhatsApp :)"></textarea>
                         </div>
-                        <button type="button" id="generate-link">Gerar Link do WhatsApp</button>
                         <div class="mb-3">
                             <label for="linkWhatsapp" class="form-label small">Link gerado</label>
                             <p><a href="" target="_blank" class="small text-decoration-none" id="linkWhatsapp" style="color: #01C89B;"></a></p>
@@ -686,51 +685,46 @@
 
 <!-- Convertendo numero e text em link -->
 <script>
-    // Aguarde o documento estar pronto
-    $(document).ready(function() {
-        // Selecione os elementos de input, textarea e botão
+    // Função para gerar o link do WhatsApp
+    function generateWhatsAppLink() {
         var countryNumberInput = $("#country-code");
         var phoneNumberInput = $("#phone-number");
         var messageTextArea = $("#message");
-        var generateLinkButton = $("#generate-link");
 
-        // Adicione um ouvinte de evento de clique ao botão
-        generateLinkButton.on("click", function() {
-            // Obtenha o valor do codigo do pais de telefone
-            var countryCode = countryNumberInput.val();
-            // Obtenha o valor do número de telefone e da mensagem
-            var phoneNumber = phoneNumberInput.val();
-            var message = encodeURIComponent(messageTextArea.val()); // Certifique-se de codificar a mensagem
+        var countryCode = countryNumberInput.val();
+        var phoneNumber = phoneNumberInput.val();
+        var message = encodeURIComponent(messageTextArea.val());
 
-            // Remova qualquer caractere não numérico (incluindo o "+") usando uma expressão regular
-            countryCode = countryCode.replace(/\D/g, "");
+        countryCode = countryCode.replace(/\D/g, "");
+        phoneNumber = phoneNumber.replace(/[^\d]/g, "");
 
-            // Remova caracteres especiais, espaços e parênteses do número de telefone
-            phoneNumber = phoneNumber.replace(/[^\d]/g, "");
+        phoneNumber = countryCode + phoneNumber;
 
-            // Verifique se o número de telefone não está vazio
-            if (phoneNumber.trim() === '') {
-                alert("Por favor, insira um número de telefone válido.");
-                return;
+        var whatsappLink;
+        if (message === '') {
+            whatsappLink = "https://wa.me/" + phoneNumber;
+        } else {
+            whatsappLink = "https://wa.me//" + phoneNumber + "?text=" + message;
+        }
+
+        $('#linkWhatsapp').text(whatsappLink);
+        $('#linkWhatsapp').attr("href", whatsappLink);
+        $('#inputLinkWhatsapp').val(whatsappLink);
+    }
+
+    $(document).ready(function() {
+        // Adicione um ouvinte de evento change ao campo <select>
+        $("#buttonType").on("change", function() {
+            // Verifique o novo valor do campo <select>
+            var selectValue = $(this).val(); // O valor do campo <select> alterado
+
+            if (selectValue === "2") {
+                // Chame a função se o novo valor do campo <select> for igual a 2
+                generateWhatsAppLink();
+
+                // Adicione ouvintes de evento de entrada aos campos relevantes
+                $("#country-code, #phone-number, #message").on("input", generateWhatsAppLink);
             }
-
-            // Junta o codigo do pais com o numero
-            phoneNumber = countryCode + phoneNumber;
-
-            if (message === '') {
-                var whatsappLink = "https://wa.me/" + phoneNumber;
-            } else {
-                // Monte o link do WhatsApp com o número e a mensagem
-                var whatsappLink = "https://wa.me//" + phoneNumber + "?text=" + message;
-            }
-
-            // Inserindo valor no "a"
-            $('#linkWhatsapp').text(whatsappLink);
-            // Defina o valor do atributo href
-            $('#linkWhatsapp').attr("href", whatsappLink);
-
-            // Inserindo o link gerado no input
-            $('#inputLinkWhatsapp').val(whatsappLink);
         });
     });
 </script>

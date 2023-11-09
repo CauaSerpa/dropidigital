@@ -2,7 +2,7 @@
     // Nome da tabela para a busca
     $tabela = 'tb_shop';
 
-    $sql = "SELECT top_highlight_bar, top_highlight_bar_location, top_highlight_bar_text, top_highlight_bar_link, center_highlight_images FROM $tabela WHERE user_id = :user_id";
+    $sql = "SELECT top_highlight_bar, top_highlight_bar_location, top_highlight_bar_text, center_highlight_images FROM $tabela WHERE user_id = :user_id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -230,10 +230,6 @@
                     <div class="mb-2">
                         <label for="top_highlight_bar_text" class="form-label small">Texto</label>
                         <textarea class="form-control" name="top_highlight_bar_text" id="top_highlight_bar_text" maxlength="128" rows="3"><?php echo $shop['top_highlight_bar_text']; ?></textarea>
-                    </div>
-                    <div class="mb-2">
-                        <label for="top_highlight_bar_link" class="form-label small">Link</label>
-                        <input type="text" class="form-control" name="top_highlight_bar_link" id="top_highlight_bar_link" placeholder="https://..." value="<?php echo $shop['top_highlight_bar_link']; ?>">
                     </div>
                 </div>
             </div>

@@ -2,6 +2,14 @@
     //Url Amigavel
     $url = isset($_GET['url']) ? $_GET['url'] : 'painel';
 
+    //Edita o escrito da url para ser colocado no title
+    if ($url == "")
+    {
+        $title = "Painel";
+    } else {
+        $title = ucwords(str_replace("-", " ", $url));
+    }
+
     session_start();
     ob_start();
     include('../config.php');
@@ -43,7 +51,7 @@
     $tabela = "tb_shop";
 
     // Consulta SQL
-    $sql = "SELECT name FROM $tabela WHERE user_id = :id";
+    $sql = "SELECT plan_id, name, url FROM $tabela WHERE user_id = :id";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -60,7 +68,9 @@
     // Verificar se o resultado foi encontrado
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
+        $plan_id = $resultado['plan_id'];
         $loja = $resultado['name'];
+        $link = $resultado['url'];
     } else {
         // ID não encontrado ou não existente
         echo "ID não encontrado.";
@@ -72,7 +82,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Painel | Dropidigital</title>
+    <title><?php echo $title; ?> | Dropidigital</title>
 
     <!--Favicon-->
     <link rel="shortcut icon" href="<?php echo INCLUDE_PATH; ?>assets/images/favicon.png" type="image/x-icon">
@@ -159,7 +169,19 @@
             </div>
             <div class="right">
                 <div class="header__icon shop-link">
-                    <a href="https://minha-loja.dropidigital.com.br">
+                    <?php
+                        if (strpos($link, "https://") === 0) {
+                            $shop_url = $link;
+                        } else {
+                            $dominio_completo = $_SERVER['HTTP_HOST'];
+
+                            // Remove o protocolo (http:// ou https://) se presente
+                            $dominio = preg_replace('#^https?://#', '', $dominio_completo);
+
+                            $shop_url = "http://$link.$dominio/dropidigital/app/loja";
+                        }
+                    ?>
+                    <a href="<?php echo $shop_url; ?>" target="_blank">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
                     </a>
                 </div>
@@ -363,7 +385,7 @@
                     <li><a class="link_name" href="#">Dashboard</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('criar-produto'); ?> <?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('criar-categoria'); ?> <?php activeSidebarLink('avaliacoes'); ?> <?php showSidebarLinks('produtos'); ?> <?php showSidebarLinks('criar-produto'); ?> <?php showSidebarLinks('avaliacoes'); ?> <?php showSidebarLinks('categorias'); ?> <?php showSidebarLinks('criar-categoria'); ?>">
+            <li class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('criar-produto'); ?> <?php activeSidebarLink('editar-produto'); ?> <?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('criar-categoria'); ?> <?php showSidebarLinks('produtos'); ?> <?php showSidebarLinks('criar-produto'); ?> <?php showSidebarLinks('editar-produto'); ?> <?php showSidebarLinks('categorias'); ?> <?php showSidebarLinks('criar-categoria'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="sidebar_link">
@@ -375,14 +397,13 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos">Produtos</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="<?php activeSidebarLink('produtos'); ?>">Listar Produtos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="<?php activeSidebarLink('produtos'); ?> <?php activeSidebarLink('editar-produto'); ?>">Listar Produtos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto" class="<?php activeSidebarLink('criar-produto'); ?>" style="border-bottom: 1px solid #c4c4c4;">+ Criar Produto</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="<?php activeSidebarLink('categorias'); ?> <?php activeSidebarLink('criar-categoria'); ?>">Categorias</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>avaliacoes" class="<?php activeSidebarLink('avaliacoes'); ?>">Avaliações</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php activeSidebarLink('video-youtube'); ?> <?php activeSidebarLink('tarja'); ?> <?php activeSidebarLink('codigos-html'); ?> <?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('editar-pagina'); ?>
-                    <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?> <?php showSidebarLinks('video-youtube'); ?> <?php showSidebarLinks('tarja'); ?> <?php showSidebarLinks('codigos-html'); ?> <?php showSidebarLinks('paginas'); ?> <?php showSidebarLinks('editar-pagina'); ?>">
+            <li class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('criar-banner'); ?> <?php activeSidebarLink('editar-banner'); ?> <?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php activeSidebarLink('video-youtube'); ?> <?php activeSidebarLink('tarja'); ?> <?php activeSidebarLink('codigos-html'); ?> <?php activeSidebarLink('incluir-codigo-html'); ?> <?php activeSidebarLink('editar-codigo-html'); ?> <?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('criar-pagina'); ?> <?php activeSidebarLink('editar-pagina'); ?>
+                    <?php showSidebarLinks('banners'); ?> <?php showSidebarLinks('criar-banner'); ?> <?php showSidebarLinks('editar-banner'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?> <?php showSidebarLinks('video-youtube'); ?> <?php showSidebarLinks('tarja'); ?> <?php showSidebarLinks('codigos-html'); ?> <?php showSidebarLinks('incluir-codigo-html'); ?> <?php showSidebarLinks('editar-codigo-html'); ?> <?php showSidebarLinks('paginas'); ?> <?php showSidebarLinks('criar-pagina'); ?> <?php showSidebarLinks('editar-pagina'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="sidebar_link">
@@ -394,17 +415,16 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners">Personalizar</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="<?php activeSidebarLink('banners'); ?>">Banners</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="<?php activeSidebarLink('banners'); ?> <?php activeSidebarLink('criar-banner'); ?> <?php activeSidebarLink('editar-banner'); ?>">Banners</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>logo" class="<?php activeSidebarLink('logo'); ?>">Logo</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>feed-instagram" class="<?php activeSidebarLink('feed-instagram'); ?>">Feed Instagram</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>botao-whatsapp" class="<?php activeSidebarLink('botao-whatsapp'); ?>">Botão WhatsApp</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>video-youtube" class="<?php activeSidebarLink('video-youtube'); ?>">Vídeo do Youtube</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>tarja" class="<?php activeSidebarLink('tarja'); ?>">Tarja Superior / Central</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>codigos-html" class="<?php activeSidebarLink('codigos-html'); ?>">Incluir código HTML</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('editar-pagina'); ?>">Incluir pág. conteúdo</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>codigos-html" class="<?php activeSidebarLink('codigos-html'); ?> <?php activeSidebarLink('incluir-codigo-html'); ?> <?php activeSidebarLink('editar-codigo-html'); ?>">Incluir código HTML</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('criar-pagina'); ?> <?php activeSidebarLink('editar-pagina'); ?>">Incluir pág. conteúdo</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('dados-para-pagamento'); ?> <?php showSidebarLinks('planos'); ?> <?php showSidebarLinks('dados-para-pagamento'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="sidebar_link">
@@ -421,7 +441,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>historico-de-faturas" class="<?php activeSidebarLink('historico-de-faturas'); ?>">Histórico de Faturas</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('depoimentos'); ?> <?php activeSidebarLink('criar-depoimento'); ?> <?php showSidebarLinks('depoimentos'); ?> <?php showSidebarLinks('criar-depoimento'); ?>">
+            <li class="<?php activeSidebarLink('depoimentos'); ?> <?php activeSidebarLink('criar-depoimento'); ?> <?php activeSidebarLink('editar-depoimento'); ?> <?php showSidebarLinks('depoimentos'); ?> <?php showSidebarLinks('criar-depoimento'); ?> <?php showSidebarLinks('editar-depoimento'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="sidebar_link">
@@ -433,11 +453,11 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos">Depoimentos</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="<?php activeSidebarLink('depoimentos'); ?>">Depoimento</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>depoimentos" class="<?php activeSidebarLink('depoimentos'); ?> <?php activeSidebarLink('editar-depoimento'); ?>">Depoimento</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-depoimento" class="<?php activeSidebarLink('criar-depoimento'); ?>">Criar Depoimento</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('logo'); ?> <?php activeSidebarLink('feed-instagram'); ?> <?php showSidebarLinks('logo'); ?> <?php showSidebarLinks('feed-instagram'); ?>">
+            <li class="<?php activeSidebarLink('configurar-dominio'); ?> <?php activeSidebarLink('email-profissional'); ?> <?php showSidebarLinks('configurar-dominio'); ?> <?php showSidebarLinks('email-profissional'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configurar-dominio" class="sidebar_link">
@@ -488,7 +508,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">YouTube</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?>">
+            <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="sidebar_link">
@@ -500,7 +520,7 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos">Blog</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="<?php activeSidebarLink('artigos'); ?>">Listar Artigos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('editar-artigo'); ?>">Listar Artigos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">+ Criar Artigo</a></li>
                 </ul>
             </li>

@@ -266,11 +266,6 @@ table tr .form-check-input:checked
     background-color: var(--green-color) !important;
     border-color: var(--green-color) !important;
 }
-input[type="checkbox"].form-check-input:focus {
-    border-color: none !important;
-    outline: 0;
-    box-shadow: none !important;
-}
 input[type="checkbox"].form-check-input:indeterminate,
 input[type="checkbox"].form-check-input:checked
 {
@@ -2724,6 +2719,15 @@ input[type="number"]::-webkit-inner-spin-button
 .form-check-input:focus
 {
     border-color: #212529 !important;
+}
+/* Checkbox Color */
+.form-check-input:checked[type=checkbox]
+{
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+.form-check-input:focus
+{
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23212529'/%3e%3c/svg%3e") !important;
 }
 .card__container .card__box .card .form .container__button
 {

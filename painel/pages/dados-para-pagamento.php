@@ -2,7 +2,7 @@
     // Nome da tabela para a busca
     $tabela = 'tb_users';
 
-    $sql = "SELECT (name) FROM $tabela WHERE id = :id";
+    $sql = "SELECT name, email FROM $tabela WHERE id = :id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -38,32 +38,38 @@
     // Obter o resultado como um array associativo
     $address = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
+
 <div class="page__header center">
     <div class="header__title">
-        <h2 class="title">Dados da Loja</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-3">
+                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>planos" class="fs-5 text-decoration-none text-reset">Financeiro</a></li>
+                <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Dados para pagamento</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="header__actions">
+        <div class="container__button">
+            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda/dados-para-pagamento" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-decoration-none d-flex align-items-center">
+                <i class='bx bx-help-circle me-1' ></i>
+                <b>Obtenha ajuda sobre</b>
+            </a>
+        </div>
     </div>
 </div>
 
-<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_settings.php" method="post">
+<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_payment-data.php" method="post">
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações gerais</div>
         <div class="card-body row px-4 py-3">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="name" class="form-label small">Nome da sua loja *</label>
-                    <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" value="<?php echo $shop['name']; ?>" required>
+                    <label for="responsible" class="form-label small">Nome do responsável *</label>
+                    <input type="text" class="form-control" name="responsible" id="responsible" aria-describedby="responsibleHelp" value="<?php echo $user['name']; ?>" required>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="title" class="form-label small">Nome da loja no &lt;title&gt;</label>
-                    <input type="text" class="form-control" name="title" id="title" aria-describedby="titleHelp" value="<?php echo $shop['title']; ?>">
-                    <small>Será mostrado na aba do seu navegador e na página do Google.</small>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label for="description" class="form-label small">Descrição da página</label>
-                    <textarea class="form-control" name="description" id="description" maxlength="160" rows="3"><?php echo $shop['description']; ?></textarea>
-                    <small>Preencha o campo com uma breve descrição sobre sua loja. Esta informação ficará disponível na página principal e para o Google.</small>
+                    <label for="email" class="form-label small">E-mail do responsável *</label>
+                    <input type="text" class="form-control" name="email" id="email" aria-describedby="emailHelp" value="<?php echo $user['email']; ?>" required>
                 </div>
             </div>
             <div class="row">
@@ -75,10 +81,6 @@
                             <option value="pj">Pessoa Jurídica</option>
                         </select>
                     </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="responsible" class="form-label small">Nome do responsável *</label>
-                    <input type="text" class="form-control" name="responsible" id="responsible" aria-describedby="responsibleHelp" value="<?php echo $user['name']; ?>" required>
                 </div>
             </div>
             <div class="row" id="pf" style="display: flex;">
@@ -103,20 +105,6 @@
                 <div class="col-md-4 mb-3">
                     <label for="phone" class="form-label small">Telefone de contato *</label>
                     <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $shop['phone']; ?>" required>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <label for="segment" class="form-label small">Segmento *</label>
-                    <div class="input-group">
-                        <select name="segment" id="segment" class="form-select">
-                            <option value="0" <?php echo ($shop['segment'] == 0) ? "selected" : ""; ?>>Dropshipping Infoproduto</option>
-                            <option value="1" <?php echo ($shop['segment'] == 1) ? "selected" : ""; ?>>Dropshipping produto físico</option>
-                            <option value="2" <?php echo ($shop['segment'] == 2) ? "selected" : ""; ?>>Site divulgação de serviços</option>
-                            <option value="3" <?php echo ($shop['segment'] == 3) ? "selected" : ""; ?>>Site comércio físico</option>
-                            <option value="4" <?php echo ($shop['segment'] == 4) ? "selected" : ""; ?>>Site para agendamento</option>
-                        </select>
-                    </div>
                 </div>
             </div>
         </div>

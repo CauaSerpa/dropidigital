@@ -90,7 +90,7 @@ if(!empty($id)){
                         90 px x 90 px
                     </small>
                     <small>
-                        <b>OBS:</b> Usar depoimentos reais!.
+                        <b>OBS:</b> Usar depoimentos reais!
                     </small>
                     <input type="file" name="img" id="imagemInput" accept="image/*" class="d-none">
                 </div>
@@ -123,7 +123,7 @@ if(!empty($id)){
         </div>
     </div>
 
-    <input type="hidden" name="qualification" id="qualification" value="">
+    <input type="hidden" name="qualification" id="qualification" value="<?php echo $deposition['qualification']; ?>">
     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
 
