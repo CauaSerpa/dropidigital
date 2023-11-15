@@ -101,307 +101,103 @@
     </ul>
 </div>
 
-<div class="tab-pane fade show active" id="plans-tap1">
-    <div class="row g-3">
-        <?php
-            // Consulta SQL para obter todos os planos
-            $query = "SELECT * FROM tb_plans";
-            $stmt = $conn_pdo->query($query);
-            $plans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+<?php
+// Sua consulta SQL
+$sql = "SELECT t2.id, t2.plan_id, t1.name, t1.sub_name, t2.price, t2.billing_interval, t1.resources
+        FROM tb_plans t1
+        JOIN tb_plans_interval t2 ON t1.id = t2.plan_id";
 
-            // Loop através dos resultados e exibir cada plano
-            foreach ($plans as $plan) {
-        ?>
-        <div class="col d-grid">
-            <div class="card">
-                <div class="title mb-3">
-                    <h4 class="lh-1 mb-0"><?php echo $plan['name']; ?></h4>
-                    <p><?php echo $plan['sub_name']; ?></p>
-                </div>
-                <div class="price-container d-flex align-items-end mb-3">
-                    <div class="price">
-                        <span class="fs-5 fw-semibold">R$ <?php echo $plan['price']; ?></span>
-                        <small>por mês</small>
-                    </div>
-                </div>
+// Executar a consulta
+$stmt = $conn_pdo->query($sql);
+$planos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Inicialize variáveis para verificar a primeira iteração
+$monthlyPlans = [];
+$annualPlans = [];
+
+// Separe os planos mensais e anuais
+foreach ($planos as $plano) {
+    if ($plano['billing_interval'] == 'monthly') {
+        $monthlyPlans[] = $plano;
+    } elseif ($plano['billing_interval'] == 'yearly') {
+        $annualPlans[] = $plano;
+    }
+}
+
+// Função para exibir os detalhes do plano
+function displayPlanDetails($id, $plan_id, $shop_plan, $name, $sub_name, $price, $billing_interval, $resources) {
+    ?>
+
+    <div class="col d-grid">
+        <div class="card">
+            <div class="title mb-3">
+                <h4 class="lh-1 mb-0"><?php echo $name; ?></h4>
+                <p><?php echo $sub_name; ?></p>
+            </div>
+            <div class="price-container mb-3">
+                <span class="fs-5 fw-semibold">R$ <?php echo $price; ?></span>
+                <small>por <?php echo ($billing_interval == "monthly") ? "mês" : "ano"; ?></small>
+            </div>
+
+            <?php
+                if ($shop_plan == $plan_id) {
+                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                    echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Assinar plano</button>';
+                } else {
+                    // Se o plano ainda não estiver assinado, mostre o botão de assinatura
+                    echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>';
+                }
+            ?>
+
+            <!-- Exiba os recursos na página -->
+            <ul class="list-style-one mb-0">
                 <?php
-                    if ($plan_id == $plan['id'])
-                    {
-                        echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Assinar plano</button>';
-                    } else {
-                        echo '<a href="' . $plan['link_checkout'] . '" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>';
+                $decoded_resources = json_decode($resources);
+                if (!empty($decoded_resources)) {
+                    foreach ($decoded_resources as $recurso) {
+                        echo "<li><i class='bx bx-check'></i>$recurso</li>";
                     }
+                }
                 ?>
-
-                <?php
-                    // Exiba os recursos na página
-                    $resources = json_decode($plan['resources']);
-
-                    if (!empty($resources)) {
-                        echo "<ul class='list-style-one mb-0'>";
-                        foreach ($resources as $recurso) {
-                            echo "<li><i class='bx bx-check'></i>$recurso</li>";
-                        }
-                        echo "</ul>";
-                    }
-                ?>
-            </div>
-        </div>
-        <?php
-            }
-        ?>
-    </div>
-</div>
-<div class="tab-pane fade" id="plans-tap2">
-    <div class="row g-3">
-        <div class="col d-grid">
-            <div class="card">
-                <div class="title mb-3">
-                    <h4 class="lh-1 mb-0">Básico</h4>
-                    <p>Conhecendo</p>
-                </div>
-                <div class="price-container d-flex align-items-end mb-3">
-                    <div class="price">
-                        <span class="fs-5 fw-semibold">R$ 0</span>
-                        <small>por mês</small>
-                    </div>
-                </div>
-                <button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Assinar plano</button>
-                <ul class="list-style-one mb-0">
-                    <li>
-                        <i class='bx bx-check'></i>
-                        10 produtos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        5.000 visitas/mês
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem limite de pedidos ou orçamentos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem comissão sobre vendas
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Conta protegida
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Botão WhatsApp
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="col d-grid">
-            <div class="card">
-                <div class="title mb-3">
-                    <h4 class="lh-1 mb-0">Iniciante</h4>
-                    <p>Já faço vendas</p>
-                </div>
-                <div class="price-container mb-3">
-                    <p class="text-body-secondary text-decoration-line-through small">R$ 47</p>
-                    <span class="fs-5 fw-semibold">R$ 39</span>
-                    <small>por mês</small>
-                </div>
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>
-                <ul class="list-style-one mb-0">
-                    <li>
-                        <i class='bx bx-check'></i>
-                        50 produtos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        25.000 visitas/mês
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem limite de pedidos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem comissão sobre vendas
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Conta protegida
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Botão WhatsApp
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Suporte humanizado
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="col d-grid">
-            <div class="card">
-                <div class="title mb-3">
-                    <h4 class="lh-1 mb-0">Intermeriário</h4>
-                    <p>Pedidos diários</p>
-                </div>
-                <div class="price-container mb-3">
-                    <p class="text-body-secondary text-decoration-line-through small">R$ 79</p>
-                    <span class="fs-5 fw-semibold">R$ 59</span>
-                    <small>por mês</small>
-                </div>
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>
-                <ul class="list-style-one mb-0">
-                    <li>
-                        <i class='bx bx-check'></i>
-                        250 produtos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        50.000 visitas/mês
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem limite de pedidos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem comissão sobre vendas
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Conta protegida
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Botão WhatsApp
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Suporte humanizado
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Palavras chave do seu nicho
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="col d-grid">
-            <div class="card">
-                <div class="title mb-3">
-                    <h4 class="lh-1 mb-0">Avançado</h4>
-                    <p>Muitas vendas</p>
-                </div>
-                <div class="price-container mb-3">
-                    <p class="text-body-secondary text-decoration-line-through small">R$ 159</p>
-                    <span class="fs-5 fw-semibold">R$ 139</span>
-                    <small>por mês</small>
-                </div>
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>
-                <ul class="list-style-one mb-0">
-                    <li>
-                        <i class='bx bx-check'></i>
-                        750 produtos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        100.000 visitas/mês
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem limite de pedidos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem comissão sobre vendas
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Conta protegida
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Botão WhatsApp
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Suporte humanizado
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Palavras chave do seu nicho
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Atendimento prioritário
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="col d-grid">
-            <div class="card">
-                <div class="title mb-3">
-                    <h4 class="lh-1 mb-0">Expert</h4>
-                    <p>Voando alto</p>
-                </div>
-                <div class="price-container mb-3">
-                    <p class="text-body-secondary text-decoration-line-through small">R$ 239</p>
-                    <span class="fs-5 fw-semibold">R$ 199</span>
-                    <small>por mês</small>
-                </div>
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>
-                <ul class="list-style-one mb-0">
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Produtos ilimitados
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        300.000 visitas/mês
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem limite de pedidos
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Sem comissão sobre vendas
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Conta protegida
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Botão WhatsApp
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Suporte humanizado
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Palavras chave do seu nicho
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Atendimento prioritário
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Mentoria inicial do projeto
-                    </li>
-                    <li>
-                        <i class='bx bx-check'></i>
-                        Serviço de SEO incluso
-                    </li>
-                </ul>
-            </div>
+            </ul>
         </div>
     </div>
-</div>
+
+    <?php
+}
+
+// Exibir planos mensais
+if (!empty($monthlyPlans)) {
+    echo '
+        <div class="tab-pane fade show active" id="plans-tap1">
+            <div class="row g-3">';
+
+    foreach ($monthlyPlans as $monthlyPlan) {
+        displayPlanDetails($monthlyPlan['id'], $monthlyPlan['plan_id'], $plan_id, $monthlyPlan['name'], $monthlyPlan['sub_name'], $monthlyPlan['price'], 'monthly', $monthlyPlan['resources']);
+    }
+
+    echo '
+            </div>
+        </div>
+    '; // Fechar a div mensal
+}
+
+// Exibir planos anuais
+if (!empty($annualPlans)) {
+    echo '
+        <div class="tab-pane fade" id="plans-tap2">
+            <div class="row g-3">';
+
+    foreach ($annualPlans as $annualPlan) {
+        displayPlanDetails($annualPlan['id'], $annualPlan['plan_id'], $plan_id, $annualPlan['name'], $annualPlan['sub_name'], $annualPlan['price'], 'yearly', $annualPlan['resources']);
+    }
+
+    echo '
+            </div>
+        </div>
+    '; // Fechar a div anual
+}
+?>
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
