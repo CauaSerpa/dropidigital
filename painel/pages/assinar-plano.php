@@ -106,7 +106,7 @@ if ($id > 0) {
         <div class="modal-content">
             <form action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_payment-data.php" method="post" id="seu_formulario_id">
                 <div class="modal-header px-4 pb-3 pt-4 border-0">
-                    <h1 class="modal-title fs-6" id="exampleModalLabel">Informações da fatura</h1>
+                    <h6 class="modal-title fs-6" id="exampleModalLabel">Informações da fatura</h6>
                 </div>
                 <div class="modal-body px-4 pb-3 pt-0">
                     <div class="row mb-3">
@@ -220,6 +220,7 @@ if ($id > 0) {
 
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
+                                    $yearly_price = $price['price'];
                             ?>
 
                             <p class="d-flex align-items-center col-md-4">Assinatura anual</p>
@@ -337,24 +338,23 @@ if ($id > 0) {
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="creditCardOwner" class="form-label small">Vencimento do cartão *</label>
-                                <input type="text" class="form-control" name="credit_card_owner" id="creditCardOwner" aria-describedby="creditCardOwnerHelp" placeholder="MM / AAAA" required>
+                                <label for="creditCardExpiration" class="form-label small">Vencimento do cartão *</label>
+                                <input type="text" class="form-control" name="credit_card_expiration" id="creditCardExpiration" aria-describedby="creditCardExpirationHelp" placeholder="MM / AA" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="creditCardOwner" class="form-label small">Código de segurança *</label>
-                                <input type="text" class="form-control" name="credit_card_owner" id="creditCardOwner" aria-describedby="creditCardOwnerHelp" placeholder="CVV" required>
+                                <label for="creditCardCCV" class="form-label small">Código de segurança *</label>
+                                <input type="text" class="form-control" name="credit_card_ccv" id="creditCardCCV" aria-describedby="creditCardCCVHelp" placeholder="CVV" required>
                             </div>
                         </div>
                         <div class="mb-3 <?php echo ($billing_interval == 'monthly') ? "d-none" : ""; ?>" id="installmentContainer">
                             <label for="installment" class="form-label small">Parcelas</label>
                             <div class="input-group">
                                 <select class="form-select" name="installment" id="installment" aria-label="Default select example" required>
-                                    <option value="1" selected>À vista</option>
-                                    <option value="2">2x de R$ 258,00 sem juros</option>
-                                    <option value="3">3x de R$ 172,00 sem juros</option>
-                                    <option value="4">4x de R$ 129,00 sem juros</option>
-                                    <option value="5">5x de R$ 103,20 sem juros</option>
-                                    <option value="6">6x de R$ 86,00 sem juros</option>
+                                    <option value="<?php echo $yearly_price; ?>" selected>À vista</option>
+                                    <?php for ($i = 2; $i <= 6; $i++): ?>
+                                        <?php $installmentValue = round($yearly_price / $i, 2); ?>
+                                        <option value="<?php echo $i; ?>"> <?php echo $i; ?>x de R$ <?php echo number_format($installmentValue, 2, ',', ''); ?> sem juros</option>
+                                    <?php endfor; ?>
                                 </select>
                             </div>
                         </div>
@@ -512,9 +512,48 @@ if ($id > 0) {
 
 <script>
     //Phone Mask
+    new Cleave('#phone', {
+        delimiters: ['(', ')', ' ', '-'],
+        blocks: [0, 2, 0, 5, 4],
+        numericOnly: true
+    });
+</script>
+<script>
+    //CPF Mask
+    new Cleave('#cpf', {
+        delimiters: ['.', '.', '-'],
+        blocks: [3, 3, 3, 2],
+        numericOnly: true
+    });
+</script>
+<script>
+    //CEP Mask
+    new Cleave('#cep', {
+        delimiters: ['-'],
+        blocks: [5, 3],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Card Number Mask
     new Cleave('#creditCardNumber', {
         delimiters: [' ', ' ', ' '],
         blocks: [4, 4, 4, 4],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Card Number Mask
+    new Cleave('#creditCardExpiration', {
+        delimiters: [' / ',],
+        blocks: [2, 2],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Card Number Mask
+    new Cleave('#creditCardCCV', {
+        blocks: [4],
         numericOnly: true
     });
 </script>

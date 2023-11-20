@@ -471,27 +471,27 @@
 </div>
 
 <div class="row g-3">
-    <div class="col-sm-4">
+    <a href="https://pay.hotmart.com/I87196553U" target="__black" class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-1.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-    <div class="col-sm-4">
+    </a>
+    <a href="https://mpago.la/1b4q8Mk" target="__black" class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-2.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-    <div class="col-sm-4">
+    </a>
+    <a href="https://mpago.la/2gmWgJQ" target="__black" class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-3.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-    <div class="col-sm-4">
+    </a>
+    <a herf="https://mpago.la/2aJm9Bz" target="__black" class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-4.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-    <div class="col-sm-4">
+    </a>
+    <a href="https://mpago.la/1piXCSS" target="__black" class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-5.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-    <div class="col-sm-4">
+    </a>
+    <a href="https://mpago.li/25cjbHY" target="__black" class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-6.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-    <div class="col-sm-4">
+    </a>
+    <a href="https://mpago.li/2NoQfiV" target="__black" class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-7.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
+    </a>
     <div class="col-sm-4">
         <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-8.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
     </div>

@@ -424,7 +424,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('criar-pagina'); ?> <?php activeSidebarLink('editar-pagina'); ?>">Incluir pág. conteúdo</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('dados-para-pagamento'); ?> <?php showSidebarLinks('planos'); ?> <?php showSidebarLinks('dados-para-pagamento'); ?>">
+            <li class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('assinar-plano'); ?> <?php activeSidebarLink('dados-para-pagamento'); ?> <?php showSidebarLinks('planos'); ?> <?php showSidebarLinks('assinar-plano'); ?> <?php showSidebarLinks('dados-para-pagamento'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="sidebar_link">
@@ -436,7 +436,7 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos">Financeiro</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="<?php activeSidebarLink('planos'); ?>">Planos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('assinar-plano'); ?>">Planos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dados-para-pagamento" class="<?php activeSidebarLink('dados-para-pagamento'); ?>">Dados para pagamento</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>historico-de-faturas" class="<?php activeSidebarLink('historico-de-faturas'); ?>">Histórico de Faturas</a></li>
                 </ul>

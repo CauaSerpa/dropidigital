@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17-Nov-2023 às 19:05
--- Versão do servidor: 10.4.22-MariaDB
--- versão do PHP: 8.1.1
+-- Tempo de geração: 20/11/2023 às 10:43
+-- Versão do servidor: 10.4.28-MariaDB
+-- Versão do PHP: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,17 +24,17 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `imagens`
+-- Estrutura para tabela `imagens`
 --
 
 CREATE TABLE `imagens` (
   `id` int(11) NOT NULL,
   `nome_imagem` varchar(255) NOT NULL,
   `usuario_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `imagens`
+-- Despejando dados para a tabela `imagens`
 --
 
 INSERT INTO `imagens` (`id`, `nome_imagem`, `usuario_id`) VALUES
@@ -50,7 +50,7 @@ INSERT INTO `imagens` (`id`, `nome_imagem`, `usuario_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_address`
+-- Estrutura para tabela `tb_address`
 --
 
 CREATE TABLE `tb_address` (
@@ -63,10 +63,10 @@ CREATE TABLE `tb_address` (
   `bairro` varchar(255) NOT NULL,
   `cidade` varchar(255) NOT NULL,
   `estado` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_address`
+-- Despejando dados para a tabela `tb_address`
 --
 
 INSERT INTO `tb_address` (`id`, `shop_id`, `cep`, `endereco`, `numero`, `complemento`, `bairro`, `cidade`, `estado`) VALUES
@@ -76,7 +76,7 @@ INSERT INTO `tb_address` (`id`, `shop_id`, `cep`, `endereco`, `numero`, `complem
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_articles`
+-- Estrutura para tabela `tb_articles`
 --
 
 CREATE TABLE `tb_articles` (
@@ -92,10 +92,10 @@ CREATE TABLE `tb_articles` (
   `seo_link` varchar(255) NOT NULL,
   `seo_description` varchar(255) NOT NULL,
   `date_create` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_articles`
+-- Despejando dados para a tabela `tb_articles`
 --
 
 INSERT INTO `tb_articles` (`id`, `shop_id`, `status`, `emphasis`, `name`, `link`, `image`, `content`, `seo_name`, `seo_link`, `seo_description`, `date_create`) VALUES
@@ -106,17 +106,17 @@ INSERT INTO `tb_articles` (`id`, `shop_id`, `status`, `emphasis`, `name`, `link`
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_banner_img`
+-- Estrutura para tabela `tb_banner_img`
 --
 
 CREATE TABLE `tb_banner_img` (
   `id` int(11) NOT NULL,
   `image_name` varchar(255) NOT NULL,
   `banner_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_banner_img`
+-- Despejando dados para a tabela `tb_banner_img`
 --
 
 INSERT INTO `tb_banner_img` (`id`, `image_name`, `banner_id`) VALUES
@@ -126,7 +126,7 @@ INSERT INTO `tb_banner_img` (`id`, `image_name`, `banner_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_banner_info`
+-- Estrutura para tabela `tb_banner_info`
 --
 
 CREATE TABLE `tb_banner_info` (
@@ -140,10 +140,10 @@ CREATE TABLE `tb_banner_info` (
   `title` varchar(255) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 0,
   `date_create` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_banner_info`
+-- Despejando dados para a tabela `tb_banner_info`
 --
 
 INSERT INTO `tb_banner_info` (`id`, `shop_id`, `name`, `location`, `category`, `link`, `target`, `title`, `status`, `date_create`) VALUES
@@ -153,7 +153,7 @@ INSERT INTO `tb_banner_info` (`id`, `shop_id`, `name`, `location`, `category`, `
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_categories`
+-- Estrutura para tabela `tb_categories`
 --
 
 CREATE TABLE `tb_categories` (
@@ -170,10 +170,10 @@ CREATE TABLE `tb_categories` (
   `seo_name` varchar(70) NOT NULL,
   `seo_link` varchar(255) NOT NULL,
   `seo_description` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_categories`
+-- Despejando dados para a tabela `tb_categories`
 --
 
 INSERT INTO `tb_categories` (`id`, `shop_id`, `name`, `icon`, `image`, `description`, `link`, `parent_category`, `status`, `emphasis`, `seo_name`, `seo_link`, `seo_description`) VALUES
@@ -187,7 +187,7 @@ INSERT INTO `tb_categories` (`id`, `shop_id`, `name`, `icon`, `image`, `descript
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_depositions`
+-- Estrutura para tabela `tb_depositions`
 --
 
 CREATE TABLE `tb_depositions` (
@@ -197,10 +197,10 @@ CREATE TABLE `tb_depositions` (
   `name` varchar(255) NOT NULL,
   `testimony` varchar(200) NOT NULL,
   `qualification` int(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_depositions`
+-- Despejando dados para a tabela `tb_depositions`
 --
 
 INSERT INTO `tb_depositions` (`id`, `shop_id`, `img`, `name`, `testimony`, `qualification`) VALUES
@@ -211,16 +211,38 @@ INSERT INTO `tb_depositions` (`id`, `shop_id`, `img`, `name`, `testimony`, `qual
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_newsletter`
+-- Estrutura para tabela `tb_invoice_info`
+--
+
+CREATE TABLE `tb_invoice_info` (
+  `id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(255) NOT NULL,
+  `cpf` varchar(255) NOT NULL,
+  `cep` varchar(255) NOT NULL,
+  `endereco` varchar(255) NOT NULL,
+  `numero` int(11) NOT NULL,
+  `complemento` varchar(255) DEFAULT NULL,
+  `bairro` varchar(255) NOT NULL,
+  `cidade` varchar(255) NOT NULL,
+  `estado` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_newsletter`
 --
 
 CREATE TABLE `tb_newsletter` (
   `shop_id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_newsletter`
+-- Despejando dados para a tabela `tb_newsletter`
 --
 
 INSERT INTO `tb_newsletter` (`shop_id`, `email`) VALUES
@@ -230,7 +252,7 @@ INSERT INTO `tb_newsletter` (`shop_id`, `email`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_pages`
+-- Estrutura para tabela `tb_pages`
 --
 
 CREATE TABLE `tb_pages` (
@@ -244,10 +266,10 @@ CREATE TABLE `tb_pages` (
   `seo_link` varchar(255) NOT NULL,
   `seo_description` varchar(160) NOT NULL,
   `date_create` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_pages`
+-- Despejando dados para a tabela `tb_pages`
 --
 
 INSERT INTO `tb_pages` (`id`, `shop_id`, `status`, `name`, `link`, `content`, `seo_name`, `seo_link`, `seo_description`, `date_create`) VALUES
@@ -257,7 +279,7 @@ INSERT INTO `tb_pages` (`id`, `shop_id`, `status`, `name`, `link`, `content`, `s
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_plans`
+-- Estrutura para tabela `tb_plans`
 --
 
 CREATE TABLE `tb_plans` (
@@ -268,10 +290,10 @@ CREATE TABLE `tb_plans` (
   `description` text NOT NULL,
   `resources` text NOT NULL,
   `link_checkout` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_plans`
+-- Despejando dados para a tabela `tb_plans`
 --
 
 INSERT INTO `tb_plans` (`id`, `plan_id`, `name`, `sub_name`, `description`, `resources`, `link_checkout`) VALUES
@@ -284,7 +306,7 @@ INSERT INTO `tb_plans` (`id`, `plan_id`, `name`, `sub_name`, `description`, `res
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_plans_interval`
+-- Estrutura para tabela `tb_plans_interval`
 --
 
 CREATE TABLE `tb_plans_interval` (
@@ -292,28 +314,28 @@ CREATE TABLE `tb_plans_interval` (
   `plan_id` int(11) NOT NULL,
   `billing_interval` varchar(255) NOT NULL,
   `price` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_plans_interval`
+-- Despejando dados para a tabela `tb_plans_interval`
 --
 
 INSERT INTO `tb_plans_interval` (`id`, `plan_id`, `billing_interval`, `price`) VALUES
-(1, 1, 'monthly', '0.00'),
-(2, 1, 'yearly', '0.00'),
-(3, 2, 'monthly', '47.00'),
-(4, 2, 'yearly', '470.00'),
-(5, 3, 'monthly', '79.00'),
-(6, 3, 'yearly', '790.00'),
-(7, 4, 'monthly', '127.00'),
-(8, 4, 'yearly', '1270.00'),
-(9, 5, 'monthly', '191.00'),
-(10, 5, 'yearly', '1910.00');
+(1, 1, 'monthly', 0.00),
+(2, 1, 'yearly', 0.00),
+(3, 2, 'monthly', 47.00),
+(4, 2, 'yearly', 470.00),
+(5, 3, 'monthly', 79.00),
+(6, 3, 'yearly', 790.00),
+(7, 4, 'monthly', 127.00),
+(8, 4, 'yearly', 1270.00),
+(9, 5, 'monthly', 191.00),
+(10, 5, 'yearly', 1910.00);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_products`
+-- Estrutura para tabela `tb_products`
 --
 
 CREATE TABLE `tb_products` (
@@ -336,21 +358,21 @@ CREATE TABLE `tb_products` (
   `seo_link` varchar(255) NOT NULL,
   `seo_description` varchar(160) NOT NULL,
   `date_create` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_products`
+-- Despejando dados para a tabela `tb_products`
 --
 
 INSERT INTO `tb_products` (`id`, `shop_id`, `status`, `emphasis`, `name`, `link`, `price`, `discount`, `video`, `description`, `sku`, `categories`, `checkout`, `button_type`, `redirect_link`, `seo_name`, `seo_link`, `seo_description`, `date_create`) VALUES
-(23, 1, 1, 1, 'Produto 2', 'produto-2', '249.90', '199.90', '', '<p>Descricao do produto</p>', 'SKU', 23, '1', '4', 'https://api.whatsapp.com/send?phone=(11)%2098765-4321', 'Produto 2 | Minha loja', '50-off', 'Descricao do produto', '2023-10-12 15:11:02'),
-(30, 1, 1, 1, 'Produto 1', 'produto-1', '149.90', '97.00', 'https://www.youtube.com/watch?v=AVVdFT6CTZQ', '<h2>Descricao do produto</h2>', 'SKU', 23, '1', '1', 'https://api.whatsapp.com/send?phone=(11)%2098765-4321', 'Produto 4 | Minha Loja', 'produto-4', 'Descricao do produto', '2023-10-17 02:16:11'),
-(33, 1, 1, 0, 'Teste redirect link', 'teste-redirect-link', '97.00', '0.00', '', '<h1>Teste</h1>', 'SKU', 24, '', '4', 'http://localhost/dropidigital/app/loja/#', 'Teste', 'teste', 'Teste', '2023-10-29 02:25:01');
+(23, 1, 1, 1, 'Produto 2', 'produto-2', 249.90, 199.90, '', '<p>Descricao do produto</p>', 'SKU', 23, '1', '4', 'https://api.whatsapp.com/send?phone=(11)%2098765-4321', 'Produto 2 | Minha loja', '50-off', 'Descricao do produto', '2023-10-12 15:11:02'),
+(30, 1, 1, 1, 'Produto 1', 'produto-1', 149.90, 97.00, 'https://www.youtube.com/watch?v=AVVdFT6CTZQ', '<h2>Descricao do produto</h2>', 'SKU', 23, '1', '1', 'https://api.whatsapp.com/send?phone=(11)%2098765-4321', 'Produto 4 | Minha Loja', 'produto-4', 'Descricao do produto', '2023-10-17 02:16:11'),
+(33, 1, 1, 0, 'Teste redirect link', 'teste-redirect-link', 97.00, 0.00, '', '<h1>Teste</h1>', 'SKU', 24, '', '4', 'http://localhost/dropidigital/app/loja/#', 'Teste', 'teste', 'Teste', '2023-10-29 02:25:01');
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_scripts`
+-- Estrutura para tabela `tb_scripts`
 --
 
 CREATE TABLE `tb_scripts` (
@@ -360,10 +382,10 @@ CREATE TABLE `tb_scripts` (
   `name` varchar(255) NOT NULL,
   `script` text NOT NULL,
   `date_create` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_scripts`
+-- Despejando dados para a tabela `tb_scripts`
 --
 
 INSERT INTO `tb_scripts` (`id`, `shop_id`, `status`, `name`, `script`, `date_create`) VALUES
@@ -373,7 +395,7 @@ INSERT INTO `tb_scripts` (`id`, `shop_id`, `status`, `name`, `script`, `date_cre
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_shop`
+-- Estrutura para tabela `tb_shop`
 --
 
 CREATE TABLE `tb_shop` (
@@ -414,10 +436,10 @@ CREATE TABLE `tb_shop` (
   `top_highlight_bar_location` varchar(255) DEFAULT NULL,
   `top_highlight_bar_text` varchar(255) DEFAULT 'Toda a loja com descontos de até 50%',
   `center_highlight_images` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_shop`
+-- Despejando dados para a tabela `tb_shop`
 --
 
 INSERT INTO `tb_shop` (`id`, `user_id`, `plan_id`, `name`, `title`, `description`, `logo`, `logo_mobile`, `favicon`, `facebook`, `x`, `pinterest`, `instagram`, `youtube`, `video`, `token_instagram`, `url`, `segment`, `cpf_cnpj`, `razao_social`, `phone`, `whatsapp`, `email`, `map`, `newsletter_modal`, `newsletter_modal_title`, `newsletter_modal_text`, `newsletter_modal_success_text`, `newsletter_modal_time`, `newsletter_modal_time_seconds`, `newsletter_modal_location`, `newsletter_footer`, `newsletter_footer_text`, `top_highlight_bar`, `top_highlight_bar_location`, `top_highlight_bar_text`, `center_highlight_images`) VALUES
@@ -436,7 +458,27 @@ INSERT INTO `tb_shop` (`id`, `user_id`, `plan_id`, `name`, `title`, `description
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_users`
+-- Estrutura para tabela `tb_subscriptions`
+--
+
+CREATE TABLE `tb_subscriptions` (
+  `id` int(11) NOT NULL,
+  `plan_id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `status` varchar(255) NOT NULL,
+  `subscription_type` varchar(255) NOT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime NOT NULL,
+  `payment_type` varchar(255) NOT NULL,
+  `creation_date` datetime NOT NULL,
+  `due_date` datetime DEFAULT NULL,
+  `payday` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_users`
 --
 
 CREATE TABLE `tb_users` (
@@ -450,10 +492,10 @@ CREATE TABLE `tb_users` (
   `recup_password` varchar(255) DEFAULT NULL,
   `date_create` datetime NOT NULL,
   `last_login` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_users`
+-- Despejando dados para a tabela `tb_users`
 --
 
 INSERT INTO `tb_users` (`id`, `permissions`, `name`, `email`, `cpf`, `phone`, `password`, `recup_password`, `date_create`, `last_login`) VALUES
@@ -487,17 +529,17 @@ INSERT INTO `tb_users` (`id`, `permissions`, `name`, `email`, `cpf`, `phone`, `p
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `tb_visits`
+-- Estrutura para tabela `tb_visits`
 --
 
 CREATE TABLE `tb_visits` (
   `id` int(11) NOT NULL,
   `data` date NOT NULL,
   `contagem` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `tb_visits`
+-- Despejando dados para a tabela `tb_visits`
 --
 
 INSERT INTO `tb_visits` (`id`, `data`, `contagem`) VALUES
@@ -539,97 +581,109 @@ INSERT INTO `tb_visits` (`id`, `data`, `contagem`) VALUES
 --
 
 --
--- Índices para tabela `imagens`
+-- Índices de tabela `imagens`
 --
 ALTER TABLE `imagens`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_address`
+-- Índices de tabela `tb_address`
 --
 ALTER TABLE `tb_address`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_articles`
+-- Índices de tabela `tb_articles`
 --
 ALTER TABLE `tb_articles`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_banner_img`
+-- Índices de tabela `tb_banner_img`
 --
 ALTER TABLE `tb_banner_img`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_banner_info`
+-- Índices de tabela `tb_banner_info`
 --
 ALTER TABLE `tb_banner_info`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_categories`
+-- Índices de tabela `tb_categories`
 --
 ALTER TABLE `tb_categories`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_depositions`
+-- Índices de tabela `tb_depositions`
 --
 ALTER TABLE `tb_depositions`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_pages`
+-- Índices de tabela `tb_invoice_info`
+--
+ALTER TABLE `tb_invoice_info`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_pages`
 --
 ALTER TABLE `tb_pages`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_plans`
+-- Índices de tabela `tb_plans`
 --
 ALTER TABLE `tb_plans`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_plans_interval`
+-- Índices de tabela `tb_plans_interval`
 --
 ALTER TABLE `tb_plans_interval`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_products`
+-- Índices de tabela `tb_products`
 --
 ALTER TABLE `tb_products`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_scripts`
+-- Índices de tabela `tb_scripts`
 --
 ALTER TABLE `tb_scripts`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_shop`
+-- Índices de tabela `tb_shop`
 --
 ALTER TABLE `tb_shop`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_users`
+-- Índices de tabela `tb_subscriptions`
+--
+ALTER TABLE `tb_subscriptions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_users`
 --
 ALTER TABLE `tb_users`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices para tabela `tb_visits`
+-- Índices de tabela `tb_visits`
 --
 ALTER TABLE `tb_visits`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT de tabelas despejadas
+-- AUTO_INCREMENT para tabelas despejadas
 --
 
 --
@@ -675,6 +729,12 @@ ALTER TABLE `tb_depositions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
+-- AUTO_INCREMENT de tabela `tb_invoice_info`
+--
+ALTER TABLE `tb_invoice_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `tb_pages`
 --
 ALTER TABLE `tb_pages`
@@ -709,6 +769,12 @@ ALTER TABLE `tb_scripts`
 --
 ALTER TABLE `tb_shop`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT de tabela `tb_subscriptions`
+--
+ALTER TABLE `tb_subscriptions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `tb_users`
