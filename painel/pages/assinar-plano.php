@@ -86,6 +86,7 @@ if ($id > 0) {
     .frequency.active,
     .type.active
     {
+        fill: white;
         color: white;
         border-color: var(--dark-green-color);
         background: var(--green-color);
@@ -225,7 +226,7 @@ if ($id > 0) {
 
                             <p class="d-flex align-items-center col-md-4">Assinatura anual</p>
                             <div class="pricing col-md-8">
-                                <h5 class="lh-1">R$ <?php echo $price['price']; ?> à vista</h5>
+                                <h5 class="lh-1">R$ <?php echo number_format($yearly_price, 2, ',', ''); ?> à vista</h5>
                                 <p>ou em até 6x sem juros no cartão</p>
                             </div>
 
@@ -260,11 +261,12 @@ if ($id > 0) {
 
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
+                                    $monthly_price = $price['price'];
                             ?>
 
                             <p class="d-flex align-items-center col-md-4">Assinatura mensal</p>
                             <div class="pricing d-flex align-items-center col-md-8">
-                                <h5 class="lh-1 mb-0">R$ <?php echo $price['price']; ?> por mês</h5>
+                                <h5 class="lh-1 mb-0">R$ <?php echo number_format($monthly_price, 2, ',', ''); ?> por mês</h5>
                             </div>
 
                             <?php
@@ -285,23 +287,24 @@ if ($id > 0) {
                 </div>
                 <div class="card-body px-4 py-3">
                     <ul class="text-sm font-light text-inverted-2 pt-6 truncate">
-                        <li><span><?php echo $user['name']; ?></span></li>
-                        <li><span><?php echo $user['email']; ?></span></li>
+                        <!-- Adicione IDs aos spans para referenciá-los diretamente na função JavaScript -->
+                        <li><span id="name"><?php echo $user['name']; ?></span></li>
+                        <li><span id="email"><?php echo $user['email']; ?></span></li>
                         <li>
-                            <span class="mr-1">CPF: <?php echo $user['cpf']; ?></span>
-                            <span class="ml-1">Tel: <?php echo $user['phone']; ?></span>
+                            <span class="mr-1" id="cpf">CPF: <?php echo $user['cpf']; ?></span>
+                            <span class="ml-1" id="tel">Tel: <?php echo $user['phone']; ?></span>
                         </li>
                         <li>
-                            <span><?php echo $address['endereco']; ?>,</span>
-                            <span><?php echo $address['numero']; ?></span>
+                            <span id="address"><?php echo $address['endereco']; ?>,</span>
+                            <span id="number"><?php echo $address['numero']; ?></span>
                             <span>-</span>
-                            <span><?php echo $address['bairro']; ?></span>
+                            <span id="district"><?php echo $address['bairro']; ?></span>
                         </li>
                         <?php
                             $complemento = $address['complemento'];
-                            echo ($complemento != '') ? "<li><span>Complemento: $complemento</span></li>" : "";
+                            echo ($complemento != '') ? "<li><span id='complement'>Complemento: $complemento</span></li>" : "";
                         ?>
-                        <li><span><?php echo $address['cidade']; ?>/<?php echo $address['estado']; ?> - <?php echo $address['cep']; ?></span></li>
+                        <li><span id='more-info'><?php echo $address['cidade']; ?>/<?php echo $address['estado']; ?> - <?php echo $address['cep']; ?></span></li>
                     </ul>
                 </div>
             </div>
@@ -312,17 +315,17 @@ if ($id > 0) {
                 <div class="card-body px-4 py-3">
                     <div class="row mb-3 g-3">
                         <input type="radio" name="type" id="creditCard" value="creditCard" class="d-none" checked>
-                        <input type="radio" name="type" id="boleto" value="boleto" class="d-none">
+                        <input type="radio" name="type" id="pix" value="pix" class="d-none">
                         <div class="col-md-8">
                             <label for="creditCard" class="card type d-flex align-items-center justify-content-center active">
-                                <i class='bx bx-credit-card fs-3' ></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 0 576 512" id="creditCard"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M512 80c8.8 0 16 7.2 16 16v32H48V96c0-8.8 7.2-16 16-16H512zm16 144V416c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V224H528zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm56 304c-13.3 0-24 10.7-24 24s10.7 24 24 24h48c13.3 0 24-10.7 24-24s-10.7-24-24-24H120zm128 0c-13.3 0-24 10.7-24 24s10.7 24 24 24H360c13.3 0 24-10.7 24-24s-10.7-24-24-24H248z"/></svg>
                                 Cartão de crédito
                             </label>
                         </div>
                         <div class="col-md-4">
-                            <label for="boleto" class="card type d-flex align-items-center justify-content-center">
-                                <i class='bx bx-barcode-reader fs-3' ></i>
-                                Boleto bancário
+                            <label for="pix" class="card type d-flex align-items-center justify-content-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 0 512 512" id="pix"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M242.4 292.5C247.8 287.1 257.1 287.1 262.5 292.5L339.5 369.5C353.7 383.7 372.6 391.5 392.6 391.5H407.7L310.6 488.6C280.3 518.1 231.1 518.1 200.8 488.6L103.3 391.2H112.6C132.6 391.2 151.5 383.4 165.7 369.2L242.4 292.5zM262.5 218.9C256.1 224.4 247.9 224.5 242.4 218.9L165.7 142.2C151.5 127.1 132.6 120.2 112.6 120.2H103.3L200.7 22.76C231.1-7.586 280.3-7.586 310.6 22.76L407.8 119.9H392.6C372.6 119.9 353.7 127.7 339.5 141.9L262.5 218.9zM112.6 142.7C126.4 142.7 139.1 148.3 149.7 158.1L226.4 234.8C233.6 241.1 243 245.6 252.5 245.6C261.9 245.6 271.3 241.1 278.5 234.8L355.5 157.8C365.3 148.1 378.8 142.5 392.6 142.5H430.3L488.6 200.8C518.9 231.1 518.9 280.3 488.6 310.6L430.3 368.9H392.6C378.8 368.9 365.3 363.3 355.5 353.5L278.5 276.5C264.6 262.6 240.3 262.6 226.4 276.6L149.7 353.2C139.1 363 126.4 368.6 112.6 368.6H80.78L22.76 310.6C-7.586 280.3-7.586 231.1 22.76 200.8L80.78 142.7H112.6z"/></svg>
+                                Pix
                             </label>
                         </div>
                     </div>
@@ -350,21 +353,24 @@ if ($id > 0) {
                             <label for="installment" class="form-label small">Parcelas</label>
                             <div class="input-group">
                                 <select class="form-select" name="installment" id="installment" aria-label="Default select example" required>
-                                    <option value="<?php echo $yearly_price; ?>" selected>À vista</option>
+                                    <option value="1|<?php echo $yearly_price; ?>" selected>À vista</option>
                                     <?php for ($i = 2; $i <= 6; $i++): ?>
                                         <?php $installmentValue = round($yearly_price / $i, 2); ?>
-                                        <option value="<?php echo $i; ?>"> <?php echo $i; ?>x de R$ <?php echo number_format($installmentValue, 2, ',', ''); ?> sem juros</option>
+                                        <option value="<?php echo $i . '|' . $installmentValue; ?>"> <?php echo $i; ?>x de R$ <?php echo number_format($installmentValue, 2, ',', ''); ?> sem juros</option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success fw-semibold w-100 px-4 py-2 small mb-3" id="button_text">À vista</button>
+                    <!-- Aqui está o seu botão. Eu adicionei um ID para poder referenciá-lo no script JavaScript -->
+                    <button type="submit" class="btn btn-success fw-semibold w-100 px-4 py-2 small mb-3" id="submitButton">
+                        <?php echo "Pagar 1x de R$ " . number_format($yearly_price, 2, ',', ''); ?>
+                    </button>
 
-                    <small class="lh-1" id="creditCartText">Autorizo o débito anual em meu cartão no valor do plano referente a 12 meses, garantindo a continuidade dos serviços.</small>
+                    <small class="lh-1" id="creditCartText">Autorizo o débito <span id="creditCartTextType"><?php echo ($billing_interval == 'yearly') ? "anual" : "mensal"; ?></span> em meu cartão no valor do plano referente a 12 meses, garantindo a continuidade dos serviços.</small>
 
-                    <small class="lh-1" id="boletoText" style="display: none;">A confirmação do pagamento da assinatura por boleto pode levar até 3 dias úteis. Os novos recursos e limites do plano só serão liberados após a aprovação. Pagamentos por cartão de crédito e Pix têm aprovação instantânea.</small>
+                    <small class="lh-1" id="pixText" style="display: none;">Pagamentos por Pix têm aprovação instantânea.</small>
                 </div>
             </div>
         </div>
@@ -373,6 +379,87 @@ if ($id > 0) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Adicione este script JavaScript -->
+<script>
+    // Função para atualizar o texto do botão com base na opção selecionada
+    function updateButtonText() {
+        var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
+        var selectedOption = document.querySelector('input[name="period"]:checked').value;
+
+        if (selectedOption === "anual") {
+            if (selectedPaymentType === "creditCard") {
+                // Se a opção selecionada for "anual", chame a função do installment
+                updateInstallmentText();
+            } else if (selectedPaymentType === "pix") {
+                // Lógica para a opção "PIX"
+                var yearlyPrice = <?php echo $yearly_price; ?>;
+                var formattedYearlyPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(yearlyPrice);
+                document.getElementById('submitButton').innerText = 'Pagar de ' + formattedYearlyPrice;
+            }
+        } else if (selectedOption === "mensal") {
+            // Lógica para a opção "mensal"
+            var monthlyPrice = <?php echo $monthly_price; ?>;
+            var formattedMonthlyPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthlyPrice);
+            document.getElementById('submitButton').innerText = 'Pagar ' + formattedMonthlyPrice;
+        }
+    }
+
+    // Função para atualizar o texto do botão com base no installment
+    function updateInstallmentText() {
+        var selectedOption = document.getElementById('installment').options[document.getElementById('installment').selectedIndex].value;
+        var optionParts = selectedOption.split('|');
+        var numberOfInstallments = optionParts[0];
+        var installmentValue = optionParts[1];
+        var formattedInstallmentValue = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(installmentValue);
+        document.getElementById('submitButton').innerText = 'Pagar ' + numberOfInstallments + 'x de ' + formattedInstallmentValue;
+    }
+
+    // Adiciona um ouvinte de evento para atualizar o texto do botão quando a opção é alterada
+    document.querySelectorAll('input[name="period"]').forEach(function (input) {
+        input.addEventListener('change', updateButtonText);
+    });
+
+    // Adiciona um ouvinte de evento para o select installment
+    document.getElementById('installment').addEventListener('change', updateInstallmentText);
+
+    // Função para atualizar o texto do botão com base na opção selecionada
+    function updateButtonTextPaymentType() {
+        var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
+        var selectedOption = document.querySelector('input[name="period"]:checked').value;
+
+        if (selectedPaymentType === "creditCard" && selectedOption === "anual") {
+            // Se a opção selecionada for "anual", chame a função do installment
+            updateInstallmentText();
+        } else if (selectedPaymentType === "pix" && selectedOption === "anual") {
+            // Lógica para a opção "PIX"
+            var yearlyPrice = <?php echo $yearly_price; ?>;
+            var formattedYearlyPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(yearlyPrice);
+            document.getElementById('submitButton').innerText = 'Pagar de ' + formattedYearlyPrice;
+        }
+    }
+
+    // Adiciona um ouvinte de evento para atualizar o texto do botão quando a opção de pagamento é alterada
+    document.querySelectorAll('input[name="type"]').forEach(function (input) {
+        input.addEventListener('change', updateButtonTextPaymentType);
+    });
+
+    // Atualiza o texto do botão inicialmente
+    updateButtonText();
+</script>
 
 
 
@@ -397,6 +484,9 @@ if ($id > 0) {
                     if (response.success) {
                         // Atualize as informações na página com os novos dados
                         updateUserInfo(response.data);
+
+                        // Usando jQuery para lidar com o clique no botão para fechar o modal
+                        $('#personInfo').modal('hide');
                     } else {
                         alert('Erro ao atualizar as informações.');
                     }
@@ -408,20 +498,26 @@ if ($id > 0) {
         });
 
         function updateUserInfo(data) {
-            $('ul.text-sm span').eq(0).text(data.name);
-            $('ul.text-sm span').eq(1).text(data.email);
-            $('ul.text-sm span').eq(2).html('CPF: ' + data.cpf + '<span class="ml-1">Tel: ' + data.phone + '</span>');
-            $('ul.text-sm span').eq(3).html(data.endereco + ', ' + data.numero + ' - ' + data.bairro);
+            // Atualize as informações diretamente com base nos IDs dos spans
+            $('#name').text(data.name);
+            $('#email').text(data.email);
+
+            $('#cpf').text(`CPF: ${data.cpf} <span class="ml-1">Tel: ${data.phone}</span>`);
+            $('#tel').text(`Tel: ${data.phone}`);
+
+            $('#address').text(`${data.endereco},`);
+            $('#number').text(`${data.numero}`);
+            $('#district').text(`${data.bairro}`);
 
             // Remove o complemento se existir
-            $('ul.text-sm li:contains("Complemento:")').remove();
+            $('#complement').parent().remove();
 
-            // Verifica se há um complemento
+            // Adiciona o complemento se existir
             if (data.complemento) {
-                $('ul.text-sm').append('<li><span>Complemento: ' + data.complemento + '</span></li>');
+                $('ul.text-sm').append(`<li><span id='complement'>Complemento: ${data.complemento}</span></li>`);
             }
 
-            $('ul.text-sm span').eq(4).html(data.cidade + '/' + data.estado + ' - ' + data.cep);
+            $('#more-info').text(`${data.cidade}/${data.estado} - ${data.cep}`);
         }
     });
 </script>
@@ -473,10 +569,10 @@ if ($id > 0) {
                 // Mostra ou oculta o select e atualiza o texto do botão com base no valor do input radio
                 if ($(this).val() === "anual") {
                     $('#installmentContainer').removeClass('d-none');
-                    $('#button_text').text("À vista");
+                    $('#creditCartTextType').text('anual');
                 } else if ($(this).val() === "mensal") {
                     $('#installmentContainer').addClass('d-none');
-                    $('#button_text').text($label.find('h5').text());
+                    $('#creditCartTextType').text('mensal');
                 }
             });
         });
@@ -499,11 +595,11 @@ if ($id > 0) {
                 if ($(this).val() === "creditCard") {
                     $('#container_credit_card').show();
                     $('#creditCartText').show();
-                    $('#boletoText').hide();
-                } else if ($(this).val() === "boleto") {
+                    $('#pixText').hide();
+                } else if ($(this).val() === "pix") {
                     $('#container_credit_card').hide();
                     $('#creditCartText').hide();
-                    $('#boletoText').show();
+                    $('#pixText').show();
                 }
             });
         });

@@ -67,7 +67,7 @@
                 'bairro' => $bairro,
                 'cidade' => $cidade,
                 'estado' => $estado,
-                'cep' => $cep,
+                'cep' => $cep
             )
         );
 
