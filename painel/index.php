@@ -96,6 +96,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Intro JS -->
     <link href="https://cdn.jsdelivr.net/npm/intro.js@7.0.1/minified/introjs.min.css" rel="stylesheet">
+
+    <!-- Mercado pago -->
+    <?php
+        if ($url == 'assinar-plano')
+        {
+            echo '<script src="https://www.mercadopago.com/v2/security.js" view="checkout" output="deviceId"></script>';
+        } else {
+            echo '<script src="https://www.mercadopago.com/v2/security.js" view="home"></script>';
+        }
+    ?>
 </head>
 <body>
     <?php
@@ -183,7 +193,7 @@
                     ?>
                     <a href="<?php echo $shop_url; ?>" target="_blank" class="text-dark text-decoration-none fs-6 fw-semibold">
                         Ver a loja
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="ms-1" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
                     </a>
                 </div>
                 <div class="header__icon help">
@@ -425,7 +435,7 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="<?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('criar-pagina'); ?> <?php activeSidebarLink('editar-pagina'); ?>">Incluir pág. conteúdo</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('assinar-plano'); ?> <?php activeSidebarLink('dados-para-pagamento'); ?> <?php showSidebarLinks('planos'); ?> <?php showSidebarLinks('assinar-plano'); ?> <?php showSidebarLinks('dados-para-pagamento'); ?>">
+            <li class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('assinar-plano'); ?> <?php activeSidebarLink('dados-para-pagamento'); ?> <?php activeSidebarLink('pagamento'); ?> <?php activeSidebarLink('historico-de-faturas'); ?> <?php showSidebarLinks('planos'); ?> <?php showSidebarLinks('assinar-plano'); ?> <?php showSidebarLinks('dados-para-pagamento'); ?> <?php showSidebarLinks('pagamento'); ?> <?php showSidebarLinks('historico-de-faturas'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="sidebar_link">
@@ -437,7 +447,7 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos">Financeiro</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('assinar-plano'); ?>">Planos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="<?php activeSidebarLink('planos'); ?> <?php activeSidebarLink('assinar-plano'); ?> <?php activeSidebarLink('pagamento'); ?>">Planos</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dados-para-pagamento" class="<?php activeSidebarLink('dados-para-pagamento'); ?>">Dados para pagamento</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>historico-de-faturas" class="<?php activeSidebarLink('historico-de-faturas'); ?>">Histórico de Faturas</a></li>
                 </ul>

@@ -145,7 +145,12 @@ function displayPlanDetails($id, $plan_id, $shop_plan, $name, $sub_name, $price,
                     echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Assinar plano</button>';
                 } else {
                     // Se o plano ainda não estiver assinado, mostre o botão de assinatura
-                    echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>';
+                    echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-1">Assinar plano</a>';
+                    if ($billing_interval == "monthly") {
+                        echo '<a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848b95ad95018ba9314d910b3c" target="_black" class="w-100 text-center text-reset small mb-3">Checkout Mercado Pago</a>';
+                    } else {
+                        echo '<a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848bbab27a018bcffe40cd0e97" target="_black" class="w-100 text-center text-reset small mb-3">Checkout Mercado Pago</a>';
+                    }
                 }
             ?>
 

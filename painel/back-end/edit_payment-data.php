@@ -28,7 +28,7 @@
         $tabela = 'tb_users';
 
         // Insere a categoria no banco de dados da loja
-        $sql = "UPDATE $tabela SET name = :name, email = :email, cpf = :cpf, phone = :phone WHERE id = :id";
+        $sql = "UPDATE $tabela SET name = :name, email = :email, docNumber = :cpf, phone = :phone WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':email', $email);

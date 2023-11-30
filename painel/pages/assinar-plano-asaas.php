@@ -7,7 +7,7 @@ $plan_id = isset($_GET['p']) ? intval($_GET['p']) : 0;
 // Nome da tabela para a busca
 $tabela = 'tb_users';
 
-$sql = "SELECT name, email, cpf, phone FROM $tabela WHERE id = :id";
+$sql = "SELECT name, email, docType, docNumber, phone FROM $tabela WHERE id = :id";
 
 // Preparar e executar a consulta
 $stmt = $conn_pdo->prepare($sql);
@@ -90,6 +90,7 @@ if ($id > 0) {
         color: white;
         border-color: var(--dark-green-color);
         background: var(--green-color);
+        cursor: default;
     }
 
     .btn.btn-success
@@ -123,18 +124,18 @@ if ($id > 0) {
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label for="cpf" class="form-label small">CPF *</label>
-                            <input type="text" class="form-control" name="cpf" id="cpf" aria-describedby="cpfHelp" placeholder="000.000.000-00" value="<?php echo $user['cpf']; ?>">
+                            <input type="text" class="form-control" name="cpf" id="cpf" aria-describedby="cpfHelp" placeholder="000.000.000-00" value="<?php echo $user['docNumber']; ?>">
                         </div>
                         <div class="col-md-6">
                             <label for="phone" class="form-label small">Telefone de contato *</label>
-                            <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $user['phone']; ?>">
+                            <input type="text" class="form-control" name="mobilePhone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $user['phone']; ?>">
                         </div>
                     </div>
                     <h6 class="fs-6 mb-3">Endereço</h6>
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="cep" class="form-label small">CEP *</label>
-                            <input type="text" class="form-control" name="cep" id="cep" aria-describedby="cepHelp" value="<?php echo $address['cep']; ?>">
+                            <input type="text" class="form-control" name="postalCode" id="cep" aria-describedby="cepHelp" value="<?php echo $address['cep']; ?>" onblur="getCepData()">
                         </div>
                         <div class="col-md-8">
                             <label for="endereco" class="form-label small">
@@ -188,7 +189,7 @@ if ($id > 0) {
     </nav>
 </div>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_product.php" method="post" enctype="multipart/form-data">
+<form id="myForm" class="position-relative" action="submit">
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-4 p-0">
@@ -204,7 +205,7 @@ if ($id > 0) {
                                 $tabela = "tb_plans_interval";
 
                                 // Consulta SQL
-                                $sql = "SELECT price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
+                                $sql = "SELECT mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
 
                                 // Preparar a consulta
                                 $stmt = $conn_pdo->prepare($sql);
@@ -221,6 +222,7 @@ if ($id > 0) {
 
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
+                                    $mpago_id_yearly = $price['mpago_id'];
                                     $yearly_price = $price['price'];
                             ?>
 
@@ -244,7 +246,7 @@ if ($id > 0) {
                                 $tabela = "tb_plans_interval";
 
                                 // Consulta SQL
-                                $sql = "SELECT price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
+                                $sql = "SELECT mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
 
                                 // Preparar a consulta
                                 $stmt = $conn_pdo->prepare($sql);
@@ -261,6 +263,7 @@ if ($id > 0) {
 
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
+                                    $mpago_id_monthly = $price['mpago_id'];
                                     $monthly_price = $price['price'];
                             ?>
 
@@ -288,23 +291,23 @@ if ($id > 0) {
                 <div class="card-body px-4 py-3">
                     <ul class="text-sm font-light text-inverted-2 pt-6 truncate">
                         <!-- Adicione IDs aos spans para referenciá-los diretamente na função JavaScript -->
-                        <li><span id="name"><?php echo $user['name']; ?></span></li>
-                        <li><span id="email"><?php echo $user['email']; ?></span></li>
+                        <li><span id="span-name"><?php echo $user['name']; ?></span></li>
+                        <li><span id="span-email"><?php echo $user['email']; ?></span></li>
                         <li>
-                            <span class="mr-1" id="cpf">CPF: <?php echo $user['cpf']; ?></span>
-                            <span class="ml-1" id="tel">Tel: <?php echo $user['phone']; ?></span>
+                            <span class="mr-1" id="span-cpf">CPF: <?php echo $user['docNumber']; ?></span>
+                            <span class="ml-1" id="span-tel">Tel: <?php echo $user['phone']; ?></span>
                         </li>
                         <li>
-                            <span id="address"><?php echo $address['endereco']; ?>,</span>
-                            <span id="number"><?php echo $address['numero']; ?></span>
+                            <span id="span-address"><?php echo $address['endereco']; ?>,</span>
+                            <span id="span-number"><?php echo $address['numero']; ?></span>
                             <span>-</span>
-                            <span id="district"><?php echo $address['bairro']; ?></span>
+                            <span id="span-district"><?php echo $address['bairro']; ?></span>
                         </li>
                         <?php
                             $complemento = $address['complemento'];
-                            echo ($complemento != '') ? "<li><span id='complement'>Complemento: $complemento</span></li>" : "";
+                            echo ($complemento != '') ? "<li><span id='span-complement'>Complemento: $complemento</span></li>" : "";
                         ?>
-                        <li><span id='more-info'><?php echo $address['cidade']; ?>/<?php echo $address['estado']; ?> - <?php echo $address['cep']; ?></span></li>
+                        <li><span id='span-more-info'><?php echo $address['cidade']; ?>/<?php echo $address['estado']; ?> - <?php echo $address['cep']; ?></span></li>
                     </ul>
                 </div>
             </div>
@@ -363,6 +366,28 @@ if ($id > 0) {
                         </div>
                     </div>
 
+					<input type="hidden" name="value" id="value" value="<?php echo ($billing_interval == 'monthly') ? $monthly_price : $yearly_price; ?>">
+
+                    <div class="user-data">
+                        <input type="hidden" name="email" value="<?php echo $user['email']; ?>">
+                        <input type="hidden" name="name" value="<?php echo $user['name']; ?>">
+                        <input type="hidden" name="docType" value="<?php echo $user['docType']; ?>">
+                        <input type="hidden" name="docNumber" value="<?php echo $user['docNumber']; ?>">
+                        <input type="hidden" name="mobilePhone" value="<?php echo $user['phone']; ?>">
+    
+                        <input type="hidden" name="postalCode" value="<?php echo $address['cep']; ?>">
+                        <input type="hidden" name="address" value="<?php echo $address['endereco']; ?>">
+                        <input type="hidden" name="addressNumber" value="<?php echo $address['numero']; ?>">
+                        <input type="hidden" name="complement" value="<?php echo $address['complemento']; ?>">
+                        <input type="hidden" name="province" value="<?php echo $address['bairro']; ?>">
+                        <input type="hidden" name="city" value="<?php echo $address['cidade']; ?>">
+                        <input type="hidden" name="state" value="<?php echo $address['estado']; ?>">
+                    </div>
+
+                    <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
+
+                    <input type="hidden" name="id_plan" value="<?php echo ($billing_interval == 'monthly') ? $mpago_id_monthly : $mpago_id_yearly; ?>">
+
                     <!-- Aqui está o seu botão. Eu adicionei um ID para poder referenciá-lo no script JavaScript -->
                     <button type="submit" class="btn btn-success fw-semibold w-100 px-4 py-2 small mb-3" id="submitButton">
                         <?php echo "Pagar 1x de R$ " . number_format($yearly_price, 2, ',', ''); ?>
@@ -376,22 +401,6 @@ if ($id > 0) {
         </div>
     </div>
 </form>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- Adicione este script JavaScript -->
 <script>
@@ -461,12 +470,6 @@ if ($id > 0) {
     updateButtonText();
 </script>
 
-
-
-
-
-
-
 <!-- Adicione este script na parte inferior da sua página HTML -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
@@ -499,45 +502,49 @@ if ($id > 0) {
 
         function updateUserInfo(data) {
             // Atualize as informações diretamente com base nos IDs dos spans
-            $('#name').text(data.name);
-            $('#email').text(data.email);
+            $('#span-responsible').text(data.name);
+            $('#span-email').text(data.email);
 
-            $('#cpf').text(`CPF: ${data.cpf} <span class="ml-1">Tel: ${data.phone}</span>`);
-            $('#tel').text(`Tel: ${data.phone}`);
+            $('#span-cpf').text(`CPF: ${data.cpf}`);
+            $('#span-tel').text(`Tel: ${data.phone}`);
 
-            $('#address').text(`${data.endereco},`);
-            $('#number').text(`${data.numero}`);
-            $('#district').text(`${data.bairro}`);
+            $('#span-address').text(`${data.endereco},`);
+            $('#span-number').text(`${data.numero}`);
+            $('#span-district').text(`${data.bairro}`);
 
-            // Remove o complemento se existir
-            $('#complement').parent().remove();
+            if (data.complemento !== "") {
+                // Exibe o complemento se estiver preechido
+                $('#span-complement').parent().removeClass('d-none');
 
-            // Adiciona o complemento se existir
-            if (data.complemento) {
-                $('ul.text-sm').append(`<li><span id='complement'>Complemento: ${data.complemento}</span></li>`);
+                $('#span-complement').text(`Complemento: ${data.complemento}`);
+            } else {
+                // Oculta o complemento se nao estiver preechido
+                $('#span-complement').parent().addClass('d-none');
             }
 
-            $('#more-info').text(`${data.cidade}/${data.estado} - ${data.cep}`);
+            $('#span-more-info').text(`${data.cidade}/${data.estado} - ${data.cep}`);
+
+            // Passar os valores para os inputs
+            $('input[name="email"]').val(`${data.email}`);
+            $('input[name="name"]').val(`${data.name}`);
+            $('input[name="docNumber"]').val(`${data.cpf}`);
+            $('input[name="mobilePhone"]').val(`${data.phone}`);
+
+            $('input[name="postalCode"]').val(`${data.cep}`);
+            $('input[name="address"]').val(`${data.endereco}`);
+            $('input[name="addressNumber"]').val(`${data.numero}`);
+            $('input[name="complement"]').val(`${data.complemento}`);
+            $('input[name="province"]').val(`${data.bairro}`);
+            $('input[name="city"]').val(`${data.cidade}`);
+            $('input[name="state"]').val(`${data.estado}`);
         }
     });
 </script>
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- Inclua a biblioteca jQuery em seu HTML -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Mask -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
-
 <!-- Adiciona a class active no "label" referente ao "input:radio" -->
 <script>
     $(document).ready(function() {
@@ -570,9 +577,17 @@ if ($id > 0) {
                 if ($(this).val() === "anual") {
                     $('#installmentContainer').removeClass('d-none');
                     $('#creditCartTextType').text('anual');
+
+                    $('input[name="id_plan"]').val('<?php echo $mpago_id_yearly; ?>');
+
+                    $('input[name="value"]').val('<?php echo $yearly_price; ?>');
                 } else if ($(this).val() === "mensal") {
                     $('#installmentContainer').addClass('d-none');
                     $('#creditCartTextType').text('mensal');
+
+                    $('input[name="id_plan"]').val('<?php echo $mpago_id_monthly; ?>');
+
+                    $('input[name="value"]').val('<?php echo $monthly_price; ?>');
                 }
             });
         });
@@ -594,16 +609,72 @@ if ($id > 0) {
                 // Mostra ou oculta o conteúdo com base na seleção do método de pagamento
                 if ($(this).val() === "creditCard") {
                     $('#container_credit_card').show();
+
+                    // Adicionando required dos inputs
+                    $('#creditCardNumber').prop('required', true);
+                    $('#creditCardOwner').prop('required', true);
+                    $('#creditCardExpiration').prop('required', true);
+                    $('#creditCardCCV').prop('required', true);
+                    $('#installment').prop('required', true);
+
                     $('#creditCartText').show();
                     $('#pixText').hide();
                 } else if ($(this).val() === "pix") {
                     $('#container_credit_card').hide();
+
+                    // Removendo required dos inputs
+                    $('#creditCardNumber').prop('required', false);
+                    $('#creditCardOwner').prop('required', false);
+                    $('#creditCardExpiration').prop('required', false);
+                    $('#creditCardCCV').prop('required', false);
+                    $('#installment').prop('required', false);
+
                     $('#creditCartText').hide();
                     $('#pixText').show();
                 }
             });
         });
     });
+</script>
+
+<!-- VIACEP -->
+<script>
+    function getCepData()
+    {
+        let cep = $('#cep').val();
+        cep = cep.replace(/\D/g, "");
+        if(cep.length<8)
+        {
+            $("#div-errors-price").html("CEP deve conter no mínimo 8 dígitos").slideDown('fast').effect( "shake" );
+            $("#cep").addClass('is-invalid').focus();
+            return;
+        }
+        $("#cep").removeClass('is-invalid');
+        $("#div-errors-price").slideUp('fast');
+
+
+        if(cep != "")
+        {
+            $("#endereco").val("Carregando...");
+            $("#bairro").val("Carregando...");
+            $("#cidade").val("Carregando...");
+            $("#estado").val("...");
+            $.getJSON( "https://viacep.com.br/ws/"+cep+"/json/", function( data )
+            {
+                $("#endereco").val(data.logradouro);
+                $("#bairro").val(data.bairro);
+                $("#cidade").val(data.localidade);
+                $("#estado").val(data.uf);
+                $("#numero").focus();
+            }).fail(function()
+            {
+                $("#endereco").val("");
+                $("#bairro").val("");
+                $("#cidade").val("");
+                $("#estado").val("");
+            });
+        }
+    }
 </script>
 
 <script>
@@ -653,6 +724,48 @@ if ($id > 0) {
         numericOnly: true
     });
 </script>
+<!-- Criar assinatura Asaas -->
+<script>
+    $('#myForm').submit(function (event) {
+        event.preventDefault();
+        processForm(this);
+    });
+
+    function processForm(dataForm) {
+        var typePayment = $('input[name="type"]:checked').val();
+        method = typePayment;
+
+        var ajaxData = {
+            method: method,
+            params: btoa($(dataForm).serialize())
+        };
+
+        $.ajax({
+            url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/subscription_asaas.php',
+            method: 'POST',
+            data: ajaxData,
+            dataType: 'JSON',
+            success: function (response) {
+                window.respostaGlobal = response.id;
+            }
+        })
+        .done(function (response) {
+            if (response.status == 200) {
+                var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
+                var encodedCode = btoa(response.code);
+
+                if (selectedPaymentType === "creditCard") {
+                    // Redirecionar para página de pagamento
+                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>historico-de-faturas";
+                } else if (selectedPaymentType === "pix") {
+                    // Redirecionar para página de pagamento
+                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?s=" + encodedCode;
+                }
+            }
+        })
+    }
+</script>
+
 <?php
 
     } else {
