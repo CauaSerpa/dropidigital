@@ -1,3 +1,17 @@
+<?php
+// Nome da tabela para a busca
+$tabela = 'tb_shop';
+
+$sql = "SELECT * FROM $tabela WHERE id = :id";
+
+// Preparar e executar a consulta
+$stmt = $conn_pdo->prepare($sql);
+$stmt->bindParam(':id', $id);
+$stmt->execute();
+
+// Recuperar os resultados
+$shop = $stmt->fetch(PDO::FETCH_ASSOC);
+?>
 <style>
     /* Link */
     .link
@@ -91,14 +105,14 @@
                     }
                 </style>
                 <div class="bd-callout bd-callout-warning mb-3">
-                    <input class="form-check-input itemCheckbox" type="checkbox" name="step" id="step" value="1">
+                    <input class="form-check-input itemCheckbox" type="checkbox" name="step" id="step" value="1" required>
                     <label for="step" class="fw-semibold">Li as instruções e estou ciente que as alterações podem levar até 48 horas para começar a funcionar.</label>
                 </div>
                 <p class="fw-semibold mb-3">Passo 2</p>
                 <p class="small mb-3">Preencha o domínio e clique no botão Adicionar.</p>
                 <div class="d-flex mb-3">
                     <div class="w-20">
-                        <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" value="www" disabled>
+                        <input type="text" class="form-control" name="subdomain" id="subdomain" aria-describedby="subdomainHelp" value="www" placeholder="ex: loja" disabled required>
                     </div>
                     <span class="d-flex align-items-center mx-2" style="height: 38px;">.</span>
                     <div class="w-100 me-2">
@@ -108,8 +122,8 @@
                     <button type="submit" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center ms-2" style="height: 38px;">Adicionar</button>
                 </div>
                 <div>
-                    <input class="form-check-input itemCheckbox" type="checkbox" name="subdomain" id="subdomain" value="1">
-                    <label for="subdomain" class="d-inline-flex align-items-center">
+                    <input class="form-check-input itemCheckbox" type="checkbox" name="setSubdomain" id="setSubdomain" value="1">
+                    <label for="setSubdomain" class="d-inline-flex align-items-center">
                         Desejo definir um Subdomínio. Ex.: loja.meudominio.com.br
                         <i class='bx bx-info-circle ms-1'></i>
                     </label>
@@ -137,15 +151,15 @@
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Subdomínio na Loja integrada</div>
         <div class="card-body row px-4 py-3">
             <small class="mb-3">Oferecemos gratuitamente um endereço virtual para sua loja através do subdomínio abaixo. <div class="fw-semibold">Esta é uma opção alternativa caso não tenha adquirido um domínio, portanto não é necessário editar.</div></small>
-            <small class="d-flex align-items-center fw-semibold">
+            <small class="d-flex align-items-center fw-semibold" id="currentSubdomain">
                 <div class="me-2" style="width: 8px; height: 8px; border-radius: 50%; background: var(--green-color);"></div>
-                <a href="#" class="link text-dark fw-semibold">minervabookstore.lojaintegrada.com.br</a>
-                <a href="#" class="text-dark ms-2"><i class='bx bx-pencil fs-5' ></i></a>
+                <a href="https://<?php echo $shop['url']; ?>.dropidigital.com.br" target="_black" class="link text-dark fw-semibold"><?php echo $shop['url']; ?>.dropidigital.com.br</a>
+                <div class="text-dark ms-2"><i class='bx bx-pencil fs-5' id="showCurrentSubdomain" data-toggle="tooltip" data-placement="top" title="Alterar subdomínio"></i></div>
             </small>
             
-            <div class="d-flex">
+            <div class="d-none" id="editCurrentSubdomain">
                 <div class="w-50">
-                    <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" value="minha-loja" required>
+                    <input type="text" class="form-control" name="subdomain" id="subdomain" aria-describedby="subdomainHelp" value="<?php echo $shop['url']; ?>" required>
                 </div>
                 <span class="d-flex align-items-center mx-2" style="height: 38px;">.</span>
                 <div class="w-50 me-2">
@@ -156,3 +170,46 @@
         </div>
     </div>
 </form>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Adiciona um ouvinte de evento ao checkbox
+        $('#setSubdomain').change(function () {
+            // Obtém o valor atual do input
+            var inputValue = $('#subdomain').val();
+
+            // Verifica se o checkbox está selecionado
+            if (this.checked) {
+                // Se selecionado, remove o valor do input
+                $('#subdomain').val('');
+            } else {
+                // Se não selecionado, adiciona "www" como valor do input
+                $('#subdomain').val('www');
+            }
+
+            // Habilita ou desabilita o input com base no estado do checkbox
+            $('#subdomain').prop('disabled', !this.checked);
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        // Adiciona um ouvinte de evento ao elemento com ID #currentSubdomain
+        $('#showCurrentSubdomain').click(function () {
+            // Remove a classe d-flex e adiciona a classe d-none ao elemento com ID #currentSubdomain
+            $("#currentSubdomain").addClass('d-none');
+
+            // Remove a classe d-none e adiciona a classe d-flex ao elemento com ID #editCurrentSubdomain
+            $('#editCurrentSubdomain').removeClass('d-none').addClass('d-flex');
+        });
+    });
+</script>
+
+<!-- Tooltip -->
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>

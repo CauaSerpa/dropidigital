@@ -64,19 +64,40 @@
 ?>
 
 <?php
-    // Consulta SQL para o mês atual (agosto de 2023)
+    // Defina o fuso horário, para garantir consistência nas datas
+    date_default_timezone_set('America/Sao_Paulo');
+
+    // Obtém o primeiro dia do mês atual
+    $primeiroDiaDoMesAtual = date('Y-m-01');
+
+    // Obtém o último dia do mês atual
+    $ultimoDiaDoMesAtual = date('Y-m-t');
+
+    // Obtém o primeiro dia do mês anterior
+    $primeiroDiaDoMesAnterior = date('Y-m-01', strtotime('-1 month'));
+
+    // Obtém o último dia do mês anterior
+    $ultimoDiaDoMesAnterior = date('Y-m-t', strtotime('-1 month'));
+
+    // Consulta SQL para o mês atual
     $sqlMesAtual = "SELECT SUM(contagem) AS visitas_mes_atual
-    FROM tb_visits
-    WHERE MONTH(data) = 10 AND YEAR(data) = 2023";
-    $stmtMesAtual = $conn_pdo->query($sqlMesAtual);
+                    FROM tb_visits
+                    WHERE data BETWEEN :primeiroDiaMesAtual AND :ultimoDiaMesAtual";
+    $stmtMesAtual = $conn_pdo->prepare($sqlMesAtual);
+    $stmtMesAtual->bindParam(':primeiroDiaMesAtual', $primeiroDiaDoMesAtual);
+    $stmtMesAtual->bindParam(':ultimoDiaMesAtual', $ultimoDiaDoMesAtual);
+    $stmtMesAtual->execute();
     $resultadoMesAtual = $stmtMesAtual->fetch(PDO::FETCH_ASSOC);
     $visitasMesAtual = $resultadoMesAtual['visitas_mes_atual'];
 
-    // Consulta SQL para o mês anterior (julho de 2023)
+    // Consulta SQL para o mês anterior
     $sqlMesAnterior = "SELECT SUM(contagem) AS visitas_mes_anterior
-    FROM tb_visits
-    WHERE MONTH(data) = 9 AND YEAR(data) = 2023";
-    $stmtMesAnterior = $conn_pdo->query($sqlMesAnterior);
+                    FROM tb_visits
+                    WHERE data BETWEEN :primeiroDiaMesAnterior AND :ultimoDiaMesAnterior";
+    $stmtMesAnterior = $conn_pdo->prepare($sqlMesAnterior);
+    $stmtMesAnterior->bindParam(':primeiroDiaMesAnterior', $primeiroDiaDoMesAnterior);
+    $stmtMesAnterior->bindParam(':ultimoDiaMesAnterior', $ultimoDiaDoMesAnterior);
+    $stmtMesAnterior->execute();
     $resultadoMesAnterior = $stmtMesAnterior->fetch(PDO::FETCH_ASSOC);
     $visitasMesAnterior = $resultadoMesAnterior['visitas_mes_anterior'];
 
@@ -341,7 +362,7 @@
         <div class="card grid">
             <div class="card__header">
                 <h3 class="title">Produtos Ativos</h3>
-                <a href="#" class="link">Alterar Plano</a>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="link">Alterar Plano</a>
             </div>
             <div class="plan__metrics">
                 <div class="chart-js">
@@ -417,7 +438,7 @@
         <div class="card grid">
             <div class="card__header">
                 <h3 class="title">Ciclo do Cartão</h3>
-                <a href="#" class="link">Alterar Plano</a>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="link">Alterar Plano</a>
             </div>
             <div class="plan__metrics">
                 <div class="chart-js">
@@ -462,9 +483,49 @@
             <div class="card__header">
                 <h5 class="fw-semibold mb-0">
                     TOP Produtos
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path><path d="M11 11h2v6h-2zm0-4h2v2h-2z"></path></svg>
+                    <i class="bx bx-help-circle small"></i>
                 </h5>
-                <a href="#" class="link">Ver Mais</a>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="link">Ver Mais</a>
+            </div>
+            <div class="top-products">
+                <ul class="mb-0">
+                    <li class="product__item">
+                        <div class="container__image">
+                            <img class="product__image" src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/23/foto_teste.png" alt="Imagem do produto">
+                        </div>
+                        <div class="product__details">
+                            <h6 class="product__name fs-6 fw-semibold mb-0">Produto 1</h6>
+                            <div class="product__info">
+                                <p class="small">923 Cliques</p>
+                                <p class="small"><span class="fw-semibold">Média de tempo:</span> 19 min.</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="product__item">
+                        <div class="container__image">
+                            <img class="product__image" src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/23/foto_teste.png" alt="Imagem do produto">
+                        </div>
+                        <div class="product__details">
+                            <h6 class="product__name fs-6 fw-semibold mb-0">Produto 2</h6>
+                            <div class="product__info">
+                                <p class="small">563 Cliques</p>
+                                <p class="small"><span class="fw-semibold">Média de tempo:</span> 23 min.</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="product__item">
+                        <div class="container__image">
+                            <img class="product__image" src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/23/foto_teste.png" alt="Imagem do produto">
+                        </div>
+                        <div class="product__details">
+                            <h6 class="product__name fs-6 fw-semibold mb-0">Produto 3</h6>
+                            <div class="product__info">
+                                <p class="small">214 Cliques</p>
+                                <p class="small"><span class="fw-semibold">Média de tempo:</span> 14 min.</p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

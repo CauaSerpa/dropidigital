@@ -16,8 +16,6 @@
 	$dbName = $_ENV['DB_NAME'];
 	$port = $_ENV['DB_PORT'];
 
-    $conn = new mysqli($dbHost,$dbUsername,$dbPassword,$dbName);
-
     try{
         //Conexão com a porta
         $conn_pdo = new PDO("mysql:host=$dbHost;port=$port;dbname=" . $dbName, $dbUsername, $dbPassword);

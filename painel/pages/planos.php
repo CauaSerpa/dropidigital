@@ -60,12 +60,15 @@
 
     .btn
     {
-        background: var(--green-color);
         font-size: .875rem;
         border: none;
         padding: .75rem 1.5rem;
     }
-    .btn:hover
+    .btn.btn-success
+    {
+        background: var(--green-color);
+    }
+    .btn.btn-success:hover
     {
         background: var(--dark-green-color);
     }
@@ -73,6 +76,13 @@
     {
         color: var(--bs-heading-color);
         background: #e8e9eb !important;
+    }
+
+    /* Outline */
+    .card.outline
+    {
+        color: #a0a8b6;
+        background: #f8f8f9;
     }
 
     /* Check */
@@ -125,11 +135,11 @@ foreach ($planos as $plano) {
 }
 
 // Função para exibir os detalhes do plano
-function displayPlanDetails($id, $plan_id, $shop_plan, $name, $sub_name, $price, $billing_interval, $resources) {
+function displayPlanDetails($id, $plan_id, $associated_plan, $shop_plan, $alterar_ciclo, $name, $sub_name, $price, $billing_interval, $resources) {
     ?>
 
     <div class="col d-grid">
-        <div class="card">
+        <div class="card <?php echo ($associated_plan > $plan_id) ? "outline" : ""; ?>">
             <div class="title mb-3">
                 <h4 class="lh-1 mb-0"><?php echo $name; ?></h4>
                 <p><?php echo $sub_name; ?></p>
@@ -140,35 +150,62 @@ function displayPlanDetails($id, $plan_id, $shop_plan, $name, $sub_name, $price,
             </div>
 
             <?php
-                if ($shop_plan == $plan_id) {
+                if ($shop_plan == $id) {
                     // Se o plano já estiver assinado, mostre o botão "Atual"
-                    echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Assinar plano</button>';
+                    echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Plano atual</button>';
+                } else if ($shop_plan == 1) {
+                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                    echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Plano atual</button>';
+                } else if ($plan_id == 1) {
+                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                    echo '<button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary small fw-semibold mb-3">Descer de plano</button>';
+                } else if ($alterar_ciclo == $id) {
+                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                    echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-3">Alterar ciclo</a>';
+                } else if ($shop_plan > $id) {
+                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                    echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-outline-light border border-secondary-subtle text-secondary small fw-semibold mb-3">Descer de plano</a>';
                 } else {
                     // Se o plano ainda não estiver assinado, mostre o botão de assinatura
-                    echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-1">Assinar plano</a>';
-                    if ($billing_interval == "monthly") {
-                        echo '<a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848b95ad95018ba9314d910b3c" target="_black" class="w-100 text-center text-reset small mb-3">Checkout Mercado Pago</a>';
-                    } else {
-                        echo '<a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848bbab27a018bcffe40cd0e97" target="_black" class="w-100 text-center text-reset small mb-3">Checkout Mercado Pago</a>';
-                    }
+                    echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>';
                 }
             ?>
 
             <!-- Exiba os recursos na página -->
             <ul class="list-style-one mb-0">
                 <?php
-                $decoded_resources = json_decode($resources);
-                if (!empty($decoded_resources)) {
-                    foreach ($decoded_resources as $recurso) {
-                        echo "<li><i class='bx bx-check'></i>$recurso</li>";
+                    $decoded_resources = json_decode($resources);
+                    if (!empty($decoded_resources)) {
+                        foreach ($decoded_resources as $recurso) {
+                            echo "<li><i class='bx bx-check'></i>$recurso</li>";
+                        }
                     }
-                }
                 ?>
             </ul>
         </div>
     </div>
 
     <?php
+}
+
+$tabela = "tb_plans_interval";
+$sql = "SELECT id, plan_id FROM tb_plans_interval WHERE id = :id";
+$stmt = $conn_pdo->prepare($sql);
+$stmt->bindParam(':id', $plan_id, PDO::PARAM_INT);
+$stmt->execute();
+$price = $stmt->fetch(PDO::FETCH_ASSOC);
+if ($price) {
+    // Consulta SQL
+    $sql = "SELECT id, plan_id FROM tb_plans_interval WHERE plan_id = :plan_id AND id <> :current_plan";
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':plan_id', $price['plan_id'], PDO::PARAM_INT);
+    $stmt->bindParam(':current_plan', $price['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    $price = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($price) {
+        $alterar_ciclo = $price['id'];
+        $associated_plan = $price['plan_id'];
+    }
 }
 
 // Exibir planos mensais
@@ -178,7 +215,7 @@ if (!empty($monthlyPlans)) {
             <div class="row g-3">';
 
     foreach ($monthlyPlans as $monthlyPlan) {
-        displayPlanDetails($monthlyPlan['id'], $monthlyPlan['plan_id'], $plan_id, $monthlyPlan['name'], $monthlyPlan['sub_name'], $monthlyPlan['price'], 'monthly', $monthlyPlan['resources']);
+        displayPlanDetails($monthlyPlan['id'], $monthlyPlan['plan_id'], $associated_plan, $plan_id, $alterar_ciclo, $monthlyPlan['name'], $monthlyPlan['sub_name'], $monthlyPlan['price'], 'monthly', $monthlyPlan['resources']);
     }
 
     echo '
@@ -194,7 +231,7 @@ if (!empty($annualPlans)) {
             <div class="row g-3">';
 
     foreach ($annualPlans as $annualPlan) {
-        displayPlanDetails($annualPlan['id'], $annualPlan['plan_id'], $plan_id, $annualPlan['name'], $annualPlan['sub_name'], $annualPlan['price'], 'yearly', $annualPlan['resources']);
+        displayPlanDetails($annualPlan['id'], $annualPlan['plan_id'], $associated_plan, $plan_id, $alterar_ciclo, $annualPlan['name'], $annualPlan['sub_name'], $annualPlan['price'], 'yearly', $annualPlan['resources']);
     }
 
     echo '

@@ -23,7 +23,9 @@
                 echo "<br>";
             }
         ?>
-        <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
+
+        <input type="hidden" name="user_id" value="<?php echo @$_SESSION['user_id']; ?>">
+        <input type="hidden" name="email" value="<?php echo @$_SESSION['email']; ?>">
 
         <fieldset class="step-form form-one active" data-step="1">
             <div class="container__title login">

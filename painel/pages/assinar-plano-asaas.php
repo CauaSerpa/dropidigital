@@ -1,24 +1,12 @@
 <?php
 $shop_id = $id;
+$shop_plan = $plan_id;
 
 // Obtém o ID do parâmetro GET
 $plan_id = isset($_GET['p']) ? intval($_GET['p']) : 0;
 
 // Nome da tabela para a busca
-$tabela = 'tb_users';
-
-$sql = "SELECT name, email, docType, docNumber, phone FROM $tabela WHERE id = :id";
-
-// Preparar e executar a consulta
-$stmt = $conn_pdo->prepare($sql);
-$stmt->bindParam(':id', $id);
-$stmt->execute();
-
-// Recuperar os resultados
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Nome da tabela para a busca
-$tabela = 'tb_address';
+$tabela = 'tb_invoice_info';
 
 $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
 
@@ -28,7 +16,7 @@ $stmt->bindParam(':shop_id', $id);
 $stmt->execute();
 
 // Obter o resultado como um array associativo
-$address = $stmt->fetch(PDO::FETCH_ASSOC);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Verifica se o ID é válido (maior que zero)
 if ($id > 0) {
@@ -36,7 +24,7 @@ if ($id > 0) {
     $tabela = "tb_plans_interval";
 
     // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
-    $sql = "SELECT plan_id, billing_interval FROM $tabela WHERE id = :id";
+    $sql = "SELECT id, plan_id, billing_interval FROM $tabela WHERE id = :id";
 
     // Prepara a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -78,6 +66,13 @@ if ($id > 0) {
     if ($plan) {
 ?>
 <style>
+    .disabled
+    {
+        color: #a0a8b6;
+        background: #f8f8f9;
+        pointer-events: none;
+    }
+
     .frequency,
     .type
     {
@@ -117,8 +112,8 @@ if ($id > 0) {
                             <input type="text" class="form-control" name="email" id="email" aria-describedby="emailHelp" value="<?php echo $user['email']; ?>">
                         </div>
                         <div class="col-md-6">
-                            <label for="responsible" class="form-label small">Nome do responsável *</label>
-                            <input type="text" class="form-control" name="responsible" id="responsible" aria-describedby="responsibleHelp" value="<?php echo $user['name']; ?>">
+                            <label for="name" class="form-label small">Nome do responsável *</label>
+                            <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" value="<?php echo $user['name']; ?>">
                         </div>
                     </div>
                     <div class="row mb-4">
@@ -135,38 +130,38 @@ if ($id > 0) {
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="cep" class="form-label small">CEP *</label>
-                            <input type="text" class="form-control" name="postalCode" id="cep" aria-describedby="cepHelp" value="<?php echo $address['cep']; ?>" onblur="getCepData()">
+                            <input type="text" class="form-control" name="postalCode" id="cep" aria-describedby="cepHelp" value="<?php echo $user['cep']; ?>" onblur="getCepData()">
                         </div>
                         <div class="col-md-8">
                             <label for="endereco" class="form-label small">
                                 Endereço *
                                 <i class='bx bx-help-circle' data-toggle="tooltip" data-bs-placement="top" data-bs-title="Os dados serão mostrados no site devido ao Decreto Federal 7962/13"></i>
                             </label>
-                            <input type="text" class="form-control" name="endereco" id="endereco" aria-describedby="enderecoHelp" value="<?php echo $address['endereco']; ?>">
+                            <input type="text" class="form-control" name="endereco" id="endereco" aria-describedby="enderecoHelp" value="<?php echo $user['endereco']; ?>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="numero" class="form-label small">Número *</label>
-                            <input type="text" class="form-control" name="numero" id="numero" aria-describedby="numeroHelp" value="<?php echo $address['numero']; ?>">
+                            <input type="text" class="form-control" name="numero" id="numero" aria-describedby="numeroHelp" value="<?php echo $user['numero']; ?>">
                         </div>
                         <div class="col-md-4">
                             <label for="complemento" class="form-label small">Complemento (opcional)</label>
-                            <input type="text" class="form-control" name="complemento" id="complemento" aria-describedby="complementoHelp" value="<?php echo $address['complemento']; ?>">
+                            <input type="text" class="form-control" name="complemento" id="complemento" aria-describedby="complementoHelp" value="<?php echo $user['complemento']; ?>">
                         </div>
                         <div class="col-md-4">
                             <label for="bairro" class="form-label small">Bairro *</label>
-                            <input type="text" class="form-control" name="bairro" id="bairro" aria-describedby="bairroHelp" value="<?php echo $address['bairro']; ?>">
+                            <input type="text" class="form-control" name="bairro" id="bairro" aria-describedby="bairroHelp" value="<?php echo $user['bairro']; ?>">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <label for="cidade" class="form-label small">Cidade *</label>
-                            <input type="text" class="form-control" name="cidade" id="cidade" aria-describedby="cidadeHelp" value="<?php echo $address['cidade']; ?>">
+                            <input type="text" class="form-control" name="cidade" id="cidade" aria-describedby="cidadeHelp" value="<?php echo $user['cidade']; ?>">
                         </div>
                         <div class="col-md-6">
                             <label for="estado" class="form-label small">Estado *</label>
-                            <input type="text" class="form-control" name="estado" id="estado" aria-describedby="estadoHelp" value="<?php echo $address['estado']; ?>">
+                            <input type="text" class="form-control" name="estado" id="estado" aria-describedby="estadoHelp" value="<?php echo $user['estado']; ?>">
                         </div>
                     </div>
                 </div>
@@ -197,7 +192,7 @@ if ($id > 0) {
                 <div class="card-body px-4 py-3">
                     <input type="radio" name="period" id="1" value="anual" class="d-none" <?php echo ($billing_interval == 'yearly') ? "checked" : ""; ?>>
                     <input type="radio" name="period" id="2" value="mensal" class="d-none" <?php echo ($billing_interval == 'monthly') ? "checked" : ""; ?>>
-                    <label class="card frequency mb-3 <?php echo ($billing_interval == 'yearly') ? "active" : ""; ?>" for="1">
+                    <label id="labelYearly" class="card frequency mb-3 <?php echo ($billing_interval == 'yearly') ? "active" : ""; ?>" for="1">
                         <div class="row">
 
                             <?php
@@ -205,7 +200,7 @@ if ($id > 0) {
                                 $tabela = "tb_plans_interval";
 
                                 // Consulta SQL
-                                $sql = "SELECT mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
+                                $sql = "SELECT id, mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
 
                                 // Preparar a consulta
                                 $stmt = $conn_pdo->prepare($sql);
@@ -222,6 +217,7 @@ if ($id > 0) {
 
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
+                                    $yearly_id = $price['id'];
                                     $mpago_id_yearly = $price['mpago_id'];
                                     $yearly_price = $price['price'];
                             ?>
@@ -238,7 +234,7 @@ if ($id > 0) {
 
                         </div>
                     </label>
-                    <label class="card frequency <?php echo ($billing_interval == 'monthly') ? "active" : ""; ?>" for="2">
+                    <label id="labelMonthly" class="card frequency <?php echo ($billing_interval == 'monthly') ? "active" : ""; ?>" for="2">
                         <div class="row" style="height: 52px;">
 
                             <?php
@@ -246,7 +242,7 @@ if ($id > 0) {
                                 $tabela = "tb_plans_interval";
 
                                 // Consulta SQL
-                                $sql = "SELECT mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
+                                $sql = "SELECT id, mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
 
                                 // Preparar a consulta
                                 $stmt = $conn_pdo->prepare($sql);
@@ -263,6 +259,7 @@ if ($id > 0) {
 
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
+                                    $monthly_id = $price['id'];
                                     $mpago_id_monthly = $price['mpago_id'];
                                     $monthly_price = $price['price'];
                             ?>
@@ -298,16 +295,16 @@ if ($id > 0) {
                             <span class="ml-1" id="span-tel">Tel: <?php echo $user['phone']; ?></span>
                         </li>
                         <li>
-                            <span id="span-address"><?php echo $address['endereco']; ?>,</span>
-                            <span id="span-number"><?php echo $address['numero']; ?></span>
+                            <span id="span-address"><?php echo $user['endereco']; ?>,</span>
+                            <span id="span-number"><?php echo $user['numero']; ?></span>
                             <span>-</span>
-                            <span id="span-district"><?php echo $address['bairro']; ?></span>
+                            <span id="span-district"><?php echo $user['bairro']; ?></span>
                         </li>
                         <?php
-                            $complemento = $address['complemento'];
+                            $complemento = $user['complemento'];
                             echo ($complemento != '') ? "<li><span id='span-complement'>Complemento: $complemento</span></li>" : "";
                         ?>
-                        <li><span id='span-more-info'><?php echo $address['cidade']; ?>/<?php echo $address['estado']; ?> - <?php echo $address['cep']; ?></span></li>
+                        <li><span id='span-more-info'><?php echo $user['cidade']; ?>/<?php echo $user['estado']; ?> - <?php echo $user['cep']; ?></span></li>
                     </ul>
                 </div>
             </div>
@@ -375,13 +372,13 @@ if ($id > 0) {
                         <input type="hidden" name="docNumber" value="<?php echo $user['docNumber']; ?>">
                         <input type="hidden" name="mobilePhone" value="<?php echo $user['phone']; ?>">
     
-                        <input type="hidden" name="postalCode" value="<?php echo $address['cep']; ?>">
-                        <input type="hidden" name="address" value="<?php echo $address['endereco']; ?>">
-                        <input type="hidden" name="addressNumber" value="<?php echo $address['numero']; ?>">
-                        <input type="hidden" name="complement" value="<?php echo $address['complemento']; ?>">
-                        <input type="hidden" name="province" value="<?php echo $address['bairro']; ?>">
-                        <input type="hidden" name="city" value="<?php echo $address['cidade']; ?>">
-                        <input type="hidden" name="state" value="<?php echo $address['estado']; ?>">
+                        <input type="hidden" name="postalCode" value="<?php echo $user['cep']; ?>">
+                        <input type="hidden" name="address" value="<?php echo $user['endereco']; ?>">
+                        <input type="hidden" name="addressNumber" value="<?php echo $user['numero']; ?>">
+                        <input type="hidden" name="complement" value="<?php echo $user['complemento']; ?>">
+                        <input type="hidden" name="province" value="<?php echo $user['bairro']; ?>">
+                        <input type="hidden" name="city" value="<?php echo $user['cidade']; ?>">
+                        <input type="hidden" name="state" value="<?php echo $user['estado']; ?>">
                     </div>
 
                     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
@@ -393,6 +390,38 @@ if ($id > 0) {
                         <?php echo "Pagar 1x de R$ " . number_format($yearly_price, 2, ',', ''); ?>
                     </button>
 
+                    <style>
+                        #loaderButton {
+                            display: flex;
+                            justify-content: center;
+                        }
+
+                        .loader {
+                            width: 24px;
+                            height: 24px;
+                            border: 2.5px solid #FFF;
+                            border-bottom-color: transparent;
+                            border-radius: 50%;
+                            display: inline-block;
+                            box-sizing: border-box;
+                            animation: rotation 1s linear infinite;
+                        }
+
+                        @keyframes rotation {
+                            0% {
+                                transform: rotate(0deg);
+                            }
+                            100% {
+                                transform: rotate(360deg);
+                            }
+                        }
+
+                    </style>
+
+                    <button class="btn btn-success fw-semibold w-100 px-4 py-2 small mb-3 d-none" id="loaderButton">
+                        <div class="loader"></div>
+                    </button>
+
                     <small class="lh-1" id="creditCartText">Autorizo o débito <span id="creditCartTextType"><?php echo ($billing_interval == 'yearly') ? "anual" : "mensal"; ?></span> em meu cartão no valor do plano referente a 12 meses, garantindo a continuidade dos serviços.</small>
 
                     <small class="lh-1" id="pixText" style="display: none;">Pagamentos por Pix têm aprovação instantânea.</small>
@@ -401,6 +430,25 @@ if ($id > 0) {
         </div>
     </div>
 </form>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var shopPlan = <?php echo json_encode($shop_plan); ?>;
+        var monthlyId = <?php echo json_encode($monthly_id); ?>;
+        var yearlyId = <?php echo json_encode($yearly_id); ?>;
+
+        if (shopPlan === monthlyId) {
+            // Se shop_plan é igual ao monthly_id
+            $('#labelMonthly').addClass('disabled'); // Adiciona a classe disabled
+            $('input[name="period"][value="mensal"]').prop('disabled', true); // Desabilita o input radio
+        } else if (shopPlan === yearlyId) {
+            // Se shop_plan é igual ao yearly_id
+            $('#labelYearly').addClass('disabled'); // Adiciona a classe disabled
+            $('input[name="period"][value="anual"]').prop('disabled', true); // Desabilita o input radio
+        }
+    });
+</script>
 
 <!-- Adicione este script JavaScript -->
 <script>
@@ -502,7 +550,7 @@ if ($id > 0) {
 
         function updateUserInfo(data) {
             // Atualize as informações diretamente com base nos IDs dos spans
-            $('#span-responsible').text(data.name);
+            $('#span-name').text(data.name);
             $('#span-email').text(data.email);
 
             $('#span-cpf').text(`CPF: ${data.cpf}`);
@@ -728,6 +776,11 @@ if ($id > 0) {
 <script>
     $('#myForm').submit(function (event) {
         event.preventDefault();
+        
+		//Botão carregando
+		$("#loaderButton").addClass('d-flex').removeClass('d-none');
+		$("#submitButton").addClass('d-none').removeClass('d-block');
+
         processForm(this);
     });
 
@@ -753,6 +806,23 @@ if ($id > 0) {
             if (response.status == 200) {
                 var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
                 var encodedCode = btoa(response.code);
+
+                // Informacoes da loja e do plano
+                var planId = <?php echo $plan_id; ?>;
+                var shopId = <?php echo $shop_id; ?>;
+
+                $.ajax({
+					url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/asaas/alterar_plano.php',
+					method: 'POST',
+					data: {
+                        plan_id: planId,
+                        shop_id: shopId
+                    },
+					dataType: 'JSON',
+                    success: function(response) {
+                        console.log("Plano alterado com sucesso!");
+                    }
+				})
 
                 if (selectedPaymentType === "creditCard") {
                     // Redirecionar para página de pagamento

@@ -11,12 +11,19 @@
 
         $name = $_POST['name'];
         $email = $_POST['email'];
-        $phone = $_POST['mobilePhone'];
+        $phone = $_POST['phone'];
 
-        $docType = "cpf";
-        $docNumber = $_POST['cpf'];
+        $shopType = $_POST['shopType'];
+        if ($shopType == "pf")
+        {
+            $docType = "cpf";
+            $docNumber = $_POST['cpf'];
+        } else {
+            $docType = "cnpj";
+            $docNumber = $_POST['cnpj'];
+        }
 
-        $cep = $_POST['postalCode'];
+        $cep = $_POST['cep'];
         $endereco = $_POST['endereco'];
         $numero = $_POST['numero'];
         $complemento = $_POST['complemento'];
@@ -27,7 +34,7 @@
         // Tabela que será solicitada
         $tabela = 'tb_invoice_info';
 
-        // Insere a categoria no banco de dados da loja
+        // Insere a categoria no banco de dados do endereco da loja
         $sql = "UPDATE $tabela SET name = :name, email = :email, phone = :phone, docType = :docType, docNumber = :docNumber, cep = :cep, endereco = :endereco, numero = :numero, complemento = :complemento, bairro = :bairro, cidade = :cidade, estado = :estado WHERE shop_id = :shop_id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
@@ -46,31 +53,11 @@
         $stmt->bindValue(':shop_id', $shop_id);
         $stmt->execute();
 
-        // Construa a resposta JSON
-        $response = array(
-            'success' => true,
-            'data' => array(
-                'name' => $name,
-                'email' => $email,
-                'cpf' => $docNumber,
-                'phone' => $phone,
-                'endereco' => $endereco,
-                'numero' => $numero,
-                'complemento' => $complemento,
-                'bairro' => $bairro,
-                'cidade' => $cidade,
-                'estado' => $estado,
-                'cep' => $cep
-            )
-        );
-
-        // Saída da resposta JSON
-        header('Content-Type: application/json');
-        echo json_encode($response);
-        exit();
+        $_SESSION['msgcad'] = "<p class='green'>Informações da fatura editadas com sucesso!</p>";
+        // Redireciona para a página e exibe uma mensagem de sucesso
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "dados-para-pagamento");
     } else {
-        // Se a solicitação não for do tipo POST, retorne uma resposta de erro
-        $response = array('success' => false, 'message' => 'Método de solicitação inválido.');
-        echo json_encode($response);
+        $_SESSION['msg'] = "<p class='red'>Erro ao atualizar as informações da fatura!</p>";
+        // Redireciona para a página e exibe uma mensagem de erro
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "dados-para-pagamento");
     }
-?>

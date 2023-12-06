@@ -1152,6 +1152,7 @@ select {
 .user .account ul li a
 {
     color: var(--text-color);
+    text-decoration: none;
 }
 .user .account ul li a:hover
 {
@@ -1161,7 +1162,7 @@ select {
 .open-user
 {
     border: 1px solid var(--border-color);
-    max-height: 329px;
+    max-height: 500px;
 }
 .nav__menu
 {
@@ -3183,7 +3184,32 @@ input[type="number"]::-webkit-inner-spin-button
     fill: var(--text-color-light) !important;
     margin-left: var(--mb-0-25);
 }
-
+.main .card__container .card__box.top__products .card .top-products .product__item
+{
+    display: flex;
+    width: 100%;
+}
+.main .card__container .card__box.top__products .card .top-products .product__item .container__image
+{
+    margin: .5rem 0;
+}
+.main .card__container .card__box.top__products .card .top-products .product__item .container__image .product__image
+{
+    width: 40px;
+    height: 40px;
+    margin-right: 1.5rem;
+}
+.main .card__container .card__box.top__products .card .top-products .product__item .product__details
+{
+    width: 100%;
+    padding: .5rem 0;
+    border-bottom: 1px solid #DDD;
+}
+.main .card__container .card__box.top__products .card .top-products .product__item .product__details .product__info
+{
+    display: flex;
+    justify-content: space-between;
+}
 
 
 

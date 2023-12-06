@@ -1,5 +1,9 @@
 <?php
-    $s = base64_decode($_GET['s']);
+    $shop_id = $id;
+
+    $subscription_id = $_GET['s'];
+
+    $s = base64_decode($subscription_id);
 
     // Consulta SQL
     $sql = "SELECT * FROM tb_subscriptions WHERE subscription_id = :s AND shop_id = :shop_id";
@@ -94,14 +98,14 @@
 </script>
 
 <script>
-    // Função para iniciar o temporizador de 24 horas
+    // Função para iniciar o temporizador de 15 minutos
     function iniciarTemporizador(produtoId) {
         // Verificar se há um valor armazenado no localStorage
         var tempoRestante = localStorage.getItem("tempoRestante_" + produtoId);
 
         // Se não houver valor armazenado ou o valor for menor que 0, começar de novo
         if (!tempoRestante || tempoRestante < 0) {
-            tempoRestante = 86400; // 24 horas em segundos
+            tempoRestante = 900; // 15 minutos em segundos
         }
 
         exibirTemporizador(tempoRestante);
@@ -118,23 +122,24 @@
             // Quando o temporizador chegar a zero, você pode executar alguma ação aqui
             if (tempoRestante <= 0) {
                 clearInterval(temporizador);
-                alert("Tempo expirado para o Produto ID " + produtoId);
+                alert("Tempo expirado para o Cobrança ID: " + produtoId);
+
+                // Envia o id para alterar status para cancelado
+                window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/pagamento_expirado.php?shop=" + <?php echo $shop_id; ?>"&subs=" + <?php echo $subscription_id; ?>;
             }
         }, 1000); // Atualizar a cada segundo
     }
 
     // Função para exibir o temporizador no formato "HH:MM:SS"
     function exibirTemporizador(segundos) {
-        var horas = Math.floor(segundos / 3600);
         var minutos = Math.floor((segundos % 3600) / 60);
         var segundosRestantes = segundos % 60;
 
-        // Formatar as horas, minutos e segundos para o formato "HH:MM:SS"
-        var formatoHoras = horas < 10 ? "0" + horas : horas;
+        // Formatar as horas, minutos e segundos para o formato "MM:SS"
         var formatoMinutos = minutos < 10 ? "0" + minutos : minutos;
         var formatoSegundos = segundosRestantes < 10 ? "0" + segundosRestantes : segundosRestantes;
 
-        document.getElementById("temporizador").innerText = formatoHoras + ":" + formatoMinutos + ":" + formatoSegundos;
+        document.getElementById("temporizador").innerText = formatoMinutos + ":" + formatoSegundos;
     }
 
     // Iniciar o temporizador quando a página carregar

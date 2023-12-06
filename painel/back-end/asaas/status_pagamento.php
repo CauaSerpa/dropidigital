@@ -7,6 +7,8 @@
 
     $subscription_id = $_POST['subscription_id'];
 
+    $paymentStatus = "";
+
     $curl = curl_init();
 
     curl_setopt_array($curl, array(

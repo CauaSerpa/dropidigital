@@ -1,42 +1,16 @@
 <?php
     // Nome da tabela para a busca
-    $tabela = 'tb_users';
-
-    $sql = "SELECT name, email FROM $tabela WHERE id = :id";
-
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':id', $id);
-    $stmt->execute();
-
-    // Recuperar os resultados
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Nome da tabela para a busca
-    $tabela = 'tb_shop';
-
-    $sql = "SELECT * FROM $tabela WHERE user_id = :user_id";
-
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':user_id', $id);
-    $stmt->execute();
-
-    // Obter o resultado como um array associativo
-    $shop = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Nome da tabela para a busca
-    $tabela = 'tb_address';
+    $tabela = 'tb_invoice_info';
 
     $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':shop_id', $shop['id']);
+    $stmt->bindParam(':shop_id', $id);
     $stmt->execute();
 
     // Obter o resultado como um array associativo
-    $address = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <div class="page__header center">
@@ -58,14 +32,14 @@
     </div>
 </div>
 
-<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_payment-data.php" method="post">
+<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_invoice_info.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações gerais</div>
         <div class="card-body row px-4 py-3">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="responsible" class="form-label small">Nome do responsável *</label>
-                    <input type="text" class="form-control" name="responsible" id="responsible" aria-describedby="responsibleHelp" value="<?php echo $user['name']; ?>" required>
+                    <label for="name" class="form-label small">Nome do responsável *</label>
+                    <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" value="<?php echo $user['name']; ?>" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="email" class="form-label small">E-mail do responsável *</label>
@@ -73,6 +47,10 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="phone" class="form-label small">Telefone de contato *</label>
+                    <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $user['phone']; ?>" required>
+                </div>
                 <div class="col-md-6 mb-3">
                     <label for="shopType" class="form-label small">Tipo de cadastro da loja *</label>
                     <div class="input-group">
@@ -86,25 +64,17 @@
             <div class="row" id="pf" style="display: flex;">
                 <div class="col-md-6 mb-3">
                     <label for="cpf" class="form-label small">CPF *</label>
-                    <input type="text" class="form-control" name="cpf" id="cpf" aria-describedby="cpfHelp" placeholder="000.000.000-00">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="phone" class="form-label small">Telefone de contato *</label>
-                    <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $shop['phone']; ?>" required>
+                    <input type="text" class="form-control" name="cpf" id="cpf" aria-describedby="cpfHelp" placeholder="000.000.000-00" value="<?php echo $user['docNumber']; ?>">
                 </div>
             </div>
             <div class="row" id="pj" style="display: none;">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label for="razaoSocial" class="form-label small">Razão Social *</label>
                     <input type="text" class="form-control" name="razaoSocial" id="razaoSocial" aria-describedby="razaoSocialHelp">
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label for="cnpj" class="form-label small">CNPJ *</label>
                     <input type="text" class="form-control" name="cnpj" id="cnpj" aria-describedby="cnpjHelp" placeholder="00.000.000/0000-00">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="phone" class="form-label small">Telefone de contato *</label>
-                    <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $shop['phone']; ?>" required>
                 </div>
             </div>
         </div>
@@ -116,52 +86,44 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="cep" class="form-label small">CEP *</label>
-                    <input type="text" class="form-control" name="cep" id="cep" aria-describedby="cepHelp" value="<?php echo $address['cep']; ?>" required>
+                    <input type="text" class="form-control" name="cep" id="cep" aria-describedby="cepHelp" value="<?php echo $user['cep']; ?>" onblur="getCepData()" required>
                 </div>
                 <div class="col-md-8 mb-3">
                     <label for="endereco" class="form-label small">
                         Endereço *
                         <i class='bx bx-help-circle' data-toggle="tooltip" data-bs-placement="top" data-bs-title="Os dados serão mostrados no site devido ao Decreto Federal 7962/13"></i>
                     </label>
-                    <input type="text" class="form-control" name="endereco" id="endereco" aria-describedby="enderecoHelp" value="<?php echo $address['endereco']; ?>" required>
+                    <input type="text" class="form-control" name="endereco" id="endereco" aria-describedby="enderecoHelp" value="<?php echo $user['endereco']; ?>" required>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="numero" class="form-label small">Número *</label>
-                    <input type="text" class="form-control" name="numero" id="numero" aria-describedby="numeroHelp" value="<?php echo $address['numero']; ?>" required>
+                    <input type="text" class="form-control" name="numero" id="numero" aria-describedby="numeroHelp" value="<?php echo $user['numero']; ?>" required>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="complemento" class="form-label small">Complemento (opcional)</label>
-                    <input type="text" class="form-control" name="complemento" id="complemento" aria-describedby="complementoHelp" value="<?php echo $address['complemento']; ?>">
+                    <input type="text" class="form-control" name="complemento" id="complemento" aria-describedby="complementoHelp" value="<?php echo $user['complemento']; ?>">
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="bairro" class="form-label small">Bairro *</label>
-                    <input type="text" class="form-control" name="bairro" id="bairro" aria-describedby="bairroHelp" value="<?php echo $address['bairro']; ?>" required>
+                    <input type="text" class="form-control" name="bairro" id="bairro" aria-describedby="bairroHelp" value="<?php echo $user['bairro']; ?>" required>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="cidade" class="form-label small">Cidade *</label>
-                    <input type="text" class="form-control" name="cidade" id="cidade" aria-describedby="cidadeHelp" value="<?php echo $address['cidade']; ?>" required>
+                    <input type="text" class="form-control" name="cidade" id="cidade" aria-describedby="cidadeHelp" value="<?php echo $user['cidade']; ?>" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="estado" class="form-label small">Estado *</label>
-                    <input type="text" class="form-control" name="estado" id="estado" aria-describedby="estadoHelp" value="<?php echo $address['estado']; ?>" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="activeMaps" class="form-label small">Exibir este endereço no mapa?</label>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="activeMaps" role="switch" id="activeMaps" value="1" <?php echo ($shop['map'] == 1) ? "checked" : ""; ?>>
-                        <label class="form-check-label" id="textMaps" for="activeMaps"><?php echo ($shop['map'] == 1) ? "Sim" : "Não"; ?></label>
-                    </div>
+                    <input type="text" class="form-control" name="estado" id="estado" aria-describedby="estadoHelp" value="<?php echo $user['estado']; ?>" required>
                 </div>
             </div>
         </div>
     </div>
 
-    <input type="hidden" name="id" value="<?php echo $id; ?>">
-    <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+    <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
         <div class="container-save-button container card-header fw-semibold bg-transparent d-flex align-items-center justify-content-between">
@@ -172,6 +134,9 @@
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Mask -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+
 <script>
     $(document).ready(function() {
         $('#shopType').change(function() {
@@ -195,6 +160,79 @@
                 $('#cpf').prop('required', false);
             }
         });
+    });
+</script>
+
+<!-- VIACEP -->
+<script>
+    function getCepData()
+    {
+        let cep = $('#cep').val();
+        cep = cep.replace(/\D/g, "");
+        if(cep.length<8)
+        {
+            $("#div-errors-price").html("CEP deve conter no mínimo 8 dígitos").slideDown('fast').effect( "shake" );
+            $("#cep").addClass('is-invalid').focus();
+            return;
+        }
+        $("#cep").removeClass('is-invalid');
+        $("#div-errors-price").slideUp('fast');
+
+
+        if(cep != "")
+        {
+            $("#endereco").val("Carregando...");
+            $("#bairro").val("Carregando...");
+            $("#cidade").val("Carregando...");
+            $("#estado").val("...");
+            $.getJSON( "https://viacep.com.br/ws/"+cep+"/json/", function( data )
+            {
+                $("#endereco").val(data.logradouro);
+                $("#bairro").val(data.bairro);
+                $("#cidade").val(data.localidade);
+                $("#estado").val(data.uf);
+                $("#numero").focus();
+            }).fail(function()
+            {
+                $("#endereco").val("");
+                $("#bairro").val("");
+                $("#cidade").val("");
+                $("#estado").val("");
+            });
+        }
+    }
+</script>
+
+<script>
+    //Phone Mask
+    new Cleave('#phone', {
+        delimiters: ['(', ')', ' ', '-'],
+        blocks: [0, 2, 0, 5, 4],
+        numericOnly: true
+    });
+</script>
+<script>
+    //CPF Mask
+    new Cleave('#cpf', {
+        delimiters: ['.', '.', '-'],
+        blocks: [3, 3, 3, 2],
+        numericOnly: true
+    });
+</script>
+<script>
+    //CPF Mask
+    new Cleave('#cnpj', {
+        delimiters: ['.', '.', '/', '-'],
+        blocks: [2, 3, 3, 4, 2],
+        numericOnly: true
+    });
+</script>
+<script>
+    //CEP Mask
+    new Cleave('#cep', {
+        delimiters: ['-'],
+        blocks: [5, 3],
+        numericOnly: true
     });
 </script>
 

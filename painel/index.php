@@ -161,7 +161,7 @@
                 <div class="toggle" onclick="toggle()">
                     <i class='bx bx-menu' id="mobileBtn"></i>
                 </div>
-                <a href="<?php echo INCLUDE_PATH; ?>" class="nav__logo">
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo">
                     <img class="logo" src="" alt="Logo" id="logo">
                 </a>
                 <form action="" class="search__form">
@@ -287,34 +287,34 @@
                     </div>
                     <div class="user" id="userWrap">
                         <div class="modal__user__info">
-                            <h3><?php echo $name; ?></h3>
-                            <p><?php echo $email; ?></p>
+                            <h5 class="fs-5 mb-0"><?php echo $name; ?></h5>
+                            <p class="small"><?php echo $email; ?></p>
                         </div>
-                        <div class="theme__dark">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z"></path></svg>
+                        <div class="theme__dark small">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z"></path></svg>
                             <p>Tema Escuro</p>
                         </div>
                         <div class="shop">
-                            <h3>Loja</h3>
-                            <ul>
-                                <li class="active">Loja 1</li>
-                                <li>Loja 2</li>
+                            <h5 class="fs-5 mb-1">Loja</h5>
+                            <ul class="mb-0">
+                                <li class="small active">Loja 1</li>
+                                <li class="small">Loja 2</li>
                             </ul>
                         </div>
                         <div class="account">
-                            <h3>Minha Conta</h3>
-                            <ul>
-                                <li>
+                            <h5 class="fs-5 mb-1">Minha Conta</h5>
+                            <ul class="mb-0">
+                                <li class="small">
                                     <a href="#">
                                         Editar Conta
                                     </a>
                                 </li>
-                                <li>
+                                <li class="small">
                                     <a href="#">
                                         Criar Loja
                                     </a>
                                 </li>
-                                <li>
+                                <li class="small">
                                     <a href="#">
                                         Sair
                                     </a>
@@ -484,39 +484,43 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>email-profissional" class="<?php activeSidebarLink('email-profissional'); ?>">Conf. E-mail profissional</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('atendimento'); ?> <?php showSidebarLinks('atendimento'); ?>">
+            <li class="<?php activeSidebarLink('atendimento'); ?>">
                 <div class="iocn-link">
-                        <p>
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="sidebar_link">
-                                <i class='bx bx-conversation' ></i>
-                            </a>
-                            <span class="link_name">Atendimento</span>
-                        </p>
-                    <i class='bx bxs-chevron-down arrow' ></i>
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento">
+                            <i class='bx bx-conversation' ></i>
+                        </a>
+                        <span class="link_name">Atendimento</span>
+                    </p>
                 </div>
-                <ul class="sub-menu">
+                <ul class="sub-menu blank">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento">Atendimento</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="<?php activeSidebarLink('atendimento'); ?>">Telefone</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="<?php activeSidebarLink('atendimento'); ?>">E-mail</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento" class="<?php activeSidebarLink('atendimento'); ?>">Endereço</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('redes-sociais'); ?> <?php showSidebarLinks('redes-sociais'); ?>">
+            <li class="<?php activeSidebarLink('redes-sociais'); ?>">
                 <div class="iocn-link">
-                        <p>
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="sidebar_link">
-                                <i class='bx bx-user-circle' ></i>
-                            </a>
-                            <span class="link_name">Redes Sociais</span>
-                        </p>
-                    <i class='bx bxs-chevron-down arrow' ></i>
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">
+                            <i class='bx bx-user-circle' ></i>
+                        </a>
+                        <span class="link_name">Redes Sociais</span>
+                    </p>
                 </div>
-                <ul class="sub-menu">
+                <ul class="sub-menu blank">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">Redes Sociais</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">Instagram</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">Facebook</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">Tiktok</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="<?php activeSidebarLink('redes-sociais'); ?>">YouTube</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('solucoes'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>solucoes">
+                            <i class='bx bx-bulb' ></i>
+                        </a>
+                        <span class="link_name">Soluções</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>solucoes">Soluções</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
