@@ -61,11 +61,12 @@ function asaas_CriarAssinaturaCartao($customer_id, $dataForm, $config) {
 
         $tabela = 'tb_subscriptions';
 
-        $stmt = $conn->prepare("INSERT INTO $tabela (shop_id, customer_id, subscription_id, value, billing_type, status, start_date, due_date, cycle, credit_card_number, credit_card_flag) VALUES (
-            :shop_id, :customer_id, :subscription_id, :value, :billing_type, :status, :start_date, :due_date, :cycle, :credit_card_number, :credit_card_flag)");
+        $stmt = $conn->prepare("INSERT INTO $tabela (shop_id, plan_id, customer_id, subscription_id, value, billing_type, status, start_date, due_date, cycle, credit_card_number, credit_card_flag) VALUES (
+            :shop_id, :plan_id, :customer_id, :subscription_id, :value, :billing_type, :status, :start_date, :due_date, :cycle, :credit_card_number, :credit_card_flag)");
         
         // Bind dos parâmetros
         $stmt->bindParam(':shop_id', $dataForm["shop_id"], PDO::PARAM_INT);
+        $stmt->bindParam(':plan_id', $dataForm['plan_id'], PDO::PARAM_STR);
         $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_STR);
         $stmt->bindParam(':subscription_id', $retorno['id'], PDO::PARAM_STR);
         $stmt->bindParam(':value', $retorno['value'], PDO::PARAM_STR);

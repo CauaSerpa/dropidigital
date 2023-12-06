@@ -29,10 +29,11 @@
     // print_r($payments);
 
     foreach ($payments['data'] as $payment) {
+        $subscription = $payment['subscription'];
         $status = $payment['status'];
     
         // Verificar se o pagamento foi concluído
-        if ($status === 'RECEIVED') {
+        if ($subscription == $subscription_id && $status == 'RECEIVED') {
             // O pagamento foi recebido, você pode prosseguir com a atualização no banco de dados
             // Chame uma função para atualizar o banco de dados com o status do pagamento
             atualizarBancoDeDados($subscription_id, 'RECEIVED');

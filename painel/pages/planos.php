@@ -150,23 +150,23 @@ function displayPlanDetails($id, $plan_id, $associated_plan, $shop_plan, $altera
             </div>
 
             <?php
-                if ($shop_plan == $id) {
-                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                if ($id == $shop_plan) {
+                    // Se o plano já estiver assinado ou for igual a 2, mostre o botão "Atual"
                     echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Plano atual</button>';
-                } else if ($shop_plan == 1) {
-                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                } else if ($id == $alterar_ciclo && $alterar_ciclo == 2) {
+                    // Se o alterar ciclo for igual ao id do plano, mostre o botão "Alterar ciclo"
                     echo '<button type="button" class="btn current rounded small fw-semibold mb-3" data-toggle="tooltip" data-placement="top" aria-label="Este já é o seu plano." data-bs-original-title="Este já é o seu plano.">Plano atual</button>';
-                } else if ($plan_id == 1) {
-                    // Se o plano já estiver assinado, mostre o botão "Atual"
-                    echo '<button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary small fw-semibold mb-3">Descer de plano</button>';
-                } else if ($alterar_ciclo == $id) {
-                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                } else if ($id == $alterar_ciclo) {
+                    // Se o alterar ciclo for igual ao id do plano, mostre o botão "Alterar ciclo"
                     echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-3">Alterar ciclo</a>';
-                } else if ($shop_plan > $id) {
-                    // Se o plano já estiver assinado, mostre o botão "Atual"
+                } else if ($associated_plan > $plan_id && $plan_id == 1) {
+                    // Se o id do plano for menor que o id do plano ativo e o id do plano for igual a 1, mostre o botão "Descer de plano"
+                    echo '<button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary small fw-semibold mb-3">Descer de plano</button>';
+                } else if ($associated_plan > $plan_id) {
+                    // Se o id do plano for menor que o id do plano ativo, mostre o botão "Descer de plano"
                     echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-outline-light border border-secondary-subtle text-secondary small fw-semibold mb-3">Descer de plano</a>';
-                } else {
-                    // Se o plano ainda não estiver assinado, mostre o botão de assinatura
+                } else if ($associated_plan < $plan_id) {
+                    // Se o id do plano for maior que o id do plano ativo, mostre o botão "Assinar plano"
                     echo '<a href="' . INCLUDE_PATH_DASHBOARD . 'assinar-plano-asaas?p=' . $id . '" class="btn btn-success rounded small fw-semibold mb-3">Assinar plano</a>';
                 }
             ?>

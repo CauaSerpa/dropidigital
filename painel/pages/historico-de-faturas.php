@@ -135,12 +135,9 @@
                         } else if ($usuario['status'] == "ACTIVE") {
                             $bullet = "<span class='bullet warning me-2'></span>";
                             $status = "Aguardando pagamento";
-                        } else if ($usuario['status'] == "INACTIVE") {
+                        } else if ($usuario['status'] == "OVERDUE" || $usuario['status'] == "INACTIVE") {
                             $bullet = "<span class='bullet danger me-2'></span>";
                             $status = "Cancelada";
-                        } else if ($usuario['status'] == "OVERDUE") {
-                            $bullet = "<span class='bullet danger me-2'></span>";
-                            $status = "Vencida";
                         }
 
                         echo '

@@ -1,4 +1,8 @@
 <?php
+    session_start();
+    ob_start();
+    include("../../../config.php");
+
     $shop_id = $_GET['shop'];
     $s = base64_decode($_GET['subs']);
 
@@ -6,17 +10,17 @@
 
     // Altera o status da assinatura para cancelada
 
-    // Alterando o id do plano na tabela tb_shop
+    // Alterando o id do plano na tabela tb_subscriptions
     // Nome da tabela para a busca
     $tabela = 'tb_subscriptions';
 
-    $sql = "UPDATE $tabela SET status = :status WHERE subscription_id = :subscription_id AND id = :id";
+    $sql = "UPDATE $tabela SET status = :status WHERE subscription_id = :subscription_id AND shop_id = :shop_id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindValue(':status', 'OVERDUE');
     $stmt->bindValue(':subscription_id', $s);
-    $stmt->bindParam(':id', $shop_id);
+    $stmt->bindParam(':shop_id', $shop_id);
     $stmt->execute();
 
     // Procura uma possivel assinatura anterior
@@ -27,7 +31,7 @@
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindValue(':status', 'RECEIVED');
+    $stmt->bindValue(':status', 'INACTIVE');
     $stmt->bindParam(':shop_id', $shop_id);
     $stmt->bindParam(':current_subscription', $s);
     $stmt->execute();
@@ -49,15 +53,69 @@
             // Nome da tabela para a busca
             $tabela = 'tb_shop';
 
-            $sql = "UPDATE $tabela SET plan_id = :plan_id WHERE id = :id";
+            $sql = "UPDATE $tabela SET plan_id = :plan_id WHERE id = :shop_id";
 
             // Preparar e executar a consulta
             $stmt = $conn_pdo->prepare($sql);
-            $stmt->bindParam(':plan_id', $subs['id']);
-            $stmt->bindParam(':id', $shop_id);
+            $stmt->bindParam(':plan_id', $subs['plan_id']);
+            $stmt->bindParam(':shop_id', $shop_id);
             $stmt->execute();
 
             $plano_anterior = true;
+
+            // Alterando o status da assinatura na tabela tb_shop
+            // Nome da tabela para a busca
+            $tabela = 'tb_subscriptions';
+
+            $sql = "UPDATE $tabela SET status = :status WHERE subscription_id = :subscription_id";
+
+            // Preparar e executar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindValue(':status', 'RECEIVED');
+            $stmt->bindParam(':subscription_id', $subs["subscription_id"]);
+            $stmt->execute();
+
+            echo "Status atualizado com sucesso!";
+
+            // Ativando a assinatura na Asaas
+            // Alterar status na Asaas
+            $curl = curl_init();
+
+            $fields = [
+                "status" => "ACTIVE"
+            ];
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $asaas_url.'subscriptions/'.$subs["subscription_id"],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode($fields),
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json',
+                    'access_token: '.$asaas_key
+                )
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+            $retorno = json_decode($response, true);
+
+            if($retorno['object'] == 'subscription') {
+                // Status alterado com sucesso
+                echo "Status alterado na Asaas com sucesso!";
+            } else {
+                echo "Erro ao alterar o status na Asaas com sucesso!";
+
+                echo $response;
+                exit();
+            }
         
         } else {
             // Já venceu. Volta para o plano grátis
@@ -66,12 +124,12 @@
             // Nome da tabela para a busca
             $tabela = 'tb_shop';
 
-            $sql = "UPDATE $tabela SET plan_id = :plan_id WHERE id = :id";
+            $sql = "UPDATE $tabela SET plan_id = :plan_id WHERE id = :shop_id";
 
             // Preparar e executar a consulta
             $stmt = $conn_pdo->prepare($sql);
             $stmt->bindValue(':plan_id', 1);
-            $stmt->bindParam(':id', $shop_id);
+            $stmt->bindParam(':shop_id', $shop_id);
             $stmt->execute();
         }
     } else {
@@ -81,12 +139,12 @@
         // Nome da tabela para a busca
         $tabela = 'tb_shop';
 
-        $sql = "UPDATE $tabela SET plan_id = :plan_id WHERE id = :id";
+        $sql = "UPDATE $tabela SET plan_id = :plan_id WHERE id = :shop_id";
 
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':plan_id', 1);
-        $stmt->bindParam(':id', $shop_id);
+        $stmt->bindParam(':shop_id', $shop_id);
         $stmt->execute();
     }
 
@@ -96,7 +154,7 @@
         header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
         exit;
     } else {
-        $_SESSION['msgcad'] = "<p class='red'>Tempo expirado! Por favor gere uma nova cobrança.</p>";
+        $_SESSION['msg'] = "<p class='red'>Tempo expirado! Por favor gere uma nova cobrança.</p>";
         // Redireciona para a página de historico de faturas e exibe uma mensagem de erro
         header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
         exit;

@@ -382,6 +382,7 @@ if ($id > 0) {
                     </div>
 
                     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
+                    <input type="hidden" name="plan_id" value="<?php echo $id; ?>">
 
                     <input type="hidden" name="id_plan" value="<?php echo ($billing_interval == 'monthly') ? $mpago_id_monthly : $mpago_id_yearly; ?>">
 

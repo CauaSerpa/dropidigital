@@ -33,7 +33,7 @@
         echo "Nenhum resultado encontrado.";
     }
 
-    if ($status == "RECEIVED" || $status == "OVERDUE")
+    if ($status == "RECEIVED" || $status == "OVERDUE" || $status == "INACTIVE")
     {
         $_SESSION['msgcad'] = "<p class='red'>A cobrança já foi fechada!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
@@ -125,7 +125,7 @@
                 alert("Tempo expirado para o Cobrança ID: " + produtoId);
 
                 // Envia o id para alterar status para cancelado
-                window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/pagamento_expirado.php?shop=" + <?php echo $shop_id; ?>"&subs=" + <?php echo $subscription_id; ?>;
+                window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/pagamento_expirado.php?shop=<?php echo $shop_id; ?>&subs=<?php echo $subscription_id; ?>";
             }
         }, 1000); // Atualizar a cada segundo
     }
