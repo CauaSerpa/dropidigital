@@ -6,10 +6,12 @@ function asaas_CancelarAntigasAssinaturas($dataForm, $subscription_id, $config) 
     // Nome da tabela para a busca
     $tabela = 'tb_subscriptions';
 
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND subscription_id != :current_subscription ORDER BY id DESC LIMIT 1";
+    $sql = "SELECT * FROM $tabela WHERE status IN (:status1, :status2) AND shop_id = :shop_id AND subscription_id != :current_subscription ORDER BY id DESC LIMIT 1";
 
     // Preparar e executar a consulta
     $stmt = $conn->prepare($sql);
+	$stmt->bindValue(':status1', 'ACTIVE');
+	$stmt->bindValue(':status2', 'RECEIVED');
     $stmt->bindParam(':shop_id', $dataForm["shop_id"]);
     $stmt->bindParam(':current_subscription', $subscription_id);
     $stmt->execute();
