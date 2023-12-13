@@ -827,7 +827,7 @@ if ($id > 0) {
 
                 if (selectedPaymentType === "creditCard") {
                     // Redirecionar para página de pagamento
-                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>historico-de-faturas";
+                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento-confirmado?s=" + encodedCode;
                 } else if (selectedPaymentType === "pix") {
                     // Redirecionar para página de pagamento
                     window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?s=" + encodedCode;

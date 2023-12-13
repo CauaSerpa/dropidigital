@@ -209,7 +209,7 @@
         </div>
         <div class="card-body row px-4 py-3">
             <p class="fw-semibold mb-3">
-                Você tem <span style="color: var(--green-color);"><?php echo $countEmails; ?></span><?php echo ($countEmails == 0 || $countEmails == 1) ? ' e-mail' : ' e-mails'; ?> disponíveis para exportação
+                Você tem <span style="color: var(--green-color);"><?php echo $countEmails; ?></span><?php echo ($countEmails == 0 || $countEmails == 1) ? ' e-mail disponível' : ' e-mails disponíveis'; ?> para exportação
             </p>
             <p class="small">
                 Não sabe como mandar seus e-mails? Crie e envie suas campanhas de e-mail marketing sem precisar de conhecimentos técnicos.<br>

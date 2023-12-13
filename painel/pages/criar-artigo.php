@@ -142,9 +142,9 @@
     <input type="hidden" name="id" value="<?php echo $id; ?>">
     <input type="hidden" name="image_id" value="<?php echo $image_id; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="display: none; position: fixed; width: 100%; left: 78px; bottom: 0; z-index: 99999;">
-        <div class="container-save-button container card-header fw-semibold bg-transparent d-flex align-items-center justify-content-between">
-            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="text-decoration-none text-reset">Cancelar</a>
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+        <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
+            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="text-decoration-none text-reset">Cancelar</a>
             <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
         </div>
     </div>

@@ -1395,12 +1395,21 @@ select {
 
 
 
-
+.main
+{
+    max-width: calc(100% - 78px);
+    margin: 0 auto 0 78px;
+}
+.container
+{
+    position: relative !important;
+    left: 0 !important;
+}
 .container
 {
     position: relative;
-    left: 260px;
-    width: calc(100% - 260px);
+    left: 265px;
+    width: calc(100% - 265px);
     top: var(--header-height);
     transition: all 0.5s ease;
 }
@@ -1416,8 +1425,8 @@ select {
 {
     top: 0;
     margin: 0;
-    padding-left: 1.5rem;
-    padding-right: 0;
+    left: 50% !important;
+    transform: translateX(-50%);
 }
 .save-button .container-save-button.container .btn
 {
