@@ -80,15 +80,40 @@
                 <div class="modal-body px-4 py-3">
                     <div>
                         <label for="formFileLg" class="form-label small">Arquivo</label>
-                        <input class="form-control" id="formFileLg" type="file">
+                        <input class="form-control" id="formFileLg" type="file" name="arquivo" accept="text/csv">
                         <small class="form-text text-muted fw-normal small">Você deve selecionar um arquivo com extensão <span class="fw-semibold">.csv</span></small>
                     </div>
                 </div>
+                <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
                 <div class="modal-footer fw-semibold px-4">
                     <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Importar</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="export" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Exportar produtos
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="py-3">
+                    <p class="fs-5 fw-semibold">Exportar todos os produtos</p>
+                </div>
+            </div>
+            <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/export.php?id=<?php echo $id; ?>" class="btn btn-success fw-semibold px-4 py-2 small d-flex align-items-center">
+                    Baixar planilha
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -99,7 +124,7 @@
         <p class="products-counter"><?php echo $countProduct; echo ($countProduct == 0 || $countProduct == 1) ? ' produto' : ' produtos'; ?></p>
     </div>
     <div class="header__actions">
-        <label for="upload-button" class="export text-black text-decoration-none" data-bs-toggle="modal" data-bs-target="#import" style="cursor: pointer;">
+        <label for="import-button" class="import text-black text-decoration-none d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#import" style="cursor: pointer;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m12 18 4-5h-3V2h-2v11H8z"></path><path d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z"></path></svg>
             Importar
         </label>
@@ -129,6 +154,10 @@
                         <button type="submit" class="btn btn-danger delete">
                             Executar Ação
                         </button>
+                        <label for="export-button" class="export text-black text-decoration-none" data-bs-toggle="modal" data-bs-target="#export" style="cursor: pointer;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m12 18 4-5h-3V2h-2v11H8z"></path><path d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z"></path></svg>
+                            Exportar
+                        </label>
                     </div>
                 </div>
                 <table>
@@ -295,9 +324,4 @@
             }
         });
     });
-</script>
-
-<!-- Aterar o <title> da pagina -->
-<script>
-    document.title = "Produtos | Dropidigital";
 </script>

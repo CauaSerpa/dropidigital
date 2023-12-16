@@ -1472,7 +1472,7 @@ select {
     display: flex;
     align-items: center;
 }
-.page__header .header__actions .export
+.page__header .header__actions .import
 {
     display: flex;
     align-items: center;

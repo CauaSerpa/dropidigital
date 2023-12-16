@@ -325,7 +325,7 @@ if(!empty($id)){
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
-                        <label for="activeProduct" class="form-label small">Categoria ativa?</label>
+                        <label for="activeProduct" class="form-label small">Produto ativo?</label>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" <?php echo ($product['status'] == 1) ? "checked" : ""; ?>>
                             <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($product['status'] == 1) ? "Sim" : "Não"; ?></label>
