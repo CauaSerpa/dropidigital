@@ -510,17 +510,17 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">Redes Sociais</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('solucoes'); ?>">
+            <li class="<?php activeSidebarLink('servicos'); ?>">
                 <div class="iocn-link">
                     <p>
-                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>solucoes">
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">
                             <i class='bx bx-bulb' ></i>
                         </a>
-                        <span class="link_name">Soluções</span>
+                        <span class="link_name">Serviços</span>
                     </p>
                 </div>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>solucoes">Soluções</a></li>
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Serviços</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
