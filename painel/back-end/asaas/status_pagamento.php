@@ -29,7 +29,7 @@
     // print_r($payments);
 
     foreach ($payments['data'] as $payment) {
-        $subscription = $payment['subscription'];
+        @$subscription = $payment['subscription'];
         $status = $payment['status'];
     
         // Verificar se o pagamento foi concluído

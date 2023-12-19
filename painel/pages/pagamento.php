@@ -161,7 +161,7 @@
             success: function(response) {
                 if (response.status == 'pago') {
                     // Se o pagamento foi aprovado, redirecione para a página desejada
-                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>historico-de-faturas';
+                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?s=<?php echo $subscription_id; ?>';
                 } else {
                     // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
                     console.log('O pagamento ainda não foi aprovado.');
@@ -173,6 +173,6 @@
         });
     }
 
-    // Executar a função de consulta a cada 3 segundos
+    // Executar a função de consulta a cada 10 segundos
     setInterval(realizarConsulta, 10000);
 </script>

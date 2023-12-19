@@ -616,8 +616,8 @@
         }
     ?>
     
-    <main class="main container grid <?php echo ($url == "login" || $url == 'dois-fatores' || $url == 'assinar' || $url == 'criar-loja' || $url == "404") ? 'box' : ''; ?>">
-        
+    <main class="main <?php echo ($url == "login" || $url == 'dois-fatores' || $url == 'assinar' || $url == 'criar-loja' || $url == "404") ? 'box' : ''; ?>">
+        <div class="container grid">
 
         <div class="offcanvas offcanvas-start offcanvas-filter" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
             <div class="offcanvas-header">
@@ -690,6 +690,8 @@
                 header('Location: '.INCLUDE_PATH_DASHBOARD.'404');
             }
         ?>
+
+        </div>
     </main>
 
     
