@@ -382,9 +382,7 @@ if ($id > 0) {
                     </div>
 
                     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
-                    <input type="hidden" name="plan_id" value="<?php echo $id; ?>">
-
-                    <input type="hidden" name="id_plan" value="<?php echo ($billing_interval == 'monthly') ? $mpago_id_monthly : $mpago_id_yearly; ?>">
+                    <input type="hidden" name="plan_id" value="<?php echo ($billing_interval == 'monthly') ? $monthly_id : $yearly_id; ?>">
 
                     <!-- Aqui está o seu botão. Eu adicionei um ID para poder referenciá-lo no script JavaScript -->
                     <button type="submit" class="btn btn-success fw-semibold w-100 px-4 py-2 small mb-3" id="submitButton">
@@ -630,6 +628,8 @@ if ($id > 0) {
                     $('input[name="id_plan"]').val('<?php echo $mpago_id_yearly; ?>');
 
                     $('input[name="value"]').val('<?php echo $yearly_price; ?>');
+
+                    $('input[name="plan_id"]').val('<?php echo $yearly_id; ?>');
                 } else if ($(this).val() === "mensal") {
                     $('#installmentContainer').addClass('d-none');
                     $('#creditCartTextType').text('mensal');
@@ -637,6 +637,8 @@ if ($id > 0) {
                     $('input[name="id_plan"]').val('<?php echo $mpago_id_monthly; ?>');
 
                     $('input[name="value"]').val('<?php echo $monthly_price; ?>');
+
+                    $('input[name="plan_id"]').val('<?php echo $monthly_id; ?>');
                 }
             });
         });

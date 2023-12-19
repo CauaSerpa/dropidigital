@@ -75,6 +75,53 @@
         // ID não encontrado ou não existente
         echo "ID não encontrado.";
     }
+
+    // Nome da tabela para a busca
+    $tabela = 'tb_plans_interval';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT plan_id FROM $tabela WHERE id = :id";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindParam(':id', $plan_id);
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($plan['plan_id'] == 1)
+    {
+        $limitProducts = 10;
+    }
+    else if ($plan['plan_id'] == 2)
+    {
+        $limitProducts = 50;
+    }
+    else if ($plan['plan_id'] == 3)
+    {
+        $limitProducts = 250;
+    }
+    else if ($plan['plan_id'] == 4)
+    {
+        $limitProducts = 750;
+    }
+    else
+    {
+        $limitProducts = "ilimitado";
+    }
+
+    // Nome da tabela para a busca
+    $tabela = 'tb_plans';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT name FROM $tabela WHERE id = :id";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindParam(':id', $plan['plan_id']);
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $plan_name = $plan['name'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">

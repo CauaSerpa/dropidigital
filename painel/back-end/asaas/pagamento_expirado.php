@@ -27,7 +27,7 @@
     // Nome da tabela para a busca
     $tabela = 'tb_subscriptions';
 
-    $sql = "SELECT * FROM $tabela WHERE status = :status AND shop_id = :shop_id AND subscription_id != :current_subscription ORDER BY id ASC LIMIT 1";
+    $sql = "SELECT * FROM $tabela WHERE status = :status AND shop_id = :shop_id AND subscription_id != :current_subscription ORDER BY id DESC LIMIT 1";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);

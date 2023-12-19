@@ -2,6 +2,16 @@
 //Apagar Card
 $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
+// Consulta SQL para contar os produtos na tabela
+$sql = "SELECT COUNT(*) AS total_produtos FROM tb_products";
+$stmt = $conn_pdo->query($sql);
+
+// Recupere o resultado da consulta
+$resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// O resultado contém o total de produtos na chave 'total_produtos'
+$totalProdutos = $resultado['total_produtos'];
+
 if(!empty($id)){
     // Tabela que sera feita a consulta
     $tabela = "tb_products";
@@ -322,13 +332,25 @@ if(!empty($id)){
                 <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require value="<?php echo $product['name']; ?>">
                 <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/produto/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
+            <?php
+                if ($product['status'] == 1)
+                {
+                    $statusActive = "checked";
+                }
+                else if($limitProducts <= $totalProdutos)
+                {
+                    $statusActive = "disabled";
+                } else {
+                    $statusActive = "checked";
+                }
+            ?>
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
                         <label for="activeProduct" class="form-label small">Produto ativo?</label>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" <?php echo ($product['status'] == 1) ? "checked" : ""; ?>>
-                            <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($product['status'] == 1) ? "Sim" : "Não"; ?></label>
+                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" <?php echo $statusActive; ?>>
+                            <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($statusActive == "disabled") ? "Não" : "Sim"; ?></label>
                         </div>
                     </div>
                     <div id="containerEmphasis">

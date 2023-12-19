@@ -173,43 +173,6 @@
         fill: var(--color-primary) !important;
     }
 
-    /* .card .pulse {
-        position: absolute;
-        height: 14px;
-        width: 14px;
-        background: var(--color-primary);
-        top: 52px;
-        right: 40px;
-        border-radius: 50%;
-    }
-
-    .card .pulse::after {
-        content: "";
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        border: 1px solid var(--color-primary);
-        border-radius: 50%;
-        left: -1px;
-        top: -1px;
-        animation: pulse 2s linear infinite;
-        transform-origin: center;
-        opacity: 0.8;
-        scale: 0;
-    }
-
-    @keyframes pulse {
-        70% {
-            scale: 0;
-            opacity: 0.8;
-        }
-
-        100% {
-            scale: 2;
-            opacity: 0;
-        }
-    } */
-
     .card .chart-area {
         position: relative;
     }
@@ -283,8 +246,10 @@
     $tabela = 'tb_products';
 
     // Consulta SQL para contar os produtos na tabela
-    $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela";
-    $stmt = $conn_pdo->query($sql);
+    $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela WHERE shop_id = :shop_id";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->execute();
 
     // Recupere o resultado da consulta
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -292,15 +257,22 @@
     // O resultado contém o total de produtos na chave 'total_produtos'
     $totalProdutos = $resultado['total_produtos'];
 
-    if ($totalProdutos > 8) {
-        $circleColor = "rgb(229, 15, 56)"; // Codigo rgb para cor vermelha
-    } elseif ($totalProdutos > 6 ) {
-        $circleColor = "rgb(251, 188, 5)"; // Codigo rgb para cor amarela
+    // Calcule a porcentagem
+    if ($limitProducts === "ilimitado") {
+        $porcentagemProdutos = 0; // Se for ilimitado, a porcentagem é 0
     } else {
-        $circleColor = "rgb(1, 200, 155)"; // Codigo rgb para cor verde
+        $porcentagemProdutos = ($totalProdutos / $limitProducts) * 100;
+        $porcentagemProdutos = min($porcentagemProdutos, 100); // Garanta que a porcentagem não ultrapasse 100%
     }
 
-    $porcentagemProdutos = $totalProdutos * 10;
+    // Cores com base na porcentagem
+    if ($porcentagemProdutos > 80) {
+        $circleColor = "rgb(229, 15, 56)"; // Vermelho
+    } elseif ($porcentagemProdutos > 60) {
+        $circleColor = "rgb(251, 188, 5)"; // Amarelo
+    } else {
+        $circleColor = "rgb(1, 200, 155)"; // Verde
+    }
 ?>
     <style>
     .skill {
@@ -332,14 +304,26 @@
         stroke-width: 20px;
         stroke-dasharray: 240;
         stroke-dashoffset: 240;
-        animation: anim 2s linear forwards;
         transform: translateY(100%) rotate(270deg);
-        animation: anim 2s linear forwards;
     }
 
-    @keyframes anim {
+    .skill svg circle#counterProducts {
+        animation: animProducts 2s linear forwards;
+    }
+
+    .skill svg circle#counterDays {
+        animation: animDays 2s linear forwards;
+    }
+
+    @keyframes animProducts {
         100% {
-            stroke-dashoffset: calc(240 - (2.4 * var(--counter))); /* A fórmula calcula o valor de dashoffset com base em --counter */;
+            stroke-dashoffset: calc(240 - (2.4 * var(--counterProducts))); /* A fórmula calcula o valor de dashoffset com base em --counterProducts */;
+        }
+    }
+
+    @keyframes animDays {
+        100% {
+            stroke-dashoffset: calc(240 - (2.4 * var(--counterDays))); /* A fórmula calcula o valor de dashoffset com base em --counterDays */;
         }
     }
 
@@ -366,29 +350,36 @@
             </div>
             <div class="plan__metrics">
                 <div class="chart-js">
-<div class="skill">
-    <div class="outer">
-        <div class="inner">
-        </div>
-    </div>
+                    <div class="skill">
+                        <div class="outer">
+                            <div class="inner">
+                            </div>
+                        </div>
 
-    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="96px" height="96px">
-        <defs>
-            <linearGradient id="GradientColor">
-                <stop offset="0%" stop-color="#DA22FF" />
-                <stop offset="100%" stop-color="#9733EE" />
-            </linearGradient>
-        </defs>
-        <circle cx="48" cy="48" r="38" stroke-linecap="round"></circle>
-    </svg>
-</div>
+                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="96px" height="96px">
+                            <defs>
+                                <linearGradient id="GradientColor">
+                                    <stop offset="0%" stop-color="#DA22FF" />
+                                    <stop offset="100%" stop-color="#9733EE" />
+                                </linearGradient>
+                            </defs>
+                            <circle id="counterProducts" cx="48" cy="48" r="38" stroke-linecap="round"></circle>
+                        </svg>
+                    </div>
                 </div>
                 <div class="text line-height align-self-end">
                     <div class="d-flex align-items-baseline mb-3">
                         <h1 class="fw-semibold mb-0 mx-2"><?php echo $totalProdutos; ?></h1>
-                        <p class="fs-5">de 10</p>
+                        <p class="fs-5">de <?php echo $limitProducts; ?></p>
                     </div>
-                    <span class="warning">Sua loja consumiu <?php echo $porcentagemProdutos; ?>% do limite.</span>
+                    <?php
+                        if ($limitProducts == "ilimitado")
+                        {
+                            echo '<span class="warning">Sua loja não possui limite de produtos</span>';
+                        } else {
+                            echo '<span class="warning">Sua loja consumiu ' . $porcentagemProdutos . '% do limite.</span>';
+                        }
+                    ?>
                 </div>
             </div>
         </div>
@@ -398,18 +389,18 @@
     <script>
         // Valor inserido pelo php
         let valor = <?php echo $totalProdutos; ?>;
+        let valorInserido = <?php echo $porcentagemProdutos; ?>; // Porcentagem desejada
 
-        let valorInserido = valor * 10; // Porcentagem desejada
         let duracaoPadrao = 2000; // Duração da animação em milissegundos
 
         // Calcule o intervalo com base na valorInserido (quanto menor a valorInserido, maior o intervalo)
         let intervalo = (duracaoPadrao * valorInserido) / 100;
 
-        // Função para atualizar a porcentagem e ajustar a variável --counter
+        // Função para atualizar a porcentagem e ajustar a variável --counterProducts
         function updatePercentage(newPercentage) {
             if (newPercentage >= 0 && newPercentage <= 100) {
                 counter = newPercentage;
-                document.documentElement.style.setProperty('--counter', counter); // Atualiza a variável CSS
+                document.documentElement.style.setProperty('--counterProducts', counter); // Atualiza a variável CSS
                 number.innerHTML = `${counter}%`;
             }
         }
@@ -429,6 +420,43 @@
 
 
 
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_subscriptions';
+
+    $sql = "SELECT * FROM $tabela WHERE status = :status OR status = :status1 AND shop_id = :shop_id ORDER BY id DESC LIMIT 1";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindValue(':status', 'ACTIVE');
+    $stmt->bindValue(':status1', 'RECEIVED');
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $subs = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Data final do plano (substitua isso pela sua data)
+    $dataFinalDoPlano = $subs['due_date'];
+
+    // Obtém o timestamp da data final do plano
+    $timestampDataFinal = strtotime($dataFinalDoPlano);
+
+    // Obtém o timestamp da data atual
+    $timestampDataAtual = time();
+
+    // Calcula a diferença em segundos
+    $diferencaEmSegundos = $timestampDataFinal - $timestampDataAtual;
+
+    // Calcula a diferença em dias
+    $diferencaEmDias = floor($diferencaEmSegundos / (60 * 60 * 24));
+
+    // Defina o número total de dias
+    $diasTotais = 30;
+
+    // Calcula a porcentagem de dias restantes
+    $percentDays = ($diferencaEmDias / $diasTotais) * 100;
+?>
 
 
 
@@ -442,17 +470,59 @@
             </div>
             <div class="plan__metrics">
                 <div class="chart-js">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 80 80" fill="none"><path d="M11.7157 68.2843C16.3671 72.9356 22.0938 76.3681 28.3886 78.2776C34.6834 80.1871 41.352 80.5147 47.8036 79.2314C54.2553 77.9481 60.2908 75.0935 65.3757 70.9204C70.4606 66.7474 74.4379 61.3847 76.9552 55.3073C79.4725 49.23 80.4521 42.6257 79.8074 36.0793C79.1626 29.533 76.9133 23.2466 73.2588 17.7772C69.6042 12.3078 64.6572 7.82402 58.8559 4.72315C53.0546 1.62228 46.578 4.96628e-07 40 0L40 40L11.7157 68.2843Z" fill="#01C89B"/><rect x="17.1429" y="17.1429" width="45.7143" height="45.7143" rx="22.8571" fill="white"/><rect x="9.28564" y="53.8571" width="17.1429" height="17.1429" rx="8.57143" fill="#01C89B"/><rect x="31" width="17.1429" height="17.1429" rx="8.57143" fill="#01C89B"/></svg>
+                    <div class="skill">
+                        <div class="outer">
+                            <div class="inner">
+                            </div>
+                        </div>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="96px" height="96px">
+                            <defs>
+                                <linearGradient id="GradientColor">
+                                    <stop offset="0%" stop-color="#DA22FF" />
+                                    <stop offset="100%" stop-color="#9733EE" />
+                                </linearGradient>
+                            </defs>
+                            <circle id="counterDays" cx="48" cy="48" r="38" stroke-linecap="round"></circle>
+                        </svg>
+                    </div>
                 </div>
                 <div class="text line-height">
-                    <h4 class="fw-semibold mb-0">19 dias</h4>
+                    <h4 class="fw-semibold mb-0"><?php echo $diferencaEmDias; ?> dias</h4>
                     <p class="fs-6">para finalizar o ciclo</p>
-                    <span class="warning">Seu plano Grátis será renovado automaticamente.</span>
+                    <span class="warning">Seu plano <?php echo $plan_name; ?> será renovado automaticamente.</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Valor inserido pelo php
+    let valor1 = <?php echo $percentDays; ?>;
+
+    let duracaoPadrao1 = 2000; // Duração da animação em milissegundos
+
+    // Calcule o intervalo com base na valorInserido (quanto menor a valorInserido, maior o intervalo)
+    let intervalo1 = (duracaoPadrao1 * valor1) / 100;
+
+    // Função para atualizar a porcentagem e ajustar a variável --counterDays
+    function updatePercentage1(newPercentage1) {
+        if (newPercentage1 >= 0 && newPercentage1 <= 100) {
+            counter = newPercentage1;
+            document.documentElement.style.setProperty('--counterDays', counter); // Atualiza a variável CSS
+            number.innerHTML = `${counter}%`;
+
+            console.log(counter + "%");
+        }
+    }
+
+    // Simule uma mudança na porcentagem, por exemplo, para valorInserido%
+    setTimeout(() => {
+        updatePercentage1(valor1);
+    }, intervalo1);
+</script>
+
 <div class="card__container row g-3">
     <div class="card__box shop__info col-sm-8 grid">
         <div class="card grid">

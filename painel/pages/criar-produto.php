@@ -1,3 +1,14 @@
+<?php
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT COUNT(*) AS total_produtos FROM tb_products";
+    $stmt = $conn_pdo->query($sql);
+
+    // Recupere o resultado da consulta
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // O resultado contém o total de produtos na chave 'total_produtos'
+    $totalProdutos = $resultado['total_produtos'];
+?>
 <!-- Codigo da Imagem dos produtos -->
 <style>
     label.image-container {
@@ -298,10 +309,13 @@
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
-                        <label for="activeProduct" class="form-label small">Produto ativo?</label>
+                        <label for="activeProduct" class="form-label small">
+                            Produto ativo?
+                            <i class="bx bx-help-circle <?php echo ($limitProducts <= $totalProdutos) ? "" : "d-none"; ?>" data-toggle="tooltip" data-placement="top" aria-label="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!" data-bs-original-title="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!"></i>
+                        </label>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" checked>
-                            <label class="form-check-label" id="activeCheckbox" for="activeProduct">Sim</label>
+                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" <?php echo ($limitProducts <= $totalProdutos) ? "value='1' disabled" : "value='1' checked"; ?>>
+                            <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($limitProducts <= $totalProdutos) ? "Não" : "Sim"; ?></label>
                         </div>
                     </div>
                     <div id="containerEmphasis">

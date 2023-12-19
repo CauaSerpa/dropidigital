@@ -46,9 +46,14 @@
     /* Botao */
     .btn
     {
+        background: var(--green-color);
         font-size: .875rem;
         border: none;
         padding: .75rem 1.5rem;
+    }
+    .btn:hover
+    {
+        background: var(--dark-green-color);
     }
 </style>
 

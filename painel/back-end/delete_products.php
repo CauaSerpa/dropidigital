@@ -13,6 +13,15 @@
             $stmt->bindParam(':usuario_id', $selectedId);
             $stmt->execute();
 
+            // Consulta para excluir o produto do banco de dados
+            $query = "DELETE FROM tb_products WHERE id = :id";
+            $stmt = $conn_pdo->prepare($query);
+            $stmt->bindParam(':id', $selectedId);
+            $stmt->execute();
+
+            $_SESSION['msg'] = "<p class='green'>Produtos deletados com sucesso!</p>";
+            header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
+
             if ($stmt->rowCount() > 0) {
                 // Obtenha o ID do usuário
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -26,12 +35,6 @@
                 $stmt->bindParam(':usuario_id', $selectedId);
                 $stmt->execute();
 
-                // Consulta para excluir o produto do banco de dados
-                $query = "DELETE FROM tb_products WHERE id = :id";
-                $stmt = $conn_pdo->prepare($query);
-                $stmt->bindParam(':id', $id);
-                $stmt->execute();
-
                 // Agora, exclua as imagens no diretório
                 $files = glob($diretorio . "*");
                 foreach ($files as $file) {
@@ -40,14 +43,10 @@
 
                 // Exclua o diretório do usuário
                 rmdir($diretorio);
-
-                $_SESSION['msg'] = "<p class='green'>Produtos deletados com sucesso!</p>";
-                header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
-                exit;
-            } else {
-                $_SESSION['msg'] = "<p class='red'>Nenhum produto encontrado para exclusão.</p>";
-                header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
-                exit;
             }
         }
+    } else {
+        $_SESSION['msg'] = "<p class='red'>Nenhum produto encontrado para exclusão.</p>";
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
+        exit;
     }

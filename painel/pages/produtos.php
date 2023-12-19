@@ -134,7 +134,7 @@
     </div>
 </div>
 
-<form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/delete_tables.php" method="post" class="table__actions">
+<form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/delete_products.php" method="post" class="table__actions">
     <div class="card__container grid one tabPanel" style="display: grid;">
         <div class="card__box grid">
             <div class="card table">

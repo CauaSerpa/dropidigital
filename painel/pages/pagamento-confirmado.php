@@ -24,13 +24,13 @@
 
         // Verificação se a consulta retornou algum resultado
         if ($sub) {
-            // if ($sub['status'] == "OVERDUE" || $sub['status'] == "INACTIVE")
-            // {
-            //     $_SESSION['msgcad'] = "<p class='red'>A cobrança já foi fechada!</p>";
-            //     // Redireciona para a página de login ou exibe uma mensagem de sucesso
-            //     header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
-            //     exit;
-            // }
+            if ($sub['status'] == "OVERDUE" || $sub['status'] == "INACTIVE")
+            {
+                $_SESSION['msgcad'] = "<p class='red'>A cobrança já foi fechada!</p>";
+                // Redireciona para a página de login ou exibe uma mensagem de sucesso
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
+                exit;
+            }
 
             if ($sub['cycle'] == "MONTHLY")
             {

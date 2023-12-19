@@ -47,6 +47,12 @@
         border-top: 1px solid var(--border-color);
     }
 
+    /* Link */
+    a.link
+    {
+        text-decoration: none;
+    }
+
     /* Bullet */
     .bullet
     {
@@ -56,15 +62,15 @@
     }
     .bullet.success
     {
-        background: green;
+        background: rgb(1, 200, 155);
     }
     .bullet.warning
     {
-        background: orange;
+        background: rgb(251, 188, 5);
     }
     .bullet.danger
     {
-        background: red;
+        background: rgb(229, 15, 56);
     }
 </style>
 
@@ -98,6 +104,7 @@
                             <th class="small">Vencimento</th>
                             <th class="small">Valor</th>
                             <th class="small">Status</th>
+                            <th class="small">Eventos</th>
                         </tr>
                     </thead>
                     <?php
@@ -143,12 +150,15 @@
                         echo '
                             <tbody>
                                 <tr>
-                                    <td>
-                                        ' . $usuario['id'] . '
-                                    </td>
+                                    <td>' . $usuario['id'] . '</td>
                                     <td>' . $due_date . '</td>
                                     <td>' . $value . '</td>
                                     <td><div class="d-flex align-items-center">' . $bullet . $status . '</div></td>
+                                    <td>
+                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'fatura?id=' . $usuario['id'] . '" class="btn btn-secondary">
+                                            <i class="bx bx-show"></i>
+                                        </a>
+                                    </td>
                                 </tr>
                             </tbody>
                         ';
