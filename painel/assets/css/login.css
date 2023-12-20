@@ -576,6 +576,11 @@ input[type=radio]
 {
     border: 1px solid var(--red-color);
 }
+.box .form span.success-message
+{
+    font-size: var(--smaller-font-size);
+    color: var(--green-color);
+}
 .box .form span.error-message
 {
     font-size: var(--smaller-font-size);

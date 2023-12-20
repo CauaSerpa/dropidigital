@@ -1,9 +1,9 @@
 <?php
     // Se ja estiver logado redirecionar para o painel
-    // if (isset($_SESSION['user_id'])) {
-    //     header("Location: " . INCLUDE_PATH_DASHBOARD);
-    //     exit();
-    // }
+    if (isset($_SESSION['user_id'])) {
+        header("Location: " . INCLUDE_PATH_DASHBOARD);
+        exit();
+    }
 ?>
 <div class="box__container login">
     <nav class="nav">
@@ -15,16 +15,20 @@
         <div class="container__title login">
             <h3 class="title">Bem vindo de volta!</h3>
         </div>
+        <p class="success-message">
+            <?php
+                if(isset($_SESSION['msgcad'])){
+                    echo $_SESSION['msgcad'];
+                    unset($_SESSION['msgcad']);
+                    echo "<br><br>";
+                }
+            ?>
+        </p>
         <p class="error-message">
             <?php
                 if(isset($_SESSION['msg'])){
                     echo $_SESSION['msg'];
                     unset($_SESSION['msg']);
-                    echo "<br><br>";
-                }
-                if(isset($_SESSION['msgcad'])){
-                    echo $_SESSION['msgcad'];
-                    unset($_SESSION['msgcad']);
                     echo "<br><br>";
                 }
             ?>

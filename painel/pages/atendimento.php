@@ -2,11 +2,11 @@
     // Nome da tabela para a busca
     $tabela = 'tb_shop';
 
-    $sql = "SELECT phone, whatsapp, email FROM $tabela WHERE user_id = :user_id";
+    $sql = "SELECT phone, whatsapp, email FROM $tabela WHERE id = :id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':user_id', $id);
+    $stmt->bindParam(':id', $id);
     $stmt->execute();
 
     // Obter o resultado como um array associativo

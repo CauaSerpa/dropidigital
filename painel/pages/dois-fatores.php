@@ -76,27 +76,27 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const codeDigits = document.querySelectorAll('.code-digit');
+        const codeDigits = document.querySelectorAll('.code-digit');
 
-    codeDigits.forEach((digitInput, index) => {
-        digitInput.addEventListener('input', function() {
-            if (this.value.length >= 1) {
-                if (index < codeDigits.length - 1) {
-                    codeDigits[index + 1].focus();
-                } else {
-                    // Todos os dígitos foram inseridos
-                    const code = Array.from(codeDigits).map(input => input.value).join('');
-                    console.log('Código de autenticação:', code);
-                    // Aqui você pode adicionar a lógica de verificação do código
+        codeDigits.forEach((digitInput, index) => {
+            digitInput.addEventListener('input', function() {
+                if (this.value.length >= 1) {
+                    if (index < codeDigits.length - 1) {
+                        codeDigits[index + 1].focus();
+                    } else {
+                        // Todos os dígitos foram inseridos
+                        const code = Array.from(codeDigits).map(input => input.value).join('');
+                        console.log('Código de autenticação:', code);
+                        // Aqui você pode adicionar a lógica de verificação do código
+                    }
                 }
-            }
-        });
+            });
 
-        digitInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Backspace' && this.value.length === 0 && index > 0) {
-                codeDigits[index - 1].focus();
-            }
+            digitInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                    codeDigits[index - 1].focus();
+                }
+            });
         });
     });
-});
 </script>

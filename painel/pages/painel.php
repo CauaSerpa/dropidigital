@@ -12,8 +12,10 @@
 
     // Recupere os dados da tabela de visitas para o período desejado e armazene-os em um array PHP chamado $dadosPorDia
     // Consulta SQL para recuperar os dados da tabela de visitas no período desejado
-    $sql = "SELECT * FROM tb_visits WHERE data BETWEEN :dataUmMesAtras AND :dataAtual ORDER BY data ASC";
+    $sql = "SELECT * FROM tb_visits WHERE shop_id = :shop_id AND page = :page AND data BETWEEN :dataUmMesAtras AND :dataAtual ORDER BY data ASC";
     $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->bindValue(':page', 'shop');
     $stmt->bindParam(':dataUmMesAtras', $dataUmMesAtras);
     $stmt->bindParam(':dataAtual', $dataAtual);
     $stmt->execute();
@@ -82,8 +84,10 @@
     // Consulta SQL para o mês atual
     $sqlMesAtual = "SELECT SUM(contagem) AS visitas_mes_atual
                     FROM tb_visits
-                    WHERE data BETWEEN :primeiroDiaMesAtual AND :ultimoDiaMesAtual";
+                    WHERE shop_id = :shop_id AND page = :page AND data BETWEEN :primeiroDiaMesAtual AND :ultimoDiaMesAtual";
     $stmtMesAtual = $conn_pdo->prepare($sqlMesAtual);
+    $stmtMesAtual->bindParam(':shop_id', $id);
+    $stmtMesAtual->bindValue(':page', 'shop');
     $stmtMesAtual->bindParam(':primeiroDiaMesAtual', $primeiroDiaDoMesAtual);
     $stmtMesAtual->bindParam(':ultimoDiaMesAtual', $ultimoDiaDoMesAtual);
     $stmtMesAtual->execute();
@@ -93,16 +97,23 @@
     // Consulta SQL para o mês anterior
     $sqlMesAnterior = "SELECT SUM(contagem) AS visitas_mes_anterior
                     FROM tb_visits
-                    WHERE data BETWEEN :primeiroDiaMesAnterior AND :ultimoDiaMesAnterior";
+                    WHERE shop_id = :shop_id AND page = :page AND data BETWEEN :primeiroDiaMesAnterior AND :ultimoDiaMesAnterior";
     $stmtMesAnterior = $conn_pdo->prepare($sqlMesAnterior);
+    $stmtMesAnterior->bindParam(':shop_id', $id);
+    $stmtMesAnterior->bindValue(':page', 'shop');
     $stmtMesAnterior->bindParam(':primeiroDiaMesAnterior', $primeiroDiaDoMesAnterior);
     $stmtMesAnterior->bindParam(':ultimoDiaMesAnterior', $ultimoDiaDoMesAnterior);
     $stmtMesAnterior->execute();
     $resultadoMesAnterior = $stmtMesAnterior->fetch(PDO::FETCH_ASSOC);
     $visitasMesAnterior = $resultadoMesAnterior['visitas_mes_anterior'];
 
+    $diferenca_em_porcentagem = 0;
+
     // Calcular a diferença em porcentagem
-    $diferenca_em_porcentagem = (($visitasMesAtual - $visitasMesAnterior) / $visitasMesAnterior) * 100;
+    // Verifica se $visitasMesAnterior é diferente de zero para evitar divisão por zero
+    if ($visitasMesAnterior != 0) {
+        $diferenca_em_porcentagem = (($visitasMesAtual - $visitasMesAnterior) / $visitasMesAnterior) * 100;
+    }
 
     if ($diferenca_em_porcentagem > 0) {
         // Arredonda a porcentagem
@@ -127,15 +138,17 @@
 
 <?php
     // Defina o mês e ano desejados
-    $mes = date("m"); // Agosto
-    $ano = date("Y");
+    $mes = (int)date("m"); // Converte para inteiro
+    $ano = (int)date("Y"); // Converte para inteiro
 
     // Consulta SQL para recuperar as contagens de visitas por dia
     $sql = "SELECT DAY(data) AS dia, SUM(contagem) AS total_visitas
             FROM tb_visits
-            WHERE MONTH(data) = :mes AND YEAR(data) = :ano
+            WHERE shop_id = :shop_id AND page = :page AND MONTH(data) = :mes AND YEAR(data) = :ano
             GROUP BY dia";
     $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->bindValue(':page', 'shop');
     $stmt->bindParam(':mes', $mes);
     $stmt->bindParam(':ano', $ano);
     $stmt->execute();

@@ -64,6 +64,15 @@
         }
 
         $razao_social = $_POST['razao_social'];
+
+        $cep = $_POST['cep'];
+        $endereco = $_POST['endereco'];
+        $numero = $_POST['numero'];
+        $complemento = $_POST['complemento'];
+        $bairro = $_POST['bairro'];
+        $cidade = $_POST['cidade'];
+        $estado = $_POST['estado'];
+
         $phone = $_POST['phone'];
 
         // Faça a validação dos campos, evitando SQL injection e outros ataques
@@ -84,6 +93,23 @@
 
         // Recebendo id da loja
         $shop_id = $conn_pdo->lastInsertId();
+
+        //Tabela que será solicitada
+        $tabela = 'tb_address';
+
+        // Inserindo informações da fatura no banco de dados
+        $sql = "INSERT INTO $tabela (shop_id, cep, endereco, numero, complemento, bairro, cidade, estado) VALUES 
+                                    (:shop_id, :cep, :endereco, :numero, :complemento, :bairro, :cidade, :estado)";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindValue(':shop_id', $shop_id);
+        $stmt->bindValue(':cep', $cep);
+        $stmt->bindValue(':endereco', $endereco);
+        $stmt->bindValue(':numero', $numero);
+        $stmt->bindValue(':complemento', $complemento);
+        $stmt->bindValue(':bairro', $bairro);
+        $stmt->bindValue(':cidade', $cidade);
+        $stmt->bindValue(':estado', $estado);
+        $stmt->execute();
 
         //Tabela que será solicitada
         $tabela = 'tb_invoice_info';
@@ -125,26 +151,32 @@
         $tabela = 'tb_subscriptions';
         
         // Passando valores
-        $subscription_id = 1;
+        $plan_id = 1;
         $value = 0;
-        $status = "RECIVED";
+        $status = "RECEIVED";
         $cycle = "MONTHLY";
         
-        // Obtém a data atual e adiciona um mês
-        $start_date = new DateTime();
-        $date_clone = clone $start_date;
-        $due_date = $date_clone->add(new DateInterval('P1M'));
+        // Obtém a data atual
+        $today = new DateTime();
+
+        // Adiciona um mês à data atual para obter a data de vencimento
+        $due_date = clone $today;
+        $due_date->add(new DateInterval('P1M'));
+
+        // Formata as datas conforme necessário
+        $start_date_formatted = $today->format('Y-m-d H:i:s');
+        $due_date_formatted = $due_date->format('Y-m-d H:i:s');
 
         // Criado plano para o cliente no banco de dados
-        $sql = "INSERT INTO $tabela (shop_id, subscription_id, value, status, start_date, due_date, cycle) VALUES 
-                                    (:shop_id, :subscription_id, :value, :status, :start_date, :due_date, :cycle)";
+        $sql = "INSERT INTO $tabela (shop_id, plan_id, value, status, start_date, due_date, cycle) VALUES 
+                                    (:shop_id, :plan_id, :value, :status, :start_date, :due_date, :cycle)";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':shop_id', $shop_id);
-        $stmt->bindValue(':subscription_id', $subscription_id);
+        $stmt->bindValue(':plan_id', $plan_id);
         $stmt->bindValue(':value', $value);
         $stmt->bindValue(':status', $status);
-        $stmt->bindParam(':start_date', $start_date);
-        $stmt->bindParam(':due_date', $due_date);
+        $stmt->bindParam(':start_date', $start_date_formatted);
+        $stmt->bindParam(':due_date', $due_date_formatted);
         $stmt->bindValue(':cycle', $cycle);
         $stmt->execute();
 

@@ -14,11 +14,20 @@
     ob_start();
     include('../config.php');
 
+    if ($url !== "login" && $url !== "assinar" && $url !== "criar-loja" && $url !== "dois-fatores" && $url !== "404") {
+        // Verifica se esta logado
+        if (!isset($_SESSION['user_id'])) {
+            $_SESSION['msg'] = "Por favor faça login para acessar essa página!";
+            header('Location: ' . INCLUDE_PATH_DASHBOARD . 'login');
+            exit();
+        }
+    }
+
     // Tabela que sera feita a consulta
     $tabela = "tb_users";
 
     // ID que você deseja pesquisar
-    $id = 1;
+    $id = @$_SESSION['user_id'];
 
     // Consulta SQL
     $sql = "SELECT name, email FROM $tabela WHERE id = :id";
@@ -40,9 +49,6 @@
         // Atribuir o valor da coluna "name" à variável $name
         $name = $resultado['name'];
         $email = $resultado['email'];
-    } else {
-        // ID não encontrado ou não existente
-        echo "ID não encontrado.";
     }
 
     // Pesquisar Loja
@@ -51,7 +57,7 @@
     $tabela = "tb_shop";
 
     // Consulta SQL
-    $sql = "SELECT plan_id, name, url FROM $tabela WHERE user_id = :id";
+    $sql = "SELECT id, plan_id, name, url FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -68,12 +74,10 @@
     // Verificar se o resultado foi encontrado
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
+        $id = $resultado['id'];
         $plan_id = $resultado['plan_id'];
         $loja = $resultado['name'];
         $link = $resultado['url'];
-    } else {
-        // ID não encontrado ou não existente
-        echo "ID não encontrado.";
     }
 
     // Nome da tabela para a busca
@@ -88,19 +92,19 @@
     // Recupere o resultado da consulta
     $plan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($plan['plan_id'] == 1)
+    if (@$plan['plan_id'] == 1)
     {
         $limitProducts = 10;
     }
-    else if ($plan['plan_id'] == 2)
+    else if (@$plan['plan_id'] == 2)
     {
         $limitProducts = 50;
     }
-    else if ($plan['plan_id'] == 3)
+    else if (@$plan['plan_id'] == 3)
     {
         $limitProducts = 250;
     }
-    else if ($plan['plan_id'] == 4)
+    else if (@$plan['plan_id'] == 4)
     {
         $limitProducts = 750;
     }
@@ -121,7 +125,7 @@
     // Recupere o resultado da consulta
     $plan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $plan_name = $plan['name'];
+    $plan_name = @$plan['name'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -352,17 +356,17 @@
                             <h5 class="fs-5 mb-1">Minha Conta</h5>
                             <ul class="mb-0">
                                 <li class="small">
-                                    <a href="#">
+                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">
                                         Editar Conta
                                     </a>
                                 </li>
                                 <li class="small">
-                                    <a href="#">
+                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-loja">
                                         Criar Loja
                                     </a>
                                 </li>
                                 <li class="small">
-                                    <a href="#">
+                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sair">
                                         Sair
                                     </a>
                                 </li>
@@ -645,14 +649,14 @@
                 <li>
                     <div class="iocn-link">
                         <p>
-                            <a href="#">
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sair">
                                 <i class='bx bx-log-out' ></i>
                             </a>
                             <span class="link_name">Sair</span>
                         </p>
                     </div>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Sair</a></li>
+                        <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sair">Sair</a></li>
                     </ul>
                 </li>
 			</div>

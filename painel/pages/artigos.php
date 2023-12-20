@@ -68,11 +68,6 @@
         <p class="products-counter"><?php echo $countArticles; echo ($countArticles == 0 || $countArticles == 1) ? ' artigo' : ' artigos'; ?></p>
     </div>
     <div class="header__actions">
-        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="export text-black text-decoration-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m12 18 4-5h-3V2h-2v11H8z"></path><path d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z"></path></svg>
-            Importar
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z"></path></svg>
-        </a>
         <div class="container__button">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="button button--flex new text-decoration-none">+ Criar Artigo</a>
         </div>

@@ -1,4 +1,21 @@
 <?php
+    // Caso prefira o .env apenas descomente o codigo e comente o "include('parameters.php');" acima
+	// Carrega as variáveis de ambiente do arquivo .env
+
+    // Caminho para o diretório pai
+    $parentDir = dirname(dirname(__DIR__));
+
+	require $parentDir . '/vendor/autoload.php';
+	$dotenv = Dotenv\Dotenv::createImmutable($parentDir);
+	$dotenv->load();
+
+    // Informacoes para PHPMailer
+	$smtp_host = $_ENV['SMTP_HOST'];
+	$smtp_username = $_ENV['SMTP_USERNAME'];
+	$smtp_password = $_ENV['SMTP_PASSWORD'];
+	$smtp_secure = $_ENV['SMTP_SECURE'];
+	$smtp_port = $_ENV['SMTP_PORT'];
+
     session_start();
     ob_start();
     include_once('../../config.php');
@@ -24,7 +41,6 @@
 
         // Faça a validação dos campos, evitando SQL injection e outros ataques
         // Por exemplo, use a função filter_input() e hash para a senha:
-
 
         // Verifica se o usuário já existe
         $sql = "SELECT id FROM $tabela WHERE email = :email";
@@ -62,12 +78,12 @@
                 /*$mail->SMTPDebug = SMTP::DEBUG_SERVER;*/
                 $mail->CharSet = 'UTF-8';
                 $mail->isSMTP();
-                $mail->Host       = 'smtp.mailtrap.io';
+                $mail->Host       = $smtp_host;
                 $mail->SMTPAuth   = true;
-                $mail->Username   = '8b6afa6cf7c2eb';
-                $mail->Password   = '8a525ea217cae2';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port       = 2525;
+                $mail->Username   = $smtp_username;
+                $mail->Password   = $smtp_password;
+                $mail->SMTPSecure = $smtp_secure;
+                $mail->Port       = $smtp_port;
 
                 $mail->setFrom('no-reply@dropidigital.com.br', 'Não Responda');
                 $mail->addAddress($email, $name);

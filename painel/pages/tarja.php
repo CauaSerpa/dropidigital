@@ -2,11 +2,11 @@
     // Nome da tabela para a busca
     $tabela = 'tb_shop';
 
-    $sql = "SELECT top_highlight_bar, top_highlight_bar_location, top_highlight_bar_text, center_highlight_images FROM $tabela WHERE user_id = :user_id";
+    $sql = "SELECT top_highlight_bar, top_highlight_bar_location, top_highlight_bar_text, center_highlight_images FROM $tabela WHERE id = :id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':user_id', $id);
+    $stmt->bindParam(':id', $id);
     $stmt->execute();
 
     // Obter o resultado como um array associativo
@@ -206,7 +206,7 @@
                     <div class="mb-3">
                         <label for="top_highlight_bar" class="form-label small">Tarja ativa?</label>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="top_highlight_bar" role="switch" id="top_highlight_bar" value="1" <?php echo ($shop['top_highlight_bar'] == '1') ? 'checked' : ''; ?>>
+                            <input class="form-check-input" type="checkbox" name="top_highlight_bar" role="switch" id="top_highlight_bar" value="1" <?php echo ($shop['top_highlight_bar'] == 1) ? 'checked' : ''; ?>>
                             <label class="form-check-label" id="topHighlightBarText" for="top_highlight_bar"><?php echo ($shop['top_highlight_bar'] == 1) ? 'Sim' : 'Não'; ?></label>
                         </div>
                     </div>

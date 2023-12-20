@@ -2,11 +2,11 @@
     // Nome da tabela para a busca
     $tabela = 'tb_shop';
 
-    $sql = "SELECT newsletter_modal, newsletter_modal_title, newsletter_modal_text, newsletter_modal_success_text, newsletter_modal_time, newsletter_modal_time_seconds, newsletter_modal_location, newsletter_footer, newsletter_footer_text FROM $tabela WHERE user_id = :user_id";
+    $sql = "SELECT newsletter_modal, newsletter_modal_title, newsletter_modal_text, newsletter_modal_success_text, newsletter_modal_time, newsletter_modal_time_seconds, newsletter_modal_location, newsletter_footer, newsletter_footer_text FROM $tabela WHERE id = :id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':user_id', $id);
+    $stmt->bindParam(':id', $id);
     $stmt->execute();
 
     // Obter o resultado como um array associativo
@@ -201,10 +201,9 @@
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             E-mail Marketing
-            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="small text-reset text-decoration-none align-middle" style="cursor: pointer;">
+            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/export-newsletter.php?id=<?php echo $id; ?>" class="small text-reset text-decoration-none align-middle" style="cursor: pointer;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m12 18 4-5h-3V2h-2v11H8z"></path><path d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z"></path></svg>
                 Exportar e-mails
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z"></path></svg>
             </a>
         </div>
         <div class="card-body row px-4 py-3">

@@ -193,35 +193,35 @@
                 <label for="facebook" class="form-label small">Facebook</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-brands fa-facebook-f" style="width: 18px; color: #000000;"></i></span>
-                    <input type="text" class="form-control" name="facebook" id="facebook" placeholder="https://www.facebook.com/..." value="<?php echo $shop['facebook']; ?>">
+                    <input type="text" class="form-control" name="facebook" id="facebook" placeholder="https://www.facebook.com/..." value="<?php echo @$shop['facebook']; ?>">
                 </div>
             </div>
             <div class="col-sm-6 mb-3">
                 <label for="x" class="form-label small">X</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-brands fa-x-twitter" style="width: 18px; color: #000000;"></i></span>
-                    <input type="text" class="form-control" name="x" id="x" placeholder="https://twitter.com/..." value="<?php echo $shop['x']; ?>">
+                    <input type="text" class="form-control" name="x" id="x" placeholder="https://twitter.com/..." value="<?php echo @$shop['x']; ?>">
                 </div>
             </div>
             <div class="col-sm-6 mb-3">
                 <label for="pinterest" class="form-label small">Pinterest</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-brands fa-pinterest" style="width: 18px; color: #000000;"></i></span>
-                    <input type="text" class="form-control" name="pinterest" id="pinterest" placeholder="https://br.pinterest.com/..." value="<?php echo $shop['pinterest']; ?>">
+                    <input type="text" class="form-control" name="pinterest" id="pinterest" placeholder="https://br.pinterest.com/..." value="<?php echo @$shop['pinterest']; ?>">
                 </div>
             </div>
             <div class="col-sm-6 mb-3">
                 <label for="instagram" class="form-label small">Instagram</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-brands fa-instagram" style="width: 18px; color: #000000;"></i></span>
-                    <input type="text" class="form-control" name="instagram" id="instagram" placeholder="https://www.instagram.com/..." value="<?php echo $shop['instagram']; ?>">
+                    <input type="text" class="form-control" name="instagram" id="instagram" placeholder="https://www.instagram.com/..." value="<?php echo @$shop['instagram']; ?>">
                 </div>
             </div>
             <div class="col-sm-6 mb-3">
                 <label for="video" class="form-label small">YouTube</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-brands fa-youtube" style="width: 18px; color: #000000;"></i></span>
-                    <input type="text" class="form-control" name="youtube" id="youtube" placeholder="https://www.youtube.com/..." value="<?php echo $shop['youtube']; ?>">
+                    <input type="text" class="form-control" name="youtube" id="youtube" placeholder="https://www.youtube.com/..." value="<?php echo @$shop['youtube']; ?>">
                 </div>
             </div>
         </div>

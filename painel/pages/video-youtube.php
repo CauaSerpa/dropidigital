@@ -194,7 +194,7 @@
                     <label for="video" class="form-label small">URL</label>
                 </div>
                 <div class="input-group">
-                    <input type="text" class="form-control" name="video" id="video" aria-describedby="nameHelp" value="<?php echo $shop['video']; ?>">
+                    <input type="text" class="form-control" name="video" id="video" aria-describedby="nameHelp" value="<?php echo @$shop['video']; ?>">
                     <button type="button" class="btn btn-secondary px-4" id="botaoColar">Colar Link</button>
                 </div>
             </div>

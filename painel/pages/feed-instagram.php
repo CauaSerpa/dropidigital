@@ -192,7 +192,7 @@
             <div class="mb-3">
                 <label for="token" class="form-label small">Token *</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" name="token" id="token" aria-describedby="tokenHelp" value="<?php echo $shop['token_instagram']; ?>">
+                    <input type="text" class="form-control" name="token" id="token" aria-describedby="tokenHelp" value="<?php echo @$shop['token_instagram']; ?>">
                     <button type="button" class="btn btn-secondary px-4" id="botaoColar">Colar Token</button>
                 </div>
             </div>
