@@ -6,11 +6,43 @@
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
-    if (isset($_POST['status']) && $_POST['status'] == '1') {
-        $status = $_POST['status'];
-    } else {
-        $status = 0;
-    }
+
+    // Pesquisar plano da Loja
+    $tabelaShop = "tb_shop";
+    $tabelaPlans = "tb_plans_interval";
+    $tabelaProducts = "tb_products";
+
+    // Consulta SQL para obter o plano da loja
+    $sqlShop = "SELECT s.plan_id, p.id AS plan_id FROM $tabelaShop s
+                JOIN $tabelaPlans p ON s.plan_id = p.id
+                WHERE s.user_id = :id";
+    $stmtShop = $conn_pdo->prepare($sqlShop);
+    $stmtShop->bindParam(':id', $dados['shop_id'], PDO::PARAM_INT);
+    $stmtShop->execute();
+    $shop = $stmtShop->fetch(PDO::FETCH_ASSOC);
+
+    // Conta o número de produtos ativos
+    $sqlProducts = "SELECT COUNT(*) AS total_produtos FROM $tabelaProducts
+                    WHERE shop_id = :shop_id AND status = :status";
+    $stmtProducts = $conn_pdo->prepare($sqlProducts);
+    $stmtProducts->bindParam(':shop_id', $dados['shop_id']);
+    $stmtProducts->bindValue(':status', 1);
+    $stmtProducts->execute();
+    $product = $stmtProducts->fetch(PDO::FETCH_ASSOC);
+
+    // Define os limites de produtos com base no plano
+    $limitProductsMap = [
+        1 => 10,
+        2 => 50,
+        3 => 250,
+        4 => 750,
+    ];
+
+    $limitProducts = $limitProductsMap[$shop['plan_id']] ?? "ilimitado";
+
+    // Define o status com base nos limites de produtos
+    $status = ($limitProducts < $product['total_produtos']) ? 0 : (isset($_POST['status']) && $_POST['status'] == '1' ? $_POST['status'] : 0);
+
 
     if (isset($_POST['emphasis']) && $_POST['emphasis'] == '1') {
         $emphasis = $_POST['emphasis'];

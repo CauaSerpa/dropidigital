@@ -558,7 +558,7 @@ input[type=radio]
 }
 .box .form .inputBox .inputUser
 {
-    padding: 12px 24px 12px 24px;
+    padding: 8px 20px 8px 20px;
     background: none;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -598,7 +598,7 @@ input[type=radio]
 }
 .box .form .inputBox.password .inputUser
 {
-    padding: 12px 54px 12px 24px;
+    padding: 8px 54px 8px 20px;
 }
 #select {
     -moz-appearance: none;
@@ -630,8 +630,8 @@ input[type=radio]
 .box .form .inputBox .button__show
 {
     position: absolute;
-	height: 44px;
-    top: 25px;
+    height: 42px;
+    top: 32px;
     right: 24px;
     background: none;
     border: none;

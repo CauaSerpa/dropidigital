@@ -1,7 +1,14 @@
 <?php
     // Consulta SQL para contar os produtos na tabela
-    $sql = "SELECT COUNT(*) AS total_produtos FROM tb_products";
-    $stmt = $conn_pdo->query($sql);
+    // Nome da tabela para a busca
+    $tabela = 'tb_products';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela WHERE shop_id = :shop_id AND status = :status";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->bindValue(':status', 1);
+    $stmt->execute();
 
     // Recupere o resultado da consulta
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);

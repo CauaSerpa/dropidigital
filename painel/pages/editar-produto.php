@@ -1,4 +1,7 @@
 <?php
+// Pega o id da loja
+$shop_id = $id;
+
 //Apagar Card
 $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
@@ -347,7 +350,10 @@ if(!empty($id)){
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
-                        <label for="activeProduct" class="form-label small">Produto ativo?</label>
+                        <label for="activeProduct" class="form-label small">
+                            Produto ativo?
+                            <i class="bx bx-help-circle <?php echo ($limitProducts <= $totalProdutos && $product['status'] == 0) ? "" : "d-none"; ?>" data-toggle="tooltip" data-placement="top" aria-label="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!" data-bs-original-title="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!"></i>
+                        </label>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" <?php echo $statusActive; ?>>
                             <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($statusActive == "disabled") ? "Não" : "Sim"; ?></label>
@@ -605,7 +611,7 @@ if(!empty($id)){
     
     <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="delete_images" id="delete-images-input" value="">
-    <input type="hidden" name="shop_id" value="<?php echo $product['shop_id']; ?>">
+    <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
 
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
