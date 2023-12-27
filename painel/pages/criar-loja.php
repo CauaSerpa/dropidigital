@@ -1,3 +1,12 @@
+<?php
+    if (empty($_SESSION['user_id'])) {
+        session_destroy();
+        session_start();
+        $_SESSION['msg'] = "Erro: Crie um usuário ou faça login para acessar essa página!";
+        header("Location: ".INCLUDE_PATH_DASHBOARD."login");
+        exit;
+    }
+?>
 <div class="box__container login">
     <nav class="nav">
         <a href="<?php echo INCLUDE_PATH; ?>" class="form__logo">
@@ -11,21 +20,27 @@
             <li class="step"></li>
         </ul>
 
-        <?php
-            if(isset($_SESSION['msg'])){
-                echo $_SESSION['msg'];
-                unset($_SESSION['msg']);
-                echo "<br>";
-            }
-            if(isset($_SESSION['msgcad'])){
-                echo $_SESSION['msgcad'];
-                unset($_SESSION['msgcad']);
-                echo "<br>";
-            }
-        ?>
+        <p class="success-message">
+            <?php
+                if(isset($_SESSION['msgcad'])){
+                    echo $_SESSION['msgcad'];
+                    unset($_SESSION['msgcad']);
+                    echo "<br><br>";
+                }
+            ?>
+        </p>
+        <p class="error-message">
+            <?php
+                if(isset($_SESSION['msg'])){
+                    echo $_SESSION['msg'];
+                    unset($_SESSION['msg']);
+                    echo "<br><br>";
+                }
+            ?>
+        </p>
 
-        <input type="hidden" name="user_id" value="<?php echo @$_SESSION['user_id']; ?>">
-        <input type="hidden" name="email" value="<?php echo @$_SESSION['email']; ?>">
+        <input type="hidden" name="user_id" value="<?php echo $_SESSION['new_user_id']; ?>">
+        <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
 
         <fieldset class="step-form form-one active" data-step="1">
             <div class="container__title login">
@@ -83,8 +98,11 @@
                     </label>
                 </div>
             </div>
-            <input type="radio" name="person" id="pf" value="pf" onclick="mostrarFormulario('formulario1')">
-            <input type="radio" name="person" id="pj" value="pj" onclick="mostrarFormulario('formulario2')">
+            <div>
+                <input type="radio" name="person" id="pf" value="pf" onclick="mostrarFormulario('formulario1')">
+                <input type="radio" name="person" id="pj" value="pj" onclick="mostrarFormulario('formulario2')">
+            </div>
+
             <div class="form__container" id="formulario1" style="display: none;">
                 <div class="container__title login">
                     <h3 class="title">Pessoa Física</h3>
@@ -95,10 +113,11 @@
                     <span id="cpf-error" class="error-message"></span>
                 </div>
                 <div class="container__button cpf">
-                    <button type="button" name="prev" class="button button--flex prev" onclick="mostrarOption()">Voltar</button>
-                    <button type="button" name="next" class="button button--flex next">Continuar</button>
+                    <button type="button" class="button button--flex prev" onclick="mostrarOption()">Voltar</button>
+                    <button type="button" class="button button--flex next">Continuar</button>
                 </div>
             </div>
+
             <div class="form__container" id="formulario2" style="display: none;">
                 <div class="container__title login">
                     <h3 class="title">Pessoa Jurídica</h3>
@@ -106,14 +125,16 @@
                 <div class="inputBox">
                     <label for="cnpj" class="labelInput">CNPJ <span class="danger">*</span></label>
                     <input type="text" name="cnpj" id="cnpj" class="inputUser">
+                    <span id="cnpj-error" class="error-message"></span>
                 </div>
                 <div class="inputBox">
                     <label for="razao_social" class="labelInput">Razão Social <span class="danger">*</span></label>
                     <input type="text" name="razao_social" id="razao_social" class="inputUser">
+                    <span id="razao_social-error" class="error-message"></span>
                 </div>
                 <div class="container__button">
-                    <button type="button" name="prev" class="button button--flex prev" onclick="mostrarOption()">Voltar</button>
-                    <button type="button" name="next" class="button button--flex next">Continuar</button>
+                    <button type="button" class="button button--flex prev" onclick="mostrarOption()">Voltar</button>
+                    <button type="button" class="button button--flex next">Continuar</button>
                 </div>
             </div>
         </fieldset>
@@ -125,7 +146,7 @@
             </div>
             <div class="inputBox">
                 <label for="cep" class="labelInput">CEP <span class="danger">*</span></label>
-                <input type="text" name="cep" id="cep" class="inputUser" onblur="getCepData()">
+                <input type="text" name="cep" id="cep" class="inputUser" oninput="getCepData()">
                 <span id="cep-error" class="error-message"></span>
             </div>
             <div id="addressContent" style="overflow: hidden; height: 0; transition: all .3s;">
@@ -303,29 +324,45 @@
                     return false;
                 }
             }
-            // Adicione validações para as outras etapas, se necessário
-
-            return true;
-        }
-        
-        function validateCurrentStep(etapa) {
+            
             if (etapa === 2) {
                 const form = document.getElementById('form');
                 const cpfInput = document.getElementById('cpf');
+                const cnpjInput = document.getElementById('cnpj');
+                const razaoSocialInput = document.getElementById('razao_social');
 
                 const cpfError = document.getElementById('cpf-error');
+                const cnpjError = document.getElementById('cnpj-error');
+                const razaoSocialError = document.getElementById('razao_social-error');
 
                 const cpfField = $(cpfInput);
+                const cnpjField = $(cnpjInput);
+                const razaoSocialField = $(razaoSocialInput);
 
                 cpfError.textContent = '';
+                cnpjError.textContent = '';
+                razaoSocialError.textContent = '';
 
-                if (!validateCpf(cpfInput.value)) {
-                    cpfError.textContent = 'Preencha o campo Nome!';
-                    cpfField.addClass('input-error');
-                    return false;
+                if (document.getElementById('pf').checked) {
+                    if (!validateCpf(cpfInput.value)) {
+                        cpfError.textContent = 'CPF inválido!';
+                        cpfField.addClass('input-error');
+                        return false;
+                    }
+                } else if (document.getElementById('pj').checked) {
+                    if (!validateCnpj(cnpjInput.value)) {
+                        cnpjError.textContent = 'CNPJ inválido!';
+                        cnpjField.addClass('input-error');
+                        return false;
+                    }
+
+                    if (!validateRazaoSocial(razaoSocialInput.value)) {
+                        razaoSocialError.textContent = 'Preencha a Razão Social!';
+                        razaoSocialField.addClass('input-error');
+                        return false;
+                    }
                 }
             }
-            // Adicione validações para as outras etapas, se necessário
 
             return true;
         }
@@ -341,101 +378,126 @@
         function validateCpf(cpf) {
             return cpf.length == 14;
         }
+
+        function validateCnpj(cnpj) {
+            return cnpj.length == 18;
+        }
+
+        function validateRazaoSocial(razaoSocial) {
+            return razaoSocial.length > 0;
+        }
     });
 </script>
+
 <script>
 	const form = document.getElementById('form');
     const nameInput = document.getElementById('name');
     const segmentInput = document.getElementById('segment');
-    const urlInput = document.getElementById('name');
     const cpfInput = document.getElementById('cpf');
+    const cnpjInput = document.getElementById('cnpj');
+    const razaoSocialInput = document.getElementById('razao_social');
 
     const nameError = document.getElementById('name-error');
     const segmentError = document.getElementById('segment-error');
-    const urlError = document.getElementById('url-error');
     const cpfError = document.getElementById('cpf-error');
+    const cnpjError = document.getElementById('cnpj-error');
+    const razaoSocialError = document.getElementById('razao_social-error');
 
     nameInput.addEventListener('input', function() {
-        const nameField = $(this);
+        validateName();
+    });
 
+    segmentInput.addEventListener('change', function() {
+        validateSegment();
+    });
+
+    cpfInput.addEventListener('input', function() {
+        validateCpf();
+    });
+
+    cnpjInput.addEventListener('input', function() {
+        validateCnpj();
+    });
+
+    razaoSocialInput.addEventListener('input', function() {
+        validateRazaoSocial();
+    });
+
+    function validateName() {
+        const nameField = $(nameInput);
         nameError.textContent = '';
 
-        if (!validateName(nameInput.value)) {
+        if (!validateField(nameInput.value)) {
             nameError.textContent = 'Preencha o campo Nome!';
             nameField.addClass('input-error');
         } else {
             nameField.removeClass('input-error');
         }
-    });
+    }
 
-    segmentInput.addEventListener('change', function() {
-        const segmentField = $(this);
-
+    function validateSegment() {
+        const segmentField = $(segmentInput);
         segmentError.textContent = '';
 
-        if (!validateSegment(segmentInput.value)) {
+        if (!validateField(segmentInput.value)) {
             segmentError.textContent = 'Selecione um segmento válido.';
             segmentField.addClass('input-error');
         } else {
             segmentField.removeClass('input-error');
         }
-    });
+    }
 
-    cpfInput.addEventListener('input', function() {
-        const cpfField = $(this);
-
+    function validateCpf() {
+        const cpfField = $(cpfInput);
         cpfError.textContent = '';
 
-        if (!validateCpf(cpfInput.value)) {
-            cpfError.textContent = 'Preencha o campo Nome!';
+        if (!validateField(cpfInput.value)) {
+            cpfError.textContent = 'Preencha o campo CPF!';
             cpfField.addClass('input-error');
         } else {
             cpfField.removeClass('input-error');
         }
-    });
-
-    // urlInput.addEventListener('input', function() {
-    //     const urlField = $(this);
-
-    //     urlError.textContent = '';
-
-    //     if (urlField.hasClass('urlActive')) {
-    //         if (!validateUrl(urlInput.value)) {
-    //             urlError.textContent = 'Preencha o campo URL!';
-    //             urlField.addClass('input-error');
-    //         } else {
-    //             urlField.removeClass('input-error');
-    //         }
-    //     }
-    // });
-
-    function validateName(name) {
-        return name.length > 0;
     }
 
-    function validateSegment(segment) {
-        return segment !== '';
+    function validateCnpj() {
+        const cnpjField = $(cnpjInput);
+        cnpjError.textContent = '';
+
+        if (!validateField(cnpjInput.value)) {
+            cnpjError.textContent = 'Preencha o campo CNPJ!';
+            cnpjField.addClass('input-error');
+        } else {
+            cnpjField.removeClass('input-error');
+        }
     }
 
-    // function validateUrl(url) {
-    //     return url.length > 0;
-    // }
+    function validateRazaoSocial() {
+        const razaoSocialField = $(razaoSocialInput);
+        razaoSocialError.textContent = '';
 
-    function validateCpf(cpf) {
-        return cpf !== '';
+        if (!validateField(razaoSocialInput.value)) {
+            razaoSocialError.textContent = 'Preencha o campo Razão Social!';
+            razaoSocialField.addClass('input-error');
+        } else {
+            razaoSocialField.removeClass('input-error');
+        }
+    }
+
+    function validateField(value) {
+        return value.trim().length > 0;
     }
 </script>
+
+<!-- Funcao PF/PJ -->
 <script>
     function mostrarFormulario(formularioId) {
         var formulario = document.getElementById(formularioId);
-        var divs = document.querySelectorAll('.card');
-
-        var todosFormularios = document.querySelectorAll('[id^="formulario"]');
+        var todosFormularios = document.querySelectorAll('.form__container');
+        
         todosFormularios.forEach(function(form) {
-            form.style.display = 'none';
+            form.style.display = form.id === formularioId ? 'block' : 'none';
         });
 
-        formulario.style.display = 'block';
         apagarOption();
     }
 

@@ -1,7 +1,4 @@
 <?php
-    // Caso prefira o .env apenas descomente o codigo e comente o "include('parameters.php');" acima
-	// Carrega as variáveis de ambiente do arquivo .env
-
     // Caminho para o diretório pai
     $parentDir = dirname(dirname(__DIR__));
 
@@ -27,9 +24,22 @@
     require './lib/vendor/autoload.php';
     $mail = new PHPMailer(true);
 
+    function gerarCodigoUnico() {
+        // Gera um ID único baseado no timestamp atual e mais alguma informação aleatória
+        $codigoUnico = uniqid(mt_rand(), true);
+    
+        // Aplica uma função de hash (md5 neste exemplo) para obter uma string mais curta
+        $codigoUnico = md5($codigoUnico);
+    
+        return $codigoUnico;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_users';
+
+        // Gerando token para ativacao
+        $token = gerarCodigoUnico();
 
         // Recebe os dados do formulário
         $name = $_POST['name'];
@@ -89,15 +99,32 @@
                 $mail->addAddress($email, $name);
 
                 $mail->isHTML(true); //Set email format to HTML
-                $mail->Subject = 'Bem-vindo a Dropi Digital';
-                $mail->Body = "Olá " . $name . ", bem-vindo ao nosso site!</br>Termine o cadastro da sua loja na Dropi Digital!</br></br>Para continuar a criação da sua loja <a href='" . INCLUDE_PATH_DASHBOARD . "criar-loja'>Clique Aqui!</a>";
-                $mail->AltBody = "Olá " . $name . ", bem-vindo ao nosso site!\nTermine o cadastro da sua loja na Dropi Digital!\n\nPara continuar a criação da sua loja <a href='" . INCLUDE_PATH_DASHBOARD . "criar-loja'>Clique Aqui!</a>";
-
+                $mail->Subject = 'Ativar e-mail';
+                $mail->Body = "Olá " . $name . ", bem-vindo ao nosso site!</br>Termine o cadastro da sua loja na Dropi Digital!</br></br>Para continuar a ativação seu email <a href='" . INCLUDE_PATH_DASHBOARD . "ativar-email?token=" . $token . "'>Clique Aqui!</a>";
+                $mail->AltBody = "Olá " . $name . ", bem-vindo ao nosso site!\nTermine o cadastro da sua loja na Dropi Digital!\n\nPara continuar a ativação seu email <a href='" . INCLUDE_PATH_DASHBOARD . "ativar-email?token=" . $token . "'>Clique Aqui!</a>";
+    
                 // Enviar o e-mail
                 if ($mail->send()) {
                     // Obtém o ID do novo usuário e passa pelo metodo session
                     $_SESSION['user_id'] = $conn_pdo->lastInsertId();
-            
+                    $_SESSION['email'] = $email;
+                    
+                    // Cadastra token de ativacao na tabela do usuario
+                    $user_id = $conn_pdo->lastInsertId();
+
+                    //Tabela que será solicitada
+                    $tabela = 'tb_users';
+
+                    // Adiciona o token a tabela
+                    $sql = "UPDATE $tabela SET token = :token WHERE id = :id";
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindValue(':token', $token);
+
+                    // Id que sera editado
+                    $stmt->bindValue(':id', $user_id);
+
+                    $stmt->execute();
+
                     // Redireciona para a página de login ou exibe uma mensagem de sucesso
                     header("Location: ".INCLUDE_PATH_DASHBOARD."criar-loja");
                 } else {
@@ -108,14 +135,14 @@
                 }
             } catch (Exception $e) {
                 $_SESSION['msgcad'] = "<p class='red'>Erro: E-mail não enviado sucesso. Mailer Error: {$mail->ErrorInfo}</p>";
-                header("Location: ".INCLUDE_PATH_DASHBOARD."login/");
+                header("Location: ".INCLUDE_PATH_DASHBOARD."login");
             }
         } else {
             $_SESSION['msgcad'] = "<p class='red'>Erro: Tente novamente!</p>";
-            header("Location: ".INCLUDE_PATH_DASHBOARD."login/");
+            header("Location: ".INCLUDE_PATH_DASHBOARD."login");
         }
     } else {
         $_SESSION['msgcad'] = "<p class='red'>Erro: Usuário não encontrado!</p>";
-        header("Location: ".INCLUDE_PATH_DASHBOARD."login/");
+        header("Location: ".INCLUDE_PATH_DASHBOARD."login");
     }
     exit;

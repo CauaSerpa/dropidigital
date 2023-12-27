@@ -1413,9 +1413,13 @@ select {
     top: var(--header-height);
     transition: all 0.5s ease;
 }
-.save-button-show
+.container.grid.save-button-show
 {
-    margin-bottom: 129px;
+    padding-bottom: 73px;
+}
+.save-button
+{
+    border-top: 1px solid var(--border-color);
 }
 .save-button
 {

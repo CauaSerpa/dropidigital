@@ -1,19 +1,24 @@
 <?php
-    if(isset($_COOKIE['reLoginBusiness'])){
-        $email = $_COOKIE['email'];
-        $password = $_COOKIE['password'];
-        $result_usuario = "SELECT * FROM `tb_users` WHERE email='$email' LIMIT 1";
-        $resultado_usuario = mysqli_query($conn, $result_usuario);
-        if($resultado_usuario){
-            $row_usuario = mysqli_fetch_assoc($resultado_usuario);
-            if(password_verify($password, $row_usuario['password'])){
-                $_SESSION['id'] = $row_usuario['id'];
-                $_SESSION['email'] = $row_usuario['email'];
-                $_SESSION['phone'] = $row_usuario['phone'];
-                $_SESSION['cargo'] = $row_usuario['cargo'];
-                header("Location: ".INCLUDE_PATH_DASHBOARD);
-            }
+    if (isset($_GET["token"])) {
+        $token = $_GET['token'];
+
+        // Tabela que sera feita a consulta
+        $tabela = "tb_users";
+
+        $query_usuario = "SELECT id FROM $tabela WHERE recup_password = :recup_password LIMIT 1";
+        $result_usuario = $conn_pdo->prepare($query_usuario);
+        $result_usuario->bindParam(':recup_password', $token, PDO::PARAM_STR);
+        $result_usuario->execute();
+
+        if (!$result_usuario->fetch(PDO::FETCH_ASSOC)) {
+            $_SESSION['msg'] = "Erro: Link inválido, solicite novo link para atualizar a senha!";
+            header("Location: " . INCLUDE_PATH_DASHBOARD . "recuperar-senha");
+            exit;
         }
+    } else {
+        $_SESSION['msg'] = "Erro: Link inválido, solicite novo link para atualizar a senha!";
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "recuperar-senha");
+        exit;
     }
 ?>
 <div class="box__container login">
@@ -22,11 +27,10 @@
             <img src="<?php echo INCLUDE_PATH; ?>assets/images/logos/logo-one.png" alt="Logo">
         </a>
     </nav>
-    <form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/signup.php" method="POST" class="form business" id="form" name="form">
+    <form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/update_password.php" method="POST" class="form business" id="form" name="form">
         <div class="container__title login">
-            <h3 class="title">Crie sua Loja Virtual Grátis</h3>
+            <h3 class="title">Atualizar Senha</h3>
         </div>
-        
         <p class="success-message">
             <?php
                 if(isset($_SESSION['msgcad'])){
@@ -45,24 +49,6 @@
                 }
             ?>
         </p>
-        
-        <div class="inputBox">
-            <label for="name" class="labelInput">Nome Completo <span class="danger">*</span></label>
-            <input type="text" name="name" id="name" class="inputUser" value="<?php echo (isset($_SESSION['name']) == '') ? '' : $_SESSION['name']; ?>">
-            <span id="name-error" class="error-message"></span>
-        </div>
-        <div class="inputBox">
-            <label for="email" class="labelInput">E-mail <span class="danger">*</span></label>
-            <input type="email" name="email" id="email" class="inputUser <?php echo (isset($_SESSION['email-error']) == '') ? '' : 'input-error'; ?>" value="<?php echo (isset($_SESSION['email']) == '') ? '' : $_SESSION['email']; ?>">
-            <span id="email-error" class="error-message">
-				<?php
-					if(isset($_SESSION['email-error'])){
-						echo $_SESSION['email-error'];
-						unset($_SESSION['email-error']);
-					}
-				?>
-			</span>
-        </div>
         <div class="inputBox">
             <label for="password" class="labelInput">Senha <span class="danger">*</span></label>
             <input type="password" name="password" id="password" class="inputUser">
@@ -79,95 +65,30 @@
             </button>
             <span id="confirm-password-error" class="error-message"></span>
         </div>
+        <input type="hidden" name="token" value="<?php echo $token; ?>">
         <div class="container__button">
             <button type="submit" name="next" class="button button--flex submit next">Continuar</button>
         </div>
     </form>
     <div class="bottom__text signup">
-        <p>Já possui uma loja na DropiDigital?</p>
+        <p>Lembrou?</p>
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>login">Acesse sua conta agora.</a>
     </div>
 </div>
 
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  $(document).ready(function() {
-    $('#email').on('blur', function() {
-      const email = $(this).val();
-      const emailField = $(this);
 
-      if (email !== '') {
-        $.ajax({
-          url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/check_email.php', // Arquivo PHP para verificar o email
-          method: 'POST',
-          data: { email: email },
-          success: function(response) {
-            $('#email-error').html(response);
-
-            if (response.includes('Email já cadastrado!')) {
-              emailField.addClass('input-error'); // Adiciona classe em caso de erro
-            } else {
-              emailField.removeClass('input-error'); // Remove classe em caso de sucesso
-            }
-          }
-        });
-      }
-    });
-  });
-</script>
-
-
-
+<!-- Password -->
 <script>
 	const form = document.getElementById('form');
-	const nameInput = document.getElementById('name');
-	const emailInput = document.getElementById('email');
 	const passwordInput = document.getElementById('password');
 	const confirmPasswordInput = document.getElementById('cPassword');
 	
-	const nameError = document.getElementById('name-error');
-	const emailError = document.getElementById('email-error');
 	const passwordError = document.getElementById('password-error');
 	const confirmPasswordError = document.getElementById('confirm-password-error');
 
     passwordError.textContent = '';
     confirmPasswordError.textContent = '';
-
-    nameInput.addEventListener('input', function() {
-      	const nameField = $(this);
-
-		nameError.textContent = '';
-
-		if (!validateName(nameInput.value)) {
-			nameError.textContent = 'Preencha o campo Nome!';
-			nameField.addClass('input-error'); // Adiciona classe em caso de erro
-		} else {
-			nameField.removeClass('input-error'); // Remove classe em caso de sucesso
-		}
-	});
-
-	function validateName(name) {
-		return name.length > 0;
-	}
-
-	emailInput.addEventListener('input', function() {
-		const emailField = $(this);
-
-		emailError.textContent = '';
-
-		if (!validateEmail(emailInput.value)) {
-			emailError.textContent = 'Preencha o campo E-mail!';
-			emailField.addClass('input-error'); // Adiciona classe em caso de erro
-		} else {
-			emailField.removeClass('input-error'); // Remove classe em caso de sucesso
-		}
-	});
-
-	function validateEmail(email) {
-		return email.length > 0;
-	}
 
 	passwordInput.addEventListener('input', function() {
 		const passwordField = $(this);
@@ -211,14 +132,11 @@
 		} else if (!containsNumber(password)) {
 			passwordError.textContent = 'A senha deve conter pelo menos um número.';
 			passwordField.addClass('input-error'); // Adiciona classe em caso de erro
-		} else {
-			passwordField.removeClass('input-error'); // Remove classe em caso de sucesso
-		}
-
-		if (password !== confirmPassword) {
+		} else if (password !== confirmPassword) {
 			confirmPasswordError.textContent = 'As senhas não coincidem.';
 			confirmPasswordField.addClass('input-error'); // Adiciona classe em caso de erro
 		} else {
+			passwordField.removeClass('input-error'); // Remove classe em caso de sucesso
 			confirmPasswordField.removeClass('input-error'); // Remove classe em caso de sucesso
 		}
 	}

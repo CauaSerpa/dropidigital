@@ -13,7 +13,7 @@
         $subdominio = '';
     }
 
-    $subdominio = "minha-loja";
+    // $subdominio = "minha-loja";
 
     // Obtém o protocolo (HTTP ou HTTPS)
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
@@ -25,7 +25,7 @@
     $directory = dirname($_SERVER['SCRIPT_NAME']);
 
     // Combina todas as partes para obter a URL completa
-    $urlCompleta = "http://$domain$directory/";
+    $urlCompleta = "$protocol://$domain$directory/";
 
     define('INCLUDE_PATH_LOJA', $urlCompleta);
 

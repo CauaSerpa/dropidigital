@@ -14,7 +14,7 @@
     ob_start();
     include('../config.php');
 
-    if ($url !== "login" && $url !== "assinar" && $url !== "criar-loja" && $url !== "dois-fatores" && $url !== "404") {
+    if ($url !== "login" && $url !== "dois-fatores" && $url !== "recuperar-senha" && $url !== "atualizar-senha" && $url !== "assinar" && $url !== "criar-loja" && $url !== "404") {
         // Verifica se esta logado
         if (!isset($_SESSION['user_id'])) {
             $_SESSION['msg'] = "Por favor faça login para acessar essa página!";
@@ -74,6 +74,7 @@
     // Verificar se o resultado foi encontrado
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
+        $user_id = $id;
         $id = $resultado['id'];
         $plan_id = $resultado['plan_id'];
         $loja = $resultado['name'];
@@ -138,7 +139,7 @@
     <!--Favicon-->
     <link rel="shortcut icon" href="<?php echo INCLUDE_PATH; ?>assets/images/favicon.png" type="image/x-icon">
     <!--CSS-->
-    <?php echo ($url == 'login' || $url == 'assinar' || $url == 'dois-fatores' || $url == 'criar-loja' || $url == '404') ? '<link rel="stylesheet" href="'.INCLUDE_PATH_DASHBOARD.'assets/css/login.css">' : '<link rel="stylesheet" href="'.INCLUDE_PATH_DASHBOARD.'assets/css/style.css">';?>
+    <?php echo ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404') ? '<link rel="stylesheet" href="'.INCLUDE_PATH_DASHBOARD.'assets/css/login.css">' : '<link rel="stylesheet" href="'.INCLUDE_PATH_DASHBOARD.'assets/css/style.css">';?>
     <!--Box Icons-->
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
     <!-- Bootstrap -->
@@ -160,7 +161,7 @@
 </head>
 <body>
     <?php
-        if ($url == 'login' || $url == 'dois-fatores' || $url == 'assinar' || $url == 'criar-loja' || $url == '404')
+        if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404')
         {
             echo "";
     ?>
@@ -667,7 +668,7 @@
         }
     ?>
     
-    <main class="main <?php echo ($url == "login" || $url == 'dois-fatores' || $url == 'assinar' || $url == 'criar-loja' || $url == "404") ? 'box' : ''; ?>">
+    <main class="main <?php echo ($url == "login" || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == "404") ? 'box' : ''; ?>">
         <div class="container grid">
 
         <div class="offcanvas offcanvas-start offcanvas-filter" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
@@ -734,6 +735,15 @@
 
 
         <?php
+            // Iniciando variavel $tab
+            $tab = "";
+
+            // Verifica se a url contém uma barra
+            if (strpos($url, '/') !== false) {
+                // Divide a url usando a barra como delimitador
+                list($url, $tab) = explode('/', $url, 2);
+            }
+
             if(file_exists('pages/'.$url.'.php')){
                 include('pages/'.$url.'.php');
             }else{
@@ -761,7 +771,7 @@
         </div>
     </div>
     <?php
-        if ($url == 'login' || $url == 'dois-fatores' || $url == 'assinar' || $url == 'criar-loja' || $url == '404') {
+        if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404') {
             echo '
                 <script src="https://www.google.com/recaptcha/api.js?render=6LcRUkUnAAAAAJGzCTc4KTbgqgsEmwYZCTZtNp9i"></script>
                 <script>

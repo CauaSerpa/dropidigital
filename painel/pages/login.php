@@ -41,10 +41,10 @@
             <label for="password" class="labelInput">Senha</label>
             <input type="password" name="password" id="password" class="inputUser" autocomplete="off" required>
             <button type="button" class="button__show">
-                <i class='bx bx-show' id="icon" onclick="showHide()"></i>
+                <i class='bx bx-show' id="icon"></i>
             </button>
             <div class="content__recup-password">
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>login/recuperar-senha" class="link">Esqueci minha senha</a>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>recuperar-senha" class="link">Esqueci minha senha</a>
             </div>
         </div>
         <div class="container__button">
@@ -63,3 +63,19 @@
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar">Crie sua loja virtual grátis agora.</a>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $("#icon").click(function() {
+            // Seleciona o input de senha
+            var passwordInput = $("#password");
+
+            // Alterna o tipo de input entre "password" e "text"
+            passwordInput.attr("type", passwordInput.attr("type") === "password" ? "text" : "password");
+
+            // Altera o ícone com base no tipo de input atual
+            $("#icon").toggleClass('bx-show bx-hide');
+        });
+    });
+</script>
