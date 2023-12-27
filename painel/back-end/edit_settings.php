@@ -8,13 +8,25 @@
         $id = $_POST['id'];
         $shop_id = $_POST['shop_id'];
 
+        echo $id;
+
+        print_r($_POST);
+
         // Shop
         $name = $_POST['name'];
         $title = $_POST['title'];
         $description = $_POST['description'];
-        $video = $_POST['video'];
-        $phone = $_POST['phone'];
         $segment = $_POST['segment'];
+
+        if ($_POST['shopType'] == "pf") {
+            $cpfCnpj = $_POST['cpf'];
+            $phone = $_POST['phone'];
+            $razaoSocial = "";
+        } else {
+            $razaoSocial = $_POST['razaoSocial'];
+            $cpfCnpj = $_POST['cnpj'];
+            $phone = $_POST['cellPhone'];
+        }
 
         // User
         $responsible = $_POST['responsible'];
@@ -38,12 +50,13 @@
         $tabela = 'tb_shop';
 
         // Insere a categoria no banco de dados da loja
-        $sql = "UPDATE $tabela SET name = :name, title = :title, description = :description, video = :video, phone = :phone, segment = :segment, map = :map WHERE user_id = :user_id";
+        $sql = "UPDATE $tabela SET name = :name, title = :title, description = :description, cpf_cnpj = :cpf_cnpj, razao_social = :razao_social, phone = :phone, segment = :segment, map = :map WHERE user_id = :user_id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':title', $title);
         $stmt->bindValue(':description', $description);
-        $stmt->bindValue(':video', $video);
+        $stmt->bindValue(':cpf_cnpj', $cpfCnpj);
+        $stmt->bindValue(':razao_social', $razaoSocial);
         $stmt->bindValue(':phone', $phone);
         $stmt->bindValue(':segment', $segment);
         $stmt->bindValue(':map', $activeMaps);
@@ -82,11 +95,11 @@
         $stmt->bindValue(':cidade', $cidade);
         $stmt->bindValue(':estado', $estado);
 
-        $stmt->bindValue(':shop_id', $shop_id);
+        $stmt->bindValue(':shop_id', $id);
 
         if ($stmt->execute()) {
             $_SESSION['msgcad'] = "<p class='green'>Configurações editadas com sucesso!</p>";
-            header("Location: " . INCLUDE_PATH_DASHBOARD . "configuracoes");
+            // header("Location: " . INCLUDE_PATH_DASHBOARD . "configuracoes");
             exit;
         } else {
             $_SESSION['msg'] = "<p class='red'>Erro ao editar as configurações!</p>";

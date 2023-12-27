@@ -143,13 +143,20 @@
                     <small>Preencha o campo com uma breve descrição sobre sua loja. Esta informação ficará disponível na página principal e para o Google.</small>
                 </div>
             </div>
+            <?php
+                if ($shop['razao_social'] == "") {
+                    $docType = "cpf";
+                } else {
+                    $docType = "cnpj";
+                }
+            ?>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="shopType" class="form-label small">Tipo de cadastro da loja *</label>
                     <div class="input-group">
                         <select class="form-select" name="shopType" id="shopType" aria-label="Default select example">
-                            <option value="pf">Pessoa Física</option>
-                            <option value="pj">Pessoa Jurídica</option>
+                            <option value="pf" <?php echo ($docType == "cpf") ? "selected" : ""; ?>>Pessoa Física</option>
+                            <option value="pj" <?php echo ($docType == "cnpj") ? "selected" : ""; ?>>Pessoa Jurídica</option>
                         </select>
                     </div>
                 </div>
@@ -158,28 +165,28 @@
                     <input type="text" class="form-control" name="responsible" id="responsible" aria-describedby="responsibleHelp" value="<?php echo $user['name']; ?>" required>
                 </div>
             </div>
-            <div class="row" id="pf" style="display: flex;">
+            <div class="row" id="pf" <?php echo ($docType == "cpf") ? 'style="display: flex;"' : 'style="display: none;"'; ?>>
                 <div class="col-md-6 mb-3">
                     <label for="cpf" class="form-label small">CPF *</label>
-                    <input type="text" class="form-control" name="cpf" id="cpf" aria-describedby="cpfHelp" placeholder="000.000.000-00">
+                    <input type="text" class="form-control" name="cpf" id="cpf" aria-describedby="cpfHelp" placeholder="000.000.000-00" value="<?php echo ($docType == "cpf") ? $shop['cpf_cnpj'] : ""; ?>" <?php echo ($docType == "cpf") ? "required" : ""; ?>>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="phone" class="form-label small">Telefone de contato *</label>
-                    <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $shop['phone']; ?>" required>
+                    <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $shop['phone']; ?>" <?php echo ($docType == "cpf") ? "required" : ""; ?>>
                 </div>
             </div>
-            <div class="row" id="pj" style="display: none;">
+            <div class="row" id="pj" <?php echo ($docType == "cnpj") ? 'style="display: flex;"' : 'style="display: none;"'; ?>>
                 <div class="col-md-4 mb-3">
                     <label for="razaoSocial" class="form-label small">Razão Social *</label>
-                    <input type="text" class="form-control" name="razaoSocial" id="razaoSocial" aria-describedby="razaoSocialHelp">
+                    <input type="text" class="form-control" name="razaoSocial" id="razaoSocial" aria-describedby="razaoSocialHelp" value="<?php echo $shop['razao_social']; ?>" <?php echo ($docType == "cnpj") ? "required" : ""; ?>>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="cnpj" class="form-label small">CNPJ *</label>
-                    <input type="text" class="form-control" name="cnpj" id="cnpj" aria-describedby="cnpjHelp" placeholder="00.000.000/0000-00">
+                    <input type="text" class="form-control" name="cnpj" id="cnpj" aria-describedby="cnpjHelp" placeholder="00.000.000/0000-00" value="<?php echo ($docType == "cnpj") ? $shop['cpf_cnpj'] : ""; ?>" <?php echo ($docType == "cnpj") ? "required" : ""; ?>>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label for="phone" class="form-label small">Telefone de contato *</label>
-                    <input type="text" class="form-control" name="phone" id="phone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $shop['phone']; ?>" required>
+                    <label for="cellPhone" class="form-label small">Telefone de contato *</label>
+                    <input type="text" class="form-control" name="cellPhone" id="cellPhone" aria-describedby="phoneHelp" placeholder="(00) 0000-0000" value="<?php echo $shop['phone']; ?>" <?php echo ($docType == "cnpj") ? "required" : ""; ?>>
                 </div>
             </div>
             <div class="row">
@@ -205,7 +212,7 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="cep" class="form-label small">CEP *</label>
-                    <input type="text" class="form-control" name="cep" id="cep" aria-describedby="cepHelp" value="<?php echo $address['cep']; ?>" required>
+                    <input type="text" class="form-control" name="cep" id="cep" aria-describedby="cepHelp" value="<?php echo $address['cep']; ?>" oninput="getCepData()" required>
                 </div>
                 <div class="col-md-8 mb-3">
                     <label for="endereco" class="form-label small">
@@ -262,7 +269,7 @@
 </div>
 
 <div class="tab-pane fade <?php echo ($tab == "perfil") ? "show active" : ""; ?>" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_settings.php" method="post">
+<form id="editProfile" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_profile.php" method="post">
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-3 p-0">
@@ -278,17 +285,11 @@
     <input type="hidden" name="id" value="<?php echo $id; ?>">
     <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
-        <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
-            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="text-decoration-none text-reset">Cancelar</a>
-            <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
-        </div>
-    </div>
 </form>
 </div>
 
 <div class="tab-pane fade <?php echo ($tab == "tema") ? "show active" : ""; ?>" id="theme-tab-pane" role="tabpanel" aria-labelledby="theme-tab" tabindex="0">
-<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_settings.php" method="post">
+<form id="editTheme" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_theme.php" method="post">
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-3 p-0">
@@ -309,18 +310,11 @@
 
     <input type="hidden" name="id" value="<?php echo $id; ?>">
     <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
-
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
-        <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
-            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="text-decoration-none text-reset">Cancelar</a>
-            <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
-        </div>
-    </div>
 </form>
 </div>
 
 <div class="tab-pane fade <?php echo ($tab == "seguranca") ? "show active" : ""; ?>" id="security-tab-pane" role="tabpanel" aria-labelledby="security-tab" tabindex="0">
-<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/verify_email.php" method="post">
+<form id="verifyEmail" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/verify_email.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Segurança</div>
         <div class="card-body row px-4 py-3">
@@ -408,7 +402,7 @@
     </div>
 </form>
 
-<form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/toggle_two_factors.php" method="post">
+<form id="toggleTwoFactors" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/toggle_two_factors.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Autenticação de dois fatores</div>
         <div class="card-body row px-4 py-3">
@@ -428,16 +422,6 @@
             </div>
         </div>
     </div>
-
-    <input type="hidden" name="id" value="<?php echo $id; ?>">
-    <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
-
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
-        <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
-            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="text-decoration-none text-reset">Cancelar</a>
-            <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
-        </div>
-    </div>
 </form>
 </div>
 
@@ -454,8 +438,8 @@
                 //Oculta pj
                 $('#pj').css('display', 'none');
                 //Adiciona required no input
-                $('#cpf').prop('required', true);
-                $('#razaoSocial, #cnpj').prop('required', false);
+                $('#cpf, #phone').prop('required', true);
+                $('#razaoSocial, #cnpj, #cellPhone').prop('required', false);
             } else {
                 //Se for pj
                 //Mostra pj
@@ -463,8 +447,8 @@
                 //Oculta pf
                 $('#pf').css('display', 'none');
                 //Adiciona required no input
-                $('#razaoSocial, #cnpj').prop('required', true);
-                $('#cpf').prop('required', false);
+                $('#razaoSocial, #cnpj, #cellPhone').prop('required', true);
+                $('#cpf, #phone').prop('required', false);
             }
         });
     });
@@ -731,4 +715,83 @@
             });
         });
     });
+</script>
+
+<!-- Mascara de input -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.0.2/cleave.min.js"></script>
+<script>
+    //Mask
+    new Cleave('#phone', {
+        delimiters: ['(', ')', ' ', '-'],
+        blocks: [0, 2, 0, 5, 4],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Mask
+    new Cleave('#cellPhone', {
+        delimiters: ['(', ')', ' ', '-'],
+        blocks: [0, 2, 0, 5, 4],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Mask
+    new Cleave('#cpf', {
+        delimiters: ['.', '.', '-'],
+        blocks: [3, 3, 3, 2],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Mask
+    new Cleave('#cnpj', {
+        delimiters: ['.', '.', '/', '-'],
+        blocks: [2, 3, 3, 4, 2],
+        numericOnly: true
+    });
+</script>
+<script>
+    //Mask
+    new Cleave('#cep', {
+        delimiters: ['-'],
+        blocks: [5, 3],
+        numericOnly: true
+    });
+</script>
+<script>
+    function getCepData() {
+        let cep = $('#cep').val();
+        cep = cep.replace(/\D/g, "");
+        if(cep.length < 8) {
+            $("#cep-error").html("O CEP deve conter no mínimo 8 dígitos");
+            $("#cep").addClass('input-error').focus();
+            $("#addressContent").css('height', '0');
+            return;
+        }
+
+        $("#cep").removeClass('input-error');
+        $("#cep-error").html('');
+
+        if(cep != "") {
+            $("#addressContent").css('height', '356px');
+            
+            $("#endereco").val("Carregando...");
+            $("#bairro").val("Carregando...");
+            $("#cidade").val("Carregando...");
+            $("#estado").val("Carregando...");
+            $.getJSON( "https://viacep.com.br/ws/"+cep+"/json/", function( data ) {
+                $("#endereco").val(data.logradouro);
+                $("#bairro").val(data.bairro);
+                $("#cidade").val(data.localidade);
+                $("#estado").val(data.uf);
+                $("#numero").focus();
+            }).fail(function() {
+                $("#endereco").val("");
+                $("#bairro").val("");
+                $("#cidade").val("");
+                $("#estado").val("");
+            });
+        }
+    }
 </script>

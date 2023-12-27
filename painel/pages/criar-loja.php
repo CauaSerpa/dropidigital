@@ -39,7 +39,7 @@
             ?>
         </p>
 
-        <input type="hidden" name="user_id" value="<?php echo $_SESSION['new_user_id']; ?>">
+        <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
         <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
 
         <fieldset class="step-form form-one active" data-step="1">
@@ -54,16 +54,18 @@
             </div>
             <div class="inputBox" id="urlForm">
                 <label for="url" class="labelInput">URL <span class="danger">*</span></label>
-                <input type="text" name="url" id="url" class="inputUser">
-                <label for="url" class="textInput">.dropidigital.com.br</label>
-                <span id="url-error" class="error-message">
-                    <?php
-                        if(isset($_SESSION['msg_url'])){
-                            echo $_SESSION['msg_url'];
-                            unset($_SESSION['msg_url']);
-                        }
-                    ?>
-                </span>
+                <div class="position-relative">
+                    <input type="text" name="url" id="url" class="inputUser">
+                    <label for="url" class="textInput">.dropidigital.com.br</label>
+                    <span id="url-error" class="error-message">
+                        <?php
+                            if(isset($_SESSION['msg_url'])){
+                                echo $_SESSION['msg_url'];
+                                unset($_SESSION['msg_url']);
+                            }
+                        ?>
+                    </span>
+                </div>
             </div>
             <div class="inputBox select">
                 <label for="segment" class="labelInput">Segmento <span class="danger">*</span></label>
@@ -198,6 +200,25 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    $(document).ready(function(){
+        var url = $('#url');
+        var urlError = $('#url-error');
+
+        url.on("input", function() {
+            var text = url.val();
+
+            // Remove pontos e vírgulas
+            var newText = text.replace(/[.,]/g, '');
+
+            // Substitui espaços por "-"
+            newText = newText.replace(/\s+/g, "-").toLowerCase();
+
+            $(this).val(newText);
+            $('#link').val(newText);
+        });
+    });
+</script>
+<script>
   $(document).ready(function() {
     $('#name').on('blur', function() {
       const name = $(this).val();
@@ -300,12 +321,15 @@
             if (etapa === 1) {
                 const form = document.getElementById('form');
                 const nameInput = document.getElementById('name');
+                const urlInput = document.getElementById('url');
                 const segmentInput = document.getElementById('segment');
 
                 const nameError = document.getElementById('name-error');
+                const urlError = document.getElementById('url-error');
                 const segmentError = document.getElementById('segment-error');
 
                 const nameField = $(nameInput);
+                const urlField = $(urlInput);
                 const segmentField = $(segmentInput);
 
                 nameError.textContent = '';
@@ -314,6 +338,16 @@
                     nameError.textContent = 'Preencha o campo Nome!';
                     nameField.addClass('input-error');
                     return false;
+                }
+
+                if (urlField.hasClass('urlActive')) {
+                    urlError.textContent = '';
+
+                    if (!validateUrl(urlInput.value)) {
+                        urlError.textContent = 'Preencha o campo Url!';
+                        urlField.addClass('input-error');
+                        return false;
+                    }
                 }
 
                 segmentError.textContent = '';
@@ -370,7 +404,11 @@
         function validateName(name) {
             return name.length > 0;
         }
-        
+
+        function validateUrl(url) {
+            return url.length > 0;
+        }
+
         function validateSegment(segment) {
             return segment !== '';
         }
@@ -392,12 +430,14 @@
 <script>
 	const form = document.getElementById('form');
     const nameInput = document.getElementById('name');
+    const urlInput = document.getElementById('url');
     const segmentInput = document.getElementById('segment');
     const cpfInput = document.getElementById('cpf');
     const cnpjInput = document.getElementById('cnpj');
     const razaoSocialInput = document.getElementById('razao_social');
 
     const nameError = document.getElementById('name-error');
+    const urlError = document.getElementById('url-error');
     const segmentError = document.getElementById('segment-error');
     const cpfError = document.getElementById('cpf-error');
     const cnpjError = document.getElementById('cnpj-error');
@@ -405,6 +445,10 @@
 
     nameInput.addEventListener('input', function() {
         validateName();
+    });
+
+    urlInput.addEventListener('input', function() {
+        validateUrl();
     });
 
     segmentInput.addEventListener('change', function() {
@@ -432,6 +476,18 @@
             nameField.addClass('input-error');
         } else {
             nameField.removeClass('input-error');
+        }
+    }
+
+    function validateUrl() {
+        const urlField = $(urlInput);
+        urlError.textContent = '';
+
+        if (!validateField(urlInput.value)) {
+            urlError.textContent = 'Preencha o campo Url!';
+            urlField.addClass('input-error');
+        } else {
+            urlField.removeClass('input-error');
         }
     }
 

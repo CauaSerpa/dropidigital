@@ -594,7 +594,7 @@ input[type=radio]
 {    
     position: absolute;
     height: 44px;
-    top: 25px;
+    top: 12px;
     right: 0;
     padding: 0 24px;
     display: flex;

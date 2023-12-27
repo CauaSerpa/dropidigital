@@ -17,6 +17,9 @@
             // Transforma o texto em minúsculas
             $texto = strtolower($name);
 
+            // Remove pontos e vírgulas
+            $texto = str_replace(['.', ','], '', $texto);
+
             // Separa o texto em um array de palavras
             $palavras = explode(' ', $texto);
 
