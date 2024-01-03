@@ -8,10 +8,6 @@
         $id = $_POST['id'];
         $shop_id = $_POST['shop_id'];
 
-        echo $id;
-
-        print_r($_POST);
-
         // Shop
         $name = $_POST['name'];
         $title = $_POST['title'];
@@ -50,7 +46,7 @@
         $tabela = 'tb_shop';
 
         // Insere a categoria no banco de dados da loja
-        $sql = "UPDATE $tabela SET name = :name, title = :title, description = :description, cpf_cnpj = :cpf_cnpj, razao_social = :razao_social, phone = :phone, segment = :segment, map = :map WHERE user_id = :user_id";
+        $sql = "UPDATE $tabela SET name = :name, title = :title, description = :description, cpf_cnpj = :cpf_cnpj, razao_social = :razao_social, phone = :phone, segment = :segment, map = :map WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':title', $title);
@@ -62,7 +58,7 @@
         $stmt->bindValue(':map', $activeMaps);
 
         // Id que sera editado
-        $stmt->bindValue(':user_id', $id);
+        $stmt->bindValue(':id', $shop_id);
 
         //Executar o stmt
         $stmt->execute();
@@ -76,7 +72,7 @@
         $stmt->bindValue(':responsible', $responsible);
 
         // Id que sera editado
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':id', $shop_id);
 
         //Executar o stmt
         $stmt->execute();
@@ -95,11 +91,11 @@
         $stmt->bindValue(':cidade', $cidade);
         $stmt->bindValue(':estado', $estado);
 
-        $stmt->bindValue(':shop_id', $id);
+        $stmt->bindValue(':shop_id', $shop_id);
 
         if ($stmt->execute()) {
             $_SESSION['msgcad'] = "<p class='green'>Configurações editadas com sucesso!</p>";
-            // header("Location: " . INCLUDE_PATH_DASHBOARD . "configuracoes");
+            header("Location: " . INCLUDE_PATH_DASHBOARD . "configuracoes");
             exit;
         } else {
             $_SESSION['msg'] = "<p class='red'>Erro ao editar as configurações!</p>";

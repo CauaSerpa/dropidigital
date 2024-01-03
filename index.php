@@ -82,7 +82,7 @@
 
 
                                     <ul class="navigation clearfix">
-                                        <li><i class="far fa-envelope"></i> <a href="mailto:support@gmail.com">suporte@softhash.com.br</a></li>
+                                        <li><i class="far fa-envelope"></i> <a href="mailto:support@gmail.com">suporte@dropidigital.com.br</a></li>
                                         <li><i class="far fa-phone"></i><a href="callto:+000(123)45688">+55 12 98252-3912</a></li>
                                         <li class="for-none"><i class="far fa-clock"></i>São Paulo</li>
                                         <li>
@@ -111,7 +111,7 @@
                         
                         <!-- Menu Button -->
                         <div class="menu-btns">
-                           <a href="#" class="theme-btn">Login <i class="fas fa-long-arrow-right"></i></a>
+                           <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="theme-btn">Login <i class="fas fa-long-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -316,7 +316,7 @@
             <div class="container">
                <div class="section-title text-center mb-55 wow fadeInUp delay-0-2s">
                     <span class="sub-title mb-15">Conheça Nosso Projeto</span>
-                    <h2> Pare de perder tempo e dinheiro com a codificação do zero, comece a usar o #SoftHash agora!</h2>
+                    <h2> Pare de perder tempo e dinheiro com a codificação do zero, comece a usar o #DropiDigital agora!</h2>
                 </div>
                 <div class="project-slider-active">
                     <div class="project-slider-item">
@@ -337,7 +337,7 @@
                     <div class="project-slider-item">
                        <div class="content">
                            <h4>Revolucione a forma de fazer negócios!</h4>
-                           <p>Facilite sua vida com a #SoftHash. Ignore as longas horas de programação tediosa, economize dinheiro com desenvolvedores e concentre-se no que é importante: expandir seus negócios. Obtenha o poder de toda uma equipe de desenvolvimento ao seu alcance com o #SoftHash!                        </p>
+                           <p>Facilite sua vida com a #DropiDigital. Ignore as longas horas de programação tediosa, economize dinheiro com desenvolvedores e concentre-se no que é importante: expandir seus negócios. Obtenha o poder de toda uma equipe de desenvolvimento ao seu alcance com o #DropiDigital!                        </p>
                            <ul class="list-style-one">
                                <li>Time de talentos - Tenha os melhores desenvolvedores do mercado trabalhando exclusivamente no seu projeto.</li>
                                <li>Inovação - Criamos softwares inovadores 100% personalizados como portais, marketplaces, sistemas e apps.</li>
@@ -825,7 +825,7 @@
             <div class="container">
                 <div class="section-title text-center mb-60 wow fadeInUp delay-0-2s">
                     <span class="sub-title mb-15">Membro da equipe</span>
-                    <h2>Time SoftHash</h2>
+                    <h2>Time Dropi Digital</h2>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-xl-3 col-lg-4 col-md-6">
@@ -1120,14 +1120,14 @@
                                 <div class="accordion-item">
                                     <h5 class="accordion-header">
                                         <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                            Quais são os serviços e produtos que a SoftHash oferece? 
+                                            Quais são os serviços e produtos que a Dropi Digital oferece? 
                                         </button>
                                     </h5>
                                     <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faq-accordion">
                                         <div class="accordion-body">
-										<p>A SoftHash oferece principalmente serviços de desenvolvimento de sistemas de software.<br>
-Tem uma forte atuação em sistemas corporativos de empresas com grandes necessidade de investimentos em Tecnologia da Informação (TI). Tem uma grande experiência em tecnologias muito usadas nesses sistemas. Mas também a SoftHash tem experiência no desenvolvimento de sistemas para o mundo moderno de web apps e aplicativos móveis.<br>
-Na área de produtos a SoftHash conta com um produto próprio de Gestão de Conteúdo (ou o que é conhecido em inglês como CMS - Content Management System). </p>
+										<p>A Dropi Digital oferece principalmente serviços de desenvolvimento de sistemas de software.<br>
+Tem uma forte atuação em sistemas corporativos de empresas com grandes necessidade de investimentos em Tecnologia da Informação (TI). Tem uma grande experiência em tecnologias muito usadas nesses sistemas. Mas também a Dropi Digital tem experiência no desenvolvimento de sistemas para o mundo moderno de web apps e aplicativos móveis.<br>
+Na área de produtos a Dropi Digital conta com um produto próprio de Gestão de Conteúdo (ou o que é conhecido em inglês como CMS - Content Management System). </p>
 
                                         </div>
                                     </div>
@@ -1140,7 +1140,7 @@ Na área de produtos a SoftHash conta com um produto próprio de Gestão de Cont
                                     </h5>
                                     <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faq-accordion">
                                         <div class="accordion-body">
-										<p>A SoftHash oferece principalmente serviços de desenvolvimento de sistemas de software. Tem uma forte atuação em sistemas corporativos de empresas com grandes necessidade de investimentos em Tecnologia da Informação (TI). Tem uma grande experiência em tecnologias muito usadas nesses sistemas. Mas também a Visionnaire tem experiência no desenvolvimento de sistemas para o mundo moderno de web apps e aplicativos móveis.</p>
+										<p>A Dropi Digital oferece principalmente serviços de desenvolvimento de sistemas de software. Tem uma forte atuação em sistemas corporativos de empresas com grandes necessidade de investimentos em Tecnologia da Informação (TI). Tem uma grande experiência em tecnologias muito usadas nesses sistemas. Mas também a Visionnaire tem experiência no desenvolvimento de sistemas para o mundo moderno de web apps e aplicativos móveis.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1250,7 +1250,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                                     </div>
                                     <div class="content">
                                         <span>E-mail</span>
-                                        <h5><a href="mailto:suporte@softhash.com.br">suporte@softhash.com.br</a></h5>
+                                        <h5><a href="mailto:suporte@dropidigital.com.br">suporte@dropidigital.com.br</a></h5>
                                     </div>
                                 </div>
                                 <div class="contact-info-item">
@@ -1299,7 +1299,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                             <p>Saiba das novidades em primeira mão.</p>
                             <form action="#">
                                 <label for="email"><i class="far fa-envelope"></i></label>
-                                <input id="email" type="email" placeholder="suporte@softhash.com.br" required>
+                                <input id="email" type="email" placeholder="suporte@dropidigital.com.br" required>
                                 <button>Enviar!</button>
                             </form>
                             <h5>Siga-nos</h5>
@@ -1355,7 +1355,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                         </div>
                         <div class="col-lg-4">
                             <div class="copyright-text text-lg-end wow fadeInLeft delay-0-2s">
-                                <p>TODOS OS DIREITOS RESERVADOS ©2023 SoftHash. <br>Uma empresa especialista em soluções digitais.</p>
+                                <p>TODOS OS DIREITOS RESERVADOS ©2023 Dropi Digital. <br>Uma empresa especialista em soluções digitais.</p>
                             </div>
                         </div>
                     </div>

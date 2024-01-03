@@ -49,7 +49,7 @@
         // Por exemplo, use a função filter_input() e hash para a senha:
 
         // Verifica se o usuário já existe
-        $sql = "SELECT name, email FROM $tabela WHERE id = :id";
+        $sql = "SELECT name, email, active_email FROM $tabela WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':id', $user_id);
         $stmt->execute();
@@ -64,59 +64,83 @@
             $email = $_POST['email'];
         }
 
-        try {
-            /*$mail->SMTPDebug = SMTP::DEBUG_SERVER;*/
-            $mail->CharSet = 'UTF-8';
-            $mail->isSMTP();
-            $mail->Host       = $smtp_host;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = $smtp_username;
-            $mail->Password   = $smtp_password;
-            $mail->SMTPSecure = $smtp_secure;
-            $mail->Port       = $smtp_port;
+        // Verifica se o email e igual e se ja foi ativo
+        if ($user['email'] !== $email && $user['active_email'] == 0) {
+            // Atualiza o email se for diferente do cadastrado
+            //Tabela que será solicitada
+            $tabela = 'tb_users';
 
-            $mail->setFrom('no-reply@dropidigital.com.br', 'Não Responda');
-            $mail->addAddress($email, $user['name']);
+            // Insere a categoria no banco de dados do endereco da loja
+            $sql = "UPDATE $tabela SET email = :email WHERE id = :id";
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindValue(':email', $email);
 
-            $mail->isHTML(true); //Set email format to HTML
-            $mail->Subject = 'Ativar e-mail';
-            $mail->Body = "Olá " . $user['name'] . ", bem-vindo ao nosso site!</br>Termine o cadastro da sua loja na Dropi Digital!</br></br>Para continuar a ativação seu email <a href='" . INCLUDE_PATH_DASHBOARD . "ativar-email?token=" . $token . "'>Clique Aqui!</a>";
-            $mail->AltBody = "Olá " . $user['name'] . ", bem-vindo ao nosso site!\nTermine o cadastro da sua loja na Dropi Digital!\n\nPara continuar a ativação seu email <a href='" . INCLUDE_PATH_DASHBOARD . "ativar-email?token=" . $token . "'>Clique Aqui!</a>";
+            $stmt->bindValue(':id', $user_id);
 
-            // Enviar o e-mail
-            if ($mail->send()) {
-                //Tabela que será solicitada
-                $tabela = 'tb_users';
+            $stmt->execute();
+        }
 
-                // Adiciona o token a tabela
-                $sql = "UPDATE $tabela SET token = :token WHERE id = :id";
-                $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindValue(':token', $token);
+        if ($user['active_email'] == 0) {
+            try {
+                /*$mail->SMTPDebug = SMTP::DEBUG_SERVER;*/
+                $mail->CharSet = 'UTF-8';
+                $mail->isSMTP();
+                $mail->Host       = $smtp_host;
+                $mail->SMTPAuth   = true;
+                $mail->Username   = $smtp_username;
+                $mail->Password   = $smtp_password;
+                $mail->SMTPSecure = $smtp_secure;
+                $mail->Port       = $smtp_port;
 
-                // Id que sera editado
-                $stmt->bindValue(':id', $user_id);
+                $mail->setFrom('no-reply@dropidigital.com.br', 'Não Responda');
+                $mail->addAddress($email, $user['name']);
 
-                if ($stmt->execute()) {
-                    $_SESSION['msgcad'] = "<p class='green'>E-mail de confirmação enviado com sucesso!</p>";
+                $mail->isHTML(true); //Set email format to HTML
+                $mail->Subject = 'Ativar e-mail';
+                $mail->Body = "Olá " . $user['name'] . ", bem-vindo ao nosso site!</br>Termine o cadastro da sua loja na Dropi Digital!</br></br>Para continuar a ativação seu email <a href='" . INCLUDE_PATH_DASHBOARD . "ativar-email?token=" . $token . "'>Clique Aqui!</a>";
+                $mail->AltBody = "Olá " . $user['name'] . ", bem-vindo ao nosso site!\nTermine o cadastro da sua loja na Dropi Digital!\n\nPara continuar a ativação seu email <a href='" . INCLUDE_PATH_DASHBOARD . "ativar-email?token=" . $token . "'>Clique Aqui!</a>";
 
-                    // Redireciona para a página de configuracoes e exibe uma mensagem de sucesso
-                    header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");
+                // Enviar o e-mail
+                if ($mail->send()) {
+                    //Tabela que será solicitada
+                    $tabela = 'tb_users';
+
+                    // Adiciona o token a tabela
+                    $sql = "UPDATE $tabela SET token = :token WHERE id = :id";
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindValue(':token', $token);
+
+                    // Id que sera editado
+                    $stmt->bindValue(':id', $user_id);
+
+                    if ($stmt->execute()) {
+                        $_SESSION['msgcad'] = "<p class='green'>E-mail de confirmação enviado com sucesso!</p>";
+
+                        // Redireciona para a página de configuracoes e exibe uma mensagem de sucesso
+                        header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");
+                    } else {
+                        $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar o token</p>";
+
+                        // Redireciona para a página de login ou exibe uma mensagem de sucesso
+                        header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");
+                    }
                 } else {
-                    $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar o token</p>";
+                    $_SESSION['msg'] = "<p class='red'>Erro ao enviar o e-mail: " . $mail->ErrorInfo . "</p>";
 
                     // Redireciona para a página de login ou exibe uma mensagem de sucesso
                     header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");
                 }
-            } else {
-                $_SESSION['msg'] = "<p class='red'>Erro ao enviar o e-mail: " . $mail->ErrorInfo . "</p>";
-
-                // Redireciona para a página de login ou exibe uma mensagem de sucesso
+            } catch (Exception $e) {
+                $_SESSION['msg'] = "<p class='red'>Erro: E-mail não enviado sucesso. Mailer Error: {$mail->ErrorInfo}</p>";
                 header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");
             }
-        } catch (Exception $e) {
-            $_SESSION['msg'] = "<p class='red'>Erro: E-mail não enviado sucesso. Mailer Error: {$mail->ErrorInfo}</p>";
+        } else {
+            $_SESSION['msg'] = "<p class='red'>Não foi possível enviar o E-mail</p>";
+
+            // Redireciona para a página de login ou exibe uma mensagem de sucesso
             header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");
         }
+        
     } else {
         $_SESSION['msg'] = "<p class='red'>Erro: Usuário não encontrado!</p>";
         header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");

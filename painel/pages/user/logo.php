@@ -1,3 +1,25 @@
+<?php
+    // Tabela que sera feita a consulta
+    $tabela = "tb_shop";
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $imagem = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificar se o resultado foi encontrado
+    if ($imagem) {
+?>
 <!-- Codigo da Imagem dos produtos -->
 <style>
     label.image-container {
@@ -122,6 +144,31 @@
     }
 </style>
 
+<style>
+    .image-preview-container {
+        position: relative;
+        text-align: center;
+
+        background-color: #f9f9f9;
+        width: 100%;
+        padding: 3.12em 1.87em;
+        border: 2px dashed #c4c4c4;
+        border-radius: 0.5em;
+        cursor: pointer;
+    }
+
+    .image-preview {
+        max-width: 100%;
+        max-height: 400px;
+        margin: 0 auto;
+        display: none; /* A imagem está oculta inicialmente */
+    }
+
+    .file-input {
+        display: none; /* Ocultar o input de arquivo original */
+    }
+</style>
+
 <div class="page__header center">
     <div class="header__title">
         <div class="page__header center">
@@ -141,23 +188,21 @@
 </div>
 
 <form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/add_logo.php" method="post" enctype="multipart/form-data">
+
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             Logo
-            <label for="upload-button-1" class="small" style="cursor: pointer;">Selecionar imagem</label>
+            <label for="file-input-1" class="small" style="cursor: pointer;">Selecionar imagem</label>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="upload-button-1" class="image-container mt-3">
-                <input type="file" name="logo[]" id="upload-button-1" multiple accept="image/*" />
-                <div for="upload-button-1" class="dropzone">
+            <label for="file-input-1" class="image-preview-container">
+                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['logo']; ?>" alt="Logo <?php echo $imagem['logo']; ?>" class="image-preview" id="image-preview-1" <?php echo (!empty($imagem['logo'])) ? "style='display: block;'" : ""; ?>>
+                <div class="center-text" <?php echo (!empty($imagem['logo'])) ? "style='display: none;'" : ""; ?>>
                     <i class='bx bx-image fs-1'></i>
-                    <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
+                    <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
                 </div>
-                <div id="error-1"></div>
             </label>
-            <div class="sortable-container mt-3">
-                <div id="image-display-1"></div>
-            </div>
+            <input type="file" name="logo" accept="image/*" class="file-input" id="file-input-1">
             <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
         </div>
     </div>
@@ -165,20 +210,17 @@
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             Logo para Celular
-            <label for="upload-button-2" class="small" style="cursor: pointer;">Selecionar imagem</label>
+            <label for="file-input-2" class="small" style="cursor: pointer;">Selecionar imagem</label>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="upload-button-2" class="image-container mt-3">
-                <input type="file" name="logo_mobile[]" id="upload-button-2" multiple accept="image/*" />
-                <div for="upload-button-2" class="dropzone">
+            <label for="file-input-2" class="image-preview-container">
+                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['logo_mobile']; ?>" alt="Logo <?php echo $imagem['logo_mobile']; ?>" class="image-preview" id="image-preview-2" <?php echo (!empty($imagem['logo'])) ? "style='display: block;'" : ""; ?>>
+                <div class="center-text" <?php echo (!empty($imagem['logo_mobile'])) ? "style='display: none;'" : ""; ?>>
                     <i class='bx bx-image fs-1'></i>
-                    <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
+                    <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
                 </div>
-                <div id="error-2"></div>
             </label>
-            <div class="sortable-container mt-3">
-                <div id="image-display-2"></div>
-            </div>
+            <input type="file" name="logo_mobile" accept="image/*" class="file-input" id="file-input-2">
             <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
         </div>
     </div>
@@ -186,20 +228,17 @@
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             Ícone da página (Favicon)
-            <label for="upload-button-3" class="small" style="cursor: pointer;">Selecionar imagem</label>
+            <label for="file-input-3" class="small" style="cursor: pointer;">Selecionar imagem</label>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="upload-button-3" class="image-container mt-3">
-                <input type="file" name="favicon[]" id="upload-button-3" multiple accept="image/*" />
-                <div for="upload-button-3" class="dropzone">
+            <label for="file-input-3" class="image-preview-container">
+                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['favicon']; ?>" alt="Logo <?php echo $imagem['favicon']; ?>" class="image-preview" id="image-preview-3" <?php echo (!empty($imagem['logo'])) ? "style='display: block;'" : ""; ?>>
+                <div class="center-text" <?php echo (!empty($imagem['favicon'])) ? "style='display: none;'" : ""; ?>>
                     <i class='bx bx-image fs-1'></i>
-                    <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
+                    <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
                 </div>
-                <div id="error-3"></div>
             </label>
-            <div class="sortable-container mt-3">
-                <div id="image-display-3"></div>
-            </div>
+            <input type="file" name="favicon" accept="image/*" class="file-input" id="file-input-3">
             <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
         </div>
     </div>
@@ -327,7 +366,62 @@
     };
 </script> -->
 
+<!-- Imagem -->
+<!-- <script>
+    const imagePreview = document.getElementById("image-preview");
+    const fileInput = document.getElementById("file-input");
+    
+    fileInput.addEventListener("change", function () {
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = "block";
+                document.querySelector(".center-text").style.display = "none";
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.src = "";
+            imagePreview.style.display = "none";
+            document.querySelector(".center-text").style.display = "block";
+        }
+    });
+</script> -->
+
 <script>
+    function imagePreview(fileInputId, imagePreviewId) {
+        const imagePreview = document.getElementById(imagePreviewId);
+        const fileInput = document.getElementById(fileInputId);
+        let previousImageSrc = "";
+
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previousImageSrc = imagePreview.src; // Armazenar imagem anterior
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    document.querySelector(".center-text").style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reverter para a imagem anterior
+                imagePreview.src = previousImageSrc;
+                imagePreview.style.display = "none"; // Exibir a imagem anterior
+                document.querySelector(".center-text").style.display = "none";
+            }
+        });
+    }
+
+    // Inicialize para os três pares de botão de upload e visualização de imagem
+    imagePreview("file-input-1", "image-preview-1");
+    imagePreview("file-input-2", "image-preview-2");
+    imagePreview("file-input-3", "image-preview-3");
+</script>
+
+<!-- <script>
     const maxImages = 1; // Define o número máximo de imagens para cada campo
 
     function initializeFileInput(inputId, imageDisplayId, errorId) {
@@ -436,7 +530,7 @@
     initializeFileInput("upload-button-1", "image-display-1", "error-1");
     initializeFileInput("upload-button-2", "image-display-2", "error-2");
     initializeFileInput("upload-button-3", "image-display-3", "error-3");
-</script>
+</script> -->
 
 <!-- Tooltip -->
 <script>
@@ -487,3 +581,9 @@
         });
     });
 </script>
+<?php
+    } else {
+        // ID não encontrado ou não existente
+        echo "ID não encontrado.";
+    }
+?>

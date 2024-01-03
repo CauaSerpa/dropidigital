@@ -165,6 +165,7 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
                 <div class="w-50 me-2">
                     <input type="text" class="form-control" name="domain" id="domain" aria-describedby="domainHelp" placeholder="dropidigital.com.br" disabled>
                 </div>
+                <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
                 <button type="submit" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center ms-2" style="height: 38px;">Adicionar</button>
             </div>
         </div>

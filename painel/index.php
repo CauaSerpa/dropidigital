@@ -10,6 +10,16 @@
         $title = ucwords(str_replace("-", " ", $url));
     }
 
+    // Caminho para o diretório pai
+    $parentDir = dirname(__DIR__);
+
+	require $parentDir . '/vendor/autoload.php';
+	$dotenv = Dotenv\Dotenv::createImmutable($parentDir);
+	$dotenv->load();
+
+    // Informacoes para PHPMailer
+	$recaptcha_token = $_ENV['RECAPTCHA_CHAVE_DE_SITE'];
+
     session_start();
     ob_start();
     include('../config.php');
@@ -30,7 +40,7 @@
     $id = @$_SESSION['user_id'];
 
     // Consulta SQL
-    $sql = "SELECT name, email FROM $tabela WHERE id = :id";
+    $sql = "SELECT permissions, name, email FROM $tabela WHERE id = :id";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -44,9 +54,12 @@
     // Obter o resultado como um array associativo
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    $permissions = "";
+
     // Verificar se o resultado foi encontrado
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
+        $permissions = $resultado['permissions'];
         $name = $resultado['name'];
         $email = $resultado['email'];
     }
@@ -202,6 +215,168 @@
     <?php
             echo "";
         }
+        elseif ($permissions == 1)
+        {
+            echo "";
+    ?>
+    <div class="tutorial__bg__"></div>
+    <header class="l-header painel">
+        <nav class="nav bd-grid">
+            <div class="left">
+                <div class="toggle" onclick="toggle()">
+                    <i class='bx bx-menu' id="mobileBtn"></i>
+                </div>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo">
+                    <img class="logo" src="" alt="Logo" id="logo">
+                </a>
+            </div>
+            <div class="right">
+                <div class="header__icon help">
+                    <a href="https://suporte.dropidigital.com.br">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M12 6a3.939 3.939 0 0 0-3.934 3.934h2C10.066 8.867 10.934 8 12 8s1.934.867 1.934 1.934c0 .598-.481 1.032-1.216 1.626a9.208 9.208 0 0 0-.691.599c-.998.997-1.027 2.056-1.027 2.174V15h2l-.001-.633c.001-.016.033-.386.441-.793.15-.15.339-.3.535-.458.779-.631 1.958-1.584 1.958-3.182A3.937 3.937 0 0 0 12 6zm-1 10h2v2h-2z"></path><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path></svg>
+                    </a>
+                </div>
+                <div class="container__user">
+                    <div class="user__info" onclick="toggleUser()">
+                        <img id="imagemUsuario" alt="Imagem de Perfil">
+                        <div class="info">
+                            <p><?php echo $name; ?></p>
+                            <span>Administrador</span>
+                        </div>
+                        <i class='bx bx-chevron-down' ></i>
+                    </div>
+                    <div class="user" id="userWrap">
+                        <div class="modal__user__info">
+                            <h5 class="fs-5 mb-0"><?php echo $name; ?></h5>
+                            <p class="small"><?php echo $email; ?></p>
+                        </div>
+                        <div class="theme__dark small">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.271c-2.135 0-4.14-.83-5.646-2.336a8.025 8.025 0 0 1-2.064-7.723A1 1 0 0 0 9.73 2.034a10.014 10.014 0 0 0-4.489 2.582c-3.898 3.898-3.898 10.243 0 14.143a9.937 9.937 0 0 0 7.072 2.93 9.93 9.93 0 0 0 7.07-2.929 10.007 10.007 0 0 0 2.583-4.491 1.001 1.001 0 0 0-1.224-1.224zm-2.772 4.301a7.947 7.947 0 0 1-5.656 2.343 7.953 7.953 0 0 1-5.658-2.344c-3.118-3.119-3.118-8.195 0-11.314a7.923 7.923 0 0 1 2.06-1.483 10.027 10.027 0 0 0 2.89 7.848 9.972 9.972 0 0 0 7.848 2.891 8.036 8.036 0 0 1-1.484 2.059z"></path></svg>
+                            <p>Tema Escuro</p>
+                        </div>
+                        <div class="account">
+                            <h5 class="fs-5 mb-1">Minha Conta</h5>
+                            <ul class="mb-0">
+                                <li class="small">
+                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">
+                                        Editar Conta
+                                    </a>
+                                </li>
+                                <li class="small">
+                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sair">
+                                        Sair
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <style>
+        .sidebar
+        {
+            width: 266px !important;
+            background: none !important;
+        }
+        .sidebar.close
+        {
+            width: 266px !important;
+            border-right: none !important;
+        }
+        .sidebar .nav-links
+        {
+            overflow-y: scroll;
+        }
+        .sidebar.close .nav-links::before
+        {
+            content: "";
+            position: absolute;
+            left: 77px;
+            height: 100%;
+            width: 1px;
+            background: var(--border-color);
+        }
+
+        .sidebar.close .nav-links li
+        {
+            width: min-content;
+        }
+        .sidebar.close .nav-links li .iocn-link
+        {
+            width: 78px !important;
+            border-right: 1px solid var(--border-color) !important;
+        }
+        .sidebar.close .nav-links li .sub-menu
+        {
+            border-left: none !important;
+        }
+
+        .sidebar .sidebar_bottom
+        {
+            transition: none !important;
+        }
+
+        .offcanvas-filter
+        {
+            left: 266px !important;
+        }
+        .offcanvas-backdrop.fade.show
+        {
+            left: 266px !important;
+        }
+    </style>
+
+    <nav class="sidebar close">
+        <ul class="nav-links">
+            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">
+                            <i class='bx bx-grid-alt' ></i>
+                        </a>
+                        <span class="link_name">Dashboard</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="#">Dashboard</a></li>
+                </ul>
+            </li>
+            <div class="sidebar_bottom">
+                <li>
+                    <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">
+                                <i class='bx bx-cog' ></i>
+                            </a>
+                            <span class="link_name">Configurações</span>
+                        </p>
+                    </div>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name ms-0" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes">Configurações</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sair">
+                                <i class='bx bx-log-out' ></i>
+                            </a>
+                            <span class="link_name">Sair</span>
+                        </p>
+                    </div>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sair">Sair</a></li>
+                    </ul>
+                </li>
+			</div>
+		</ul>
+    </nav>
+    <?php
+            echo "";
+        }
         else
         {
             echo "";
@@ -218,10 +393,6 @@
                 </a>
                 <form action="" class="search__form">
                     <div class="search__container">
-                        <select name="search_select" id="search-option" class="search__option">
-                            <option value="product">Produto</option>
-                            <option value="order">Pedido</option>
-                        </select>
                         <input type="text" name="search" id="search" class="search" placeholder="Buscar..." title="Buscar..." autocomplete="off">
                         <button type="button" class="button">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path></svg>
@@ -240,7 +411,7 @@
                             // Remove o protocolo (http:// ou https://) se presente
                             $dominio = preg_replace('#^https?://#', '', $dominio_completo);
 
-                            $shop_url = "http://$link.$dominio/dropidigital/app/loja";
+                            $shop_url = "https://$link.$dominio";
                         }
                     ?>
                     <a href="<?php echo $shop_url; ?>" target="_blank" class="text-dark text-decoration-none fs-6 fw-semibold">
@@ -735,7 +906,25 @@
 
 
         <?php
-            // Iniciando variavel $tab
+            // // Iniciando variavel $tab
+            // $tab = "";
+
+            // // Verifica se a url contém uma barra
+            // if (strpos($url, '/') !== false) {
+            //     // Divide a url usando a barra como delimitador
+            //     list($url, $tab) = explode('/', $url, 2);
+            // }
+
+            // if(file_exists('pages/'.$url.'.php')){
+            //     include('pages/'.$url.'.php');
+            // }else{
+            //     //a pagina nao existe
+            //     header('Location: '.INCLUDE_PATH_DASHBOARD.'404');
+            // }
+        ?>
+
+        <?php
+            // Iniciando variável $tab
             $tab = "";
 
             // Verifica se a url contém uma barra
@@ -744,11 +933,31 @@
                 list($url, $tab) = explode('/', $url, 2);
             }
 
-            if(file_exists('pages/'.$url.'.php')){
-                include('pages/'.$url.'.php');
-            }else{
-                //a pagina nao existe
-                header('Location: '.INCLUDE_PATH_DASHBOARD.'404');
+            if ($permissions == 1) {
+                // Administrador
+                $permission = 'admin';
+            } elseif ($permissions == 0) {
+                // Usuario
+                $permission = 'user';
+            } else {
+                // None
+                $permission = 'login';
+            }
+
+            if ($url == "login" || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == "404" || $url == "sair") {
+                if (file_exists('pages/login/' . $url . '.php')) {
+                    include('pages/login/' . $url . '.php');
+                } else {
+                    // A página não existe
+                    header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                }
+            } else {
+                if (file_exists('pages/' . $permission . '/' . $url . '.php')) {
+                    include('pages/' . $permission . '/' . $url . '.php');
+                } else {
+                    // A página não existe
+                    header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                }
             }
         ?>
 
@@ -773,12 +982,12 @@
     <?php
         if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404') {
             echo '
-                <script src="https://www.google.com/recaptcha/api.js?render=6LcRUkUnAAAAAJGzCTc4KTbgqgsEmwYZCTZtNp9i"></script>
+                <script src="https://www.google.com/recaptcha/api.js?render=' . $recaptcha_token . '"></script>
                 <script>
                     function onClick(e) {
                         e.preventDefault();
                         grecaptcha.ready(function() {
-                            grecaptcha.execute("6LcRUkUnAAAAAJGzCTc4KTbgqgsEmwYZCTZtNp9i", {action: "submit"}).then(function(token) {
+                            grecaptcha.execute("' . $recaptcha_token . '", {action: "submit"}).then(function(token) {
                                 // Add your logic to submit to your backend server here.
                             });
                         });

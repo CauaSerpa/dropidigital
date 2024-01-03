@@ -86,40 +86,38 @@
         $stmt->bindParam(':id', $dados['id']);
 
         $stmt->execute();
-        
-        // Recupere o ID do último registro inserido
-        $ultimo_id = $dados['shop_id'];
 
         // Deletar imagens
         if (isset($_POST['delete_images'])) {
             $postString = $_POST['delete_images']; // Sua string post com valores separados por vírgula
             $array = explode(", ", $postString); // Divida a string em um array
-    
+
             // Loop através dos IDs selecionados e exclua as linhas correspondentes
             foreach ($array as $selectedId) {
                 // Consulta para obter o diretório da imagem
-                $query = "SELECT id, usuario_id FROM imagens WHERE id = :id";
+                $query = "SELECT id, nome_imagem, usuario_id FROM imagens WHERE id = :id";
                 $stmt = $conn_pdo->prepare($query);
                 $stmt->bindParam(':id', $selectedId);
                 $stmt->execute();
-    
+
                 if ($stmt->rowCount() > 0) {
                     // Obtenha o ID do usuário
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-                    $usuario_id = $row['usuario_id'];
-    
+
+                    $image_name = $row['nome_imagem'];
+                    $product_id = $row['usuario_id'];
+
                     // Diretório das imagens
-                    $diretorio = "./imagens/$usuario_id/";
-    
+                    $diretorio = "./imagens/$product_id/";
+
                     // Consulta para excluir as imagens do banco de dados
                     $query = "DELETE FROM imagens WHERE id = :id";
                     $stmt = $conn_pdo->prepare($query);
                     $stmt->bindParam(':id', $selectedId);
                     $stmt->execute();
-    
+
                     // Agora, exclua as imagens no diretório
-                    $files = glob($diretorio . "*");
+                    $files = glob($diretorio . $image_name);
                     foreach ($files as $file) {
                         unlink($file);
                     }
@@ -127,9 +125,12 @@
             }
         }
 
+        // Recupere o ID do último registro inserido
+        $product_id = $dados['id'];
+
         if (isset($_FILES['imagens'])) {
             // Diretório para salvar as imagens (substitua pelo caminho real)
-            $diretorio = "./imagens/$ultimo_id/";
+            $diretorio = "./imagens/$product_id/";
 
             // Certifique-se de que o diretório de destino exista
             if (!is_dir($diretorio)) {
@@ -150,7 +151,7 @@
                         // Inserir informações da imagem no banco de dados, associando-a ao registro principal
                         $sqlInsertImagem = "INSERT INTO imagens (usuario_id, nome_imagem) VALUES (:usuario_id, :nome_imagem)";
                         $stmtInsertImagem = $conn_pdo->prepare($sqlInsertImagem);
-                        $stmtInsertImagem->bindParam(':usuario_id', $ultimo_id);
+                        $stmtInsertImagem->bindParam(':usuario_id', $product_id);
                         $stmtInsertImagem->bindParam(':nome_imagem', $fileName);
 
                         $stmtInsertImagem->execute();
@@ -161,9 +162,9 @@
 
         $_SESSION['msgcad'] = "<p class='green'>Produto editado com sucesso!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
-        header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "editar-produto?id=" . $product_id);
     } else {
         $_SESSION['msg'] = "<p class='red'>Erro ao atualizar o produto!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
-        header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "editar-produto?id=" . $product_id);
     }

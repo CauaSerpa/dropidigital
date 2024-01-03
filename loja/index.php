@@ -666,7 +666,7 @@
 
                         // Preparar e executar a consulta
                         $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':shop_id', $id);
+                        $stmt->bindParam(':shop_id', $shop_id);
                         $stmt->execute();
 
                         $countArticles = $stmt->rowCount();
@@ -691,7 +691,7 @@
 
                 // Preparar e executar a consulta
                 $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':shop_id', $id);
+                $stmt->bindParam(':shop_id', $shop_id);
                 $stmt->bindValue(':location', 'full-banner');
                 $stmt->execute();
 
@@ -711,8 +711,6 @@
 
                         $contador++;
                     }
-                } else {
-                    echo "Nenhum ID encontrado.";
                 }
             ?>
             </ol>
