@@ -7,6 +7,8 @@
     use PHPMailer\PHPMailer\SMTP;
     use PHPMailer\PHPMailer\Exception;
 
+    include_once('notice_login.php');
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_users';
@@ -15,7 +17,7 @@
         $email = $_POST['email'];
 
         // Consulta SQL
-        $sql = "SELECT id, email, password, two_factors FROM $tabela WHERE email = :email";
+        $sql = "SELECT id, name, email, password, two_factors FROM $tabela WHERE email = :email";
 
         // Preparar a consulta
         $stmt = $conn_pdo->prepare($sql);
@@ -69,6 +71,7 @@
 
                     // Salvar os dados do usuário na sessão
                     $_SESSION['user_id_for_2fa'] = $resultado['id'];
+                    $_SESSION['name'] = $resultado['name'];
                     $_SESSION['email'] = $resultado['email'];
                     $_SESSION['two_factors'] = $codigo_autenticacao;
 
@@ -88,8 +91,8 @@
 
                         $mail->isHTML(true); //Set email format to HTML
                         $mail->Subject = 'Bem-vindo a Dropi Digital';
-                        $mail->Body = "Olá " . $row_usuario['nome'] . ", Autenticação multifator.<br><br>Seu código de verificação de 6 dígitos é $codigo_autenticacao<br><br>Esse código foi enviado para verificar seu login.<br><br>";
-                        $mail->AltBody = "Olá " . $row_usuario['nome'] . ", Autenticação multifator.\n\nSeu código de verificação de 6 dígitos é $codigo_autenticacao\n\nEsse código foi enviado para verificar seu login.\n\n";
+                        $mail->Body = "Olá " . $row_usuario['nome'] . ",<br><br>Autenticação multifator.<br><br>Seu código de verificação de 6 dígitos é $codigo_autenticacao<br><br>Esse código foi enviado para verificar seu login.<br><br>";
+                        $mail->AltBody = "Olá " . $row_usuario['nome'] . ",\n\nAutenticação multifator.\n\nSeu código de verificação de 6 dígitos é $codigo_autenticacao\n\nEsse código foi enviado para verificar seu login.\n\n";
 
                         // Enviar o e-mail
                         if ($mail->send()) {
@@ -106,6 +109,41 @@
                         header("Location: ".INCLUDE_PATH_DASHBOARD."login");
                     }
                 } else {
+                    // Obtém o nome da conta
+                    $name = $resultado['name'];
+
+                    // Obtém o email da conta
+                    $email = $resultado['email'];
+
+                    // Configuração do fuso horário e Obtém a data e hora atual
+                    date_default_timezone_set('America/Sao_Paulo');
+                    $datetime = date('Y-m-d H:i:s');
+
+                    // Obtém o endereço IP do usuário
+                    $ip = $_SERVER['REMOTE_ADDR'];
+
+                    // Obtém a string do agente do usuário
+                    $browser = $_SERVER['HTTP_USER_AGENT'];
+
+                    // Verificar se o IP já foi usado
+                    $sql = "SELECT * FROM tb_login WHERE user_id = :user_id AND ip_address = :ip_address";
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':user_id', $resultado['id']);
+                    $stmt->bindParam(':ip_address', $ip);
+                    $stmt->execute();
+
+                    // Se o IP não foi encontrado, salvar no banco de dados
+                    if ($stmt->rowCount() == 0) {
+                        $sql = "INSERT INTO tb_login (user_id, ip_address, first_used_at) VALUES (:user_id, :ip_address, :first_used_at)";
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':user_id', $resultado['id']);
+                        $stmt->bindParam(':ip_address', $ip);
+                        $stmt->bindParam(':first_used_at', $datetime);
+                        $stmt->execute();
+
+                        noticeLogin($name, $email, $datetime, $ip, $browser);
+                    }
+
                     // Se estiver desativado entra no painel
                     $_SESSION['user_id'] = $resultado['id']; // Você pode definir informações do usuário aqui
                     header("Location: " . INCLUDE_PATH_DASHBOARD);
