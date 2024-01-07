@@ -33,14 +33,17 @@
         // Recupere o ID do último registro inserido
         $ultimo_id = $conn_pdo->lastInsertId();
 
-        // Processar o upload de imagens
+        // Processar o upload de image
         $uploadDir = "banners/$ultimo_id/";
 
         // Criar o diretório
         mkdir($uploadDir, 0755);
 
-        foreach ($_FILES['imagens']['tmp_name'] as $key => $tmp_name) {
-            $fileName = $_FILES['imagens']['name'][$key];
+        // Verifique se o campo de upload de imagens não está vazio para 'image'
+        if ($_FILES['image']['error'] !== 4) {
+            // Cadastra imagem para 'image'
+            $fileName = $_FILES['image']['name'];
+            $tmp_name = $_FILES['image']['tmp_name'];
             $uploadFile = $uploadDir . basename($fileName);
 
             if (move_uploaded_file($tmp_name, $uploadFile)) {
@@ -50,22 +53,17 @@
                 $stmt->bindParam(':banner_id', $ultimo_id);
                 $stmt->bindParam(':image_name', $fileName);
 
-                if ($stmt->execute()) {
-                    $_SESSION['msgcad'] = "<p class='green'>Banner cadastrado com sucesso!</p>";
-                    // Redireciona para a página de login ou exibe uma mensagem de sucesso
-                    header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
-                    exit;
-                } else {
-                    $_SESSION['msg'] = "<p class='red'>Erro ao cadastrar a imagem do banner!</p>";
-                    // Redireciona para a página de login ou exibe uma mensagem de sucesso
-                    header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
-                    exit;
-                }
-            } else {
-                $_SESSION['msg'] = "<p class='red'>>Erro ao cadastrar a imagem do banner!</p>";
-                // Redireciona para a página de login ou exibe uma mensagem de sucesso
-                header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
-                exit;
+                $stmt->execute();
             }
         }
+
+        print_r($_FILES['image']);
+
+        $_SESSION['msgcad'] = "<p class='green'>Banner criado com sucesso!</p>";
+        // Redireciona para a página de login ou exibe uma mensagem de sucesso
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
+    } else {
+        $_SESSION['msg'] = "<p class='red'>Erro ao criar o banner!</p>";
+        // Redireciona para a página de login ou exibe uma mensagem de sucesso
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
     }

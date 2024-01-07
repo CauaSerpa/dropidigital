@@ -13,7 +13,7 @@
         $subdominio = '';
     }
 
-    $subdominio = "minha-loja";
+    // $subdominio = "minha-loja";
 
     // Obtém o protocolo (HTTP ou HTTPS)
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
@@ -25,44 +25,12 @@
     $directory = dirname($_SERVER['SCRIPT_NAME']);
 
     // Combina todas as partes para obter a URL completa
-    $urlCompleta = "http://$domain$directory/";
+    $urlCompleta = "$protocol://$domain$directory/";
 
     define('INCLUDE_PATH_LOJA', $urlCompleta);
 
     session_start();
     include('../config.php');
-
-    // Tabela que sera feita a consulta
-    $tabela = "tb_users";
-
-    // ID que você deseja pesquisar
-    $id = 1;
-
-    // Consulta SQL
-    $sql = "SELECT * FROM $tabela WHERE id = :id";
-
-    // Preparar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-
-    // Vincular o valor do parâmetro
-    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-
-    // Executar a consulta
-    $stmt->execute();
-
-    // Obter o resultado como um array associativo
-    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Verificar se o resultado foi encontrado
-    if ($resultado) {
-        // Atribuir o valor da coluna "name" à variável $name
-        $user_id = $resultado['id'];
-        $name = $resultado['name'];
-        $email = $resultado['email'];
-    } else {
-        // ID não encontrado ou não existente
-        echo "ID não encontrado.";
-    }
 
     // Pesquisar Loja
     // Tabela que sera feita a consulta
@@ -87,6 +55,7 @@
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
         $shop_id = $resultado['id'];
+        $user_id = $resultado['user_id'];
         $loja = $resultado['name'];
         $title = $resultado['title'];
         $description = $resultado['description'];
@@ -98,22 +67,51 @@
         $instagram = $resultado['instagram'];
         $youtube = $resultado['youtube'];
         $token_instagram = $resultado['token_instagram'];
-        $phone = $resultado['phone'];
 
+        $cpf_cnpj = $resultado['cpf_cnpj'];
+        $razao_social = $resultado['razao_social'];
+
+        $phone = $resultado['phone'];
         $whatsapp = $resultado['whatsapp'];
         // Fomatando celular
         $formatted_whatsapp = preg_replace('/\D/', '', $resultado['whatsapp']);
 
         $email = $resultado['email'];
 
-
         $top_highlight_bar = $resultado['top_highlight_bar'];
         $top_highlight_bar_location = $resultado['top_highlight_bar_location'];
         $top_highlight_bar_text = $resultado['top_highlight_bar_text'];
         $center_highlight_images = $resultado['center_highlight_images'];
     } else {
-        // ID não encontrado ou não existente
-        echo "ID não encontrado.";
+        // Página de error 404
+        include_once('pages/404.php');
+        die;
+    }
+
+    // Tabela que sera feita a consulta
+    $tabela = "tb_users";
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificar se o resultado foi encontrado
+    if ($resultado) {
+        // Atribuir o valor da coluna "name" à variável $name
+        $user_id = $resultado['id'];
+        $name = $resultado['name'];
+        $email = $resultado['email'];
     }
 
     //Pesquisa endereco
@@ -145,9 +143,6 @@
         $bairro = $resultado['bairro'];
         $cidade = $resultado['cidade'];
         $estado = $resultado['estado'];
-    } else {
-        // ID não encontrado ou não existente
-        echo "ID não encontrado.";
     }
 ?>
 <?php
@@ -671,7 +666,7 @@
 
                         // Preparar e executar a consulta
                         $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':shop_id', $id);
+                        $stmt->bindParam(':shop_id', $shop_id);
                         $stmt->execute();
 
                         $countArticles = $stmt->rowCount();
@@ -696,7 +691,7 @@
 
                 // Preparar e executar a consulta
                 $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':shop_id', $id);
+                $stmt->bindParam(':shop_id', $shop_id);
                 $stmt->bindValue(':location', 'full-banner');
                 $stmt->execute();
 
@@ -716,8 +711,6 @@
 
                         $contador++;
                     }
-                } else {
-                    echo "Nenhum ID encontrado.";
                 }
             ?>
             </ol>
@@ -1317,7 +1310,7 @@
             <div class="row">
                 <div class="col-md-9 col-12 text-center" style="min-height: 20px; width: 100%;">
                     <p style="margin-bottom: 0;">
-                        Singularis Tecnologia Web LTDA - CNPJ: 32.155.999/0001-34 © Todos os direitos reservados. 2023
+                        <?php echo ($razao_social !== "") ? $razao_social : $loja; ?> - <?php echo ($razao_social !== "") ? "CNPJ: " : "CPF: "; ?> <?php echo $cpf_cnpj; ?> &#169; Todos os direitos reservados. <?php echo date("Y") ?>
                     </p>
                     <a href="https://dropidigital.com.br" target="_blank">
                         <img src="<?php echo INCLUDE_PATH; ?>assets/images/logos/logo-one.png" alt="Logo DropiDigital" style="width: 150px;">
