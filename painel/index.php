@@ -559,6 +559,18 @@
                         </div>
                     </div>
                 </div>
+                <?php
+                    if(isset($_SESSION['admin_id'])){
+                ?>
+                    <div class="back">
+                        <a class="btn btn-success rounded-1 fw-semibold px-4 py-2 small d-flex align-items-center" href="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/admin/return.php" ?>">
+                            Voltar
+                            <i class='bx bx-log-in fs-5 ms-1' ></i>
+                        </a>
+                    </div>
+                <?php
+                    }
+                ?>
             </div>
         </nav>
     </header>
@@ -940,6 +952,31 @@
             // }
         ?>
 
+    <?php
+        if(isset($_SESSION['admin_id'])){
+    ?>
+        <div class="card info-card">
+            <div class="row mb-2">
+                <div class="col-md-10 d-flex align-items-center">
+                    <i class='bx bx-info-circle fs-5 me-2' ></i>
+                    <p class="text">Voltar para o painel adminitrativo</p>
+                </div>
+                <button type="button" class="close col-md-2">
+                    <i class='bx bx-x fs-4'></i>
+                </button>
+            </div>
+            <div class="button p-0">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle rounded-1 text-secondary fw-semibold px-3 py-1 small me-2">Cancelar</button>
+                <a class="btn btn-success rounded-1 fw-semibold px-3 py-1 small d-flex align-items-center" href="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/admin/return.php" ?>">
+                    Voltar
+                    <i class='bx bx-log-in fs-5 ms-1' ></i>
+                </a>
+            </div>
+        </div>
+    <?php
+        }
+    ?>
+    
         <?php
             // Iniciando variável $tab
             $tab = "";
@@ -981,7 +1018,6 @@
         </div>
     </main>
 
-    
     <div class='card__info'>
         <div class='info'>
             <?php
@@ -1018,6 +1054,9 @@
     <!-- Assets -->
     <script src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/js/form-steps.js"></script>
     <script src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/js/main.js"></script>
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <script>
         function obterTamanhoDaTela() {
             // Obtém a largura da pagina
@@ -1115,6 +1154,16 @@
         sidebarBtn.addEventListener("click", ()=>{
             sidebar.classList.toggle("close");
         });
-  </script>
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Adiciona um evento de clique ao botão com a classe 'close'
+            $('.info-card :button').on('click', function () {
+                // Remove o elemento pai do botão, que é o card
+                $(".info-card").addClass("d-none");
+            });
+        });
+    </script>
 </body>
 </html>

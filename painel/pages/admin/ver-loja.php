@@ -1,23 +1,7 @@
 <?php
-    $shop_id = $id;
+    $shop_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
     
-    //Apagar Card
-    $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
-    
-    if (!empty($id)) {
-        // Nome da tabela para a busca
-        $tabela = 'tb_users';
-
-        $sql = "SELECT * FROM $tabela WHERE id = :id";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':id', $user_id);
-        $stmt->execute();
-
-        // Recuperar os resultados
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    if (!empty($shop_id)) {
         // Nome da tabela para a busca
         $tabela = 'tb_shop';
 
@@ -25,73 +9,88 @@
 
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':id', $shop_id);
         $stmt->execute();
 
         // Obter o resultado como um array associativo
         $shop = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Nome da tabela para a busca
-        $tabela = 'tb_address';
+        if ($shop) {
 
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $shop['id']);
-        $stmt->execute();
-
-        // Obter o resultado como um array associativo
-        $address = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Nome da tabela para a busca
-        $tabela = 'tb_subscriptions';
-
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC LIMIT 1";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $user['id']);
-        $stmt->execute();
-
-        // Obter o resultado como um array associativo
-        $subs = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Nome da tabela para a busca
-        $tabela = 'tb_login';
-
-        $sql = "SELECT * FROM $tabela WHERE user_id = :user_id ORDER BY id ASC LIMIT 1";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':user_id', $user['id']);
-        $stmt->execute();
-
-        // Obter o resultado como um array associativo
-        $login = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Saber o nome do plano
-        // Nome da tabela para a busca
-        $tabelaInterval = 'tb_plans_interval';
-        $tabelaPlans = 'tb_plans';
-
-        $sql = "SELECT p.name
-                FROM $tabelaInterval i
-                JOIN $tabelaPlans p ON i.plan_id = p.id
-                WHERE i.id = :id
-                ORDER BY i.id DESC";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':id', $shop['plan_id']);
-        $stmt->execute();
-
-        // Recuperar os resultados
-        $plan = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($plan) {
-            $plan = $plan['name'];
-        }
+            // Nome da tabela para a busca
+            $tabela = 'tb_users';
+    
+            $sql = "SELECT * FROM $tabela WHERE id = :id";
+    
+            // Preparar e executar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':id', $shop['user_id']);
+            $stmt->execute();
+    
+            // Recuperar os resultados
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Nome da tabela para a busca
+            $tabela = 'tb_address';
+    
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
+    
+            // Preparar e executar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':shop_id', $shop['id']);
+            $stmt->execute();
+    
+            // Obter o resultado como um array associativo
+            $address = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Nome da tabela para a busca
+            $tabela = 'tb_subscriptions';
+    
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC LIMIT 1";
+    
+            // Preparar e executar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':shop_id', $shop['id']);
+            $stmt->execute();
+    
+            // Obter o resultado como um array associativo
+            $subs = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Nome da tabela para a busca
+            $tabela = 'tb_login';
+    
+            $sql = "SELECT * FROM $tabela WHERE user_id = :user_id ORDER BY id ASC LIMIT 1";
+    
+            // Preparar e executar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':user_id', $user['id']);
+            $stmt->execute();
+    
+            // Obter o resultado como um array associativo
+            $login = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Saber o nome do plano
+            // Nome da tabela para a busca
+            $tabelaInterval = 'tb_plans_interval';
+            $tabelaPlans = 'tb_plans';
+    
+            $sql = "SELECT p.name
+                    FROM $tabelaInterval i
+                    JOIN $tabelaPlans p ON i.plan_id = p.id
+                    WHERE i.id = :id
+                    ORDER BY i.id DESC";
+    
+            // Preparar e executar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':id', $shop['plan_id']);
+            $stmt->execute();
+    
+            // Recuperar os resultados
+            $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if ($plan) {
+                $plan = $plan['name'];
+            }
 ?>
 
 <style>
@@ -128,7 +127,7 @@
     {
         background-image: none !important;
     }
-    #editPassword .toggle-password
+    .toggle-password
     {
         position: absolute;
         right: 0;
@@ -163,11 +162,51 @@
     }
 </style>
 
+<div class="modal fade" id="export" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="deleteShop" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/delete_shop.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Deletar Loja
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="py-3">
+                    <p class="fs-5 mb-2">Você tem certeza de que deseja excluir a loja? Esta ação é irreversível e não poderá ser desfeita!</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label small">Para confirmar a exclusão, por favor, insira sua senha de administrador abaixo.</label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control" name="password" id="password" aria-describedby="passwordHelp">
+                                <button type="button" class="btn toggle-password" data-target="#password">
+                                    <i class='bx bx-show-alt' ></i>
+                                </button>
+                                <small id="password-error" class="invalid-feedback"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-danger border-danger d-flex align-items-center fw-semibold px-4 py-2 small disabled" disabled>
+                    <i class='bx bxs-trash me-2' ></i>
+                    Deletar
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
 <div class="page__header center">
     <div class="header__title">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb align-items-center mb-3">
-                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>banners" class="fs-5 text-decoration-none text-reset">Lojas</a></li>
+                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>lojas" class="fs-5 text-decoration-none text-reset">Lojas</a></li>
                 <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page"><?php echo $shop['name']; ?></li>
             </ol>
         </nav>
@@ -278,19 +317,22 @@
                             <small>Clique em acessar para acessar a loja</small>
                         </div>
                         <div class="d-flex align-items-center">
-                            <a href="#" class="btn btn-success fw-semibold px-4 py-2 small">Acessar</a>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?id=<?php echo $user['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Acessar</a>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <div class="mb-2">
-                            <h6 class="fs-6 fw-semibold mb-0">Redefinir senha</h6>
-                            <p class="small lh-sm mb-2">Coloque o e-mail que será enviado o código de redefinição de senha para alterar a senha da loja e o usuário responsável</p>
-                            <input type="text" class="form-control" name="email" id="email" aria-describedby="emailHelp">
-                        </div>
+                        <form id="resetPassword" action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/reset_password.php" method="post">
+                            <div class="mb-2">
+                                <h6 class="fs-6 fw-semibold mb-0">Redefinir senha</h6>
+                                <p class="small lh-sm mb-2">Coloque o e-mail que será enviado o código de redefinição de senha para alterar a senha da loja e o usuário responsável</p>
+                                <input type="text" class="form-control" name="email" id="email" aria-describedby="emailHelp">
+                            </div>
 
-                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
 
-                        <button type="submit" name="SendEmail" class="btn btn-success fw-semibold px-4 py-2 small">Enviar E-mail</button>
+                            <button type="submit" name="SendEmail" class="btn btn-success fw-semibold px-4 py-2 small">Enviar E-mail</button>
+                        </form>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <div>
@@ -321,12 +363,12 @@
                             <h6 class="fs-6 fw-semibold mb-0">Deletar Loja</h6>
                             <small>Clique em deletar para apagar a loja. Não é possível restaurar a loja!</small>
                         </div>
-                        <div class="d-flex align-items-center">
+                        <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#export">
                             <a href="#" class="btn btn-danger d-flex align-items-center fw-semibold px-4 py-2 small">
                                 <i class='bx bxs-trash me-2' ></i>
                                 Deletar
                             </a>
-                        </div>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -380,52 +422,6 @@
 </div>
 
 <div class="tab-pane fade <?php echo ($tab == "seguranca") ? "show active" : ""; ?>" id="security-tab-pane" role="tabpanel" aria-labelledby="security-tab" tabindex="0">
-<form id="verifyEmail" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/verify_email.php" method="post">
-    <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Segurança</div>
-        <div class="card-body row px-4 py-3">
-            <div class="col-md-6">
-                <?php
-                    function ocultarEmail($email) {
-                        list($usuario, $dominio) = explode('@', $email);
-                    
-                        $comprimentoUsuario = strlen($usuario);
-                        $primeirasLetras = substr($usuario, 0, 2);
-                        $ultimasLetras = substr($usuario, -2);
-                    
-                        $posicaoPonto = strpos($dominio, '.');
-                        $dominioAntesDoPonto = substr($dominio, 0, $posicaoPonto);
-                        $num = strlen($dominioAntesDoPonto) - 2;
-                    
-                        $dominioAbreviado = substr($dominioAntesDoPonto, 0, 2);
-                    
-                        $emailOculto = $primeirasLetras . str_repeat('*', $comprimentoUsuario - 4) . $ultimasLetras . '@' . $dominioAbreviado . str_repeat('*', $num) . "." . substr($dominio, $posicaoPonto + 1);
-                    
-                        return $emailOculto;
-                    }
-
-                    // Exemplo de uso
-                    $email = ocultarEmail($user['email']);
-                ?>
-                <div class="">
-                    <label for="email" class="form-label small <?php echo ($user['active_email'] !== 1) ? "text-danger" : ""; ?>">
-                        Seu e-mail
-                        <?php echo ($user['active_email'] !== 1) ? '<i class="bx bx-help-circle" data-toggle="tooltip" data-bs-placement="top" data-bs-title="Clique no botão abaixo e ative seu email para maior segurança!"></i>' : ''; ?>
-                    </label>
-                    <input type="text" class="form-control <?php echo ($user['active_email'] !== 1) ? "is-invalid" : ""; ?>" name="email" id="email" aria-describedby="emailHelp" <?php echo ($user['active_email'] == 1) ? "value='$email'" : "placeholder='$email'"; ?> <?php echo ($user['active_email'] == 1) ? "disabled" : ""; ?>>
-                    <small class="invalid-feedback <?php echo ($user['active_email'] == 1) ? "d-none" : ""; ?>">Seu endereço de e-mail não foi verificado!</small>
-                </div>
-
-                <?php if ($user['active_email'] !== 1) { ?>
-                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-
-                    <button type="submit" name="SendEmail" class="btn btn-success fw-semibold px-4 py-2 small mt-3 <?php echo ($user['active_email'] == 1) ? "d-none" : ""; ?>">Verificar E-mail</button>
-                <?php } ?>
-            </div>
-        </div>
-    </div>
-</form>
-
 <form id="editPassword" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_password.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Alterar Senha</div>
@@ -496,31 +492,6 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#shopType').change(function() {
-            if ($(this).val() === 'pf') {
-                //Se for pf
-                //Mostra pf
-                $('#pf').css('display', 'flex');
-                //Oculta pj
-                $('#pj').css('display', 'none');
-                //Adiciona required no input
-                $('#cpf, #phone').prop('required', true);
-                $('#razaoSocial, #cnpj, #cellPhone').prop('required', false);
-            } else {
-                //Se for pj
-                //Mostra pj
-                $('#pj').css('display', 'flex');
-                //Oculta pf
-                $('#pf').css('display', 'none');
-                //Adiciona required no input
-                $('#razaoSocial, #cnpj, #cellPhone').prop('required', true);
-                $('#cpf, #phone').prop('required', false);
-            }
-        });
-    });
-</script>
 
 <!-- Tooltip -->
 <script>
@@ -529,32 +500,8 @@
     });
 </script>
 
-<script>
-    function updateCheckboxText(checkbox, contentText, trueText, falseText) {
-        checkbox.addEventListener("change", function () {
-            const text = this.checked ? trueText : falseText;
-            // Aqui você pode atualizar o elemento de texto desejado com o texto correspondente
-            // Por exemplo, se você tiver um <span id="checkboxText">Texto</span>
-            // Pode ser atualizado assim:
-            contentText.textContent = text;
-        });
-    }
-
-    const activeMaps = document.getElementById("activeMaps");
-    const textMaps = document.getElementById("textMaps");
-    updateCheckboxText(activeMaps, textMaps, "Sim", "Não");
-
-    const activeTheme = document.getElementById("activeTheme");
-    const textTheme = document.getElementById("textTheme");
-    updateCheckboxText(activeTheme, textTheme, "Sim", "Não");
-
-    const active2fa = document.getElementById("active2fa");
-    const text2fa = document.getElementById("text2fa");
-    updateCheckboxText(active2fa, text2fa, "Sim", "Não");
-</script>
-
 <!-- Passsword -->
-<script>
+<!-- <script>
     const form = document.getElementById('editPassword');
     const passwordInput = document.getElementById('password');
     const newPasswordInput = document.getElementById('newPassword');
@@ -652,6 +599,30 @@
     function containsNumber(str) {
         return /\d/.test(str);
     }
+</script> -->
+
+<script>
+    $(document).ready(function () {
+        // Seleciona o input de senha
+        var passwordInput = $('#password');
+
+        // Seleciona o botão de deletar
+        var deleteButton = $('.btn-danger');
+
+        // Adiciona um ouvinte de evento de input ao input de senha
+        passwordInput.on('input', function () {
+            // Verifica se a senha tem pelo menos 8 caracteres
+            if ($(this).val().length >= 8) {
+                // Remove o atributo 'disabled' do botão de deletar
+                deleteButton.removeAttr('disabled');
+                deleteButton.removeClass('disabled');
+            } else {
+                // Adiciona o atributo 'disabled' ao botão de deletar
+                deleteButton.attr('disabled', 'disabled');
+                deleteButton.addClass('disabled');
+            }
+        });
+    });
 </script>
 
 <script>
@@ -667,74 +638,6 @@
             // Alterna entre as classes do ícone
             eyeIcon.toggleClass('bx-show-alt bx-hide');
         });
-    });
-</script>
-
-<!-- Save Button -->
-<script>
-    $(document).ready(function () {
-        var originalFormValues = {};
-        var formChanged = false;
-
-        // Salva os valores originais dos campos do formulário
-        $('input, textarea, select').each(function () {
-            originalFormValues[$(this).attr('id')] = $(this).val();
-        });
-
-        // Adiciona um ouvinte de evento de entrada aos campos do formulário
-        $('input, textarea, select').on('input change', function () {
-            formChanged = hasFormChanged();
-            updateSaveButtonState();
-        });
-
-        // Adiciona um ouvinte de evento de clique ao botão Salvar
-        $('#saveButton button').click(function () {
-            if (formChanged) {
-                formChanged = false;
-                updateSaveButtonState();
-            }
-        });
-
-        // Adiciona um ouvinte de evento de mudança à caixa de seleção
-        $('input[type="checkbox"]').change(function () {
-            formChanged = hasFormChanged();
-            updateSaveButtonState();
-        });
-
-        // Função para verificar se houve alterações no formulário
-        function hasFormChanged() {
-            var changed = false;
-            $('input, textarea, select').each(function () {
-                var currentValue = $(this).val();
-                var originalValue = originalFormValues[$(this).attr('id')];
-                if (currentValue !== originalValue) {
-                    changed = true;
-                    return false; // sai do loop se houver uma alteração
-                }
-            });
-            return changed;
-        }
-
-        // Função para atualizar o estado do botão Salvar
-        function updateSaveButtonState() {
-            var checkboxChecked = $('input[type="checkbox"]').is(':checked');
-
-            // Verifica se há alterações no formulário ou se a caixa de seleção está marcada
-            if (formChanged || checkboxChecked) {
-                $('#saveButton button').prop('disabled', false);
-            } else {
-                $('#saveButton button').prop('disabled', true);
-            }
-
-            // Atualiza a visibilidade do botão Salvar
-            if (formChanged || checkboxChecked) {
-                $('#saveButton').show();
-                $('.main .container.grid').addClass('save-button-show');
-            } else {
-                $('#saveButton').hide();
-                $('.main .container.grid').removeClass('save-button-show');
-            }
-        }
     });
 </script>
 
@@ -776,85 +679,12 @@
     });
 </script>
 
-<!-- Mascara de input -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.0.2/cleave.min.js"></script>
-<script>
-    //Mask
-    new Cleave('#phone', {
-        delimiters: ['(', ')', ' ', '-'],
-        blocks: [0, 2, 0, 5, 4],
-        numericOnly: true
-    });
-</script>
-<script>
-    //Mask
-    new Cleave('#cellPhone', {
-        delimiters: ['(', ')', ' ', '-'],
-        blocks: [0, 2, 0, 5, 4],
-        numericOnly: true
-    });
-</script>
-<script>
-    //Mask
-    new Cleave('#cpf', {
-        delimiters: ['.', '.', '-'],
-        blocks: [3, 3, 3, 2],
-        numericOnly: true
-    });
-</script>
-<script>
-    //Mask
-    new Cleave('#cnpj', {
-        delimiters: ['.', '.', '/', '-'],
-        blocks: [2, 3, 3, 4, 2],
-        numericOnly: true
-    });
-</script>
-<script>
-    //Mask
-    new Cleave('#cep', {
-        delimiters: ['-'],
-        blocks: [5, 3],
-        numericOnly: true
-    });
-</script>
-<script>
-    function getCepData() {
-        let cep = $('#cep').val();
-        cep = cep.replace(/\D/g, "");
-        if(cep.length < 8) {
-            $("#cep-error").html("O CEP deve conter no mínimo 8 dígitos");
-            $("#cep").addClass('input-error').focus();
-            $("#addressContent").css('height', '0');
-            return;
-        }
-
-        $("#cep").removeClass('input-error');
-        $("#cep-error").html('');
-
-        if(cep != "") {
-            $("#addressContent").css('height', '356px');
-            
-            $("#endereco").val("Carregando...");
-            $("#bairro").val("Carregando...");
-            $("#cidade").val("Carregando...");
-            $("#estado").val("Carregando...");
-            $.getJSON( "https://viacep.com.br/ws/"+cep+"/json/", function( data ) {
-                $("#endereco").val(data.logradouro);
-                $("#bairro").val(data.bairro);
-                $("#cidade").val(data.localidade);
-                $("#estado").val(data.uf);
-                $("#numero").focus();
-            }).fail(function() {
-                $("#endereco").val("");
-                $("#bairro").val("");
-                $("#cidade").val("");
-                $("#estado").val("");
-            });
-        }
-    }
-</script>
 <?php
+        } else {
+            $_SESSION['msg'] = "<p class='red'>Loja não encontrada!</p>";
+            // Redireciona para a página de login ou exibe uma mensagem de sucesso
+            header("Location: " . INCLUDE_PATH_DASHBOARD . "lojas");
+        }
     } else {
         $_SESSION['msg'] = "<p class='red'>É necessário selecionar um produto!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
