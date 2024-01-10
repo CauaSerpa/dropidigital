@@ -6,44 +6,59 @@
     $partesDoDominio = explode('.', $dominioCompleto);
     
     // O subdomínio estará na primeira parte do array (índice 0)
-    $subdominio = $partesDoDominio[0];
-    
-    // Verifique se há www como subdomínio padrão e o remova, se presente
-    if ($subdominio === 'www') {
-        $subdominio = '';
-    }
+    $subdomain = $partesDoDominio[0];
+    $domain = $partesDoDominio[1];
 
-    // $subdominio = "minha-loja";
-
-    // Obtém o protocolo (HTTP ou HTTPS)
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
-
-    // Obtém o domínio
-    $domain = $_SERVER['HTTP_HOST'];
+    // $subdomain = "aurora";
+    // $domain = "dropidigital.com.br";
 
     // Obtém o caminho do diretório pai (remove o nome do arquivo)
     $directory = dirname($_SERVER['SCRIPT_NAME']);
 
     // Combina todas as partes para obter a URL completa
-    $urlCompleta = "$protocol://$domain$directory/";
+    $urlCompleta = "https://$subdomain.$domain/";
 
     define('INCLUDE_PATH_LOJA', $urlCompleta);
 
     session_start();
     include('../config.php');
 
-    // Pesquisar Loja
+    // Pesquisar dominio
     // Tabela que sera feita a consulta
-    $tabela = "tb_shop";
+    $tabela = "tb_domains";
 
     // Consulta SQL
-    $sql = "SELECT * FROM $tabela WHERE url = :url";
+    $sql = "SELECT shop_id FROM $tabela WHERE subdomain = :subdomain AND domain = :domain";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
 
     // Vincular o valor do parâmetro
-    $stmt->bindParam(':url', $subdominio, PDO::PARAM_STR);
+    $stmt->bindParam(':subdomain', $subdomain, PDO::PARAM_STR);
+    $stmt->bindParam(':domain', $domain, PDO::PARAM_STR);
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($resultado) {
+        $shop_id = $resultado['shop_id'];
+    }
+
+    // Pesquisar Loja
+    // Tabela que sera feita a consulta
+    $tabela = "tb_shop";
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $shop_id, PDO::PARAM_STR);
 
     // Executar a consulta
     $stmt->execute();
@@ -233,13 +248,14 @@
 <style>
     a:hover
     {
-        color: inherit !important;
+        color: var(--heading-color) !important;
         text-decoration: underline;
     }
     a.nav-link:hover,
     a.btn:hover
     {
         text-decoration: none !important;
+        color: var(--heading-color) !important;
     }
 
     .show-categories
@@ -387,7 +403,7 @@
         <div class="stripe text-center text-light <?php echo ($top_highlight_bar == 0) ? "d-none" : ""; ?> <?php echo ($top_highlight_bar_location == 1) ? "" : "d-none"; ?>" style="background-color: rgb(35, 35, 35);"><?php echo $top_highlight_bar_text; ?></div>
         <nav class="navbar bg-white navbar-expand-lg border-bottom border-body z-3" data-bs-theme="white">
             <div class="container container-fluid" style="padding-right: calc(1.5rem + 15px); padding-left: calc(1.5rem + 15px);">
-                <a class="navbar-brand" href="<?php echo INCLUDE_PATH_LOJA; ?>"><?php echo ($logo !== "") ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 150px;">' : $loja; ?></a>
+                <a class="navbar-brand logo" href="<?php echo INCLUDE_PATH_LOJA; ?>"><?php echo (isset($logo)) ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 150px;">' : $loja; ?></a>
                 <button class="show-categories me-3 d-none" id="show-categories" type="button">
                     <i class='bx bx-menu fs-3' id="toggle-icon"></i>
                 </button>
@@ -1058,7 +1074,7 @@
         <div class="container">
             <h1 class="logo text-primary">
                 <a href="<?php echo INCLUDE_PATH_LOJA; ?>" title="<?php echo $loja; ?>">
-                    <?php echo ($logo !== "") ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 250px;">' : $loja; ?>
+                    <?php echo (isset($logo)) ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 250px;">' : $loja; ?>
                 </a>
             </h1>
             <div class="row">

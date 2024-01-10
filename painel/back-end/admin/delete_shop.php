@@ -59,6 +59,73 @@
                 $stmt->bindValue(':user_id', $shop['user_id']);
                 $stmt->execute();
 
+                // Deletar logos
+                // Diretório das imagens
+                $diretorio = "../logos/$shop[id]/";
+
+                // Agora, exclua as imagens no diretório
+                $files = glob($diretorio . "*");
+                foreach ($files as $file) {
+                    unlink($file);
+                }
+
+                // Exclua o diretório do usuário
+                rmdir($diretorio);
+
+                $tabela = 'tb_products';
+                $sql = "SELECT id FROM $tabela WHERE shop_id = :shop_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindValue(':shop_id', $shop['id']);
+                $stmt->execute();
+                $productIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                foreach ($productIds as $productId) {
+                    // Diretório das imagens
+                    $diretorio = "../imagens/$productId/";
+
+                    // Consulta para excluir as imagens do banco de dados
+                    $query = "DELETE FROM imagens WHERE usuario_id = :usuario_id";
+                    $stmt = $conn_pdo->prepare($query);
+                    $stmt->bindParam(':usuario_id', $productId);
+                    $stmt->execute();
+
+                    // Agora, exclua as imagens no diretório
+                    $files = glob($diretorio . "*");
+                    foreach ($files as $file) {
+                        unlink($file);
+                    }
+
+                    // Exclua o diretório do usuário
+                    rmdir($diretorio);
+                }
+
+                $tabela = 'tb_banner_info';
+                $sql = "SELECT id FROM $tabela WHERE shop_id = :shop_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindValue(':shop_id', $shop['id']);
+                $stmt->execute();
+                $bannerIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                foreach ($bannerIds as $bannerId) {
+                    // Diretório das imagens
+                    $diretorio = "../banners/$bannerId/";
+
+                    // Consulta para excluir as imagens do banco de dados
+                    $query = "DELETE FROM tb_banner_img WHERE banner_id = :banner_id";
+                    $stmt = $conn_pdo->prepare($query);
+                    $stmt->bindParam(':banner_id', $bannerId);
+                    $stmt->execute();
+
+                    // Agora, exclua as imagens no diretório
+                    $files = glob($diretorio . "*");
+                    foreach ($files as $file) {
+                        unlink($file);
+                    }
+
+                    // Exclua o diretório do usuário
+                    rmdir($diretorio);
+                }
+
                 // Deletar registros
                 function deleteRecords($conn_pdo, $shopId, $tableName) {
                     $sql = "DELETE FROM $tableName WHERE shop_id = :shop_id";  // Certifique-se de que a coluna 'shop_id' existe
@@ -76,16 +143,13 @@
                     'tb_subscriptions',
                     'tb_visits',
                     'tb_scripts',
-                    'tb_pages',
                     'tb_newsletter',
                     'tb_invoice_info',
                     'tb_depositions',
                     'tb_categories',
                     'tb_banner_info',
-                    // 'tb_banner_img',
                     'tb_articles',
                     'tb_address'
-                    // 'imagens'
                 );
                 
                 // Exclui registros de cada tabela
@@ -94,7 +158,7 @@
                 }
 
                 $_SESSION['msg'] = "<p class='green'>Loja deletada com sucesso!</p>";
-                header("Location: " . INCLUDE_PATH_DASHBOARD . "lojas");
+                // header("Location: " . INCLUDE_PATH_DASHBOARD . "lojas");
             } else {
                 $_SESSION['msg'] = "<p class='red'>Credenciais inválidas.</p>";
                 header("Location: " . INCLUDE_PATH_DASHBOARD . "ver-loja?id=" . $_POST['shop_id']);

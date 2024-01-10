@@ -357,6 +357,22 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lojas">Lojas</a></li>
                 </ul>
             </li>
+            <li class="<?php activeSidebarLink('dominios'); ?> <?php activeSidebarLink('dominios-proprios'); ?> <?php showSidebarLinks('dominios'); ?> <?php showSidebarLinks('dominios-proprios'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios" class="sidebar_link">
+                                <i class='bx bx-globe' ></i>
+                            </a>
+                            <span class="link_name">Domínios</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios">Domínios</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios" class="<?php activeSidebarLink('dominios'); ?>">Domínios</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios-proprios" class="<?php activeSidebarLink('dominios-proprios'); ?>">Domínios Próprios</a></li>
+                </ul>
+            </li>
             <div class="sidebar_bottom">
                 <li>
                     <div class="iocn-link">
@@ -416,18 +432,32 @@
             <div class="right">
                 <div class="header__icon shop-link">
                     <?php
-                        if (strpos($link, "https://") === 0) {
-                            $shop_url = $link;
-                        } else {
-                            $dominio_completo = $_SERVER['HTTP_HOST'];
+                        // Nome da tabela para a busca
+                        $tabela = 'tb_domains';
 
-                            // Remove o protocolo (http:// ou https://) se presente
-                            $dominio = preg_replace('#^https?://#', '', $dominio_completo);
+                        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain <> 'dropidigital.com.br' ORDER BY (domain = 'dropidigital.com.br') DESC";
 
-                            $shop_url = "https://$link.$dominio";
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':shop_id', $id);
+                        $stmt->execute();
+
+                        // Recuperar os resultados
+                        $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        // Se não houver resultados, realizar outra consulta
+                        if (empty($domain)) {
+                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = 'dropidigital.com.br'";
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $id);
+                            $stmt->execute();
+                            $domain = $stmt->fetch(PDO::FETCH_ASSOC);
                         }
+
+                        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
+                        $domain_url = "https://" . $subdomain . $domain['domain'];
                     ?>
-                    <a href="<?php echo $shop_url; ?>" target="_blank" class="text-dark text-decoration-none fs-6 fw-semibold">
+                    <a href="<?php echo $domain_url; ?>" target="_blank" class="text-dark text-decoration-none fs-6 fw-semibold">
                         Ver a loja
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="ms-1" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
                     </a>
@@ -863,12 +893,9 @@
             echo ""; 
         }
     ?>
-    
-<<<<<<< HEAD
-    <main class="main <?php echo ($url == "login" || $url == 'dois-fatores' || $url == 'assinar' || $url == 'criar-loja' || $url == "404") ? 'box' : ''; ?>">
-=======
+
     <main class="main <?php echo ($url == "login" || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == "404") ? 'box' : ''; ?>">
->>>>>>> 22e4e55354c0bb0c8b99f8ca259d80f5b58aeb3b
+
         <div class="container grid">
 
         <div class="offcanvas offcanvas-start offcanvas-filter" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">

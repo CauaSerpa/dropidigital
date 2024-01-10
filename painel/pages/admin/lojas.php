@@ -67,66 +67,10 @@
     }
 </style>
 
-<div class="modal fade" id="import" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/import.php" method="post" enctype="multipart/form-data" id="seu_formulario_id">
-                <div class="modal-header px-4 py-3 bg-transparent">
-                    <div class="fw-semibold py-2">
-                        Importar produtos
-                    </div>
-                </div>
-                <div class="modal-body px-4 py-3">
-                    <div>
-                        <label for="formFileLg" class="form-label small">Arquivo</label>
-                        <input class="form-control" id="formFileLg" type="file" name="arquivo" accept="text/csv">
-                        <small class="form-text text-muted fw-normal small">Você deve selecionar um arquivo com extensão <span class="fw-semibold">.csv</span></small>
-                    </div>
-                </div>
-                <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
-                <div class="modal-footer fw-semibold px-4">
-                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Importar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="export" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header px-4 py-3 bg-transparent">
-                <div class="fw-semibold py-2">
-                    Exportar produtos
-                </div>
-            </div>
-            <div class="modal-body px-4 py-3">
-                <div class="py-3">
-                    <p class="fs-5 fw-semibold">Exportar todos os produtos</p>
-                </div>
-            </div>
-            <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
-            <div class="modal-footer fw-semibold px-4">
-                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/export.php?id=<?php echo $id; ?>" class="btn btn-success fw-semibold px-4 py-2 small d-flex align-items-center">
-                    Baixar planilha
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="page__header center">
     <div class="header__title">
         <h2 class="title">Lojas</h2>
         <p class="shop-counter"><?php echo $countShop; echo ($countShop == 0 || $countShop == 1) ? ' loja' : ' lojas'; ?></p>
-    </div>
-    <div class="header__actions">
-        <label for="import-button" class="import text-black text-decoration-none d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#import" style="cursor: pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m12 18 4-5h-3V2h-2v11H8z"></path><path d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z"></path></svg>
-            Importar
-        </label>
     </div>
 </div>
 
@@ -147,13 +91,6 @@
                             Filtrar
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M21 3H5a1 1 0 0 0-1 1v2.59c0 .523.213 1.037.583 1.407L10 13.414V21a1.001 1.001 0 0 0 1.447.895l4-2c.339-.17.553-.516.553-.895v-5.586l5.417-5.417c.37-.37.583-.884.583-1.407V4a1 1 0 0 0-1-1zm-6.707 9.293A.996.996 0 0 0 14 13v5.382l-2 1V13a.996.996 0 0 0-.293-.707L6 6.59V5h14.001l.002 1.583-5.71 5.71z"></path></svg>
                         </button>
-                        <button type="submit" class="btn btn-danger delete">
-                            Executar Ação
-                        </button>
-                        <label for="export-button" class="export text-black text-decoration-none" data-bs-toggle="modal" data-bs-target="#export" style="cursor: pointer;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m12 18 4-5h-3V2h-2v11H8z"></path><path d="M19 9h-4v2h4v9H5v-9h4V9H5c-1.103 0-2 .897-2 2v9c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-9c0-1.103-.897-2-2-2z"></path></svg>
-                            Exportar
-                        </label>
                     </div>
                 </div>
                 <table>
@@ -243,9 +180,6 @@
                                         <td>
                                             <a href="' . INCLUDE_PATH_DASHBOARD . 'ver-loja?id=' . $shop['id'] . '" class="btn btn-secondary">
                                                 <i class="bx bx-show" ></i>
-                                            </a>
-                                            <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-loja?id=' . $shop['id'] . '" class="btn btn-danger">
-                                                <i class="bx bxs-trash" ></i>
                                             </a>
                                         </td>
                                     </tr>

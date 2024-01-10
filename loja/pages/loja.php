@@ -110,6 +110,25 @@
     echo '</div>';
 ?>
 
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_categories';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->bindValue(':status', 1);
+    $stmt->bindValue(':parent_category', 1);
+    $stmt->execute();
+
+    // Recuperar os categories
+    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($categories) {
+?>
+
 <div id="carouselCategorias" class="container carousel slide" data-bs-ride="carousel">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <h4 class="mb-3">Navegue por Departamento</h4>
@@ -117,21 +136,6 @@
     </div>
     <div class="carousel-inner">
         <?php
-            // Nome da tabela para a busca
-            $tabela = 'tb_categories';
-
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
-
-            // Preparar e executar a consulta
-            $stmt = $conn_pdo->prepare($sql);
-            $stmt->bindParam(':shop_id', $shop_id);
-            $stmt->bindValue(':status', 1);
-            $stmt->bindValue(':parent_category', 1);
-            $stmt->execute();
-
-            // Recuperar os categories
-            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             // Inicialize uma variável de controle e um contador
             $primeiroElemento = true;
             $contador = 0;
@@ -183,6 +187,31 @@
     </a>
 </div>
 
+<?php
+ 
+    }
+
+?>
+
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_products';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->bindValue(':status', 1);
+    $stmt->bindValue(':emphasis', 1);
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($resultados) {
+?>
+
 <div id="carouselProdutos" class="container carousel slide" data-bs-ride="carousel">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <div class="d-flex justify-content-center">
@@ -194,21 +223,6 @@
 
     <div class="carousel-inner">
         <?php
-            // Nome da tabela para a busca
-            $tabela = 'tb_products';
-
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC";
-
-            // Preparar e executar a consulta
-            $stmt = $conn_pdo->prepare($sql);
-            $stmt->bindParam(':shop_id', $shop_id);
-            $stmt->bindValue(':status', 1);
-            $stmt->bindValue(':emphasis', 1);
-            $stmt->execute();
-
-            // Recuperar os resultados
-            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             // Inicialize uma variável de controle e um contador
             $primeiroElemento = true;
             $contador = 0;
@@ -313,6 +327,10 @@
 </div>
 
 <?php
+    }
+?>
+
+<?php
     foreach ($conjuntos[1] as $imagem) {
     // Exibir as imagens do segundo conjunto
     echo '<div class="container">';
@@ -363,6 +381,23 @@
     </div>
 </div>
 
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_depositions';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($resultados) {
+?>
+
 <div id="carouselDepoimentos" class="container carousel slide" data-bs-ride="carousel">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <div class="d-flex justify-content-center">
@@ -374,19 +409,6 @@
 
     <div class="carousel-inner">
         <?php
-            // Nome da tabela para a busca
-            $tabela = 'tb_depositions';
-
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC";
-
-            // Preparar e executar a consulta
-            $stmt = $conn_pdo->prepare($sql);
-            $stmt->bindParam(':shop_id', $shop_id);
-            $stmt->execute();
-
-            // Recuperar os resultados
-            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             // Inicialize uma variável de controle e um contador
             $primeiroElemento = true;
             $contador = 0;
@@ -456,3 +478,7 @@
         <span class="visually-hidden">Próximo</span>
     </a>
 </div>
+
+<?php
+    }
+?>

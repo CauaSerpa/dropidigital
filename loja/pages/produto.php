@@ -263,9 +263,6 @@
                         $embedCode = '<iframe width="937" height="527" src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen class="mt-4"></iframe>';
 
                         return $embedCode;
-                    } else {
-                        // URL inválido do YouTube
-                        return 'URL do YouTube inválido.';
                     }
                 }
 

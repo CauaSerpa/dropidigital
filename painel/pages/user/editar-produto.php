@@ -350,14 +350,10 @@ if(!empty($id)){
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
-<<<<<<< HEAD:painel/pages/editar-produto.php
-                        <label for="activeProduct" class="form-label small">Produto ativo?</label>
-=======
                         <label for="activeProduct" class="form-label small">
                             Produto ativo?
                             <i class="bx bx-help-circle <?php echo ($limitProducts <= $totalProdutos && $product['status'] == 0) ? "" : "d-none"; ?>" data-toggle="tooltip" data-placement="top" aria-label="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!" data-bs-original-title="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!"></i>
                         </label>
->>>>>>> 22e4e55354c0bb0c8b99f8ca259d80f5b58aeb3b:painel/pages/user/editar-produto.php
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" <?php echo $statusActive; ?>>
                             <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($statusActive == "disabled") ? "Não" : "Sim"; ?></label>

@@ -24,14 +24,14 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /* Botao */
-    .btn
+    .btn.btn-success
     {
         background: var(--green-color);
         font-size: .875rem;
         border: none;
         padding: .75rem 1.5rem;
     }
-    .btn:hover
+    .btn.btn-success:hover
     {
         background: var(--dark-green-color);
     }
@@ -41,12 +41,38 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
         background: #e8e9eb !important;
     }
 
+    /* Copy */
+    #copyDestiny
+    {
+        cursor: pointer;
+    }
+
     /* Linha */
     .line
     {
         width: 100%;
         height: 1px;
         background: var(--bs-card-border-color);
+    }
+
+    /* Bullet */
+    .bullet
+    {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .bullet.success
+    {
+        background: rgb(1, 200, 155);
+    }
+    .bullet.warning
+    {
+        background: rgb(251, 188, 5);
+    }
+    .bullet.danger
+    {
+        background: rgb(229, 15, 56);
     }
 </style>
 
@@ -68,6 +94,29 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
     </div>
 </div>
 
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_domains';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain != :domain";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop['id']);
+    $stmt->bindValue(':domain', "dropidigital.com.br");
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($domain) {
+        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
+        $domain_url = "https://" . $subdomain . $domain['domain'];
+    }
+
+    if (empty($domain)) {
+?>
+
 <form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/add_domain.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
@@ -75,7 +124,7 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
         </div>
         <div class="card-body row px-4 py-3">
             <div class="step-1">
-                <p class="fw-semibold mb-3">Passo 1</p>
+                <p class="fs-5 fw-semibold mb-3">Passo 1</p>
                 <p class="small mb-3">Leia as instruções clicando no botão abaixo. É rápido e você evita problemas de configuração <span class="fw-semibold">pois o domínio e o certificado podem levar até 48 horas para entrar no ar</span>. Já imaginou descobrir que configurou incorretamente somente depois desse período?</p>
                 <div class="container-button">
                     <a href="#" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center mb-3" style="height: 42px;">
@@ -108,7 +157,7 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
                     <input class="form-check-input itemCheckbox" type="checkbox" name="step" id="step" value="1" required>
                     <label for="step" class="fw-semibold">Li as instruções e estou ciente que as alterações podem levar até 48 horas para começar a funcionar.</label>
                 </div>
-                <p class="fw-semibold mb-3">Passo 2</p>
+                <p class="fs-5 fw-semibold mb-3">Passo 2</p>
                 <p class="small mb-3">Preencha o domínio e clique no botão Adicionar.</p>
                 <div class="d-flex mb-3">
                     <div class="w-20">
@@ -119,6 +168,7 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
                         <input type="text" class="form-control" name="domain" id="domain" aria-describedby="domainHelp" placeholder="ex: meudominio.com.br" required>
                         <small>Não use https:// ou www</small>
                     </div>
+                    <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
                     <button type="submit" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center ms-2" style="height: 38px;">Adicionar</button>
                 </div>
                 <div>
@@ -133,6 +183,123 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
     </div>
 </form>
 
+<?php
+    } else if ($domain['configure'] == 0) {
+?>
+
+<div class="card mb-3 p-0">
+    <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+        Configurar seu domínio
+    </div>
+    <div class="card-body row px-4 py-3">
+        <div class="step-3">
+            <form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/remove_domain.php" method="post">
+                <div class="d-flex align-items-center mb-3">
+                    <a href="<?php echo $domain_url; ?>" target="_black" class="d-inline-flex align-items-center fw-semibold text-decoration-none" style="color: var(--bs-body-color);"><?php echo $domain['subdomain'] . "." . $domain['domain']; ?></a>
+
+                    <input type="hidden" name="id" value="<?php echo $domain['id']; ?>">
+                    <button type="submit" class="d-flex ms-1 border-0 bg-transparent" name="removeDomain" id="removeDomain">
+                        <i class='bx bx-trash fs-5' ></i>
+                    </button>
+                </div>
+            </form>
+            <form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/configure_domain.php" method="post">
+                <p class="fs-5 fw-semibold mb-3">Passo 3</p>
+                <p class="small mb-3">Acesse o painel de configurações do seu provedor de domínio na tela onde são criados novos apontamentos ou entradas DNS. Copie a informação de destino que está abaixo e insira no apontamento de DNS para funcionar corretamente.</p>
+                <div class="container-button">
+                    <a href="#" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center mb-3" style="height: 42px;">
+                        Ver como configurar o domínio
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="ms-1" style="fill: rgba(255, 255, 255, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
+                    </a>
+                </div>
+                <div class="card mb-3">
+                    <p class="d-flex align-items-center fw-semibold mb-3">
+                        <i class='bx bx-error fs-4 text-danger me-1'></i>
+                        Entrada A
+                    </p>
+                    <ul class="mb-0">
+                        <li><span class="fw-semibold">Tipo:</span> A</li>
+                        <li><span class="fw-semibold">Nome:</span> @</li>
+                        <li><span class="fw-semibold">Destino:</span> 162.241.60.59 <i class='bx bxs-copy' id="copyDestiny"></i></li>
+                        <li><span class="fw-semibold">TTL:</span> 14400</li>
+                    </ul>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <small>Lembrando que após efetuar a configuração a propagação do DNS pode demorar até 48 horas.</small>
+                    
+                    <input type="hidden" id="destiny" value="162.241.60.59">
+                    <input type="hidden" name="id" value="<?php echo $domain['id']; ?>">
+                    <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+                    <button type="submit" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center ms-2" style="height: 38px;">Tudo pronto!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php
+    } else if ($domain['configure'] == 1) {
+        if ($domain['status'] == 0) {
+?>
+
+<div class="card mb-3 p-0">
+    <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+        Configurar seu domínio
+    </div>
+    <div class="card-body row px-4 py-3">
+        <div class="step-3">
+            <form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/remove_domain.php" method="post">
+                <div class="d-flex align-items-center mb-3">
+                    <a href="<?php echo $domain_url; ?>" target="_black" class="d-inline-flex align-items-center fw-semibold text-decoration-none" style="color: var(--bs-body-color);">
+                        <div class="bullet success me-2"></div>
+                        <?php echo $domain['subdomain'] . "." . $domain['domain']; ?>
+                    </a>
+
+                    <input type="hidden" name="id" value="<?php echo $domain['id']; ?>">
+                    <button type="submit" class="d-flex ms-1 border-0 bg-transparent" name="removeDomain" id="removeDomain">
+                        <i class='bx bx-trash fs-5' ></i>
+                    </button>
+                </div>
+            </form>
+            
+            <p class="fs-4 fw-semibold mb-3">Tudo pronto!</p>
+            <p class="fs-5">Seu domínio <a href="<?php echo $domain_url; ?>" class="d-inline-flex align-items-center fw-semibold text-decoration-none" style="color: var(--bs-body-color);"><?php echo $domain['subdomain'] . "." . $domain['domain']; ?></a> já foi adiciondo com sucesso!</p>
+            <p class="mb-3">Lembrando que após efetuar a configuração a propagação do DNS pode demorar até 48 horas. Por favor aguarde!</p>
+            <small>Caso já tenha passado o prazo de 48 horas e seu domínio não está funcionando, por favor entre em contato conosco pelo e-mail <a href="mailto:suporte@dropidigital.com.br" class="d-inline-flex align-items-center fw-semibold text-decoration-none" style="color: var(--bs-body-color);">suporte@dropidigital.com.br</a></small>
+        </div>
+    </div>
+</div>
+
+<?php
+        } else {
+?>
+    <div class="card mb-3 p-0">
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Domínio
+        </div>
+        <div class="card-body row px-4 py-3">
+            <div class="step-3">
+                <form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/remove_domain.php" method="post">
+                    <div class="d-flex align-items-center">
+                        <a href="<?php echo $domain_url; ?>" target="_black" class="d-inline-flex align-items-center fw-semibold text-decoration-none" style="color: var(--bs-body-color);">
+                            <div class="bullet success me-2"></div>
+                            <?php echo $domain['subdomain'] . "." . $domain['domain']; ?>
+                        </a>
+
+                        <input type="hidden" name="id" value="<?php echo $domain['id']; ?>">
+                        <button type="submit" class="d-flex ms-1 border-0 bg-transparent" name="removeDomain" id="removeDomain">
+                            <i class='bx bx-trash fs-5' ></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php
+        }
+    }
+?>
+
 <div class="card mb-3 p-0">
     <div class="card-header fw-semibold px-4 py-3 bg-transparent">Certificado Digital de Segurança</div>
     <div class="card-body row px-4 py-3">
@@ -140,12 +307,43 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
         Com isso seus clientes navegam em um ambiente seguro, além de garantir melhor posicionamento de sua loja nos mecanismos de busca.</small>
         <small class="fw-semibold">Certificado SSL</small>
         <small class="d-flex align-items-center">
-            <div class="me-2" style="width: 8px; height: 8px; border-radius: 50%; background: var(--green-color);"></div>
+
+            <?php
+                if (empty($domain)) {
+                    $bullet = "success";
+                } else if ($domain['configure'] == 0) {
+                    $bullet = "danger";
+                } else if ($domain['configure'] == 1) {
+                    if ($domain['status'] == 0) {
+                        $bullet = "warning";
+                    } else {
+                        $bullet = "success";
+                    }
+                }
+            ?>
+            <div class="bullet <?php echo $bullet; ?> me-2"></div>
+
             SHA-256 bits
         </small>
     </div>
 </div>
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_domains';
 
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop['id']);
+    $stmt->bindValue(':domain', "dropidigital.com.br");
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $subdomain_url = "https://" . $domain['subdomain'] . "." . $domain['domain'];
+?>
 <form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_subdomain.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Subdomínio na Loja integrada</div>
@@ -153,19 +351,20 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
             <small class="mb-3">Oferecemos gratuitamente um endereço virtual para sua loja através do subdomínio abaixo. <div class="fw-semibold">Esta é uma opção alternativa caso não tenha adquirido um domínio, portanto não é necessário editar.</div></small>
             <small class="d-flex align-items-center fw-semibold" id="currentSubdomain">
                 <div class="me-2" style="width: 8px; height: 8px; border-radius: 50%; background: var(--green-color);"></div>
-                <a href="https://<?php echo $shop['url']; ?>.dropidigital.com.br" target="_black" class="link text-dark fw-semibold"><?php echo $shop['url']; ?>.dropidigital.com.br</a>
+                <a href="<?php echo $subdomain_url; ?>" target="_black" class="link text-dark fw-semibold"><?php echo $domain['subdomain'] . "." . $domain['domain']; ?></a>
                 <div class="text-dark ms-2"><i class='bx bx-pencil fs-5' id="showCurrentSubdomain" data-toggle="tooltip" data-placement="top" title="Alterar subdomínio"></i></div>
             </small>
             
             <div class="d-none" id="editCurrentSubdomain">
                 <div class="w-50">
-                    <input type="text" class="form-control" name="subdomain" id="subdomain" aria-describedby="subdomainHelp" value="<?php echo $shop['url']; ?>" required>
+                    <input type="text" class="form-control" name="subdomain" id="subdomain" aria-describedby="subdomainHelp" value="<?php echo $domain['subdomain']; ?>" required>
                 </div>
                 <span class="d-flex align-items-center mx-2" style="height: 38px;">.</span>
                 <div class="w-50 me-2">
                     <input type="text" class="form-control" name="domain" id="domain" aria-describedby="domainHelp" placeholder="dropidigital.com.br" disabled>
                 </div>
                 <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+                <input type="hidden" name="id" value="<?php echo $domain['id']; ?>">
                 <button type="submit" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center ms-2" style="height: 38px;">Adicionar</button>
             </div>
         </div>
@@ -212,5 +411,34 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
 <script>
     $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Quando o botão for clicado
+        $("#copyDestiny").click(function() {
+            // Seleciona o texto do input
+            var textToCopy = $("#destiny").val();
+
+            // Cria um elemento temporário (input) para copiar o texto
+            var tempInput = $("<input>");
+            $("body").append(tempInput);
+
+            // Define o valor do input temporário como o texto a ser copiado
+            tempInput.val(textToCopy).select();
+
+            // Executa o comando de cópia
+            document.execCommand("copy");
+
+            // Remove o input temporário
+            tempInput.remove();
+
+            // Exibe uma mensagem (pode ser personalizado conforme necessário)
+            alert("Texto copiado para a área de transferência: " + textToCopy);
+        });
     });
 </script>

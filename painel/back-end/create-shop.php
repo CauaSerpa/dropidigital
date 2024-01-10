@@ -98,6 +98,25 @@
         $shop_id = $conn_pdo->lastInsertId();
 
         //Tabela que será solicitada
+        $tabela = 'tb_domains';
+
+        $domain = "dropidigital.com.br";
+
+        // Obtem a data e hora atual
+        date_default_timezone_set('America/Sao_Paulo');
+        $current_date = date('Y-m-d H:i:s');
+    
+        // Insere o dominio no banco de dados
+        $sql = "INSERT INTO $tabela (shop_id, subdomain, domain, register_date) VALUES 
+                                (:shop_id, :subdomain, :domain, :register_date)";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindValue(':shop_id', $shop_id);
+        $stmt->bindValue(':subdomain', $url);
+        $stmt->bindValue(':domain', $domain);
+        $stmt->bindValue(':register_date', $current_date);
+        $stmt->execute();
+
+        //Tabela que será solicitada
         $tabela = 'tb_address';
 
         // Inserindo informações da fatura no banco de dados

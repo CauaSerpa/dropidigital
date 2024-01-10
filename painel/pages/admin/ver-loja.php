@@ -122,6 +122,18 @@
         color: var(--bs-body-color);
     }
 
+    /* Copy shop */
+    #copyShop div.modal-body div
+    {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #copyShop div.modal-body div.icon-content
+    {
+        flex-direction: column;
+    }
+
     /* Password */
     #editPassword .is-invalid
     {
@@ -160,10 +172,90 @@
         background: #989898 !important;
         border: none !important;
     }
+
+    .domain
+    {
+        text-decoration: none;
+    }
+    .domain:hover
+    {
+        text-decoration: underline;
+    }
+
+    /* Copy */
+    #copyDomain,
+    #copySubdomain
+    {
+        cursor: pointer;
+    }
+
+    /* Linha */
+    .line
+    {
+        width: 100%;
+        height: 1px;
+        background: var(--bs-card-border-color);
+    }
+
+    /* Bullet */
+    .bullet
+    {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .bullet.success
+    {
+        background: rgb(1, 200, 155);
+    }
+    .bullet.warning
+    {
+        background: rgb(251, 188, 5);
+    }
+    .bullet.danger
+    {
+        background: rgb(229, 15, 56);
+    }
 </style>
 
-<div class="modal fade" id="export" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-<form id="deleteShop" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/delete_shop.php" method="post">
+<div class="modal fade" id="copyShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="copyShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/delete_shop.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Copiar Loja
+                </div>
+            </div>
+            <div class="modal-body row px-4 py-3">
+                <div class="icon-content col-md-5 py-3">
+                    <img class="mb-3" src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/images/shop-copy.svg" alt="Ícone copiar loja">
+                    <h5><?php echo $shop['cpf_cnpj']; ?></h5>
+                </div>
+                <div class="icon-content col-md-2 py-3">
+                    <i class='bx bx-chevron-right fs-2' ></i>
+                </div>
+                <div class="icon-content col-md-5 py-3">
+                    <img class="mb-3" src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/images/shop-paste.svg" alt="Ícone colar loja">
+                    <input type="text" class="form-control" name="docNumber" id="docNumber" maxlength="18" placeholder="CPF ou CNPJ da loja desejada" aria-describedby="docNumberHelp">
+                </div>
+            </div>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success border-danger d-flex align-items-center fw-semibold px-4 py-2 small disabled" id="copyButton" disabled>
+                    <i class='bx bxs-copy me-2'></i>
+                    Copiar
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
+<div class="modal fade" id="deleteShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="deleteShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/delete_shop.php" method="post">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header px-4 py-3 bg-transparent">
@@ -192,10 +284,10 @@
             <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
             <div class="modal-footer fw-semibold px-4">
                 <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-danger border-danger d-flex align-items-center fw-semibold px-4 py-2 small disabled" disabled>
+                <button type="submit" class="btn btn-danger border-danger d-flex align-items-center fw-semibold px-4 py-2 small disabled" id="deleteButton" disabled>
                     <i class='bx bxs-trash me-2' ></i>
                     Deletar
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -240,7 +332,7 @@
         <a class="nav-link <?php echo ($tab == "" || $tab == "loja") ? "active" : ""; ?>" id="loja" onclick="changeTab('loja')" data-bs-toggle="tab" data-bs-target="#shop-tab-pane" type="button" role="tab" aria-controls="shop-tab-pane" aria-selected="<?php echo ($tab == "" || $tab == "loja") ? "true" : "false"; ?>">Dados da Loja</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link <?php echo ($tab == "perfil") ? "active" : ""; ?>" id="perfil" onclick="changeTab('perfil')" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="<?php echo ($tab == "perfil") ? "true" : "false"; ?>">Perfil</a>
+        <a class="nav-link <?php echo ($tab == "dominio") ? "active" : ""; ?>" id="dominio" onclick="changeTab('dominio')" data-bs-toggle="tab" data-bs-target="#domain-tab-pane" type="button" role="tab" aria-controls="domain-tab-pane" aria-selected="<?php echo ($tab == "dominio") ? "true" : "false"; ?>">Domínio</a>
     </li>
     <li class="nav-item">
         <a class="nav-link <?php echo ($tab == "tema") ? "active" : ""; ?>" id="tema" onclick="changeTab('tema')" data-bs-toggle="tab" data-bs-target="#theme-tab-pane" type="button" role="tab" aria-controls="theme-tab-pane" aria-selected="<?php echo ($tab == "tema") ? "true" : "false"; ?>">Tema</a>
@@ -339,12 +431,12 @@
                             <h6 class="fs-6 fw-semibold mb-0">Copiar Loja</h6>
                             <small>Clique em copiar para fazer uma cópia da loja atual em outra desejada</small>
                         </div>
-                        <div class="d-flex align-items-center">
+                        <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#copyShop">
                             <a href="#" class="btn btn-secondary d-flex align-items-center fw-semibold px-4 py-2 small">
                                 <i class='bx bxs-copy me-2'></i>
                                 Copiar
                             </a>
-                        </div>
+                        </button>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <div>
@@ -363,7 +455,7 @@
                             <h6 class="fs-6 fw-semibold mb-0">Deletar Loja</h6>
                             <small>Clique em deletar para apagar a loja. Não é possível restaurar a loja!</small>
                         </div>
-                        <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#export">
+                        <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#deleteShop">
                             <a href="#" class="btn btn-danger d-flex align-items-center fw-semibold px-4 py-2 small">
                                 <i class='bx bxs-trash me-2' ></i>
                                 Deletar
@@ -376,19 +468,117 @@
     </div>
 </div>
 
-<div class="tab-pane fade <?php echo ($tab == "perfil") ? "show active" : ""; ?>" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_domains';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain != :domain";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop['id']);
+    $stmt->bindValue(':domain', "dropidigital.com.br");
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($domain) {
+        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
+        $domain_url = $subdomain . $domain['domain'];
+    }
+?>
+
+<div class="tab-pane fade <?php echo ($tab == "dominio") ? "show active" : ""; ?>" id="domain-tab-pane" role="tabpanel" aria-labelledby="domain-tab" tabindex="0">
 <form id="editProfile" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_profile.php" method="post">
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-3 p-0">
-                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Dados Pessoais</div>
+                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Domínio</div>
                 <div class="card-body row px-4 py-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <a href="<?php echo "https://" . $domain_url; ?>" target="_black" class="domain d-inline-flex align-items-center fs-5 fw-semibold" style="color: var(--bs-body-color);"><?php echo $domain_url; ?></a>
+                        <i class='bx bxs-copy fs-4 ms-1' id="copyDomain"></i>
+                    </div>
+                    <small class="fw-semibold">Certificado SSL</small>
+                    <small class="d-flex align-items-center mb-3">
+                        <?php
+                            if (empty($domain)) {
+                                $status = "Desativado";
+                                $bullet = "danger";
+                            } else if ($domain['configure'] == 0) {
+                                $status = "Desativado";
+                                $bullet = "danger";
+                            } else if ($domain['configure'] == 1) {
+                                if ($domain['status'] == 0) {
+                                    $status = "Em andamento";
+                                    $bullet = "warning";
+                                } else {
+                                    $status = "Ativo";
+                                    $bullet = "success";
+                                }
+                            }
+                        ?>
+                        <div class="bullet <?php echo $bullet; ?> me-2"></div>
+
+                        SHA-256 bits
+                    </small>
+
+                    <?php
+                        $registerDate = $domain['register_date'];
+                        $registerDate = !empty($registerDate) ? date("d/m/Y H:i:s", strtotime($registerDate)) : "Em andamento";
+
+                        $configureDate = $domain['configure_date'];
+                        $configureDate = !empty($configureDate) ? date("d/m/Y H:i:s", strtotime($configureDate)) : "Em andamento";
+
+                        $activeDate = $domain['active_date'];
+                        $activeDate = !empty($activeDate) ? date("d/m/Y H:i:s", strtotime($activeDate)) : "Em andamento";
+                    ?>
+
+                    <div>
+                        <ul class="mb-0">
+                            <li class="small"><span class="fw-semibold">Status:</span> <div class="bullet d-inline-flex <?php echo $bullet; ?> me-2"></div><?php echo $status; ?></li>
+                            <li class="small"><span class="fw-semibold">Data de Registro:</span> <?php echo $registerDate; ?></li>
+                            <li class="small"><span class="fw-semibold">Data de Configuração:</span> <?php echo $configureDate; ?></li>
+                            <li class="small"><span class="fw-semibold">Data de Ativação:</span> <?php echo $activeDate; ?></li>
+                        </ul>
+                    </div>
                     
+                    <div class="line my-3"></div>
+
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_domains';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop['id']);
+    $stmt->bindValue(':domain', "dropidigital.com.br");
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($domain) {
+        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
+        $subdomain_url = $subdomain . $domain['domain'];
+    }
+?>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <a href="<?php echo "https://" . $subdomain_url; ?>" target="_black" class="domain d-inline-flex align-items-center fs-5 fw-semibold" style="color: var(--bs-body-color);"><?php echo $subdomain_url; ?></a>
+                        <i class='bx bxs-copy fs-4 ms-1' id="copySubdomain"></i>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-6"></div>
     </div>
+
+    <input type="hidden" id="domain" value="<?php echo $domain_url; ?>">
+    <input type="hidden" id="subdomain" value="<?php echo $subdomain_url; ?>">
 
     <input type="hidden" name="id" value="<?php echo $id; ?>">
     <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
@@ -491,7 +681,59 @@
 
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- jQuery Mask Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+<!-- Formatação de input -->
+<script>
+    $(document).ready(function () {
+        $('#docNumber').on('input', function () {
+            var inputValue = $(this).val().replace(/\D/g, ''); // Remove caracteres não numéricos
+
+            if (inputValue.length <= 11) {
+                // Se o comprimento for menor ou igual a 11, trata como CPF
+                $(this).val(formatarCPF(inputValue));
+            } else {
+                // Se o comprimento for maior que 11, trata como CNPJ
+                $(this).val(formatarCNPJ(inputValue));
+            }
+        });
+
+        function formatarCPF(cpf) {
+            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+
+        function formatarCNPJ(cnpj) {
+            return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        // Seleciona o input de senha
+        var docNumberInput = $('#docNumber');
+
+        // Seleciona o botão de deletar
+        var copyButton = $('#copyButton');
+
+        // Adiciona um ouvinte de evento de input ao input de senha
+        docNumberInput.on('input', function () {
+            // Verifica se a senha tem pelo menos 8 caracteres
+            if ($(this).val().length >= 11) {
+                // Remove o atributo 'disabled' do botão de deletar
+                copyButton.removeAttr('disabled');
+                copyButton.removeClass('disabled');
+            } else {
+                // Adiciona o atributo 'disabled' ao botão de deletar
+                copyButton.attr('disabled', 'disabled');
+                copyButton.addClass('disabled');
+            }
+        });
+    });
+</script>
 
 <!-- Tooltip -->
 <script>
@@ -500,114 +742,13 @@
     });
 </script>
 
-<!-- Passsword -->
-<!-- <script>
-    const form = document.getElementById('editPassword');
-    const passwordInput = document.getElementById('password');
-    const newPasswordInput = document.getElementById('newPassword');
-    const confirmPasswordInput = document.getElementById('confirmNewPassword');
-    const button = document.getElementById('buttonUpdPassword');
-
-    const passwordError = document.getElementById('password-error');
-    const newPasswordError = document.getElementById('new-password-error');
-    const confirmPasswordError = document.getElementById('confirm-new-password-error');
-
-    passwordError.textContent = '';
-    newPasswordError.textContent = '';
-    confirmPasswordError.textContent = '';
-
-    passwordInput.addEventListener('input', function() {
-        const passwordField = $(this);
-
-        passwordInput.textContent = '';
-
-        if (passwordInput.value == '') {
-            passwordError.textContent = 'Por favor insira sua senha atual.';
-            passwordField.addClass('is-invalid');
-        } else {
-            passwordField.removeClass('is-invalid');
-        }
-    });
-
-    newPasswordInput.addEventListener('input', function() {
-        const newPasswordField = $(this);
-
-        newPasswordError.textContent = '';
-
-        if (!validatePassword(newPasswordInput.value)) {
-            newPasswordField.addClass('is-invalid');
-        } else {
-            newPasswordField.removeClass('is-invalid');
-        }
-    });
-
-    confirmPasswordInput.addEventListener('input', validatePassword);
-
-    function validatePassword() {
-        const password = passwordInput.value;
-        const newPassword = newPasswordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-
-        const passwordField = $('#password');
-        const newPasswordField = $('#newPassword');
-        const confirmPasswordField = $('#confirmNewPassword');
-        const button = $('#buttonUpdPassword');
-
-        passwordError.textContent = '';
-        newPasswordError.textContent = '';
-        confirmPasswordError.textContent = '';
-
-        if (newPassword.length < 7) {
-            newPasswordError.textContent = 'A senha deve ter pelo menos 8 caracteres.';
-            newPasswordField.addClass('is-invalid');
-            button.addClass('disabled');
-        } else if (!containsUpperCase(newPassword)) {
-            newPasswordError.textContent = 'A senha deve conter pelo menos uma letra maiúscula.';
-            newPasswordField.addClass('is-invalid');
-            button.addClass('disabled');
-        } else if (!containsLowerCase(newPassword)) {
-            newPasswordError.textContent = 'A senha deve conter pelo menos uma letra minúscula.';
-            newPasswordField.addClass('is-invalid');
-            button.addClass('disabled');
-        } else if (!containsNumber(newPassword)) {
-            newPasswordError.textContent = 'A senha deve conter pelo menos um número.';
-            newPasswordField.addClass('is-invalid');
-            button.addClass('disabled');
-        } else if (password === "") {
-            passwordError.textContent = 'Por favor insira sua senha atual.';
-            passwordField.addClass('is-invalid');
-            button.addClass('disabled');
-        } else if (newPassword !== confirmPassword) {
-            confirmPasswordError.textContent = 'As senhas não coincidem.';
-            confirmPasswordField.addClass('is-invalid');
-            button.addClass('disabled');
-        } else {
-            newPasswordField.removeClass('is-invalid');
-            confirmPasswordField.removeClass('is-invalid');
-            button.removeClass('disabled');
-        }
-    }
-
-    function containsUpperCase(str) {
-        return /[A-Z]/.test(str);
-    }
-
-    function containsLowerCase(str) {
-        return /[a-z]/.test(str);
-    }
-
-    function containsNumber(str) {
-        return /\d/.test(str);
-    }
-</script> -->
-
 <script>
     $(document).ready(function () {
         // Seleciona o input de senha
         var passwordInput = $('#password');
 
         // Seleciona o botão de deletar
-        var deleteButton = $('.btn-danger');
+        var deleteButton = $('#deleteButton');
 
         // Adiciona um ouvinte de evento de input ao input de senha
         passwordInput.on('input', function () {
@@ -644,11 +785,14 @@
 <!-- Funcao para alterar url conforme a tab selecionada -->
 <script>
     function changeTab(tab) {
-        // Obtenha a parte da URL após 'configuracoes/'
-        var path = window.location.pathname.split('configuracoes/')[1];
+        // Obtenha a parte da URL após 'ver-loja/'
+        var path = window.location.pathname.split('ver-loja/')[1];
+
+        // Id da loja
+        shopId = <?php echo $shop_id; ?>;
 
         // Altere o perfil na URL para a guia clicada
-        var newUrl = window.location.origin + '/dropidigital/app/painel/configuracoes/' + tab;
+        var newUrl = window.location.origin + '/dropidigital/app/painel/ver-loja/' + tab + '?id=' + shopId;
         history.pushState(null, null, newUrl);
 
         // Exemplo de lógica para alterar 'aria-selected'
@@ -675,6 +819,60 @@
                 const tab = tabElement.getAttribute('id');
                 changeTab(tab);
             });
+        });
+    });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Quando o botão for clicado
+        $("#copyDomain").click(function() {
+            // Seleciona o texto do input
+            var textToCopy = $("#domain").val();
+
+            // Cria um elemento temporário (input) para copiar o texto
+            var tempInput = $("<input>");
+            $("body").append(tempInput);
+
+            // Define o valor do input temporário como o texto a ser copiado
+            tempInput.val(textToCopy).select();
+
+            // Executa o comando de cópia
+            document.execCommand("copy");
+
+            // Remove o input temporário
+            tempInput.remove();
+
+            // Exibe uma mensagem (pode ser personalizado conforme necessário)
+            alert("Texto copiado para a área de transferência: " + textToCopy);
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Quando o botão for clicado
+        $("#copySubdomain").click(function() {
+            // Seleciona o texto do input
+            var textToCopy = $("#subdomain").val();
+
+            // Cria um elemento temporário (input) para copiar o texto
+            var tempInput = $("<input>");
+            $("body").append(tempInput);
+
+            // Define o valor do input temporário como o texto a ser copiado
+            tempInput.val(textToCopy).select();
+
+            // Executa o comando de cópia
+            document.execCommand("copy");
+
+            // Remove o input temporário
+            tempInput.remove();
+
+            // Exibe uma mensagem (pode ser personalizado conforme necessário)
+            alert("Texto copiado para a área de transferência: " + textToCopy);
         });
     });
 </script>
