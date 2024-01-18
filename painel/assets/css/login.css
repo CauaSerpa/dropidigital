@@ -736,6 +736,37 @@ input:checked[type="checkbox"]::before
 {
     background: rgb(1, 173, 134);
 }
+/* Card Info */
+.card.info-card
+{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: var(--z-fixed);
+    border: none;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, .15);
+}
+.card.info-card .close
+{
+    display: flex;
+    justify-content: flex-end;
+    background: transparent;
+    border: 0;
+    margin: 0 !important;
+}
+.card.info-card .button
+{
+    display: flex;
+    justify-content: flex-end;
+}
+.card.info-card .button .btn.btn-success
+{
+    background: var(--green-color);
+    border: none;
+}
+.card.info-card .button .btn.btn-success:hover {
+    background: var(--dark-green-color);
+}
 /* Carroussel */
 .container__box .box__slide .carroussel .container__carroussel .slide
 {

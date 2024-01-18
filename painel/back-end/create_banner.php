@@ -3,6 +3,13 @@
     ob_start();
     include_once('../../config.php');
 
+    // Função para gerar um nome de arquivo aleatório
+    function generateRandomFileName($prefix = '', $extension = '') {
+        $uniquePart = uniqid('', true);  // Remova o prefixo da chamada uniqid
+        $randomFileName = $prefix . $uniquePart . $extension;
+        return $randomFileName;
+    }
+
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
@@ -42,7 +49,7 @@
         // Verifique se o campo de upload de imagens não está vazio para 'image'
         if ($_FILES['image']['error'] !== 4) {
             // Cadastra imagem para 'image'
-            $fileName = $_FILES['image']['name'];
+            $fileName = generateRandomFileName('image_banner_', '.jpg');
             $tmp_name = $_FILES['image']['tmp_name'];
             $uploadFile = $uploadDir . basename($fileName);
 
@@ -57,11 +64,32 @@
             }
         }
 
+        // Verifique se o campo de upload de imagens não está vazio para 'mobile'
+        if ($_FILES['mobile']['error'] !== 4 && $dados['location'] == "full-banner") {
+            // Cadastra imagem para 'image'
+            $fileName = generateRandomFileName('mobile_banner_', '.jpg');
+            $tmp_name = $_FILES['mobile']['tmp_name'];
+            $uploadFile = $uploadDir . basename($fileName);
+
+            if (move_uploaded_file($tmp_name, $uploadFile)) {
+                // Inserir informações da imagem no banco de dados, associando-a ao registro principal
+                $sql = "UPDATE tb_banner_img SET mobile_banner = :mobile_banner WHERE banner_id = :banner_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':mobile_banner', $fileName);
+                $stmt->bindParam(':banner_id', $ultimo_id);
+
+                $stmt->execute();
+            }
+        }
+
         print_r($_FILES['image']);
+        echo "<br>";
+        echo "<br>";
+        print_r($_FILES['mobile']);
 
         $_SESSION['msgcad'] = "<p class='green'>Banner criado com sucesso!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
-        header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
+        // header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
     } else {
         $_SESSION['msg'] = "<p class='red'>Erro ao criar o banner!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso

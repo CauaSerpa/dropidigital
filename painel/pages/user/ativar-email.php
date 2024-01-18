@@ -18,7 +18,7 @@
             $_SESSION['msgcad'] = "<p class='green'>E-mail ativado com sucesso!</p>";
 
             // Redireciona para a página de configuracoes e exibe uma mensagem de sucesso
-            header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes/seguranca");
+            header("Location: ".INCLUDE_PATH_DASHBOARD."configuracoes");
         } else {
             $_SESSION['msg'] = "<p class='red'>Erro ao ativar o e-mail!</p>";
 

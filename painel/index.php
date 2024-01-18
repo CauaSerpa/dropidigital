@@ -70,7 +70,7 @@
     $tabela = "tb_shop";
 
     // Consulta SQL
-    $sql = "SELECT id, plan_id, name, url FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
+    $sql = "SELECT id, plan_id, name FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -91,7 +91,6 @@
         $id = $resultado['id'];
         $plan_id = $resultado['plan_id'];
         $loja = $resultado['name'];
-        $link = $resultado['url'];
     }
 
     // Nome da tabela para a busca
@@ -137,9 +136,9 @@
     $stmt->execute();
 
     // Recupere o resultado da consulta
-    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+    $plan_info = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $plan_name = @$plan['name'];
+    $plan_name = @$plan_info['name'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -959,25 +958,6 @@
     </div>
   </div>
 </div>
-
-
-        <?php
-            // // Iniciando variavel $tab
-            // $tab = "";
-
-            // // Verifica se a url contém uma barra
-            // if (strpos($url, '/') !== false) {
-            //     // Divide a url usando a barra como delimitador
-            //     list($url, $tab) = explode('/', $url, 2);
-            // }
-
-            // if(file_exists('pages/'.$url.'.php')){
-            //     include('pages/'.$url.'.php');
-            // }else{
-            //     //a pagina nao existe
-            //     header('Location: '.INCLUDE_PATH_DASHBOARD.'404');
-            // }
-        ?>
 
     <?php
         if(isset($_SESSION['admin_id'])){

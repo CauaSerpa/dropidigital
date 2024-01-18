@@ -80,8 +80,8 @@
                 <div class="modal-body px-4 py-3">
                     <div>
                         <label for="formFileLg" class="form-label small">Arquivo</label>
-                        <input class="form-control" id="formFileLg" type="file" name="arquivo" accept="text/csv">
-                        <small class="form-text text-muted fw-normal small">Você deve selecionar um arquivo com extensão <span class="fw-semibold">.csv</span></small>
+                        <input class="form-control" id="formFileLg" type="file" name="arquivo" accept=".xls,.xlsx">
+                        <small class="form-text text-muted fw-normal small">Você deve selecionar um arquivo com extensão <span class="fw-semibold">.xlsx</span></small>
                     </div>
                 </div>
                 <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
@@ -220,9 +220,13 @@
                         // Recuperar os resultados
                         $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                        // Loop através dos resultados e exibir todas as colunas
-                        foreach ($imagens as $imagem) {
-                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
+                        if ($imagens) {
+                            // Loop através dos resultados e exibir todas as colunas
+                            foreach ($imagens as $imagem) {
+                                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
+                            }
+                        } else {
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
                         }
                         
                         echo '

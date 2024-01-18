@@ -197,7 +197,7 @@
         <div class="card-body px-5 py-3">
             <label for="file-input-1" class="image-preview-container">
                 <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['logo']; ?>" alt="Logo <?php echo $imagem['logo']; ?>" class="image-preview" id="image-preview-1" <?php echo (!empty($imagem['logo'])) ? "style='display: block;'" : ""; ?>>
-                <div class="center-text" <?php echo (!empty($imagem['logo'])) ? "style='display: none;'" : ""; ?>>
+                <div class="center-text" id="text-1" <?php echo (!empty($imagem['logo'])) ? "style='display: none;'" : "#"; ?>>
                     <i class='bx bx-image fs-1'></i>
                     <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
                 </div>
@@ -214,8 +214,8 @@
         </div>
         <div class="card-body px-5 py-3">
             <label for="file-input-2" class="image-preview-container">
-                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['logo_mobile']; ?>" alt="Logo <?php echo $imagem['logo_mobile']; ?>" class="image-preview" id="image-preview-2" <?php echo (!empty($imagem['logo'])) ? "style='display: block;'" : ""; ?>>
-                <div class="center-text" <?php echo (!empty($imagem['logo_mobile'])) ? "style='display: none;'" : ""; ?>>
+                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['logo_mobile']; ?>" alt="Logo <?php echo $imagem['logo_mobile']; ?>" class="image-preview" id="image-preview-2" <?php echo (!empty($imagem['logo_mobile'])) ? "style='display: block;'" : ""; ?>>
+                <div class="center-text" id="text-2" <?php echo (!empty($imagem['logo_mobile'])) ? "style='display: none;'" : ""; ?>>
                     <i class='bx bx-image fs-1'></i>
                     <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
                 </div>
@@ -232,8 +232,8 @@
         </div>
         <div class="card-body px-5 py-3">
             <label for="file-input-3" class="image-preview-container">
-                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['favicon']; ?>" alt="Logo <?php echo $imagem['favicon']; ?>" class="image-preview" id="image-preview-3" <?php echo (!empty($imagem['logo'])) ? "style='display: block;'" : ""; ?>>
-                <div class="center-text" <?php echo (!empty($imagem['favicon'])) ? "style='display: none;'" : ""; ?>>
+                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $imagem['id'] . '/' . $imagem['favicon']; ?>" alt="Logo <?php echo $imagem['favicon']; ?>" class="image-preview" id="image-preview-3" <?php echo (!empty($imagem['favicon'])) ? "style='display: block;'" : ""; ?>>
+                <div class="center-text" id="text-3" <?php echo (!empty($imagem['favicon'])) ? "style='display: none;'" : ""; ?>>
                     <i class='bx bx-image fs-1'></i>
                     <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
                 </div>
@@ -261,138 +261,12 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-<!-- Imagens -->
-<!-- <script>
-    let uploadButton = document.getElementById("upload-button");
-    let container = document.querySelector(".image-container");
-    let error = document.getElementById("error");
-    let imageDisplay = document.getElementById("image-display");
-    let loadedImages = [];
-    const maxImages = 1; // Define o número máximo de imagens
-
-    const fileHandler = (file, name, type, index) => {
-        if (loadedImages.length >= maxImages) {
-            // Imagens atingiram o limite
-            error.innerText = `Você só pode fazer upload de até ${maxImages} imagens.`;
-            return false;
-        }
-
-        if (type.split("/")[0] !== "image") {
-            //File Type Error
-            error.innerText = "Por favor carregue um arquivo de imagem";
-            return false;
-        }
-
-        if (loadedImages.includes(name)) {
-            // Image already loaded
-            error.innerText = "Esta imagem já foi carregada";
-            return false;
-        }
-
-        loadedImages.push(name);
-        error.innerText = "";
-        let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-            //image and file name
-            let imageContainer = document.createElement("figure");
-            let img = document.createElement("img");
-            img.src = reader.result;
-            imageContainer.appendChild(img);
-            
-            // Add a delete button
-            let deleteButton = document.createElement("button");
-            deleteButton.addEventListener("click", () => {
-                loadedImages = loadedImages.filter(imgName => imgName !== name);
-                imageContainer.remove();
-            });
-            imageContainer.appendChild(deleteButton);
-
-            // Add class for sorting
-            imageContainer.className = "sortable-image";
-
-            imageDisplay.appendChild(imageContainer);
-        };
-
-        // Initialize sortable
-        $(".sortable-container").sortable({
-            items: ".sortable-image",
-            cursor: "grabbing"
-        });
-    };
-
-    const handleFiles = (files) => {
-        // Dentro da função handleFiles
-        Array.from(files).forEach((file, index) => {
-            fileHandler(file, file.name, file.type, index);
-        });
-    };
-
-    // Upload Button
-    uploadButton.addEventListener("change", () => {
-        handleFiles(uploadButton.files);
-    });
-
-    // Container Drag Events
-    container.addEventListener("dragenter", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        container.classList.add("dropzone-active");
-    }, false);
-
-    container.addEventListener("dragleave", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        container.classList.remove("dropzone-active");
-    }, false);
-
-    container.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        container.classList.add("dropzone-active");
-    }, false);
-
-    container.addEventListener("drop", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        container.classList.remove("dropzone-active");
-        let draggedData = e.dataTransfer;
-        let files = draggedData.files;
-        handleFiles(files);
-    }, false);
-
-    window.onload = () => {
-        error.innerText = "";
-    };
-</script> -->
-
 <!-- Imagem -->
-<!-- <script>
-    const imagePreview = document.getElementById("image-preview");
-    const fileInput = document.getElementById("file-input");
-    
-    fileInput.addEventListener("change", function () {
-        const file = fileInput.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = "block";
-                document.querySelector(".center-text").style.display = "none";
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.src = "";
-            imagePreview.style.display = "none";
-            document.querySelector(".center-text").style.display = "block";
-        }
-    });
-</script> -->
-
 <script>
-    function imagePreview(fileInputId, imagePreviewId) {
+    function imagePreview(fileInputId, imagePreviewId, textId) {
         const imagePreview = document.getElementById(imagePreviewId);
         const fileInput = document.getElementById(fileInputId);
+        const text = document.getElementById(textId);
         let previousImageSrc = "";
 
         fileInput.addEventListener("change", function () {
@@ -403,134 +277,23 @@
                     previousImageSrc = imagePreview.src; // Armazenar imagem anterior
                     imagePreview.src = e.target.result;
                     imagePreview.style.display = "block";
-                    document.querySelector(".center-text").style.display = "none";
+                    text.style.display = "none";
                 };
                 reader.readAsDataURL(file);
             } else {
                 // Reverter para a imagem anterior
                 imagePreview.src = previousImageSrc;
                 imagePreview.style.display = "none"; // Exibir a imagem anterior
-                document.querySelector(".center-text").style.display = "none";
+                text.style.display = "none";
             }
         });
     }
 
     // Inicialize para os três pares de botão de upload e visualização de imagem
-    imagePreview("file-input-1", "image-preview-1");
-    imagePreview("file-input-2", "image-preview-2");
-    imagePreview("file-input-3", "image-preview-3");
+    imagePreview("file-input-1", "image-preview-1", "text-1");
+    imagePreview("file-input-2", "image-preview-2", "text-2");
+    imagePreview("file-input-3", "image-preview-3", "text-3");
 </script>
-
-<!-- <script>
-    const maxImages = 1; // Define o número máximo de imagens para cada campo
-
-    function initializeFileInput(inputId, imageDisplayId, errorId) {
-        let uploadButton = document.getElementById(inputId);
-        let imageDisplay = document.getElementById(imageDisplayId);
-        let error = document.getElementById(errorId);
-        let loadedImages = [];
-
-        const fileHandler = (file, name, type, index) => {
-            if (loadedImages.length >= maxImages) {
-                // Imagens atingiram o limite
-                error.innerText = `Você só pode fazer upload de até ${maxImages} imagens.`;
-                return false;
-            }
-
-            if (type.split("/")[0] !== "image") {
-                // File Type Error
-                error.innerText = "Por favor, carregue um arquivo de imagem";
-                return false;
-            }
-
-            if (loadedImages.includes(name)) {
-                // Imagem já carregada
-                error.innerText = "Esta imagem já foi carregada";
-                return false;
-            }
-
-            loadedImages.push(name);
-            error.innerText = "";
-            let reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = () => {
-                // Image and file name
-                let imageContainer = document.createElement("figure");
-                let img = document.createElement("img");
-                img.src = reader.result;
-                imageContainer.appendChild(img);
-
-                // Adicionar um botão de exclusão
-                let deleteButton = document.createElement("button");
-                deleteButton.addEventListener("click", () => {
-                    loadedImages = loadedImages.filter(imgName => imgName !== name);
-                    imageContainer.remove();
-                });
-                imageContainer.appendChild(deleteButton);
-
-                // Adicionar classe para classificação
-                imageContainer.className = "sortable-image";
-
-                imageDisplay.appendChild(imageContainer);
-            };
-
-            // Inicializar classificável
-            $(".sortable-container").sortable({
-                items: ".sortable-image",
-                cursor: "grabbing"
-            });
-        };
-
-        const handleFiles = (files) => {
-            // Dentro da função handleFiles
-            Array.from(files).forEach((file, index) => {
-                fileHandler(file, file.name, file.type, index);
-            });
-        };
-
-        // Upload Button
-        uploadButton.addEventListener("change", () => {
-            handleFiles(uploadButton.files);
-        });
-
-        // Container Drag Events
-        imageDisplay.addEventListener("dragenter", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            imageDisplay.classList.add("dropzone-active");
-        }, false);
-
-        imageDisplay.addEventListener("dragleave", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            imageDisplay.classList.remove("dropzone-active");
-        }, false);
-
-        imageDisplay.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            imageDisplay.classList.add("dropzone-active");
-        }, false);
-
-        imageDisplay.addEventListener("drop", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            imageDisplay.classList.remove("dropzone-active");
-            let draggedData = e.dataTransfer;
-            let files = draggedData.files;
-            handleFiles(files);
-        }, false);
-
-        window.onload = () => {
-            error.innerText = "";
-        };
-    }
-
-    // Inicialize os campos de entrada de arquivo
-    initializeFileInput("upload-button-1", "image-display-1", "error-1");
-    initializeFileInput("upload-button-2", "image-display-2", "error-2");
-    initializeFileInput("upload-button-3", "image-display-3", "error-3");
-</script> -->
 
 <!-- Tooltip -->
 <script>
@@ -553,14 +316,14 @@
         $('input, textarea').on('input', function () {
             formChanged = true;
             $('#saveButton').show();
-            $('.main.container').addClass('save-button-show');
+            $('.main .container.grid').addClass('save-button-show');
         });
 
         $('#saveButton button').click(function () {
             if (formChanged) {
                 formChanged = false;
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container.grid').removeClass('save-button-show');
             }
         });
 
@@ -576,7 +339,7 @@
             var hasChanges = $('input.changed, textarea.changed').length > 0;
             if (!hasChanges) {
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container.grid').removeClass('save-button-show');
             }
         });
     });

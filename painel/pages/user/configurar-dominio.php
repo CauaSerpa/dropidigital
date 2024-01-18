@@ -95,6 +95,33 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
 </div>
 
 <?php
+    if ($plan['plan_id'] <= 1) {
+?>
+
+<div class="card mb-3 p-0">
+    <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+        Configurar seu domínio
+    </div>
+    <div class="card-body row px-4 py-3">
+        <div class="notice">
+            <p class="fs-4 fw-semibold mb-3">Para personalizar seu domínio, é necessário adquirir um plano superior!</p>
+            <p class="mb-2">Você terá a flexibilidade de utilizar seu próprio domínio, proporcionando uma presença online mais profissional e alinhada com as necessidades específicas do seu projeto ou negócio. Desbloqueie todo o potencial do seu site com nossas opções de plano avançadas.</p>
+            <div class="container-button">
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="btn btn-success rounded small fw-semibold d-inline-flex align-items-center mb-3" style="height: 42px;">
+                    Ver planos
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="ms-1" style="fill: rgba(255, 255, 255, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
+                </a>
+            </div>
+            <small>Caso tenha alguma dúvida, por favor entre em contato conosco pelo e-mail <a href="mailto:suporte@dropidigital.com.br" class="d-inline-flex align-items-center fw-semibold text-decoration-none" style="color: var(--bs-body-color);">suporte@dropidigital.com.br</a></small>
+        </div>
+    </div>
+</div>
+
+<?php
+    } else {
+?>
+
+<?php
     // Nome da tabela para a busca
     $tabela = 'tb_domains';
 
@@ -300,6 +327,10 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 ?>
 
+<?php
+    }
+?>
+
 <div class="card mb-3 p-0">
     <div class="card-header fw-semibold px-4 py-3 bg-transparent">Certificado Digital de Segurança</div>
     <div class="card-body row px-4 py-3">
@@ -309,15 +340,19 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
         <small class="d-flex align-items-center">
 
             <?php
-                if (empty($domain)) {
+                if ($plan['plan_id'] <= 1) {
                     $bullet = "success";
-                } else if ($domain['configure'] == 0) {
-                    $bullet = "danger";
-                } else if ($domain['configure'] == 1) {
-                    if ($domain['status'] == 0) {
-                        $bullet = "warning";
-                    } else {
+                } else {
+                    if (empty($domain)) {
                         $bullet = "success";
+                    } else if ($domain['configure'] == 0) {
+                        $bullet = "danger";
+                    } else if ($domain['configure'] == 1) {
+                        if ($domain['status'] == 0) {
+                            $bullet = "warning";
+                        } else {
+                            $bullet = "success";
+                        }
                     }
                 }
             ?>

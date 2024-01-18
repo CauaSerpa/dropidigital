@@ -3,6 +3,13 @@
     ob_start();
     include_once('../../config.php');
 
+    // Função para gerar um nome de arquivo aleatório
+    function generateRandomFileName($prefix = '', $extension = '') {
+        $uniquePart = uniqid('', true);  // Remova o prefixo da chamada uniqid
+        $randomFileName = $prefix . $uniquePart . $extension;
+        return $randomFileName;
+    }
+
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
@@ -44,7 +51,7 @@
         $id = $dados['id'];
 
         // Consulta para obter o nome das imagens
-        $query = "SELECT image_name FROM $tabela WHERE id = :id";
+        $query = "SELECT image_name, mobile_banner FROM $tabela WHERE id = :id";
         $stmt = $conn_pdo->prepare($query);
         $stmt->bindParam(':id', $dados['image_id']);
         $stmt->execute();
@@ -65,8 +72,6 @@
             // Nome da imagem antiga
             $imagemAntiga = $row['image_name'];
 
-            echo $imagemAntiga;
-
             // Diretório para deletar as imagens antigas de 'image'
             $caminhoImagemAntiga = $diretorioImage . basename($imagemAntiga);
 
@@ -75,24 +80,46 @@
                 unlink($caminhoImagemAntiga);
             }
 
-            // Consulta para excluir a categoria do banco de dados
-            $query = "DELETE FROM tb_banner_img WHERE id = :id";
-            $stmt = $conn_pdo->prepare($query);
-            $stmt->bindParam(':id', $dados['image_id']);
-
-            $stmt->execute();
-
             // Cadastra nova imagem para 'image'
-            $fileName = $_FILES['image']['name'];
+            $fileName = generateRandomFileName('image_banner_', '.jpg');
             $tmp_name = $_FILES['image']['tmp_name'];
             $uploadFile = $diretorioImage . basename($fileName);
 
             if (move_uploaded_file($tmp_name, $uploadFile)) {
                 // Inserir informações da imagem no banco de dados, associando-a ao registro principal
-                $sql = "INSERT INTO tb_banner_img (banner_id, image_name) VALUES (:banner_id, :image_name)";
+                $sql = "UPDATE tb_banner_img SET image_name = :image_name WHERE banner_id = :banner_id";
                 $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':banner_id', $id);
                 $stmt->bindParam(':image_name', $fileName);
+                $stmt->bindParam(':banner_id', $id);
+
+                $stmt->execute();
+            }
+        }
+
+        // Verifique se o campo de upload de imagens não está vazio para 'mobile'
+        if ($_FILES['mobile']['error'] !== 4 && $dados['location'] == "full-banner") {
+            // Nome da imagem antiga
+            $imagemAntiga = $row['mobile_banner'];
+
+            // Diretório para deletar as imagens antigas de 'mobile'
+            $caminhoImagemAntiga = $diretorioImage . basename($imagemAntiga);
+
+            // Excluir a imagem existente de 'mobile'
+            if (file_exists($caminhoImagemAntiga)) {
+                unlink($caminhoImagemAntiga);
+            }
+
+            // Cadastra nova imagem para 'mobile'
+            $fileName = generateRandomFileName('mobile_banner_', '.jpg');
+            $tmp_name = $_FILES['mobile']['tmp_name'];
+            $uploadFile = $diretorioImage . basename($fileName);
+
+            if (move_uploaded_file($tmp_name, $uploadFile)) {
+                // Inserir informações da imagem no banco de dados, associando-a ao registro principal
+                $sql = "UPDATE tb_banner_img SET mobile_banner = :mobile_banner WHERE banner_id = :banner_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':mobile_banner', $fileName);
+                $stmt->bindParam(':banner_id', $id);
 
                 $stmt->execute();
             }

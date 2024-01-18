@@ -152,12 +152,24 @@
 
                     $index = 1; // Inicializa o contador de índice
 
-                    foreach ($imagens as $imagem) {
+                    if ($imagens) {
+                        foreach ($imagens as $imagem) {
+                            // Verifica se é o primeiro elemento
+                            $class = ($index === 1) ? 'thumbnail active' : 'thumbnail';
+    
+                            echo '<div class="' . $class . '" data-index="' . $index . '" onclick="showImage(`' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $product['id'] . '/' . $imagem['nome_imagem'] . '`, this)">';
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $product['id'] . '/' . $imagem['nome_imagem'] . '" alt="' . $imagem['nome_imagem'] . '">';
+                            echo '</div>';
+    
+                            // Incrementa o contador de índice
+                            $index++;
+                        }
+                    } else {
                         // Verifica se é o primeiro elemento
                         $class = ($index === 1) ? 'thumbnail active' : 'thumbnail';
-
-                        echo '<div class="' . $class . '" data-index="' . $index . '" onclick="showImage(`' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $product['id'] . '/' . $imagem['nome_imagem'] . '`, this)">';
-                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $product['id'] . '/' . $imagem['nome_imagem'] . '" alt="' . $imagem['nome_imagem'] . '">';
+    
+                        echo '<div class="' . $class . '" data-index="' . $index . '" onclick="showImage(`' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg`, this)">';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg">';
                         echo '</div>';
 
                         // Incrementa o contador de índice
@@ -184,7 +196,24 @@
 
             <div class="content-image">
                 <div class="preview" id="container">
-                    <img id="preview-image" src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png" alt="Imagem de visualização">
+                    <?php
+                        // Consulta SQL para selecionar todas as colunas com base no ID
+                        $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':usuario_id', $product['id']);
+                        $stmt->execute();
+
+                        // Recuperar os resultados
+                        $imagem = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        if ($imagem) {
+                            echo '<img id="preview-image" src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $product['id'] . '/' . $imagem['nome_imagem'] . '" alt="' . $imagem['nome_imagem'] . '">';
+                        } else {
+                            echo '<img id="preview-image" src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" alt="Imagem de visualização">';
+                        }
+                    ?>
                 </div>
                 <button class="nav-button prev" onclick="previousImage()"><i class='bx bx-chevron-left'></i></button>
                 <button class="nav-button next" onclick="nextImage()"><i class='bx bx-chevron-right'></i></button>
@@ -364,12 +393,21 @@
                     echo '<div class="col-sm-3">';
                     echo '<a href="' . $link . '" class="product-link">';
                     echo '<div class="card">';
-                    foreach ($imagens as $imagem) {
-                    echo '<div class="product-image">';
-                    echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
-                    echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
-                    echo '</div>';
+
+                    if ($imagens) {
+                        foreach ($imagens as $imagem) {
+                            echo '<div class="product-image">';
+                            echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo '<div class="product-image">';
+                        echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" class="card-img-top" alt="' . $product['name'] . '">';
+                        echo '</div>';
                     }
+
                     echo '<div class="card-body">';
                     echo '<p class="card-title mb-0">' . $product['name'] . '</p>';
                     echo '<div class="d-flex mb-3">';

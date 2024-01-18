@@ -2,21 +2,60 @@
     // Pega o dominio da pagina
     $dominioCompleto = $_SERVER['HTTP_HOST'];
     
-    // Divide o domínio completo em partes usando o ponto como separador
-    $partesDoDominio = explode('.', $dominioCompleto);
+    function temSubdominio($dominio) {
+        // Divide o domínio em partes usando o ponto como delimitador
+        $partes = explode('.', $dominio);
     
-    // O subdomínio estará na primeira parte do array (índice 0)
-    $subdomain = $partesDoDominio[0];
-    $domain = $partesDoDominio[1];
+        // Verifica se há mais de uma parte (subdomínios)
+        return count($partes) > 2;
+    }
+    
+    function separarDominioSubdominio($url) {
+        // Divide a URL em partes usando o ponto como delimitador
+        $partes = explode('.', $url);
+    
+        // Verifica se há mais de uma parte (subdomínios presentes)
+        if (count($partes) > 2) {
+            // Subdomínio é a primeira parte
+            $subdominio = $partes[0];
+    
+            // Domínio é a parte a partir da segunda até a última
+            $dominio = implode('.', array_slice($partes, 1));
+        } else {
+            // Não há subdomínios, o subdomínio é vazio
+            $subdominio = 'www';
+            
+            // Domínio é a URL completa
+            $dominio = $url;
+        }
+    
+        return [
+            'subdominio' => $subdominio,
+            'dominio' => $dominio,
+        ];
+    }
+    
+    if (temSubdominio($dominioCompleto)) {
+        $resultadoComSubdominio = separarDominioSubdominio($dominioCompleto);
+        $subdomain = $resultadoComSubdominio['subdominio'];
+        $domain = $resultadoComSubdominio['dominio'];
 
-    // $subdomain = "aurora";
-    // $domain = "dropidigital.com.br";
+        // Combina todas as partes para obter a URL completa
+        $urlCompleta = "https://$subdomain.$domain/";
+    } else {
+        $resultadoSemSubdominio = separarDominioSubdominio($dominioCompleto);
+        $subdomain = $resultadoSemSubdominio['subdominio'];
+        $domain = $resultadoSemSubdominio['dominio'];
 
-    // Obtém o caminho do diretório pai (remove o nome do arquivo)
-    $directory = dirname($_SERVER['SCRIPT_NAME']);
+        // Combina todas as partes para obter a URL completa
+        $urlCompleta = "https://$domain/";
+    }
 
-    // Combina todas as partes para obter a URL completa
-    $urlCompleta = "https://$subdomain.$domain/";
+    // echo $subdomain;
+    // echo $domain;
+
+    $subdomain = "minha-loja";
+    $domain = "dropidigital.com.br";
 
     define('INCLUDE_PATH_LOJA', $urlCompleta);
 

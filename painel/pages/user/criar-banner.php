@@ -227,6 +227,18 @@
     {
         border: 2px dashed #ddd;
     }
+
+    /* Button */
+    .btn.btn-success
+    {
+        background: var(--green-color);
+        border-color: var(--green-color);
+    }
+    .btn.btn-success:hover
+    {
+        background: var(--dark-green-color);
+        border-color: var(--dark-green-color);
+    }
 </style>
 <!-- Banner Selecionado -->
 <style>
@@ -442,18 +454,38 @@
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             Upload da imagem
-            <label for="file-input" class="small" style="cursor: pointer;">Selecionar imagem</label>
+            <label for="file-input-1" class="small" style="cursor: pointer;">Selecionar imagem</label>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="file-input" class="image-preview-container">
-                <img src="#" alt="Image Preview" class="image-preview" id="image-preview">
-                <div class="center-text">
-                    <i class='bx bx-image fs-1'></i>
-                    <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
-                </div>
-            </label>
-            <input type="file" name="image" accept="image/*" class="file-input" id="file-input">
-            <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+            <div class="mb-1">
+                <label for="file-input-1" class="image-preview-container">
+                    <img src="#" alt="Image Preview" class="image-preview" id="image-preview-1">
+                    <div class="center-text" id="text-1">
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
+                    </div>
+                </label>
+                <input type="file" name="image" accept="image/*" class="file-input" id="file-input-1">
+                <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+            </div>
+            
+            <button type="button" id="addMobileBanner" class="btn btn-success small d-none">
+                Adicionar banner para celular
+            </button>
+            
+            <div class="d-none" id="mobileBanner">
+                <p class="fs-5 fw-semibold mb-4">Banner para celular</p>
+
+                <label for="file-input-2" class="image-preview-container">
+                    <img src="#" alt="Image Preview" class="image-preview" id="image-preview-2">
+                    <div class="center-text" id="text-2">
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
+                    </div>
+                </label>
+                <input type="file" name="mobile" accept="image/*" class="file-input" id="file-input-2">
+                <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+            </div>
         </div>
     </div>
 
@@ -512,56 +544,57 @@
 
 <!-- Imagem -->
 <script>
-    const imagePreview = document.getElementById("image-preview");
-    const fileInput = document.getElementById("file-input");
-    
-    fileInput.addEventListener("change", function () {
-        const file = fileInput.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = "block";
-                document.querySelector(".center-text").style.display = "none";
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.src = "";
-            imagePreview.style.display = "none";
-            document.querySelector(".center-text").style.display = "block";
-        }
-    });
+    function imagePreview(fileInputId, imagePreviewId, textId) {
+        const imagePreview = document.getElementById(imagePreviewId);
+        const fileInput = document.getElementById(fileInputId);
+        const text = document.getElementById(textId);
+        let previousImageSrc = "";
+
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previousImageSrc = imagePreview.src; // Armazenar imagem anterior
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    text.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reverter para a imagem anterior
+                imagePreview.src = previousImageSrc;
+                imagePreview.style.display = "none"; // Exibir a imagem anterior
+                text.style.display = "none";
+            }
+        });
+    }
+
+    // Inicialize para os três pares de botão de upload e visualização de imagem
+    imagePreview("file-input-1", "image-preview-1", "text-1");
+    imagePreview("file-input-2", "image-preview-2", "text-2");
 </script>
 
-<!-- Video Preview -->
+<!-- Mobile Banner -->
 <script>
-    const videoForm = document.getElementById("video-url");
-    const videoDisplay = document.getElementById("video-display");
+    $(document).ready(function() {
+        $("#addMobileBanner").click(function() {
+            $("#addMobileBanner").addClass("d-none");
+            $("#mobileBanner").removeClass("d-none");
+        });
 
-    videoForm.addEventListener("input", function(event) {
-        event.preventDefault();
+        $("#location").change(function() {
+            if ($(this).val() === "full-banner") {
+                $("#addMobileBanner").removeClass("d-none");
+                $("#addMobileBanner").addClass("d-flex");
+            } else {
+                $("#addMobileBanner").removeClass("d-flex");
+                $("#addMobileBanner").addClass("d-none");
 
-        const videoUrl = document.getElementById("video-url").value.trim(); // Remove espaços em branco no início e fim
-        if (videoUrl === "") {
-            videoDisplay.innerHTML = ""; // Não mostrar nada se o input estiver vazio
-            return;
-        }
-
-        const videoId = getYouTubeVideoId(videoUrl);
-
-        if (videoId) {
-            const embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="mt-3"></iframe>`;
-            videoDisplay.innerHTML = embedCode;
-        } else {
-            videoDisplay.innerHTML = "<p class='fw-normal small mt-3'>URL de vídeo inválida.</p>";
-        }
+                $("#mobileBanner").addClass("d-none");
+            }
+        });
     });
-
-    function getYouTubeVideoId(url) {
-        const regex = /(?:\?v=|\/embed\/|\.be\/)([a-zA-Z0-9_-]+)/;
-        const matches = url.match(regex);
-        return matches ? matches[1] : null;
-    }
 </script>
 
 <!-- Editor de texto -->

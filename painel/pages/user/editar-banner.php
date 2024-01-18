@@ -159,6 +159,18 @@ if(!empty($id)){
     .file-input {
         display: none; /* Ocultar o input de arquivo original */
     }
+
+    /* Button */
+    .btn.btn-success
+    {
+        background: var(--green-color);
+        border-color: var(--green-color);
+    }
+    .btn.btn-success:hover
+    {
+        background: var(--dark-green-color);
+        border-color: var(--dark-green-color);
+    }
 </style>
 <!-- Banner Selecionado -->
 <style>
@@ -331,32 +343,52 @@ if(!empty($id)){
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             Upload da imagem
-            <label for="file-input" class="small" style="cursor: pointer;">Selecionar imagem</label>
+            <label for="file-input-1" class="small" style="cursor: pointer;">Selecionar imagem</label>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="file-input" class="image-preview-container">
-                <?php
-                    // Consulta SQL para selecionar todas as imagens com base no ID
-                    $sql = "SELECT * FROM tb_banner_img WHERE banner_id = :banner_id";
+            <div>
+                <label for="file-input-1" class="image-preview-container">
+                    <?php
+                        // Consulta SQL para selecionar todas as imagens com base no ID
+                        $sql = "SELECT * FROM tb_banner_img WHERE banner_id = :banner_id";
 
-                    // Preparar e executar a consulta
-                    $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':banner_id', $banner['id']);
-                    $stmt->execute();
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':banner_id', $banner['id']);
+                        $stmt->execute();
 
-                    // Recuperar os resultados
-                    $imagem = $stmt->fetch(PDO::FETCH_ASSOC);
+                        // Recuperar os resultados
+                        $imagem = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    $image_id = $imagem['id'];
-                ?>
-                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name']; ?>" alt="Image Preview" class="image-preview" id="image-preview" <?php echo (!empty($imagem['image_name'])) ? "style='display: block;'" : ""; ?>>
-                <div class="center-text" <?php echo (!empty($imagem['image_name'])) ? "style='display: none;'" : ""; ?>>
-                    <i class='bx bx-image fs-1'></i>
-                    <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
-                </div>
-            </label>
-            <input type="file" name="image" accept="image/*" class="file-input" id="file-input">
-            <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+                        $image_id = $imagem['id'];
+                    ?>
+                    <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name']; ?>" alt="Image Preview" class="image-preview" id="image-preview-1" <?php echo (!empty($imagem['image_name'])) ? "style='display: block;'" : ""; ?>>
+                    <div class="center-text" id="text-1" <?php echo (!empty($imagem['image_name'])) ? "style='display: none;'" : ""; ?>>
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
+                    </div>
+                </label>
+                <input type="file" name="image" accept="image/*" class="file-input" id="file-input-1">
+                <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+            </div>
+
+            <button type="button" id="addMobileBanner" class="btn btn-success small mt-2 <?php echo ($banner['location'] !== "full-banner" || $imagem['mobile_banner'] != "") ? "d-none" : ""; ?>">
+                Adicionar banner para celular
+            </button>
+
+            <div class="<?php echo ($imagem['mobile_banner'] == "") ? "d-none" : ""; ?>" id="mobileBanner">
+                <p class="fs-5 fw-semibold mb-4">Banner para celular</p>
+
+                <label for="file-input-2" class="image-preview-container">
+                    <img src="<?php echo ($imagem['mobile_banner'] != "") ? INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['mobile_banner'] : "#"; ?>" alt="Image Preview" class="image-preview" id="image-preview-2" <?php echo (!empty($imagem['mobile_banner'])) ? "style='display: block;'" : ""; ?>>
+                    <div class="center-text" id="text-2" <?php echo (!empty($imagem['mobile_banner'])) ? "style='display: none;'" : ""; ?>>
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
+                    </div>
+                </label>
+                <input type="file" name="mobile" accept="image/*" class="file-input" id="file-input-2">
+                <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+            </div>
         </div>
     </div>
 
@@ -417,24 +449,56 @@ if(!empty($id)){
 
 <!-- Imagem -->
 <script>
-    const imagePreview = document.getElementById("image-preview");
-    const fileInput = document.getElementById("file-input");
-    
-    fileInput.addEventListener("change", function () {
-        const file = fileInput.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = "block";
-                document.querySelector(".center-text").style.display = "none";
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.src = "";
-            imagePreview.style.display = "none";
-            document.querySelector(".center-text").style.display = "block";
-        }
+    function imagePreview(fileInputId, imagePreviewId, textId) {
+        const imagePreview = document.getElementById(imagePreviewId);
+        const fileInput = document.getElementById(fileInputId);
+        const text = document.getElementById(textId);
+        let previousImageSrc = "";
+
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previousImageSrc = imagePreview.src; // Armazenar imagem anterior
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    text.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reverter para a imagem anterior
+                imagePreview.src = previousImageSrc;
+                imagePreview.style.display = "none"; // Exibir a imagem anterior
+                text.style.display = "none";
+            }
+        });
+    }
+
+    // Inicialize para os três pares de botão de upload e visualização de imagem
+    imagePreview("file-input-1", "image-preview-1", "text-1");
+    imagePreview("file-input-2", "image-preview-2", "text-2");
+</script>
+
+<!-- Mobile Banner -->
+<script>
+    $(document).ready(function() {
+        $("#addMobileBanner").click(function() {
+            $("#addMobileBanner").addClass("d-none");
+            $("#mobileBanner").removeClass("d-none");
+        });
+
+        $("#location").change(function() {
+            if ($(this).val() === "full-banner") {
+                $("#addMobileBanner").removeClass("d-none");
+                $("#addMobileBanner").addClass("d-flex");
+            } else {
+                $("#addMobileBanner").removeClass("d-flex");
+                $("#addMobileBanner").addClass("d-none");
+
+                $("#mobileBanner").addClass("d-none");
+            }
+        });
     });
 </script>
 

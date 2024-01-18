@@ -38,6 +38,12 @@
 
             // Processar o upload de imagens
             $uploadDir = "logos/{$dados['shop_id']}/";
+
+            // Certifique-se de que os diretórios de destino existam
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
             $fileName = generateRandomFileName('logo_', '.png');
             $tmp_name = $_FILES['logo']['tmp_name'];
             $uploadFile = $uploadDir . basename($fileName);
@@ -72,6 +78,12 @@
 
             // Processar o upload de imagens
             $uploadDir = "logos/{$dados['shop_id']}/";
+
+            // Certifique-se de que os diretórios de destino existam
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
             $fileName = generateRandomFileName('logo_mobile_', '.png');
             $tmp_name = $_FILES['logo_mobile']['tmp_name'];
             $uploadFile = $uploadDir . basename($fileName);
@@ -106,7 +118,12 @@
 
             // Processar o upload de imagens
             $uploadDir = "logos/{$dados['shop_id']}/";
-            $fileName = 'favicon.png';
+
+            // Certifique-se de que os diretórios de destino existam
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
             $fileName = generateRandomFileName('favicon_', '.png');
             $tmp_name = $_FILES['favicon']['tmp_name'];
             $uploadFile = $uploadDir . basename($fileName);

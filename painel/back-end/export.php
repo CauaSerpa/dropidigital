@@ -1,59 +1,52 @@
 <?php
 
-session_start(); // Iniciar a sessão
-
-// Limpar o buffer
+session_start();
 ob_start();
-
-// Incluir a conexão com BD
 include_once('../../config.php');
+
+// Carregar a biblioteca PhpSpreadsheet
+require_once '../../vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 $shop_id = $_GET['id'];
 
-// QUERY para recuperar os registros do banco de dados
 $query_usuarios = "SELECT id, status, emphasis, name, link, price, discount, description, categories, sku, button_type, redirect_link, seo_name, seo_link, seo_description FROM tb_products WHERE shop_id = :shop_id ORDER BY id DESC";
 
-// Preparar a QUERY
 $result_usuarios = $conn_pdo->prepare($query_usuarios);
-
-// BIND para filtrar pelo id da loja
 $result_usuarios->bindParam(':shop_id', $shop_id);
-
-// Executar a QUERY
 $result_usuarios->execute();
 
-// Acessa o IF quando encontrar registro no banco de dados
-if(($result_usuarios) and ($result_usuarios->rowCount() != 0)){
+if ($result_usuarios and $result_usuarios->rowCount() != 0) {
+    // Criar uma nova planilha
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
 
-    // Aceitar csv ou texto 
-    header('Content-Type: text/csv; charset=utf-8');
+    // Adicionar cabeçalho
+    $cabecalho = ['id', 'Status', 'Destaque', 'Nome', 'Link', 'Preço', 'Desconto', 'Descrição', 'Categorias', 'SKU', 'Tipo do Botão', 'Link de Redirecionamento', 'Nome no SEO', 'Link no SEO', 'Descrição no SEO'];
+    $sheet->fromArray($cabecalho, null, 'A1');
 
-    $date = date('Y-m-d');
-
-    // Nome arquivo
-    header('Content-Disposition: attachment; filename=produtos-' . $date . '.csv');
-
-    // Gravar no buffer
-    $resultado = fopen("php://output", 'w');
-
-    // Criar o cabeçalho do Excel - Usar a função mb_convert_encoding para converter carateres especiais
-    $cabecalho = ['id', 'Status', 'Destaque', 'Nome', 'Link', mb_convert_encoding('Preço', 'ISO-8859-1', 'UTF-8'), 'Desconto', mb_convert_encoding('Descrição', 'ISO-8859-1', 'UTF-8'), 'Categorias', 'SKU', mb_convert_encoding('Tipo do Botão', 'ISO-8859-1', 'UTF-8'), 'Link de Redirecionamento', 'Nome no SEO', 'Link no SEO', mb_convert_encoding('Descrição no SEO', 'ISO-8859-1', 'UTF-8')];
-
-    // Escrever o cabeçalho no arquivo
-    fputcsv($resultado, $cabecalho, ';');
-
-    // Ler os registros retornado do banco de dados
-    while($row_usuario = $result_usuarios->fetch(PDO::FETCH_ASSOC)){
-
-        // Escrever o conteúdo no arquivo
-        fputcsv($resultado, $row_usuario, ';');
-
+    // Adicionar os dados do banco de dados à planilha
+    $row = 2;
+    while ($row_usuario = $result_usuarios->fetch(PDO::FETCH_ASSOC)) {
+        $sheet->fromArray($row_usuario, null, 'A' . $row);
+        $row++;
     }
 
-    // Fechar arquivo
-    fclose($resultado);
-}else{ // Acessa O ELSE quando não encontrar nenhum registro no BD
+    // Criar o nome do arquivo
+    $date = date('Y-m-d');
+    $filename = "produtos-" . $date . ".xlsx";
+
+    // Configurar o tipo de resposta
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    // Salvar a planilha no formato XLSX
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+} else {
     $_SESSION['msg'] = "<p class='red'>Nenhum produto encontrado!</p>";
-    // Redireciona para a página de login ou exibe uma mensagem de sucesso
     header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
 }

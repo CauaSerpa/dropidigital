@@ -134,15 +134,15 @@
 
                     // Se o IP não foi encontrado, salvar no banco de dados
                     if ($stmt->rowCount() == 0) {
-                        $sql = "INSERT INTO tb_login (user_id, ip_address, first_used_at) VALUES (:user_id, :ip_address, :first_used_at)";
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':user_id', $resultado['id']);
-                        $stmt->bindParam(':ip_address', $ip);
-                        $stmt->bindParam(':first_used_at', $datetime);
-                        $stmt->execute();
-
                         noticeLogin($name, $email, $datetime, $ip, $browser);
                     }
+
+                    $sql = "INSERT INTO tb_login (user_id, ip_address, first_used_at) VALUES (:user_id, :ip_address, :first_used_at)";
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':user_id', $resultado['id']);
+                    $stmt->bindParam(':ip_address', $ip);
+                    $stmt->bindParam(':first_used_at', $datetime);
+                    $stmt->execute();
 
                     // Se estiver desativado entra no painel
                     $_SESSION['user_id'] = $resultado['id']; // Você pode definir informações do usuário aqui

@@ -81,7 +81,7 @@
     </div>
     <div class="header__actions">
         <div class="container__button">
-            <a href="https://financeiro.hostgator.com.br" target="_black" class="button button--flex new text-decoration-none">
+            <a href="https://cliente.hostgator.com.br/sites" target="_black" class="button button--flex new text-decoration-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" class="me-1" style="fill: rgba(255, 255, 255, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
                 Painel Hostgator
             </a>

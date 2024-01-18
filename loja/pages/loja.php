@@ -284,12 +284,21 @@
                 echo '<div class="col-sm-3">';
                 echo '<a href="' . $link . '" class="product-link">';
                 echo '<div class="card">';
-                foreach ($imagens as $imagem) {
-                echo '<div class="product-image">';
-                echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
-                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
-                echo '</div>';
+
+                if ($imagens) {
+                    foreach ($imagens as $imagem) {
+                        echo '<div class="product-image">';
+                        echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<div class="product-image">';
+                    echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                    echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" class="card-img-top" alt="' . $product['name'] . '">';
+                    echo '</div>';
                 }
+
                 echo '<div class="card-body">';
                 echo '<p class="card-title mb-0">' . $product['name'] . '</p>';
                 echo '<div class="d-flex mb-3">';
