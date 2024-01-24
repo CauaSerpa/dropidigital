@@ -1,5 +1,5 @@
 <?php
-    if (empty($_SESSION['user_id'])) {
+    if (empty($_SESSION['user_id_for_create_shop'])) {
         session_destroy();
         session_start();
         $_SESSION['msg'] = "Erro: Crie um usuário ou faça login para acessar essa página!";
@@ -39,7 +39,6 @@
             ?>
         </p>
 
-        <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
         <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
 
         <fieldset class="step-form form-one active" data-step="1">
@@ -219,35 +218,47 @@
     });
 </script>
 <script>
-  $(document).ready(function() {
-    $('#name').on('blur', function() {
-      const name = $(this).val();
-      
-      const urlField = $('#urlForm');
-      const urlInput = $('#url');
-
-      if (name !== '') {
-        $.ajax({
-          url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/check_url.php', // Arquivo PHP para verificar o url
-          method: 'POST',
-          data: { name: name },
-          success: function(response) {
-            $('#url-error').html(response);
-
-            if (response.includes('URL já cadastrada!')) {
-                urlField.addClass('active'); // Adiciona classe em caso de erro
-                urlInput.addClass('urlActive'); // Adiciona classe em caso de erro
-                urlInput.addClass('input-error'); // Adiciona classe em caso de erro
-            } else {
-                urlField.removeClass('active'); // Adiciona classe em caso de erro
-                urlInput.removeClass('urlActive'); // Adiciona classe em caso de erro
-                urlInput.removeClass('input-error'); // Remove classe em caso de sucesso
+    $(document).ready(function() {
+        $('#name').on('blur', function() {
+            const name = $(this).val();
+            
+            // Função para verificar se o texto contém caracteres especiais
+            function hasSpecialCharacters(text) {
+                var regex = /[áàâãäéèêëíìîïóòôõöúùûüç.,~^´`¨*&]/i;
+                return regex.test(text);
             }
-          }
+
+            const urlField = $('#urlForm');
+            const urlInput = $('#url');
+
+            if (!hasSpecialCharacters(name)) {
+                if (name !== '') {
+                    $.ajax({
+                        url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/check_url.php',
+                        method: 'POST',
+                        data: { name: name },
+                        success: function(response) {
+                            $('#url-error').html(response);
+    
+                            if (response.includes('URL já cadastrada!')) {
+                                urlField.addClass('active');
+                                urlInput.addClass('urlActive');
+                                urlInput.addClass('input-error');
+                            } else {
+                                urlField.removeClass('active');
+                                urlInput.removeClass('urlActive');
+                                urlInput.removeClass('input-error');
+                            }
+                        }
+                    });
+                }
+            } else {
+                urlField.addClass('active');
+                urlInput.addClass('urlActive');
+                urlInput.addClass('input-error');
+            }
         });
-      }
     });
-  });
 </script>
 <script>
   $(document).ready(function() {
@@ -428,9 +439,10 @@
 </script>
 
 <script>
-	const form = document.getElementById('form');
+    const form = document.getElementById('form');
     const nameInput = document.getElementById('name');
-    const urlInput = document.getElementById('url');
+    const urlField = $('#urlForm');
+    const urlInput = $('#url');
     const segmentInput = document.getElementById('segment');
     const cpfInput = document.getElementById('cpf');
     const cnpjInput = document.getElementById('cnpj');
@@ -443,39 +455,47 @@
     const cnpjError = document.getElementById('cnpj-error');
     const razaoSocialError = document.getElementById('razao_social-error');
 
-    nameInput.addEventListener('input', function() {
+    nameInput.addEventListener('input', function () {
         validateName();
     });
 
-    urlInput.addEventListener('input', function() {
+    urlInput.addEventListener('input', function () {
         validateUrl();
     });
 
-    segmentInput.addEventListener('change', function() {
+    segmentInput.addEventListener('change', function () {
         validateSegment();
     });
 
-    cpfInput.addEventListener('input', function() {
+    cpfInput.addEventListener('input', function () {
         validateCpf();
     });
 
-    cnpjInput.addEventListener('input', function() {
+    cnpjInput.addEventListener('input', function () {
         validateCnpj();
     });
 
-    razaoSocialInput.addEventListener('input', function() {
+    razaoSocialInput.addEventListener('input', function () {
         validateRazaoSocial();
     });
 
     function validateName() {
         const nameField = $(nameInput);
+        urlError.textContent = '';
         nameError.textContent = '';
 
         if (!validateField(nameInput.value)) {
             nameError.textContent = 'Preencha o campo Nome!';
             nameField.addClass('input-error');
+            urlField.removeClass('active');
+        } else if (hasSpecialCharacters(nameInput.value)) {
+            urlError.textContent = 'Inisra uma URL sem caracteres especiais!';
+            urlField.addClass('active');
+            urlInput.removeClass('urlActive');
+            urlInput.addClass('input-error');
         } else {
             nameField.removeClass('input-error');
+            urlField.removeClass('active');
         }
     }
 
@@ -534,6 +554,9 @@
         if (!validateField(razaoSocialInput.value)) {
             razaoSocialError.textContent = 'Preencha o campo Razão Social!';
             razaoSocialField.addClass('input-error');
+        } else if (hasSpecialCharacters(razaoSocialInput.value)) {
+            razaoSocialError.textContent = 'O campo Razão Social não pode conter caracteres especiais!';
+            razaoSocialField.addClass('input-error');
         } else {
             razaoSocialField.removeClass('input-error');
         }
@@ -541,6 +564,14 @@
 
     function validateField(value) {
         return value.trim().length > 0;
+    }
+
+    // Função para verificar se o texto contém caracteres especiais
+    function hasSpecialCharacters(text) {
+        // Caracteres especiais permitidos: letras acentuadas, cedilha, ponto e espaço
+        var regex = /[áàâãäéèêëíìîïóòôõöúùûüç.,~^´`¨*&]/i;
+
+        return regex.test(text);
     }
 </script>
 

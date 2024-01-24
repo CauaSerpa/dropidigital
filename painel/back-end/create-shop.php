@@ -4,11 +4,8 @@
     include_once('../../config.php');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        //Tabela que será solicitada
-        $tabela = 'tb_shop';
-        
         // Pega o id do usuario que criou a loja
-        $user_id = $_POST['user_id'];
+        $user_id = $_SESSION['user_id_for_create_shop'];
 
         // Recebe os dados do formulário
         $name = $_POST['name'];
@@ -33,10 +30,13 @@
             $url = implode('-', $palavras);
         }
 
+        //Tabela que será solicitada
+        $tabela = 'tb_domains';
+        
         // Verifica se a Url já existe
-        $sql = "SELECT id FROM $tabela WHERE url = :url";
+        $sql = "SELECT id FROM $tabela WHERE subdomain = :subdomain";
         $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindValue(':url', $url);
+        $stmt->bindValue(':subdomain', $url);
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
@@ -81,13 +81,15 @@
         // Faça a validação dos campos, evitando SQL injection e outros ataques
         // Por exemplo, use a função filter_input() e hash para a senha:
 
+        //Tabela que será solicitada
+        $tabela = 'tb_shop';
+        
         // Insere o usuário no banco de dados
-        $sql = "INSERT INTO $tabela (user_id, name, url, segment, cpf_cnpj, razao_social, phone) VALUES 
-                                    (:user_id, :name, :url, :segment, :cpf_cnpj, :razao_social, :phone)";
+        $sql = "INSERT INTO $tabela (user_id, name, segment, cpf_cnpj, razao_social, phone) VALUES 
+                                    (:user_id, :name, :segment, :cpf_cnpj, :razao_social, :phone)";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':user_id', $user_id);
         $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':url', $url);
         $stmt->bindValue(':segment', $segment);
         $stmt->bindValue(':cpf_cnpj', $cpf_cnpj);
         $stmt->bindValue(':razao_social', $razao_social);
@@ -201,6 +203,12 @@
         $stmt->bindParam(':due_date', $due_date_formatted);
         $stmt->bindValue(':cycle', $cycle);
         $stmt->execute();
+
+        // Cria a sessao com o id do usuario para login
+        $_SESSION['user_id'] = $user_id;
+
+        // Destroi a sessao com o id do usuario para criar a loja
+        unset($_SESSION['user_id_for_create_shop']);
 
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
         header("Location: ".INCLUDE_PATH_DASHBOARD);

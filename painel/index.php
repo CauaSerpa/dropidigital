@@ -343,6 +343,19 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">Dashboard</a></li>
                 </ul>
             </li>
+            <li class="<?php activeSidebarLink('personalizar'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>personalizar">
+                            <i class='bx bx-layout'></i>
+                        </a>
+                        <span class="link_name">Personalizar</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>personalizar">Personalizar</a></li>
+                </ul>
+            </li>
             <li class="<?php activeSidebarLink('lojas'); ?> <?php activeSidebarLink('ver-loja'); ?>">
                 <div class="iocn-link">
                     <p>

@@ -126,9 +126,16 @@
         $razao_social = $resultado['razao_social'];
 
         $phone = $resultado['phone'];
-        $whatsapp = $resultado['whatsapp'];
-        // Fomatando celular
-        $formatted_whatsapp = preg_replace('/\D/', '', $resultado['whatsapp']);
+
+        if (isset($resultado['whatsapp'])) {
+            $whatsapp = $resultado['whatsapp'];
+            // Fomatando celular
+            $formatted_whatsapp = preg_replace('/\D/', '', $resultado['whatsapp']);
+        } else {
+            $whatsapp = "+55 " . $resultado['phone'];
+            // Fomatando celular
+            $formatted_whatsapp = preg_replace('/\D/', '', $resultado['phone']);
+        }
 
         $email = $resultado['email'];
 
@@ -280,7 +287,9 @@
 
     // Loop através dos resultados e exibir todas as colunas
     foreach ($scripts as $script) {
+        echo "<script>";
         echo $script['script'];
+        echo "</script>";
     }
 ?>
 
@@ -770,51 +779,71 @@
             ?>
             </ol>
 
+            <script>
+                // Função para verificar a largura da tela e exibir a imagem apropriada
+                function switchImage(responsiveImage, desktopBanner, mobileBanner) {
+                    // Verificar a largura da tela
+                    if (window.innerWidth < 768 && mobileBanner !== 'null') {
+                        // Se a largura da tela for menor que 768px e houver uma imagem móvel, exiba-a
+                        responsiveImage.src = mobileBanner;
+                    } else {
+                        // Se a largura da tela for 768px ou mais ou não houver uma imagem móvel, exiba a imagem do banner padrão
+                        responsiveImage.src = desktopBanner;
+                    }
+                }
+
+                // Executar a função ao carregar a página e quando a janela for redimensionada
+                window.onload = switchImage;
+                window.onresize = switchImage;
+            </script>
+
             <!-- Slides (itens do carrossel) -->
             <div class="carousel-inner">
                 <?php
-                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND location = :location ORDER BY id DESC";
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND location = :location ORDER BY id DESC";
+
+                // Preparar e executar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindValue(':location', 'full-banner');
+                $stmt->execute();
+
+                // Recuperar os resultados
+                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $primeiroElemento = true;
+
+                // Loop através dos resultados e exibir todas as colunas
+                foreach ($resultados as $banner) {
+                    // Consulta SQL para selecionar todas as colunas com base no ID
+                    $sql = "SELECT * FROM tb_banner_img WHERE banner_id = :banner_id ORDER BY id ASC LIMIT 1";
 
                     // Preparar e executar a consulta
                     $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':shop_id', $shop_id);
-                    $stmt->bindValue(':location', 'full-banner');
+                    $stmt->bindParam(':banner_id', $banner['id']);
                     $stmt->execute();
 
                     // Recuperar os resultados
-                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    // Inicialize uma variável de controle
-                    $primeiroElemento = true;
+                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Loop através dos resultados e exibir todas as colunas
-                    foreach ($resultados as $banner) {
-                        // Consulta SQL para selecionar todas as colunas com base no ID
-                        $sql = "SELECT * FROM tb_banner_img WHERE banner_id = :banner_id ORDER BY id ASC LIMIT 1";
+                    foreach ($imagens as $imagem) {
+                        // Adicione a classe especial apenas ao primeiro elemento
+                        $active = ($primeiroElemento) ? 'active' : '';
+                        $mobileBannerSrc = (isset($imagem['mobile_banner'])) ? INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['mobile_banner'] : 'null';
 
-                        // Preparar e executar a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':banner_id', $banner['id']);
-                        $stmt->execute();
+                        ?>
+                        <a href="<?= $banner['link'] ?>" target="<?= $banner['target'] ?>">
+                            <div class="carousel-item <?= $active ?>">
+                                <img src="<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>" alt="<?= $banner['name'] ?>" onload="switchImage(this, '<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>', '<?= $mobileBannerSrc ?>')" class="w-100" style="height: 535px; object-fit: cover;">
+                            </div>
+                        </a>
+                        <?php
 
-                        // Recuperar os resultados
-                        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        // Loop através dos resultados e exibir todas as colunas
-                        foreach ($imagens as $imagem) {
-                            // Adicione a classe especial apenas ao primeiro elemento
-                            $active = $primeiroElemento ? 'active' : '';
-
-                            echo '<a href="' . $banner['link'] . '" target="' . $banner['target'] . '">';
-                            echo    '<div class="carousel-item ' . $active . '">';
-                            echo        '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] . '" alt="' . $banner['name'] . '" class="w-100" style="height: 535px; object-fit: cover;">';
-                            echo    '</div>';
-                            echo '</a>';
-
-                            // Marque que o primeiro elemento foi processado
-                            $primeiroElemento = false;
-                        }
+                        // Marque que o primeiro elemento foi processado
+                        $primeiroElemento = false;
                     }
+                }
                 ?>
             </div>
 

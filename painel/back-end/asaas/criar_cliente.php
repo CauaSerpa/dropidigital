@@ -29,7 +29,7 @@
 		$tabela = "tb_invoice_info";
 
 		// Consulta SQL
-		$sql = "SELECT customer_id FROM $tabela WHERE email = :email";
+		$sql = "SELECT id, customer_id FROM $tabela WHERE email = :email";
 
 		// Preparar a consulta
 		$stmt = $conn->prepare($sql);
@@ -44,7 +44,7 @@
 		$resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
 		// Verifica se a consulta retornou algum resultado
-		if ($stmt->rowCount() > 0) {
+		if (isset($resultado['customer_id'])) {
 			// Verificar se o resultado foi encontrado
 			if ($resultado) {
 				// Atribuir o valor da coluna à variável, ex.: "nome" = $nome
@@ -77,24 +77,11 @@
 
 				$tabela = 'tb_invoice_info';
 
-				$stmt = $conn->prepare("INSERT INTO $tabela (shop_id, customer_id, name, email, phone, docType, docNumber, cep, endereco, numero, complemento, bairro, cidade, estado) VALUES (
-					:shop_id, :id, :name, :email, :phone, :docType, :docNumber, :cep, :address, :addressNumber, :complement, :province, :city, :state)");
+				$stmt = $conn->prepare("UPDATE $tabela SET customer_id = :customer_id WHERE id = :id");
 
 				// Bind dos parâmetros
-				$stmt->bindParam(':shop_id', $dataForm['shop_id'], PDO::PARAM_STR);
-				$stmt->bindParam(':id', $retorno['id'], PDO::PARAM_STR);
-				$stmt->bindParam(':name', $retorno['name'], PDO::PARAM_STR);
-				$stmt->bindParam(':email', $retorno['email'], PDO::PARAM_STR);
-				$stmt->bindParam(':phone', $dataForm['mobilePhone'], PDO::PARAM_STR);
-				$stmt->bindParam(':docType', $dataForm['docType'], PDO::PARAM_STR);
-				$stmt->bindParam(':docNumber', $dataForm['docNumber'], PDO::PARAM_STR);
-				$stmt->bindParam(':cep', $dataForm['postalCode'], PDO::PARAM_STR);
-				$stmt->bindParam(':address', $retorno['address'], PDO::PARAM_STR);
-				$stmt->bindParam(':addressNumber', $retorno['addressNumber'], PDO::PARAM_INT);
-				$stmt->bindParam(':complement', $retorno['complement'], PDO::PARAM_STR);
-				$stmt->bindParam(':province', $retorno['province'], PDO::PARAM_STR);
-				$stmt->bindParam(':city', $dataForm['city'], PDO::PARAM_STR);
-				$stmt->bindParam(':state', $dataForm['state'], PDO::PARAM_STR);
+				$stmt->bindParam(':customer_id', $retorno['id'], PDO::PARAM_STR);
+				$stmt->bindParam(':id', $resultado['id'], PDO::PARAM_INT);
 
 				// Executando o update
 				$stmt->execute();

@@ -1,18 +1,4 @@
 <?php
-    // Caminho para o diretório pai
-    $parentDir = dirname(dirname(__DIR__));
-
-	require $parentDir . '/vendor/autoload.php';
-	$dotenv = Dotenv\Dotenv::createImmutable($parentDir);
-	$dotenv->load();
-
-    // Informacoes para PHPMailer
-	$smtp_host = $_ENV['SMTP_HOST'];
-	$smtp_username = $_ENV['SMTP_USERNAME'];
-	$smtp_password = $_ENV['SMTP_PASSWORD'];
-	$smtp_secure = $_ENV['SMTP_SECURE'];
-	$smtp_port = $_ENV['SMTP_PORT'];
-
     session_start();
     ob_start();
     include_once('../../config.php');
@@ -20,9 +6,6 @@
     use PHPMailer\PHPMailer\PHPMailer;
     use PHPMailer\PHPMailer\SMTP;
     use PHPMailer\PHPMailer\Exception;
-
-    require './lib/vendor/autoload.php';
-    $mail = new PHPMailer(true);
 
     function gerarCodigoUnico() {
         // Gera um ID único baseado no timestamp atual e mais alguma informação aleatória
@@ -84,6 +67,23 @@
         $stmt->bindValue(':last_login', $current_date);
 
         if ($stmt->execute()) {
+            // Caminho para o diretório pai
+            $parentDir = dirname(dirname(__DIR__));
+
+            require $parentDir . '/vendor/autoload.php';
+            $dotenv = Dotenv\Dotenv::createImmutable($parentDir);
+            $dotenv->load();
+
+            // Informacoes para PHPMailer
+            $smtp_host = $_ENV['SMTP_HOST'];
+            $smtp_username = $_ENV['SMTP_USERNAME'];
+            $smtp_password = $_ENV['SMTP_PASSWORD'];
+            $smtp_secure = $_ENV['SMTP_SECURE'];
+            $smtp_port = $_ENV['SMTP_PORT'];
+
+            require './lib/vendor/autoload.php';
+            $mail = new PHPMailer(true);
+        
             try {
                 /*$mail->SMTPDebug = SMTP::DEBUG_SERVER;*/
                 $mail->CharSet = 'UTF-8';
@@ -106,7 +106,7 @@
                 // Enviar o e-mail
                 if ($mail->send()) {
                     // Obtém o ID do novo usuário e passa pelo metodo session
-                    $_SESSION['user_id'] = $conn_pdo->lastInsertId();
+                    $_SESSION['user_id_for_create_shop'] = $conn_pdo->lastInsertId();
                     $_SESSION['email'] = $email;
                     
                     // Cadastra token de ativacao na tabela do usuario

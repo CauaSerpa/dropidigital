@@ -17,7 +17,7 @@
         $email = $_POST['email'];
 
         // Consulta SQL
-        $sql = "SELECT id, name, email, password, two_factors FROM $tabela WHERE email = :email";
+        $sql = "SELECT id, permissions, name, email, password, two_factors FROM $tabela WHERE email = :email";
 
         // Preparar a consulta
         $stmt = $conn_pdo->prepare($sql);
@@ -38,6 +38,26 @@
             $password = $_POST['password'];
 
             if ($email === $resultado['email'] && password_verify($password, $resultado['password'])) {
+                // Verifica se o usuario possui uma loja
+                //Tabela que será solicitada
+                $tabela = 'tb_shop';
+
+                // Verifica se existe alguma loja com o id do usuario
+                $sql = "SELECT id FROM $tabela WHERE user_id = :user_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':user_id', $resultado['id']);
+                $stmt->execute();
+
+                if ($stmt->rowCount() == 0 && $resultado['permissions'] == 0) {
+                    // Obtém o ID do novo usuário e passa pelo metodo session
+                    $_SESSION['user_id_for_create_shop'] = $resultado['id'];
+                    $_SESSION['email'] = $resultado['email'];
+
+                    $_SESSION['msg'] = "Por favor termine a criação de sua loja para continuar";
+                    header("Location: " . INCLUDE_PATH_DASHBOARD . "criar-loja");
+                    exit;
+                }
+
                 if (empty($_SESSION['2fa']))
                 {
                     $twoFactors = false;

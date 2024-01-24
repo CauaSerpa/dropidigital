@@ -49,10 +49,19 @@
             $date = new DateTime($sub['due_date']);
             $due_date = $date->format("d/m/Y");
 
-            $sql = "SELECT * FROM tb_plans WHERE id = :plan_id";
+            $sql = "SELECT * FROM tb_plans_interval WHERE id = :id";
             $stmt = $conn_pdo->prepare($sql);
 
-            $stmt->bindParam(':plan_id', $sub['plan_id']);
+            $stmt->bindParam(':id', $sub['plan_id']);
+
+            $stmt->execute();
+
+            $plan_interval = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $sql = "SELECT * FROM tb_plans WHERE id = :id";
+            $stmt = $conn_pdo->prepare($sql);
+
+            $stmt->bindParam(':id', $plan_interval['plan_id']);
 
             $stmt->execute();
 
@@ -98,14 +107,14 @@
     }
     
     /* Botao */
-    .btn
+    .btn.btn-success
     {
         background: var(--green-color);
         font-size: .875rem;
         border: none;
         padding: .75rem 1.5rem;
     }
-    .btn:hover
+    .btn.btn-success:hover
     {
         background: var(--dark-green-color);
     }
