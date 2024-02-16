@@ -287,7 +287,99 @@
         font-size: 1.5rem;
         color: #cacdcf;
     }
+
+    .link
+    {
+        cursor: pointer;
+    }
+
+    .btn.btn-success
+    {
+        background: var(--green-color);
+        border-color: var(--green-color);
+    }
 </style>
+
+<style>
+    #categoriasModal table tbody tr td.checkbox
+    {
+        width: 16px;
+    }
+
+    #categoriesTable tbody tr td.remove
+    {
+        width: 20px;
+    }
+
+    .mainCategory
+    {
+        display: none;
+        color: var(--green-color);
+        cursor: pointer;
+    }
+    td:hover .mainCategory
+    {
+        display: inline-block;
+    }
+    .mainActive
+    {
+        display: inline-flex !important;
+    }
+</style>
+
+<!-- Modal de Categorias -->
+<div class="modal fade" id="criarCategoriasModal" tabindex="-1" role="dialog" aria-labelledby="categoriasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_category-in-product.php" method="post" id="createCategory">
+                <div class="modal-header px-4 py-3 bg-transparent">
+                    <div class="fw-semibold py-2">
+                        Cadastrar categoria
+                    </div>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <div>
+                        <label for="categoryName" class="form-label small">Nome da categoria *</label>
+                        <input type="text" class="form-control" name="name" id="categoryName" aria-describedby="categoryNameHelp" required>
+                    </div>
+                </div>
+                <input type="hidden" name="link" id="categoryLink">
+                <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+                <div class="modal-footer fw-semibold px-4">
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Categorias -->
+<div class="modal fade" id="categoriasModal" tabindex="-1" role="dialog" aria-labelledby="categoriasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Escolher categorias
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <!-- Adicione aqui a lógica para exibir as categorias do banco de dados e a funcionalidade de pesquisa -->
+                <input type="text" id="searchCategoria" class="form-control mb-3" placeholder="Pesquisar Categorias">
+                <p class="fw-semibold d-none" id="noResultCategories">Nenhuma categoria encontrada</p>
+                <table class="table" id="resultCategories">
+                    <tbody id="listaCategorias">
+                    <!-- Categorias serão exibidas aqui -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-success fw-semibold px-4 py-2 small" onclick="adicionarCategorias()">Selecionar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_product.php" method="post" enctype="multipart/form-data">
 
@@ -340,14 +432,18 @@
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Preços</div>
         <div class="card-body row px-4 py-3">
-            <div class="col-md-6 mb-2">
+            <div class="col-md-6">
                 <label for="moneyInput1" class="form-label small">Preço de Custo *</label>
-                <div class="input-group">
+                <div class="input-group mb-2">
                     <span class="input-group-text">R$</span>
                     <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00">
                 </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="without_price" id="withoutPrice">
+                    <label class="form-check-label" for="withoutPrice">Sem preço</label>
+                </div>
             </div>
-            <div class="col-md-6 mb-2">
+            <div class="col-md-6">
                 <label for="moneyInput2" class="form-label small">Preço promocional</label>
                 <div class="input-group">
                     <span class="input-group-text">R$</span>
@@ -399,21 +495,27 @@
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">
             Categorias
-            <a href="#" class="text-decoration-none text-reset small">+ Cadastrar categoria</a>
+            <p class="link text-decoration-none text-reset small" data-bs-toggle="modal" data-bs-target="#criarCategoriasModal">+ Cadastrar categoria</p>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="skuResult" class="form-label small">
+            <label for="searchOutsideModal" class="form-label small">
                 Categorias
                 <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
             </label>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" name="categories" id="skuResult" placeholder="Buscar categorias já cadastradas" aria-label="Buscar categorias já cadastradas" aria-describedby="button-addon2">
-                <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="button-addon2" onclick="generateSKU()">Ver Categorias</button>
+                <input type="text" class="form-control" id="searchOutsideModal" placeholder="Buscar categorias já cadastradas" aria-label="Buscar categorias já cadastradas">
+                <button type="button" class="btn btn-outline-dark fw-semibold px-4" data-bs-toggle="modal" data-bs-target="#categoriasModal">Ver Categorias</button>
             </div>
-            <small class="d-flex mb-3 px-3 py-2" style="color: #4A90E2; background: #ECF3FC;">Nenhuma categoria adicionada</small>
-            <!-- <div class="bd-callout bd-callout-info">
-                The animation effect of this component is dependent on the <code>prefers-reduced-motion</code> media query. See the <a href="/docs/5.3/getting-started/accessibility/#reduced-motion">reduced motion section of our accessibility documentation</a>.
-            </div> -->
+            <small class="d-flex mb-3 px-3 py-2" id="noCategories" style="color: #4A90E2; background: #ECF3FC;">Nenhuma categoria adicionada</small>
+            <table class="table table-hover d-none" id="categoriesTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="small">Nome da Categoria</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="categoriasSelecionadas"></tbody>
+            </table>
         </div>
     </div>
 
@@ -426,8 +528,8 @@
                     <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
                 </label>
                 <div class="input-group">
-                    <input type="text" class="form-control" name="sku" id="skuResult" placeholder="LEV-JN-SL-36-GN" aria-label="LEV-JN-SL-36-GN" aria-describedby="button-addon2" style="max-width: 250px;">
-                    <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="button-addon2" onclick="generateSKU()">GERAR</button>
+                    <input type="text" class="form-control" name="sku" id="skuResult" placeholder="SKU" aria-label="SKU" aria-describedby="skuResult" style="max-width: 250px;">
+                    <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="gerarSKU">GERAR</button>
                 </div>
                 <small class="text-decoration-none" id="error-sku" style="color: rgb(229, 15, 56);"></small>
             </div>
@@ -445,9 +547,10 @@
                             <select class="form-select" name="button_type" id="buttonType" aria-label="Default select example" required>
                                 <option value="" selected disabled>-- Selecione uma opção --</option>
                                 <option value="1">Comprar</option>
-                                <option value="2">Número de whatsapp</option>
-                                <option value="3">Saiba mais</option>
-                                <option value="4">Agenda</option>
+                                <option value="2">Número de whatsapp - Mensagem Padrão</option>
+                                <option value="3">Número de whatsapp - Mensagem Personalizada</option>
+                                <option value="4">Saiba mais</option>
+                                <option value="5">Agenda</option>
                             </select>
                         </div>
                     </div>
@@ -517,6 +620,12 @@
                 </div>
             </div>
 
+            <div class="mb-3 d-none" id="container-whatsapp-standard">
+                <p class="form-label small">Whatsapp - Mensagem padrão</p>
+                <a href="" class="fw-semibold text-decoration-none" id="linkWhatsappStandard" target="_black" style="color: #01C89B;"></a>
+                <input type="hidden" name="redirect_link_whatsapp" id="inputLinkWhatsappStandard">
+            </div>
+
         </div>
     </div>
 
@@ -556,10 +665,22 @@
         </div>
     </div>
 
-    <input type="hidden" name="link" id="link" value="">
+    <input type="hidden" name="link" id="link">
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+    <!-- Adicione esses campos ocultos no seu formulário -->
+    <input type="hidden" name="categoriasSelecionadas[]" id="categoriasSelecionadasInput">
+
+    <!-- Categoria principal -->
+    <input type="hidden" name="inputMainCategory" id="inputMainCategory">
+
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="text-decoration-none text-reset">Cancelar</a>
             <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
@@ -575,22 +696,432 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+<!-- Link para criar category -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Selecione o campo de entrada e o span
+        var input = $("#categoryName");
+        var link = $("#categoryLink");
+
+        input.on("input", function() {
+            var value = input.val();
+
+            // Remover acentos e substituir espaços por traço
+            value = removerAcentosEespacos(value);
+
+            link.val(value);
+        });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
+    });
+</script>
+
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_categories';
+
+    $sql = "SELECT id, name FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->execute();
+
+    // Fetch all retorna um array contendo todas as linhas do conjunto de resultados
+    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<!-- Script jQuery para manipular o modal e as categorias -->
+<script>
+    $(document).ready(function() {
+        // Array de categorias (substitua com a lógica do seu banco de dados)
+        var categoriasDisponiveis = <?php echo json_encode($categories); ?>;
+
+        // Categorias selecionadas
+        var categoriasSelecionadas = [];
+
+        // Usando jQuery para lidar com o envio do formulário de criação de categoria
+        $('#createCategory').submit(function (event) {
+            event.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        var novaCategoria = {
+                            id: parseInt(response.data.id), // Converte o ID para um número
+                            name: response.data.name
+                        };
+
+                        categoriasDisponiveis.push(novaCategoria);
+                        categoriasSelecionadas.push(novaCategoria);
+
+                        adicionarCategoriaNaTabela(novaCategoria);
+
+                        $('#criarCategoriasModal').modal('hide');
+                    } else {
+                        alert('Erro ao criar a categoria.');
+                    }
+                },
+                error: function () {
+                    alert('Erro ao enviar a requisição.');
+                }
+            });
+        });
+
+        // Função para adicionar uma nova categoria à tabela de categorias
+        function adicionarCategoriaNaTabela(categoria) {
+            var tabelaCategorias = $("#categoriesTable");
+            tabelaCategorias.removeClass('d-none');
+
+            var semCategoria = $("#noCategories");
+            semCategoria.addClass('d-none');
+
+            var categoriasSelecionadasDiv = $("#categoriasSelecionadas");
+            categoriasSelecionadasDiv.append('<tr><td>' + categoria.name +
+                '<span class="mainCategory ms-2" data-categoria="' + categoria.id + '"><i class="bx bx-star" ></i></span></td><td class="remove"><span class="remover-categoria" data-categoria="' + categoria.id + '"><i class="bx bx-x fs-5"></i></span></td></tr>');
+
+            $(".remover-categoria").click(function () {
+                var categoriaRemover = $(this).data("categoria");
+                removerCategoria(categoriaRemover);
+            });
+
+            $(".mainCategory").click(function () {
+                var isActive = $(this).hasClass("mainActive");
+
+                // Remove as classes de todas as categorias
+                $('.mainCategory i').removeClass("bxs-star");
+                $('.mainCategory').removeClass("mainActive");
+                $('#inputMainCategory').val("");
+
+                if (!isActive) {
+                    // Adiciona as classes se a categoria não estiver ativa
+                    $(this).addClass("mainActive");
+                    $(this).find('i').addClass("bxs-star");
+
+                    var mainCategoryId = $(this).data("categoria");
+                    $('#inputMainCategory').val(mainCategoryId);
+                }
+            });
+        }
+
+        // Função para exibir categorias selecionadas
+        function exibirCategoriasSelecionadas() {
+            var semCategoria = $("#noCategories");
+            var tabelaCategorias = $("#categoriesTable");
+            var categoriasSelecionadasDiv = $("#categoriasSelecionadas");
+            categoriasSelecionadasDiv.empty();
+
+            if (categoriasSelecionadas.length === 0) {
+                // Se nenhuma categoria estiver selecionada, adiciona a classe d-none
+                tabelaCategorias.addClass('d-none');
+                semCategoria.removeClass('d-none');
+            } else {
+                tabelaCategorias.removeClass('d-none');
+                semCategoria.addClass('d-none');
+
+                categoriasSelecionadas.forEach(function(categoria) {
+                    categoriasSelecionadasDiv.append('<tr><td>' + categoria.name +
+                        '<span class="mainCategory ms-2" data-categoria="' + categoria.id + '"><i class="bx bx-star" ></i></span></td><td class="remove"><span class="remover-categoria" data-categoria="' + categoria.id + '"><i class="bx bx-x fs-5"></i></span></td></tr>');
+                });
+
+                // Adiciona o evento de clique para remover a categoria
+                $(".remover-categoria").click(function() {
+                    var categoriaRemover = $(this).data("categoria");
+                    removerCategoria(categoriaRemover);
+                });
+
+                // Adiciona o evento de clique para alternar a categoria principal
+                $(".mainCategory").click(function () {
+                    var isActive = $(this).hasClass("mainActive");
+
+                    // Remove as classes de todas as categorias
+                    $('.mainCategory i').removeClass("bxs-star");
+                    $('.mainCategory').removeClass("mainActive");
+                    $('#inputMainCategory').val("");
+
+                    if (!isActive) {
+                        // Adiciona as classes se a categoria não estiver ativa
+                        $(this).addClass("mainActive");
+                        $(this).find('i').addClass("bxs-star");
+
+                        var mainCategoryId = $(this).data("categoria");
+                        $('#inputMainCategory').val(mainCategoryId);
+                    }
+                });
+            }
+        }
+
+        // Função para exibir categorias no modal
+        function exibirCategorias() {
+            var listaCategorias = $("#listaCategorias");
+            listaCategorias.empty();
+
+            // Verificar se o array categoriasDisponiveis está vazio
+            if (categoriasDisponiveis.length === 0) {
+                $("#noResultCategories").removeClass("d-none");
+                $("#resultCategories").addClass("d-none");
+            } else {
+                $("#noResultCategories").addClass("d-none");
+                $("#resultCategories").removeClass("d-none");
+
+                categoriasDisponiveis.forEach(function(categoria) {
+                    var isChecked = categoriasSelecionadas.some(cs => cs.id === categoria.id);
+
+                    listaCategorias.append('<tr><td class="checkbox" scope="row">' +
+                        '<input class="form-check-input" type="checkbox" id="' + categoria.id + '" value="' + categoria.id + '" ' + (isChecked ? 'checked' : '') + '>' +
+                        '</td><td><label for="' + categoria.id + '" class="form-check-label">' + categoria.name + '</label></td></tr>');
+                });
+            }
+        }
+
+        // Atualizar categorias ao abrir o modal
+        $('#categoriasModal').on('show.bs.modal', function () {
+            exibirCategorias();
+        });
+
+        // Adicionar categorias selecionadas ao formulário
+        window.adicionarCategorias = function() {
+            $("input[type='checkbox']:checked").each(function() {
+                var categoriaId = parseInt($(this).val());
+                var categoria = categoriasDisponiveis.find(c => c.id === categoriaId);
+
+                if (categoria && !categoriasSelecionadas.some(cs => cs.id === categoria.id)) {
+                    categoriasSelecionadas.push(categoria);
+                }
+            });
+
+            // Remover categoria se o checkbox for desmarcado no modal
+            $("#listaCategorias input[type='checkbox']").each(function() {
+                var categoriaId = parseInt($(this).val());
+                var categoria = categoriasDisponiveis.find(c => c.id === categoriaId);
+
+                if (!$(this).prop("checked") && categoria) {
+                    removerCategoria(categoria.id);
+                }
+            });
+
+            exibirCategoriasSelecionadas();
+            atualizarCampoCategorias();
+
+            // Fechar o modal
+            $('#categoriasModal').modal('hide');
+        };
+
+        // Função para remover uma categoria
+        window.removerCategoria = function(categoriaId) {
+            categoriasSelecionadas = categoriasSelecionadas.filter(cs => cs.id !== categoriaId);
+
+            // Atualizar o campo de categorias oculto no formulário
+            atualizarCampoCategorias();
+
+            exibirCategoriasSelecionadas();
+        };
+
+        // Função para atualizar o campo de categorias oculto no formulário
+        function atualizarCampoCategorias() {
+            var categoriasIds = categoriasSelecionadas.map(cs => cs.id);
+            $("#categoriasSelecionadasInput").val(categoriasIds.join(','));
+        }
+
+        // Adiciona um ouvinte de evento de entrada ao campo #searchOutsideModal
+        $('#searchOutsideModal').on('input', function() {
+            var valorPesquisa = $(this).val();
+
+            // Define o valor no campo #searchCategoria
+            $('#searchCategoria').val(valorPesquisa);
+
+            // Abre o modal e foca no campo #searchCategoria
+            $('#categoriasModal').modal('show').on('shown.bs.modal', function () {
+                $('#searchCategoria').focus();
+            });
+        });
+
+        // Filtrar categorias com base na pesquisa
+        $("#searchCategoria").on("input", function() {
+            var termoPesquisa = $(this).val().toLowerCase();
+
+            if (termoPesquisa === "") {
+                exibirCategorias();
+            } else {
+                var categoriasFiltradas = categoriasDisponiveis.filter(function(categoria) {
+                    return categoria.name.toLowerCase().includes(termoPesquisa);
+                });
+
+                pesquisarCategoria = categoriasFiltradas;
+
+                pesquisarCategorias();
+
+                // Verificar se não há categorias na pesquisa
+                if (pesquisarCategoria.length === 0) {
+                    $("#noResultCategories").removeClass("d-none");
+                    $("#resultCategories").addClass("d-none");
+                } else {
+                    $("#noResultCategories").addClass("d-none");
+                    $("#resultCategories").removeClass("d-none");
+                }
+            }
+        });
+
+        // Função para exibir categorias no modal
+        function pesquisarCategorias() {
+            var listaCategorias = $("#listaCategorias");
+            listaCategorias.empty();
+
+            pesquisarCategoria.forEach(function(categoria) {
+                var isChecked = categoriasSelecionadas.some(cs => cs.id === categoria.id);
+
+                listaCategorias.append('<tr><td class="checkbox" scope="row">' +
+                    '<input class="form-check-input" type="checkbox" id="' + categoria.id + '" value="' + categoria.id + '" ' + (isChecked ? 'checked' : '') + '>' +
+                    '</td><td><label for="' + categoria.id + '" class="form-check-label">' + categoria.name + '</label></td></tr>');
+            });
+
+            // Certificar-se de remover a classe d-none ao exibir todas as categorias
+            $("#noResultCategories").addClass("d-none");
+            $("#resultCategories").removeClass("d-none");
+        }
+    });
+</script>
+
+<!-- Funcao sem preço -->
+<script>
+    $(document).ready(function() {
+        // Adiciona um listener ao checkbox withoutPrice
+        $('#withoutPrice').on('change', function() {
+            // Verifica se o checkbox está marcado
+            if ($(this).prop('checked')) {
+                // Desabilita os inputs moneyInput1 e moneyInput2
+                $('#moneyInput1, #moneyInput2').val('');
+                $('#moneyInput1, #moneyInput2').prop('disabled', true);
+            } else {
+                // Habilita os inputs moneyInput1 e moneyInput2
+                $('#moneyInput1, #moneyInput2').prop('disabled', false);
+            }
+        });
+    });
+</script>
+
 <!-- Mostrar container com base no input select -->
 <script>
     $(document).ready(function() {
         $('#buttonType').change(function() {
-            if ($(this).val() === "1" || $(this).val() === "3"|| $(this).val() === "4") {
+            if ($(this).val() === "1" || $(this).val() === "4"|| $(this).val() === "5") {
                 //Se for comprar, saiba mais ou agenda
                 //Mostra container link
                 $('#container-redirect-link').removeClass("d-none");
+
+                $('#container-whatsapp').addClass("d-none");
+                $('#container-cell-phone').addClass("d-none");
+                $('#container-redirect-link').removeClass("d-none");
+            } else if ($(this).val() === "2") {
+                $('#container-whatsapp-standard').removeClass("d-none");
+
+                $('#container-redirect-link').addClass("d-none");
                 $('#container-whatsapp').addClass("d-none");
                 $('#container-cell-phone').addClass("d-none");
             } else {
                 //Se for whatsapp
                 //Mostra container whatsapp
-                $('#container-redirect-link').addClass("d-none");
                 $('#container-whatsapp').removeClass("d-none");
                 $('#container-cell-phone').removeClass("d-none");
+
+                $('#container-redirect-link').addClass("d-none");
+                $('#container-whatsapp-standard').addClass("d-none");
+            }
+        });
+    });
+</script>
+
+<!-- Convertendo numero e text em link -->
+<script>
+    // Função para gerar o link do WhatsApp
+    function generateWhatsAppLink() {
+        var countryNumberInput = $("#country-code");
+        var phoneNumberInput = $("#phone-number");
+        var messageTextArea = $("#message");
+
+        var countryCode = countryNumberInput.val();
+        var phoneNumber = phoneNumberInput.val();
+        var message = encodeURIComponent(messageTextArea.val());
+
+        countryCode = countryCode.replace(/\D/g, "");
+        phoneNumber = phoneNumber.replace(/[^\d]/g, "");
+
+        phoneNumber = countryCode + phoneNumber;
+
+        var whatsappLink;
+        if (message === '') {
+            whatsappLink = "https://wa.me/" + phoneNumber;
+        } else {
+            whatsappLink = "https://wa.me//" + phoneNumber + "?text=" + message;
+        }
+
+        $('#linkWhatsapp').text(whatsappLink);
+        $('#linkWhatsapp').attr("href", whatsappLink);
+        $('#inputLinkWhatsapp').val(whatsappLink);
+    }
+
+    $(document).ready(function() {
+        // Adicione um ouvinte de evento change ao campo <select>
+        $("#buttonType").on("change", function() {
+            // Verifique o novo valor do campo <select>
+            var selectValue = $(this).val(); // O valor do campo <select> alterado
+
+            if (selectValue === "3") {
+                // Chame a função se o novo valor do campo <select> for igual a 2
+                generateWhatsAppLink();
+
+                // Adicione ouvintes de evento de entrada aos campos relevantes
+                $("#country-code, #phone-number, #message").on("input", generateWhatsAppLink);
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        function createWhatsappLink(name) {
+            var phoneNumber = "<?php echo (!empty($whatsapp)) ? $whatsapp : "55" . $phone ?>";
+            var messageTextArea = "Olá, tenho interesse nesse produto/serviço";
+            var productName = " " + name;
+            var message = messageTextArea + productName;
+            var message = encodeURIComponent(message);
+
+            phoneNumber = phoneNumber.replace(/[^\d]/g, "");
+
+            whatsappLink = "https://wa.me//" + phoneNumber + "?text=" + message;
+
+            $('#linkWhatsappStandard').text(whatsappLink);
+            $('#linkWhatsappStandard').attr("href", whatsappLink);
+            $('#inputLinkWhatsappStandard').val(whatsappLink);
+        }
+
+        // Adicione um ouvinte de evento input ao campo name
+        $("#name").on("input", function() {
+            // Verifique o novo valor do campo <select>
+            var selectValue = $("#buttonType").val(); // O valor do campo <select> alterado
+            var name = $(this).val(); // O valor do campo name
+
+            if (selectValue === "2") {
+                createWhatsappLink(name);
+            }
+        });
+
+        // Adicione um ouvinte de evento change ao campo <select>
+        $("#buttonType").on("change", function() {
+            // Verifique o novo valor do campo <select>
+            var selectValue = $(this).val(); // O valor do campo <select> alterado
+            var name = $("#name").val(); // O valor do campo name
+
+            if (selectValue === "2") {
+                createWhatsappLink(name);
             }
         });
     });
@@ -704,52 +1235,6 @@
     });
 </script>
 
-<!-- Convertendo numero e text em link -->
-<script>
-    // Função para gerar o link do WhatsApp
-    function generateWhatsAppLink() {
-        var countryNumberInput = $("#country-code");
-        var phoneNumberInput = $("#phone-number");
-        var messageTextArea = $("#message");
-
-        var countryCode = countryNumberInput.val();
-        var phoneNumber = phoneNumberInput.val();
-        var message = encodeURIComponent(messageTextArea.val());
-
-        countryCode = countryCode.replace(/\D/g, "");
-        phoneNumber = phoneNumber.replace(/[^\d]/g, "");
-
-        phoneNumber = countryCode + phoneNumber;
-
-        var whatsappLink;
-        if (message === '') {
-            whatsappLink = "https://wa.me/" + phoneNumber;
-        } else {
-            whatsappLink = "https://wa.me//" + phoneNumber + "?text=" + message;
-        }
-
-        $('#linkWhatsapp').text(whatsappLink);
-        $('#linkWhatsapp').attr("href", whatsappLink);
-        $('#inputLinkWhatsapp').val(whatsappLink);
-    }
-
-    $(document).ready(function() {
-        // Adicione um ouvinte de evento change ao campo <select>
-        $("#buttonType").on("change", function() {
-            // Verifique o novo valor do campo <select>
-            var selectValue = $(this).val(); // O valor do campo <select> alterado
-
-            if (selectValue === "2") {
-                // Chame a função se o novo valor do campo <select> for igual a 2
-                generateWhatsAppLink();
-
-                // Adicione ouvintes de evento de entrada aos campos relevantes
-                $("#country-code, #phone-number, #message").on("input", generateWhatsAppLink);
-            }
-        });
-    });
-</script>
-
 <script>
     $(document).ready(function() {
         function inputCounter(inputId, textId) {
@@ -802,6 +1287,42 @@
     formatMoneyInput(moneyInput2);
 </script> -->
 
+<!-- Name -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Selecione o campo de entrada e o span
+        var input = $("#name");
+
+        var seoName = $('#textInput1');
+        var seoNamePreview = $('#textPreview1');
+
+        input.on("input", function() {
+            var value = input.val();
+
+            // Verifica se a string excede 67 caracteres
+            if (value.length > 67) {
+                // Limita a string aos primeiros 67 caracteres
+                value = value.substring(0, 67);
+            }
+
+            if (value.length < 67) {
+                seoName.val(value);
+                seoNamePreview.text(value);
+            } else if (value.length >= 67) {
+                value = value.substring(0, 67);
+
+                seoName.val(value + "...");
+                seoNamePreview.text(value + "...");
+            }
+
+            if (value === '') {
+                seoNamePreview.text("Título da página");
+            }
+        });
+    });
+</script>
+
 <!-- Link -->
 <script>
     // Aguarde o documento estar pronto
@@ -809,23 +1330,70 @@
         // Selecione o campo de entrada e o span
         var input = $("#name");
         var span = $("#linkPreview");
+        var inputPreview = $("#link");
 
-        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        var inputText2 = $('#textInput2');
+        var textPreview2 = $('#textPreview2');
+
         input.on("input", function() {
-            // Obtenha o valor atual do campo de entrada
-            var valor = input.val();
+            var value = input.val();
 
-            if (valor === '') {
-                valor = '...';
+            // Remover acentos e substituir espaços por traço
+            value = removerAcentosEespacos(value);
+            
+            span.text(value);
+            inputPreview.val(value);
+
+            inputText2.val(value);
+            textPreview2.text(value);
+
+            if (value === '') {
+                span.text("...");
+                textPreview2.text("link-da-pagina");
             }
-            
-            // Substitua espaços extras por um único traço e converta para letras minúsculas
-            valor = valor.replace(/\s+/g, "-").toLowerCase();
-            
-            // Atualize o texto no span com o valor formatado
-            span.text(valor);
+        });
 
-            $('#link').val(valor);
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
+    });
+</script>
+
+<!-- Description -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Substitua 'meuTextarea' pelo ID real do seu textarea configurado com o TinyMCE
+        var meuTextarea = tinymce.get('editor');
+
+        meuTextarea.on('change', function() {
+            // Selecione o campo de entrada e o span
+            var editor = $("#editor");
+            var seoDescription = $("#textInput3");
+            var seoDescriptionPreview = $("#textPreview3");
+
+            var value = tinymce.get('editor').getContent({ format: 'text' });
+
+            // Verifica se a string excede 157 caracteres
+            if (value.length > 157) {
+                // Limita a string aos primeiros 157 caracteres
+                value = value.substring(0, 157);
+            }
+
+            if (value.length < 157) {
+                seoDescription.val(value);
+                seoDescriptionPreview.text(value);
+            } else if (value.length >= 157) {
+                value = value.substring(0, 157);
+
+                seoDescription.val(value + "...");
+                seoDescriptionPreview.text(value + "...");
+            }
+
+            if (value === '') {
+                seoDescriptionPreview.text("Descrição da página");
+            }
         });
     });
 </script>
@@ -979,7 +1547,7 @@
 </script>
 
 <!-- SKU -->
-<script>
+<!-- <script>
     document.getElementById('skuForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -996,7 +1564,37 @@
         // Exiba o código SKU no campo de resultado
         document.getElementById('skuResult').value = sku;
     });
-</script>
+</script> -->
+
+<script>
+    $(document).ready(function() {
+        // Função para gerar um SKU aleatório
+        function gerarSKU() {
+            // Caracteres permitidos no SKU
+            var caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+            // Comprimento do SKU desejado
+            var comprimentoSKU = 10;
+
+            // Variável para armazenar o SKU gerado
+            var sku = '';
+
+            // Gera o SKU aleatório
+            for (var i = 0; i < comprimentoSKU; i++) {
+            var indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+            sku += caracteres.charAt(indiceAleatorio);
+            }
+
+            return sku;
+        }
+
+        // Manipula o clique no botão para gerar o SKU
+        $('#gerarSKU').on('click', function() {
+            var skuGerado = gerarSKU();
+            $('#skuResult').val(skuGerado);
+        });
+    });
+  </script>
 
 <!-- Tooltip -->
 <script>
@@ -1023,12 +1621,16 @@
             textPreview1.text(newText);
         });
 
-        inputText2.on('input', function () {
-            var newText = inputText2.val();
-            if (newText === '') {
-                newText = 'link-da-pagina';
+        inputText2.on("input", function() {
+            var text = inputText2.val();
+            if (text === '') {
+                text = 'link-da-categoria';
             }
+            // Remover acentos e substituir espaços por traço
+            newText = removerAcentosEespacos(text);
+            $(this).val($(this).val().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
+            $('#link').val(newText);
         });
 
         inputText3.on('input', function () {
@@ -1038,6 +1640,11 @@
             }
             textPreview3.text(newText);
         });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
     });
 </script>
 
@@ -1079,14 +1686,14 @@
         $('input, textarea').on('input', function () {
             formChanged = true;
             $('#saveButton').show();
-            $('.main.container').addClass('save-button-show');
+            $('.main .container').addClass('save-button-show');
         });
 
         $('#saveButton button').click(function () {
             if (formChanged) {
                 formChanged = false;
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container').removeClass('save-button-show');
             }
         });
 
@@ -1102,7 +1709,7 @@
             var hasChanges = $('input.changed, textarea.changed').length > 0;
             if (!hasChanges) {
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container').removeClass('save-button-show');
             }
         });
     });

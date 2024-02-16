@@ -129,29 +129,23 @@
     if ($categories) {
 ?>
 
-<div id="carouselCategorias" class="container carousel slide" data-bs-ride="carousel">
+<style>
+    #categoriesCarousel.owl-carousel .owl-item img
+    {
+        height: auto;
+    }
+</style>
+
+<div class="container">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <h4 class="mb-3">Navegue por Departamento</h4>
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
-    <div class="carousel-inner">
+    <div class="owl-carousel p-4" id="categoriesCarousel">
         <?php
-            // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
-            $contador = 0;
-
             // Loop através dos categories e exibir todas as colunas
             foreach ($categories as $category) {
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
-
-                // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                if ($contador % 6 == 0) {
-                    echo '<div class="carousel-item ' . $active . '">';
-                    echo '<div class="row p-4">';
-                }
-
-                echo '<div class="col-sm-2">';
+                echo '<div class="item">';
                 echo '<div class="card border-0">';
                 echo '<a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="category-link">';
                 echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/image/' . $category['image'] . '" class="card-img-top rounded-circle" alt="' . $category['name'] . '">';
@@ -161,30 +155,9 @@
                 echo '</a>';
                 echo '</div>';
                 echo '</div>';
-
-                // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 6 == 5 || $contador == count($categories) - 1) {
-                    echo '</div>';
-                    echo '</div>';
-                }
-
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
-
-                // Incrementar o contador
-                $contador++;
             }
         ?>
     </div>
-
-    <a class="carousel-control-prev" href="#carouselCategorias" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselCategorias" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
-    </a>
 </div>
 
 <?php
@@ -212,7 +185,15 @@
     if ($resultados) {
 ?>
 
-<div id="carouselProdutos" class="container carousel slide" data-bs-ride="carousel">
+<style>
+    .listProducts .row
+    {
+        --bs-gutter-x: 1rem !important;
+        --bs-gutter-y: 1rem !important;
+    }
+</style>
+
+<div class="listProducts container">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <div class="d-flex justify-content-center">
             <h4 class="mb-3 me-3">Super Ofertas</h4>
@@ -221,12 +202,8 @@
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
 
-    <div class="carousel-inner">
+    <div class="row g-3 p-4">
         <?php
-            // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
-            $contador = 0;
-
             // Loop através dos resultados e exibir todas as colunas
             foreach ($resultados as $product) {
                 // Consulta SQL para selecionar todas as colunas com base no ID
@@ -253,7 +230,12 @@
                 $discount = "R$ " . number_format($desconto, 2, ",", ".");
 
                 // Calcula a porcentagem de desconto
-                $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                if ($product['price'] != 0) {
+                    $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                } else {
+                    // Lógica para lidar com o caso em que $product['price'] é zero
+                    $porcentagemDesconto = 0; // Ou outro valor padrão
+                }
 
                 // Arredonda o resultado para duas casas decimais
                 $porcentagemDesconto = round($porcentagemDesconto, 0);
@@ -269,20 +251,15 @@
                     $discount = $price;
                 }
 
+                if ($product['without_price']) {
+                    $priceAfterDiscount = "";
+                }
+
                 // Link do produto
                 $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
 
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
-
-                // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                if ($contador % 4 == 0) {
-                    echo '<div class="carousel-item ' . $active . '">';
-                    echo '<div class="row p-4">';
-                }
-
-                echo '<div class="col-sm-3">';
-                echo '<a href="' . $link . '" class="product-link">';
+                echo '<div class="col-sm-3 numBanner d-grid">';
+                echo '<a href="' . $link . '" class="product-link d-grid">';
                 echo '<div class="card">';
 
                 if ($imagens) {
@@ -309,31 +286,9 @@
                 echo '</div>';
                 echo '</a>';
                 echo '</div>';
-
-                // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 4 == 3 || $contador == count($resultados) - 1) {
-                    echo '</div>';
-                    echo '</div>';
-                }
-
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
-
-                // Incrementar o contador
-                $contador++;
             }
         ?>
     </div>
-
-    <a class="carousel-control-prev" href="#carouselProdutos" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselProdutos" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
-    </a>
-</div>
 
 <?php
     }
@@ -407,7 +362,36 @@
     if ($resultados) {
 ?>
 
-<div id="carouselDepoimentos" class="container carousel slide" data-bs-ride="carousel">
+<style>
+    #testimonyCarousel.owl-carousel .owl-item img
+    {
+        height: auto;
+    }
+
+    .testimonyContainer
+    {
+        position: relative;
+    }
+    .testimonyContainer .customNavigation .btn
+    {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        color: black;
+        font-size: 4rem;
+    }
+    .testimonyContainer .customNavigation .btn.prev
+    {
+        left: 4px;
+    }
+    .testimonyContainer .customNavigation .btn.next
+    {
+        right: 4px;
+    }
+</style>
+
+<div class="testimonyContainer container">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <div class="d-flex justify-content-center">
             <h4 class="mb-3 me-3">Vejam o que dizem nossos clientes</h4>
@@ -416,27 +400,17 @@
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
 
-    <div class="carousel-inner">
+    <div class="owl-carousel p-4" id="testimonyCarousel">
         <?php
             // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
             $contador = 0;
 
             // Loop através dos resultados e exibir todas as colunas
             foreach ($resultados as $product) {
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
-
-                // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                if ($contador % 3 == 0) {
-                    echo '<div class="carousel-item ' . $active . '">';
-                    echo '<div class="row p-4">';
-                }
-
-                echo '<div class="col-sm-4">';
+                echo '<div class="item">';
                 echo '<div class="card border-0">';
-                echo '<div class="card-body text-center">';
-                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/depositions/' . $product['img'] . '" class="rounded-circle mb-2" alt="Produto 1" style="width: 150px; height: 150px;">';
+                echo '<div class="card-body d-flex flex-column align-items-center text-center">';
+                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/depositions/' . $product['img'] . '" class="rounded-circle mb-2" alt="Produto 1" style="width: 150px;">';
                 echo '<p class="card-title">' . $product['name'] . '</p>';
                 echo '<p class="card-text small lh-sm text-black-50 mb-2">"' . $product['testimony'] . '"</p>';
                 echo '<div class="rating' . $contador . ' dep-stars text-warning">';
@@ -463,29 +437,11 @@
                 echo '</div>';
                 echo '</div>';
 
-                // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 3 == 2 || $contador == count($resultados) - 1) {
-                    echo '</div>';
-                    echo '</div>';
-                }
-
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
-
                 // Incrementar o contador
                 $contador++;
             }
         ?>
     </div>
-
-    <a class="carousel-control-prev" href="#carouselDepoimentos" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselDepoimentos" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
-    </a>
 </div>
 
 <?php

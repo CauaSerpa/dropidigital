@@ -57,12 +57,24 @@
         $redirect_link = $dados['redirect_link'];
     }
 
+    // Checkbox sem preco
+    if (isset($_POST["without_price"]))
+    {
+        $price = 0;
+        $discount = 0;
+        $without_price = 1;
+    } else {
+        $price = $dados['price'];
+        $discount = $dados['discount'];
+        $without_price = 0;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_products';
 
         // Edita o produto no banco de dados da loja
-        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, link = :link, price = :price, discount = :discount, video = :video, description = :description, categories = :categories, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description WHERE id = :id";
+        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, link = :link, price = :price, without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -70,11 +82,11 @@
         $stmt->bindValue(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
         $stmt->bindParam(':link', $dados['link']);
-        $stmt->bindParam(':price', $dados['price']);
-        $stmt->bindParam(':discount', $dados['discount']);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':without_price', $without_price);
+        $stmt->bindParam(':discount', $discount);
         $stmt->bindParam(':video', $dados['video']);
         $stmt->bindParam(':description', $dados['description']);
-        $stmt->bindParam(':categories', $dados['categories']);
         $stmt->bindParam(':sku', $dados['sku']);
         $stmt->bindParam(':button_type', $dados['button_type']);
         $stmt->bindParam(':redirect_link', $redirect_link);
@@ -86,6 +98,69 @@
         $stmt->bindParam(':id', $dados['id']);
 
         $stmt->execute();
+
+
+
+        // Recupera o valor do input hidden com o ID das categorias
+        $categoriasInputValue = $_POST['categoriasSelecionadas'];
+
+        // Certifique-se de que $categoriasInputValue é uma string
+        if (is_array($categoriasInputValue)) {
+            // Lógica para converter o array em uma string (se aplicável)
+            // Isso pode variar dependendo de como os dados estão sendo enviados
+            $categoriasInputValue = implode(',', $categoriasInputValue);
+        }
+
+        // Separa os IDs das categorias em um array
+        $categoriasIds = explode(',', $categoriasInputValue);
+
+        // Consulta SQL para recuperar as categorias existentes para o produto específico
+        $sqlExistingCategories = "SELECT category_id FROM tb_product_categories WHERE shop_id = :shop_id AND product_id = :product_id";
+        $stmtExistingCategories = $conn_pdo->prepare($sqlExistingCategories);
+        $stmtExistingCategories->bindParam(':shop_id', $dados['shop_id']);
+        $stmtExistingCategories->bindParam(':product_id', $dados['id']);
+        $stmtExistingCategories->execute();
+
+        // Recupera os IDs das categorias existentes
+        $existingCategoryIds = $stmtExistingCategories->fetchAll(PDO::FETCH_COLUMN);
+
+        // Insere as categorias que não estão presentes no banco de dados
+        foreach ($categoriasIds as $categoriaId) {
+            // Certifique-se de validar e escapar os dados para evitar injeção de SQL
+            $categoriaId = (int)$categoriaId;
+
+            if (!in_array($categoriaId, $existingCategoryIds)) {
+                // Categoria não está presente no banco de dados, então insira
+                $main = ($dados['inputMainCategory'] == $categoriaId) ? 1 : 0;
+
+                $tabela = "tb_product_categories";
+                $sqlInsertCategory = "INSERT INTO $tabela (shop_id, product_id, category_id, main) VALUES (:shop_id, :product_id, :category_id, :main)";
+                $stmtInsertCategory = $conn_pdo->prepare($sqlInsertCategory);
+                $stmtInsertCategory->bindParam(':shop_id', $dados['shop_id']);
+                $stmtInsertCategory->bindParam(':product_id', $dados['id']);
+                $stmtInsertCategory->bindParam(':category_id', $categoriaId);
+                $stmtInsertCategory->bindParam(':main', $main);
+                $stmtInsertCategory->execute();
+            }
+        }
+
+        // Deleta as categorias que não estão mais presentes no input
+        foreach ($existingCategoryIds as $existingCategoryId) {
+            if (!in_array($existingCategoryId, $categoriasIds)) {
+                // Categoria não está presente no input, então delete
+                $tabela = "tb_product_categories";
+                $sqlDeleteCategory = "DELETE FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id AND category_id = :category_id";
+                $stmtDeleteCategory = $conn_pdo->prepare($sqlDeleteCategory);
+                $stmtDeleteCategory->bindParam(':shop_id', $dados['shop_id']);
+                $stmtDeleteCategory->bindParam(':product_id', $dados['id']);
+                $stmtDeleteCategory->bindParam(':category_id', $existingCategoryId);
+                $stmtDeleteCategory->execute();
+            }
+        }
+
+        echo "sucesso";
+
+
 
         // Deletar imagens
         if (isset($_POST['delete_images'])) {

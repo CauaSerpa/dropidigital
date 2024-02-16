@@ -70,7 +70,7 @@
     $tabela = "tb_shop";
 
     // Consulta SQL
-    $sql = "SELECT id, plan_id, name FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
+    $sql = "SELECT id, plan_id, name, phone, whatsapp FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -91,6 +91,8 @@
         $id = $resultado['id'];
         $plan_id = $resultado['plan_id'];
         $loja = $resultado['name'];
+        $phone = $resultado['phone'];
+        $whatsapp = $resultado['whatsapp'];
     }
 
     // Nome da tabela para a busca
@@ -1182,6 +1184,16 @@
             $('.info-card :button').on('click', function () {
                 // Remove o elemento pai do botão, que é o card
                 $(".info-card").addClass("d-none");
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Adiciona um evento de clique ao botão com a classe 'close'
+            $('.dropdown').on('click', function () {
+                // Remove o elemento pai do botão, que é o card
+                $(".dropdown").toggleClass("selected");
             });
         });
     </script>

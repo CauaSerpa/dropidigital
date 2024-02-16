@@ -6,12 +6,14 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="description" content="">
+    <meta name="title" content="Dropi Digital | Empreender na Internet">
+    <meta name="description" content="Crie seu site em 5 minutos e venda seus serviços e produtos na Internet. Assuma o controle de sua presença online com o construtor de sites da Dropi Digital. Aprenda como construir seu site sem complicações. Comece agora!">
+    <meta property="og:image" content="<?php echo INCLUDE_PATH; ?>assets/images/logos/logo-one.jpeg">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Title -->
-    <title>DropiDigital</title>
+    <title>Dropi Digital | Empreender na Internet</title>
     <!-- Favicon Icon -->
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
     <!-- Google Fonts -->
@@ -33,6 +35,8 @@
     <link rel="stylesheet" href="assets/css/slick.min.css">
     <!-- Main Style -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
 </head>
 <body>
@@ -83,7 +87,7 @@
 
                                     <ul class="navigation clearfix">
                                         <li><i class="far fa-envelope"></i> <a href="mailto:support@gmail.com">suporte@dropidigital.com.br</a></li>
-                                        <li><i class="far fa-phone"></i><a href="callto:+000(123)45688">+55 12 98252-3912</a></li>
+                                        <li><i class="fa-brands fa-whatsapp"></i><a href="callto:+5511992890194">+55 11 99289-0194</a></li>
                                         <li class="for-none"><i class="far fa-clock"></i>São Paulo</li>
                                         <li>
                                             <div class="social-style-one">
@@ -131,7 +135,7 @@
                                 Somos o Integrador com melhores programas de afiliados do mercado. Hotmart, Eduzz, Monetizee, Amazon, Shopee, Magazine, Luiza, Clickbank entre outros.<br><br>
                                 Crie aqui sua loja e divulgue todos seus produtos de afiliados em um único lugar.</p>
 
-                            <a href="#" class="theme-btn mt-20 wow fadeInUp delay-0-6s">Cadastrar<i class="fas fa-long-arrow-right"></i></a>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar" class="theme-btn mt-20 wow fadeInUp delay-0-6s">Criar Loja Grátis<i class="fas fa-long-arrow-right"></i></a>
                             <div class="hero-shapes">
                                 <img class="shape one" src="assets/images/shapes/dabble-plus.png" alt="Shape">
                                 <img class="shape two" src="assets/images/shapes/dabble-plus.png" alt="Shape">
@@ -162,27 +166,27 @@
                 </div>
                 <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-3s">
+                        <a href="https://hotmart.com/pt-br" class="partner-item wow fadeInUp delay-0-3s">
                             <img src="assets/images/partners/partner-1.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-4s">
+                        <a href="https://www.eduzz.com/pt-br" class="partner-item wow fadeInUp delay-0-4s">
                             <img src="assets/images/partners/partner-2.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-5s">
+                        <a href="https://www.monetizze.com.br" class="partner-item wow fadeInUp delay-0-5s">
                             <img src="assets/images/partners/partner-3.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-6s">
+                        <a href="https://associados.amazon.com.br" class="partner-item wow fadeInUp delay-0-6s">
                             <img src="assets/images/partners/partner-4.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-7s">
+                        <a href="https://shopee.com.br/m/afiliados" class="partner-item wow fadeInUp delay-0-7s">
                             <img src="assets/images/partners/partner-5.jpg" alt="Partner">
                         </a>
                     </div>
@@ -190,27 +194,27 @@
                 <!-- Line 2 -->
                 <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-3s">
+                        <a href="https://site.braip.com/afiliado/" class="partner-item wow fadeInUp delay-0-3s">
                             <img src="assets/images/partners/partner-6.svg" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-4s">
+                        <a href="https://www.clickbank.com/affiliates-v2/" class="partner-item wow fadeInUp delay-0-4s">
                             <img src="assets/images/partners/partner-7.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-5s">
+                        <a href="https://m.shein.com/br/campus-affiliate-a-1500.html" class="partner-item wow fadeInUp delay-0-5s">
                             <img src="assets/images/partners/partner-8.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-6s">
+                        <a href="https://www.lomadee.com/pt_br/afiliados/" class="partner-item wow fadeInUp delay-0-6s">
                             <img src="assets/images/partners/partner-9.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-7s">
+                        <a href="https://www.parceiromagalu.com.br" class="partner-item wow fadeInUp delay-0-7s">
                             <img src="assets/images/partners/partner-10.png" alt="Partner">
                         </a>
                     </div>
@@ -218,27 +222,27 @@
                 <!-- Line 3 -->
                 <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-3s">
+                        <a href="https://afilio.com.br/afiliados/" class="partner-item wow fadeInUp delay-0-3s">
                             <img src="assets/images/partners/partner-11.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-4s">
+                        <a href="https://www.leadsmarket.com/payday-loan-publisher-program" class="partner-item wow fadeInUp delay-0-4s">
                             <img src="assets/images/partners/partner-12.svg" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-5s">
+                        <a href="https://portals.aliexpress.com/affiportals/web/portals.htm#/home" class="partner-item wow fadeInUp delay-0-5s">
                             <img src="assets/images/partners/partner-13.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-6s">
+                        <a href="https://kiwify.com.br" class="partner-item wow fadeInUp delay-0-6s">
                             <img src="assets/images/partners/partner-14.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
-                        <a href="#" class="partner-item wow fadeInUp delay-0-7s">
+                        <a href="https://www.mercadolivre.com.br/l/afiliados-home?isSparkleRedirect=true#variant_sparkle/afiliados=26141&origin=sparkle" class="partner-item wow fadeInUp delay-0-7s">
                             <img src="assets/images/partners/partner-15.png" alt="Partner">
                         </a>
                     </div>
@@ -262,12 +266,12 @@
                                 Na Dropi Digital você monta suas loja, cadastrando o seus links de afiliados permitindo a divulgação de diversos produtos ao mesmo tempo.<br><br>
                                 Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar um site de catálogo e divulgar sua empresa e serviços, com chama de ação para compra, conversa no WhatsApp, botão saber mais e agenda.</p>
                             <div class="about-btns mb-45">
-                                <a href="about.html" class="theme-btn mt-15">Cadastrar-se Grátis<i class="fas fa-long-arrow-right"></i></a>
+                                <a href="about.html" class="theme-btn mt-15">Cadastrar<i class="fas fa-long-arrow-right"></i></a>
                                 <div class="hotline mt-15">
-                                    <i class="far fa-phone"></i>
+                                    <i class="fa-brands fa-whatsapp fs-4"></i>
                                     <div class="content">
                                         <span>Contato</span><br>
-                                        <a href="callto:+5511984387586">+55 11 98438-7586</a>
+                                        <a href="callto:+5511992890194">+55 11 99289-0194</a>
                                     </div>
                                 </div>
                             </div>
@@ -315,8 +319,8 @@
         <section class="project-area overflow-hidden bgc-lighter pt-130 rpt-100 rel z-1">
             <div class="container">
                <div class="section-title text-center mb-55 wow fadeInUp delay-0-2s">
-                    <span class="sub-title mb-15">Conheça Nosso Projeto</span>
-                    <h2> Pare de perder tempo e dinheiro com a codificação do zero, comece a usar o #DropiDigital agora!</h2>
+                    <span class="sub-title mb-15">Vá direto ao ponto!</span>
+                    <h2>Pare de perde tempo com blogs e ficar torcendo por cliques no seu link de afiliado. Aqui na Dropi Digital você cria uma loja com as palavras que o cliente está pesquisando.</h2>
                 </div>
                 <div class="project-slider-active">
                     <div class="project-slider-item">
@@ -325,23 +329,64 @@
                            <a href="https://www.youtube.com/watch?v=_4ulL5doXW8" class="mfp-iframe video-play" tabindex="-1"><i class="fas fa-play"></i></a>
                        </div>
                        <div class="content">
-                           <h4>Comece a impulsionar seus negócios hoje com nossa inovadora fábrica de software para startups!                        </h4>
-                           <p>Nossa plataforma flexível fornecerá uma maneira fácil de expandir seus negócios e explorar novas oportunidades. Entendemos a importância de estar à frente da curva, portanto, nossas soluções inovadoras podem ajudá-lo a expandir rapidamente sua empresa. Com nosso software revolucionário, você terá todas as ferramentas necessárias para levar seu negócio a novos patamares.                        </p>
-                           <ul class="list-style-one">
-                               <li>Qualidade - Desenvolvemos projetos com alta performance e qualidade no código</li>
-                               <li>Redução de custos - Sua empresa sem gastos com contratação, sem gastos com treinamento, sem vínculo empregatício.</li>
-                           </ul>
+                           <h4>Aqui você pode criar também um site otimizado de catálogo para seus produtos e serviços. Para ser encontrado no Google</h4>
+                           <p>Crie aqui seu site de serviços e seja encontrado no Google. Alguns exemplos de negóocio que pode ter seu site aqui.</p>
+                           <div class="row g-2">
+                               <ul class="list-style-one col-md-4">
+                                   <li>Clínica de estética</li>
+                                   <li>Empreiteira</li>
+                                   <li>Imobiliária</li>
+                                   <li>Mecânica</li>
+                                   <li>Clínica médica</li>
+                                   <li>Academia</li>
+                                   <li>Advocacia</li>
+                               </ul>
+                               <ul class="list-style-one col-md-4">
+                                   <li>Dentista</li>
+                                   <li>Restaurante</li>
+                                   <li>Cabeleireiro</li>
+                                   <li>Eletricista</li>
+                                   <li>Lojas de roupa</li>
+                                   <li>Empresa de segurança</li>
+                                   <li>Farmárcia</li>
+                               </ul>
+                               <ul class="list-style-one col-md-4">
+                                   <li>Pizzaria</li>
+                                   <li>Bares</li>
+                                   <li>PetShop</li>
+                                   <li>Igrejas</li>
+                                   <li>Loja de carro</li>
+                                   <li>Madereira</li>
+                                   <li>Autopeças</li>
+                               </ul>
+                           </div>
                            <a href="#" class="theme-btn style-two mt-15">Saiba mais!<i class="fas fa-long-arrow-right"></i></a>
                        </div>
                     </div>
                     <div class="project-slider-item">
                        <div class="content">
                            <h4>Revolucione a forma de fazer negócios!</h4>
-                           <p>Facilite sua vida com a #DropiDigital. Ignore as longas horas de programação tediosa, economize dinheiro com desenvolvedores e concentre-se no que é importante: expandir seus negócios. Obtenha o poder de toda uma equipe de desenvolvimento ao seu alcance com o #DropiDigital!                        </p>
-                           <ul class="list-style-one">
-                               <li>Time de talentos - Tenha os melhores desenvolvedores do mercado trabalhando exclusivamente no seu projeto.</li>
-                               <li>Inovação - Criamos softwares inovadores 100% personalizados como portais, marketplaces, sistemas e apps.</li>
-                           </ul>
+                           <p>Faça o cadastro em uma das palaformas citadas a cima, gere seus links de afiliados e cadastre na Dropi Digital. Com palavras chaves por Exemplo:</p>
+                           <div class="row g-2">
+                               <ul class="list-style-one col-md-6">
+                                   <li>Curso de marketing digital</li>
+                                   <li>Livros digitais</li>
+                                   <li>EBooks</li>
+                                   <li>Produtos para emagrecimento</li>
+                                   <li>Roupas femininas</li>
+                                   <li>Produtos para relacionamento</li>
+                                   <li>Eletrodomésticos</li>
+                               </ul>
+                               <ul class="list-style-one col-md-6">
+                                   <li>Curso de tráfego pago</li>
+                                   <li>Curso de Desenho</li>
+                                   <li>Curso de Inglês</li>
+                                   <li>Curso de finanças</li>
+                                   <li>Ganhar dinheiro na Internet</li>
+                                   <li>Curso para Investimento</li>
+                                   <li>Curso de empreendedorismo</li>
+                               </ul>
+                           </div>
                            <a href="#" class="theme-btn style-two mt-15">Saiba mais!<i class="fas fa-long-arrow-right"></i></a>
                        </div>
                        <div class="video">
@@ -364,41 +409,35 @@
             <div class="container">
                 <div class="row medium-gap">
                     <div class="col-xl-4 col-md-6">
-                        <div class="section-title mb-60 wow fadeInUp delay-0-2s">
-                            <span class="sub-title mb-15">Serviços</span>
-                            <h2>Oferecemos os melhores serviços de TI</h2>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-md-6">
                         <div class="service-two-item wow fadeInUp delay-0-4s">
                             <div class="icon">
                                 <i class="flaticon-networking"></i>
                             </div>
                             <div class="content">
                                 <h4><a href="service-details.html">Consultoria Digital</a></h4>
-                                <p>Somos especializada em estratégias de negócios e marketing com o objetivo de trazer resultados para os nossos parceiros por meio do mercado digital.</p>
+                                <p>Informe o seu projeto e tediremos como você pode aplica-lo aqui na Dropi Digital. Afiliado, Dropshipping de produtos físicos e serviços.</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-xl-4 col-md-6">
                         <div class="service-two-item wow fadeInUp delay-0-6s">
                             <div class="icon">
-                                <i class="flaticon-coding"></i>
+                                <i class="flaticon-app-development"></i>
                             </div>
                             <div class="content">
-                                <h4><a href="service-details.html">Desenvolvimento de design</a></h4>
-                                <p> Padrões de design em desenvolvimento podem ser poderosas ferramentas para manter o código elegante, flexível e com fácil entendimento.</p>
+                                <h4><a href="service-details.html">Criamos a sua loja</a></h4>
+                                <p>A plataforma é totalmente intuitiva, e você pode sozinho montar sua loja, mas caso precise que alguém monte seu site aqui. Montamos para você, com banners, produtos cadastrados e totalmente otimizado para os mecanismos de busca. Consultar valores.</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-xl-4 col-md-6">
                         <div class="service-two-item wow fadeInUp delay-0-3s">
                             <div class="icon">
-                                <i class="flaticon-app-development"></i>
+                                <i class="flaticon-coding"></i>
                             </div>
                             <div class="content">
-                                <h4><a href="service-details.html">Soluções de aplicativos móveis</a></h4>
-                                <p>Faça parte da transformação digital e inove o seu negócio com a criação de aplicativos.</p>
+                                <h4><a href="service-details.html">Criamos os Banners da sua Loja/Site</a></h4>
+                                <p>Precisa da criação dos banners para sua loja? Fique tranquilo, fazemos para você. Envie as especificações e montamos as suas artes. Consultar valores.</p>
                             </div>
                         </div>
                     </div>
@@ -408,8 +447,19 @@
                                 <i class="flaticon-logo"></i>
                             </div>
                             <div class="content">
-                                <h4><a href="service-details.html">Estratégia de Design de UX/UI</a></h4>
-                                <p>É uma estratégia que se preocupa em entregar ao consumidor experiências com base em um design responsivo, agradável, organizado e intuitivo.</p>
+                                <h4><a href="service-details.html">Criação da sua Logo</a></h4>
+                                <p>Quer montar sua loja/site e não tem uma logo do seu negócio? Desenvolvemos um logotipo para você, informe nome e segmento que desenvolvemos um para você. Consultar valores.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="service-two-item wow fadeInUp delay-0-5s">
+                            <div class="icon">
+                                <i class="flaticon-seo"></i>
+                            </div>
+                            <div class="content">
+                                <h4><a href="service-details.html">Serviço de tráfego pago</a></h4>
+                                <p>Cadastrando seus produtos e serviços com palavras-chave, certamente será encontrado pelo Google, mas se precisar aparecer de forma imediata, temos o serviço de link patrocinado com Googles Ads e Facebook Ads</p>
                             </div>
                         </div>
                     </div>
@@ -419,8 +469,8 @@
                                 <i class="flaticon-seo"></i>
                             </div>
                             <div class="content">
-                                <h4><a href="service-details.html">Otimização SEO</a></h4>
-                                <p>Estrategias para otimização para os mecanismos de busca</p>
+                                <h4><a href="service-details.html">Otimização de site SEO</a></h4>
+                                <p>Criação de Link building em sites parceiros, para aumentar a relevância da sua loja, e rápido posicionamento da sua loja para os mecanismos de busca. Consultar valores.</p>
                             </div>
                         </div>
                     </div>
@@ -429,12 +479,12 @@
         </section>
         <!-- Services Area end -->
         
-        
+
         <!-- Work Process Area start -->
         <section class="work-process-area pt-130 pb-100 rpt-100 rpb-70 rel z-1">
             <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
-                <span class="sub-title mb-15">Como fazemos perfeito de forma enxuta, ágil e com muita entrega de valor?<br> Simples, a mágica tem nome e se chama "Lean Thinking", essa filosofia que consumimos mais que café </span>
-                <h2>Os segredos da agilidade e perfeição</h2>
+                <span class="sub-title mb-15">Siga esse passo a passo para criar sua loja de Dropshipping na Dropi Digital e venda todos os dias como afiliado mesmos sem estoque.</span>
+                <h2>5 Passos simples para vender como afiliado na Dropi Digital</h2>
             </div>
             <div class="work-process-line text-center">
                 <img src="assets/images/shapes/work-process-line.png" alt="line">
@@ -445,8 +495,8 @@
                         <div class="work-process-item mt-40 wow fadeInUp delay-0-2s">
                             <div class="number">01</div>
                             <div class="content">
-                                <h4>Briefing / Pesquisa</h4>
-                                <p>Entendemos o objetivo dos clientes, as dores e opções de resolução.</p>
+                                <h4>Definir um Nicho</h4>
+                                <p>Hoje como afiliado você pode divulgar diversos produtos. Entre eles: Infoprodutos/Cursos digitais, Produtos físicos, Eletro domésticos, Livros, roupas, etc. Então o primeiro passo é definir quais produtos irá vender.</p>
                             </div>
                         </div>
                     </div>
@@ -454,8 +504,8 @@
                         <div class="work-process-item mt-10 wow fadeInDown delay-0-2s">
                             <div class="number">02</div>
                             <div class="content">
-                                <h4>Concepção</h4>
-                                <p>Discutimos amplamente sobre as opções disponíveis.</p>
+                                <h4>Criarconta em programas de afiados</h4>
+                                <p>Existem diversos programas de afiliados para vender sem estoque. Alguns deles são: Hotmart, Eduzz, Monetizze, Amazon Afiliados, Shopee, Braip, ClickBank, Shein, Parceiro Magazine Luíza, AliExpress, Alibaba, Mercado Livre entre outros.</p>
                             </div>
                         </div>
                     </div>
@@ -463,8 +513,8 @@
                         <div class="work-process-item mt-40 wow fadeInUp delay-0-2s">
                             <div class="number">03</div>
                             <div class="content">
-                                <h4>Prototipagem</h4>
-                                <p>Executamos o projeto cujo protótipo foi aprovado</p>
+                                <h4>Traga seus links de afiliado para a Dropi Digital</h4>
+                                <p>Após criar seus links de afiliado. Faça o cadastro na Dropi Digital e cadastre seus produtos com nome, descrição e imagem.</p>
                             </div>
                         </div>
                     </div>
@@ -472,8 +522,8 @@
                         <div class="work-process-item wow fadeInDown delay-0-2s">
                             <div class="number">04</div>
                             <div class="content">
-                                <h4>Desenvolvimento</h4>
-                                <p>Executamos o projeto cujo protótipo foi aprovado.</p>
+                                <h4>Cadastre os produtos com palavras chave mais pesquisadas.</h4>
+                                <p>Exemplo: Se sua loja é de Cursos Digitais. Você vai cadastrar todas as variáveis de Cursos. Exemplo: Curso de marketing digital, Curso de tráfego pago, Curso de Inglês, Treinamento para emagrecer, Curso de música, Curso de estética, Entre muitos outros. Recomendamos usar o planejador de palavras-chave do Google para saber as palavras mais pesquisas ou site Ubersuggest</p>
                             </div>
                         </div>
                     </div>
@@ -481,12 +531,72 @@
                         <div class="work-process-item mt-50 wow fadeInUp delay-0-2s">
                             <div class="number">05</div>
                             <div class="content">
-                                <h4>Lançamento</h4>
-                                <p>Auxiliamos na implantação e lançamento. </p>
+                                <h4>Venda todos os dias</h4>
+                                <p>A nossa plataforma irá indexar os seus produtos/serviços automaticamente no Google e você será encontrado na busca organica nas primeiras posições.</p>
                             </div>
                         </div>
                     </div>
-                    
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Work Process Area start -->
+        <section class="work-process-area pt-130 pb-100 rpt-100 rpb-70 rel z-1">
+            <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
+                <span class="sub-title mb-15">Como montar meu site de serviços na Dropi Digital e ter um negócio lucrativo na Internet</span>
+                <h2>5 Passos comprovados para ter um negócio na internet e receber contatos todos os dias.</h2>
+            </div>
+            <div class="work-process-line text-center">
+                <img src="assets/images/shapes/work-process-line.png" alt="line">
+            </div>
+            <div class="container">
+                <div class="row row-cols-xl-5 row-cols-md-3 row-cols-sm-2 row-cols-1 justify-content-center">
+                    <div class="col">
+                        <div class="work-process-item mt-40 wow fadeInUp delay-0-2s">
+                            <div class="number">01</div>
+                            <div class="content">
+                                <h4>Definir qual seguimento será seu site</h4>
+                                <p>Você pode divulgar o serviço do qual você já atua. Ou escolher uma das diversas ideias de negócio sugeridas aqui em nossa plataforma.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="work-process-item mt-10 wow fadeInDown delay-0-2s">
+                            <div class="number">02</div>
+                            <div class="content">
+                                <h4>Criar sua conta na Dropi Digital</h4>
+                                <p>Crie sua conta na Dropi Digital com nome de usuário, descrição, banners, domínio dropidigital ou domínio próprio.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="work-process-item mt-40 wow fadeInUp delay-0-2s">
+                            <div class="number">03</div>
+                            <div class="content">
+                                <h4>Pesquisar as melhores palavras chave</h4>
+                                <p>Crie sua conta na Dropi Digital com nome de usuário, descrição, banners, domínio dropidigital ou domínio próprio.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="work-process-item wow fadeInDown delay-0-2s">
+                            <div class="number">04</div>
+                            <div class="content">
+                                <h4>Cadastrar os serviços na Dropi Digital</h4>
+                                <p>Use o planejador de palavra chave do Google ou site https://neilpatel.com/br/ubersuggest/paraescolharas palavras chave mais pesquisadas. Exemplo se você é <span class="fw-semibold">Advogado em São Paulo.</span> Alguns dos serviços que irá cadastrar são: Advogado em São Paulo, Advogado trabalhista São Paulo, Advogado criminalista São Paulo, Advogado imobiliario São Paulo, Advogado civil São Paulo, Advogado famíliar São Paulo, e assim por diante. Temos também o serviço de envio das palavras-chave para seu nicho ou o serviço de cadastro de palavras. Chame no WhatsApp e consulte.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="work-process-item mt-50 wow fadeInUp delay-0-2s">
+                            <div class="number">05</div>
+                            <div class="content">
+                                <h4>Receba orçamentos diários através da busca organica do Google.</h4>
+                                <p>Após o cadastro das palavras mais buscadas, agora é só aguardar a indexação, e seu site irá aparecer para seus cliente, e você receberá contatos todos os dias.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

@@ -57,10 +57,22 @@
         $redirect_link = $dados['redirect_link'];
     }
 
+    // Checkbox sem preco
+    if (isset($_POST["without_price"]))
+    {
+        $price = 0;
+        $discount = 0;
+        $without_price = 1;
+    } else {
+        $price = $dados['price'];
+        $discount = $dados['discount'];
+        $without_price = 0;
+    }
+
     // Acessa o IF quando o usuário clicar no botão
     if (empty($dados['SendAddProduct'])) {
-        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, name, link, price, discount, video, description, categories, sku, button_type, redirect_link, seo_name, seo_link, seo_description) VALUES 
-                                    (:shop_id, :status, :emphasis, :name, :link, :price, :discount, :video, :description, :categories, :sku, :button_type, :redirect_link, :seo_name, :seo_link, :seo_description)";
+        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, name, link, price, without_price, discount, video, description, sku, button_type, redirect_link, seo_name, seo_link, seo_description) VALUES 
+                                    (:shop_id, :status, :emphasis, :name, :link, :price, :without_price, :discount, :video, :description, :sku, :button_type, :redirect_link, :seo_name, :seo_link, :seo_description)";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -69,11 +81,11 @@
         $stmt->bindValue(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
         $stmt->bindParam(':link', $dados['link']);
-        $stmt->bindParam(':price', $dados['price']);
-        $stmt->bindParam(':discount', $dados['discount']);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':without_price', $without_price);
+        $stmt->bindParam(':discount', $discount);
         $stmt->bindParam(':video', $dados['video']);
         $stmt->bindParam(':description', $dados['description']);
-        $stmt->bindParam(':categories', $dados['categories']);
         $stmt->bindParam(':sku', $dados['sku']);
         $stmt->bindParam(':button_type', $dados['button_type']);
         $stmt->bindParam(':redirect_link', $redirect_link);
@@ -86,6 +98,43 @@
         // Recupere o ID do último registro inserido
         $ultimo_id = $conn_pdo->lastInsertId();
 
+        // Categorias
+        // Recupera o valor do input hidden com o ID das categorias
+        $categoriasInputValue = $_POST['categoriasSelecionadas']; // Substitua 'categoriasInput' pelo nome do seu input
+
+        // Certifique-se de que $categoriasInputValue é uma string
+        if (is_array($categoriasInputValue)) {
+            // Lógica para converter o array em uma string (se aplicável)
+            // Isso pode variar dependendo de como os dados estão sendo enviados
+            $categoriasInputValue = implode(',', $categoriasInputValue);
+        }
+
+        // Separa os IDs das categorias em um array
+        $categoriasIds = explode(',', $categoriasInputValue);
+
+        // Loop para inserir categorias no banco de dados
+        foreach ($categoriasIds as $categoriaId) {
+            // Certifique-se de validar e escapar os dados para evitar injeção de SQL
+            $categoriaId = (int)$categoriaId;
+
+            $main = ($dados['inputMainCategory'] == $categoriaId) ? 1 : 0;
+
+            // Consulta SQL para inserir a associação entre produto e categoria
+            $tabela = "tb_product_categories";
+            $sql = "INSERT INTO $tabela (shop_id, product_id, category_id, main) VALUES (:shop_id, :product_id, :category_id, :main)";
+            $stmt = $conn_pdo->prepare($sql);
+
+            $stmt->bindParam(':shop_id', $dados['shop_id']);
+            $stmt->bindParam(':product_id', $ultimo_id);
+            $stmt->bindParam(':category_id', $categoriaId);
+            $stmt->bindParam(':main', $main);
+
+            $stmt->execute();
+
+            echo "sucesso";
+        }
+
+        // Imagens
         $total = count($_FILES['imagens']['name']);
 
         // Loop através de cada arquivo

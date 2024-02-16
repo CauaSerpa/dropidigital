@@ -2,11 +2,11 @@
     // Nome da tabela para a busca
     $tabela = 'tb_shop';
 
-    $sql = "SELECT facebook, x, pinterest, instagram, youtube FROM $tabela WHERE user_id = :user_id";
+    $sql = "SELECT facebook, x, pinterest, instagram, youtube, tiktok FROM $tabela WHERE id = :id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':user_id', $id);
+    $stmt->bindParam(':id', $id);
     $stmt->execute();
 
     // Obter o resultado como um array associativo
@@ -185,7 +185,7 @@
     </div>
 </div>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/social_medias.php" method="post" enctype="multipart/form-data">
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/social_medias.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Redes Sociais</div>
         <div class="card-body row px-4 py-3">
@@ -222,6 +222,13 @@
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-brands fa-youtube" style="width: 18px; color: #000000;"></i></span>
                     <input type="text" class="form-control" name="youtube" id="youtube" placeholder="https://www.youtube.com/..." value="<?php echo @$shop['youtube']; ?>">
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="video" class="form-label small">TikTok</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-brands fa-tiktok" style="width: 18px; color: #000000;"></i></span>
+                    <input type="text" class="form-control" name="tiktok" id="tiktok" placeholder="https://www.tiktok.com/..." value="<?php echo @$shop['tiktok']; ?>">
                 </div>
             </div>
         </div>

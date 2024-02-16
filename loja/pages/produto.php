@@ -1,12 +1,26 @@
 <?php
     // Nome da tabela para a busca
+    $tabela = 'tb_product_categories';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id ORDER BY (main = 1) DESC LIMIT 1";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->bindParam(':product_id', $product['id']);
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $productCategory = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Nome da tabela para a busca
     $tabela = 'tb_categories';
 
     $sql = "SELECT * FROM $tabela WHERE id = :id AND shop_id = :shop_id ORDER BY id DESC";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':id', $product['categories']);
+    $stmt->bindParam(':id', $productCategory['category_id']);
     $stmt->bindParam(':shop_id', $shop_id);
     $stmt->execute();
 
@@ -23,6 +37,7 @@
         flex-direction: column;
         align-items: center;
         margin-right: 10px;
+        min-width: 50px;
     }
 
     .thumbnail {
@@ -44,22 +59,29 @@
     }
 
     .preview {
-        width: 500px;
-        height: 500px;
+        width: 100%;
+        height: auto;
         overflow: hidden;
     }
 
     .preview #preview-image {
         transform-origin: center;
-        object-fit: cover;
+        object-fit: contain;
         height: 100%;
         width: 100%;
+    }
+    #preview-image:hover
+    {
+        cursor: zoom-in;
     }
 
     .content-image
     {
         position: relative;
-        height: 500px;
+        max-height: 500px;
+        max-width: 500px;
+        display: flex;
+        align-items: center;
     }
 
     .nav-button
@@ -84,6 +106,31 @@
     {
         right: 15px;
     }
+
+    /* Responsive */
+    @media screen and (max-width: 768px) {
+        .product-images {
+            overflow-y: auto;
+            max-height: 230px;
+            min-width: 50px;
+        }
+        .thumbnail
+        {
+            width: 100%;
+        }
+        .content-image
+        {
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .content-image .preview
+        {
+            width: 100%;
+            height: auto;
+        }
+    }
 </style>
 <style>
     .info-product .card-discount
@@ -101,6 +148,7 @@
 </style>
 <div class="container">
     <div class="row p-4">
+        <?php if ($category) { ?>
         <nav class="mb-2" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <?php
@@ -130,14 +178,10 @@
                 <li class="breadcrumb-item small fw-semibold text-body-secondary text-decoration-none ms-2 active" aria-current="page"><?php echo $product['name']; ?></li>
             </ol>
         </nav>
+        <?php } ?>
 
         <div class="col-md-6 container-images">
             <div class="product-images">
-
-
-
-
-
                 <?php
                     // Consulta SQL para selecionar todas as colunas com base no ID
                     $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC";
@@ -176,22 +220,6 @@
                         $index++;
                     }
                 ?>
-
-
-
-                <!-- <div class="thumbnail active" data-index="1" onclick="showImage('<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png', this)">
-                    <img src="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/30/foto_teste.png" alt="Imagem 1">
-                </div> -->
-
-
-
-
-
-
-
-
-
-
             </div>
 
             <div class="content-image">
@@ -236,7 +264,12 @@
                 $discount = "R$ " . number_format($desconto, 2, ",", ".");
 
                 // Calcula a porcentagem de desconto
-                $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                if ($product['price'] != 0) {
+                    $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                } else {
+                    // Lógica para lidar com o caso em que $product['price'] é zero
+                    $porcentagemDesconto = 0; // Ou outro valor padrão
+                }
 
                 // Arredonda o resultado para duas casas decimais
                 $porcentagemDesconto = round($porcentagemDesconto, 0);
@@ -251,7 +284,11 @@
                     $priceAfterDiscount = $discount;
                     $discount = $price;
                 }
-                
+
+                if ($product['without_price'] == 1) {
+                    $activeDiscount = "d-none";
+                    $priceAfterDiscount = "";
+                }
 
                 echo '<small class="fw-semibold text-body-secondary text-decoration-line-through me-2 ' . $activeDiscount . '">' . $discount . '</small>';
                 
@@ -306,8 +343,38 @@
         </div>
     </div>
 
-    
-    <div id="carouselProdutos" class="container carousel slide" data-bs-ride="carousel">
+    <?php
+        // Nome da tabela para a busca
+        $tabela = 'tb_products';
+
+        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND id != :current_product ORDER BY id ASC";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':status', 1);
+        $stmt->bindParam(':current_product', $product['id']);
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Inicialize uma variável de controle e um contador
+        $primeiroElemento = true;
+        $contador = 0;
+
+        if ($resultados) {
+    ?>
+
+    <style>
+        .listProducts .row
+        {
+            --bs-gutter-x: 1rem !important;
+            --bs-gutter-y: 1rem !important;
+        }
+    </style>
+
+    <div class="listProducts container">
         <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
             <div class="d-flex justify-content-center">
                 <h4 class="mb-3 me-3">Produtos relacionados</h4>
@@ -315,27 +382,8 @@
             <div style="width: 100px; height: 5px; background: #000;"></div>
         </div>
 
-        <div class="carousel-inner">
+        <div class="row g-3 p-4">
             <?php
-                // Nome da tabela para a busca
-                $tabela = 'tb_products';
-
-                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND categories = :categories AND id != :current_product ORDER BY id ASC";
-
-                // Preparar e executar a consulta
-                $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':shop_id', $shop_id);
-                $stmt->bindParam(':categories', $product['categories']);
-                $stmt->bindParam(':current_product', $product['id']);
-                $stmt->execute();
-
-                // Recuperar os resultados
-                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // Inicialize uma variável de controle e um contador
-                $primeiroElemento = true;
-                $contador = 0;
-
                 // Loop através dos resultados e exibir todas as colunas
                 foreach ($resultados as $product) {
                     // Consulta SQL para selecionar todas as colunas com base no ID
@@ -362,7 +410,12 @@
                     $discount = "R$ " . number_format($desconto, 2, ",", ".");
 
                     // Calcula a porcentagem de desconto
-                    $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                    if ($product['price'] != 0) {
+                        $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                    } else {
+                        // Lógica para lidar com o caso em que $product['price'] é zero
+                        $porcentagemDesconto = 0; // Ou outro valor padrão
+                    }
 
                     // Arredonda o resultado para duas casas decimais
                     $porcentagemDesconto = round($porcentagemDesconto, 0);
@@ -378,19 +431,14 @@
                         $discount = $price;
                     }
 
+                    if ($product['without_price']) {
+                        $priceAfterDiscount = "";
+                    }
+
                     // Link do produto
                     $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
 
-                    // Adicione a classe especial apenas ao primeiro elemento
-                    $active = $primeiroElemento ? 'active' : '';
-
-                    // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                    if ($contador % 4 == 0) {
-                        echo '<div class="carousel-item ' . $active . '">';
-                        echo '<div class="row p-4">';
-                    }
-
-                    echo '<div class="col-sm-3">';
+                    echo '<div class="col-sm-3 numBanner">';
                     echo '<a href="' . $link . '" class="product-link">';
                     echo '<div class="card">';
 
@@ -418,35 +466,13 @@
                     echo '</div>';
                     echo '</a>';
                     echo '</div>';
-
-                    // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                    if ($contador % 4 == 3 || $contador == count($resultados) - 1) {
-                        echo '</div>';
-                        echo '</div>';
-                    }
-
-                    // Marque que o primeiro elemento foi processado
-                    $primeiroElemento = false;
-
-                    // Incrementar o contador
-                    $contador++;
-                }
-
-                if ($stmt->rowCount() <= 0) {
-                    echo '<script>document.getElementById("carouselProdutos").classList.add("d-none");</script>';
                 }
             ?>
         </div>
-
-        <a class="carousel-control-prev" href="#carouselProdutos" role="button" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Anterior</span>
-        </a>
-        <a class="carousel-control-next" href="#carouselProdutos" role="button" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Próximo</span>
-        </a>
     </div>
+    <?php
+        }
+    ?>
 </div>
 <script>
     const container = document.getElementById("container");

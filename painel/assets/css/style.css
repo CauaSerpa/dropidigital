@@ -1458,6 +1458,10 @@ select {
 {
     padding-bottom: 73px;
 }
+.container.grid.save-button-show .container-save-button.save
+{
+    display: none !important;
+}
 .save-button
 {
     border-top: 1px solid var(--border-color);
@@ -1473,12 +1477,12 @@ select {
     left: 50% !important;
     transform: translateX(-50%);
 }
-.save-button .container-save-button.container .btn
+.container-save-button .btn
 {
     background: var(--green-color);
     border: none;
 }
-.save-button .container-save-button.container .btn:hover
+.container-save-button .btn:hover
 {
     background: var(--dark-green-color);
 }
@@ -2284,7 +2288,9 @@ select {
     padding-top: 11px;
     padding-bottom: 11px;
     white-space: nowrap;
+    height: 0;
     visibility: hidden;
+    overflow: hidden;
     opacity: 0;
     transition: .3s;
 }
@@ -2310,7 +2316,9 @@ select {
 }
 .card__container .card__box .center .left .container__button .dropdown.selected .option
 {
+    height: max-content;
     visibility: visible;
+    overflow: visible;
     opacity: 1;
 }
 .card__container .card__box .center .left .container__button .dropdown .option div
@@ -2318,10 +2326,13 @@ select {
     padding: .5rem 1.5rem;
     cursor: pointer;
 }
+.card__container .card__box .center .left .container__button .dropdown .option div.selected
+{
+    color: var(--green-color);
+}
 .card__container .card__box .center .left .container__button .dropdown .option div:hover
 {
-    background: var(--first-color);
-    color: #fff;
+    background: #f8f9fa;
 }
 
 
@@ -2366,6 +2377,7 @@ select {
     justify-content: center;
     font-size: var(--normal-font-size);
     color: var(--text-color);
+    text-decoration: none !important;
 }
 .card__container .card__box .center .right .controller .analog.pag-limit
 {

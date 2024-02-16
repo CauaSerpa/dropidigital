@@ -56,6 +56,7 @@
 
     $subdomain = "minha-loja";
     $domain = "dropidigital.com.br";
+    $urlCompleta = "http://localhost/dropidigital/app/loja/";
 
     define('INCLUDE_PATH_LOJA', $urlCompleta);
 
@@ -114,12 +115,15 @@
         $title = $resultado['title'];
         $description = $resultado['description'];
         $logo = $resultado['logo'];
+        $logo_mobile = $resultado['logo_mobile'];
+        $favicon = $resultado['favicon'];
         $video = $resultado['video'];
         $facebook = $resultado['facebook'];
         $x = $resultado['x'];
         $pinterest = $resultado['pinterest'];
         $instagram = $resultado['instagram'];
         $youtube = $resultado['youtube'];
+        $tiktok = $resultado['tiktok'];
         $token_instagram = $resultado['token_instagram'];
 
         $cpf_cnpj = $resultado['cpf_cnpj'];
@@ -237,14 +241,15 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    
     <!-- Title -->
     <title><?php echo ($title == "") ? $loja : $title; ?></title>
+    <!-- Description -->
+    <meta name="description" content="<?php echo $description; ?>">
     <!--Favicon-->
-    <link rel="shortcut icon" href="<?php echo INCLUDE_PATH; ?>assets/images/favicon.png" type="image/x-icon">
+    <link rel="shortcut icon" href="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $favicon; ?>" type="image/x-icon">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -268,6 +273,13 @@
     <!-- Feed Instagram -->
     <link rel="stylesheet" href="css/owl.carousel.min.css">
     <link rel="stylesheet" href="css/owl.theme.default.min.css">
+
+    <!-- Inclua as folhas de estilo do Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <?php
@@ -299,6 +311,12 @@
         color: var(--heading-color) !important;
         text-decoration: underline;
     }
+    a.btn.btn-dark:hover,
+    a.btn.btn-dark:hover i
+    {
+        color: white !important;
+    }
+    .nav-link a:hover,
     a.nav-link:hover,
     a.btn:hover
     {
@@ -320,6 +338,24 @@
     .categories.nav-show-categories
     {
         transform: translateY(0px) !important;
+    }
+
+    /* Navbar */
+    #navbarSupportedContent.navActions #search
+    {
+        display: flex;
+    }
+    .navbar.categories .close
+    {
+        display: none !important;
+    }
+    .mobile-nav
+    {
+        display: none;
+    }
+    .nav-arrow
+    {
+        display: none !important;
     }
 
     /* Carrossel */
@@ -392,8 +428,8 @@
     }
     .product-image .card-img-top
     {
-        width: 286px;
-        height: 286px;
+        width: 100%;
+        height: auto;
         object-fit: cover;
     }
 
@@ -424,7 +460,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 99999;
+        z-index: 100;
 
         opacity: 0;
         pointer-events: none;
@@ -443,23 +479,267 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 99999;
+        z-index: 100;
+    }
+
+    /* Responsive */
+    @media screen and (max-width: 768px) {
+        /* Header */
+        .categories.scroll
+        {
+            transform: translateY(0) !important;
+        }
+        .show-categories
+        {
+            display: none !important;
+        }
+        .navbar.categories .close
+        {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+        .navbar.categories
+        {
+            display: none !important;
+            position: fixed;
+            left: 0;
+            top: 99px;
+            width: 100%;
+            height: calc(100% - 99px);
+            z-index: 999999999 !important;
+        }
+        .navbar-nav.categorias
+        {
+            width: 100%;
+        }
+        #navCategories.showCategories .navCategories
+        {
+            height: 100%;
+            display: flex !important;
+            flex-direction: column;
+            justify-content: space-between !important;
+        }
+        #navCategories.showCategories,
+        #navCategories.showCategories .close
+        {
+            display: flex !important;
+        }
+
+        .mobile-nav
+        {
+            display: flex;
+            align-items: center;
+        }
+        .mobile-nav .navActionModalButton.active,
+        .mobile-nav .navSearchButton.active,
+        .mobile-nav .navCategoriesButton.active
+        {
+            background: #f8f9fa !important;
+            border-radius: .375rem;
+        }
+
+        .blog
+        {
+            width: 100%;
+            justify-content: center !important;
+        }
+
+        .nav-arrow
+        {
+            display: flex !important;
+        }
+
+        .categories .container.container-fluid
+        {
+            padding: 0 1rem 1rem 1rem !important;
+            height: 100%;
+            align-items: flex-start;
+        }
+        .categories .container.container-fluid .nav-link
+        {
+            padding: .625rem 1rem;
+        }
+        .categories .container.container-fluid li
+        {
+            display: block !important;
+            margin: 0;
+        }
+        .todas-categorias,
+        .subcategorias
+        {
+            top: 0 !important;
+            padding: .625rem 1rem !important;
+        }
+        .categorias li.showSubcategories .todas-categorias,
+        .categorias li.showSubcategories .subcategorias
+        {
+            display: flex !important;
+        }
+        .categories .container.container-fluid li.showSubcategories .nav-link
+        {
+            background: #f8f9fa;
+            border-radius: .375rem;
+        }
+        .categories .container.container-fluid li.showSubcategories .nav-link .nav-arrow
+        {
+            transform: rotate(180deg);
+        }
+        .categories .container.container-fluid li ul
+        {
+            position: relative;
+            width: 100%;
+            box-shadow: none;
+        }
+
+        /* Services */
+        .logo img
+        {
+            width: auto !important;
+            height: 40px;
+        }
+
+        #navbarSupportedContent.navActions
+        {
+            display: block !important;
+        }
+
+        #navbarSupportedContent.navActions #search,
+        #navbarSupportedContent.navActions .service
+        {
+            display: none;
+        }
+
+        .mobile-nav button
+        {
+            padding: .3rem;
+        }
+        .mobile-nav button i
+        {
+            color: black;
+        }
+        .mobile-nav .line
+        {
+            width: 1px;
+            height: calc(1.375rem + 1.5vw) !important;
+            background: #c4c4c4;
+        }
+        .navActions #search.showSearch
+        {
+            display: flex !important;
+            position: absolute;
+            top: 67px;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 1rem 2.4375rem;
+        }
+
+        /* Nav contact */
+        #actionContainer.showActionContainer
+        {
+            display: flex !important;
+            position: fixed;
+        }
+        #actionContainer.showActionContainer .nav-link
+        {
+            display: none !important;
+        }
+        #actionModal.showActionModal
+        {
+            display: flex;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            top: auto;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 1rem 1rem 0 0;
+        }
+        #actionModal.showActionModal ul
+        {
+            width: 100%;
+        }
+
+        .closeActionModal
+        {
+            background: none;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tarjas centrais */
+        .container.highlight-center .highlight::before
+        {
+            display: none;
+        }
+
+        /* Carrossel */
+        #bannerCarousel
+        {
+            margin-top: <?php echo ($top_highlight_bar == 1) ? "99px" : "67px"; ?> !important;
+        }
+    }
+
+    @media screen and (min-width: 1024px) {
+        .categorias li:hover .todas-categorias,
+        .categorias li:hover .subcategorias {
+            display: flex;
+        }
+    }
+</style>
+<style>
+    /* Adiciona uma seta após as categorias que têm subcategorias */
+    .navCategories > ul > li > .nav-link {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        text-wrap: nowrap;
+    }
+    .navCategories > ul > li > .nav-link .bx.bx-chevron-down {
+        cursor: pointer;
+    }
+</style>
+<style>
+    .owl-nav button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 4rem !important;
+    }
+    .owl-nav button.owl-prev {
+        left: 4px;
+    }
+    .owl-nav button.owl-next {
+        right: 4px;
     }
 </style>
 <body>
     <header class="header fixed-top">
         <div class="stripe text-center text-light <?php echo ($top_highlight_bar == 0) ? "d-none" : ""; ?> <?php echo ($top_highlight_bar_location == 1) ? "" : "d-none"; ?>" style="background-color: rgb(35, 35, 35);"><?php echo $top_highlight_bar_text; ?></div>
-        <nav class="navbar bg-white navbar-expand-lg border-bottom border-body z-3" data-bs-theme="white">
+        <nav class="navbar bg-white navbar-expand-lg border-bottom border-body z-3" id="navbar" data-bs-theme="white">
             <div class="container container-fluid" style="padding-right: calc(1.5rem + 15px); padding-left: calc(1.5rem + 15px);">
-                <a class="navbar-brand logo" href="<?php echo INCLUDE_PATH_LOJA; ?>"><?php echo (isset($logo)) ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" alt="Logo ' . $loja . '" style="width: 150px;">' : $loja; ?></a>
+                <a class="navbar-brand logo" href="<?php echo INCLUDE_PATH_LOJA; ?>"><?php echo (isset($logo)) ? '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo . '" id="logo" alt="Logo ' . $loja . '" style="width: 150px;">' : $loja; ?></a>
                 <button class="show-categories me-3 d-none" id="show-categories" type="button">
                     <i class='bx bx-menu fs-3' id="toggle-icon"></i>
                 </button>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <form class="d-flex me-3" role="search">
+                <div class="mobile-nav">
+                    <button class="navActionModalButton d-flex align-items-center bg-transparent me-2" type="button">
+                        <i class="bx bxl-whatsapp fs-1"></i>
+                    </button>
+                    <button class="navSearchButton d-flex align-items-center bg-transparent me-2" type="button">
+                        <i class="bx bx-search-alt-2 fs-1"></i>
+                    </button>
+                    <div class="line"></div>
+                    <button class="navCategoriesButton d-flex align-items-center bg-transparent ms-2" type="button">
+                        <i class="bx bx-menu fs-1"></i>
+                    </button>
+                </div>
+                <div class="navActions collapse navbar-collapse" id="navbarSupportedContent">
+                    <form class="me-3" id="search" role="search">
                         <input class="form-control py-1 px-3" type="search" placeholder="Buscar produto" aria-label="Search" style="border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);">
                         <button class="btn btn-dark" type="submit" style="border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;">
                             <i class='bx bx-search-alt-2'></i>
@@ -467,18 +747,16 @@
                     </form>
                     <style>
                         /* Tooltip */
-                        .service,
-                        .discount {
+                        .service {
                             position: relative;
                         }
 
-                        .service-tooltip,
-                        .discount-tooltip {
+                        .service-tooltip {
                             width: 220px;
                             display: none;
                             position: absolute;
                             top: 100%;
-                            left: 0;
+                            right: 0;
                             background-color: #fff;
                             text-align: center;
                             line-height: 1.5;
@@ -493,62 +771,54 @@
                             text-align: start;
                         }
 
-                        .service:hover .service-tooltip,
-                        .discount:hover .discount-tooltip {
+                        .service:hover .service-tooltip {
                             display: block;
                         }
+
+                        .closeActionModal {
+                            display: none;
+                        }
                     </style>
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="discount nav-item me-2">
-                            <a class="nav-link d-flex align-items-center active" aria-current="page" href="#">
-                                <i class='bx bxs-discount fs-1 me-2' ></i>
-                                <small class="fw-semibold lh-sm">Retire seu cupom<br>de desconto</small>
-                            </a>
-                            <div class="discount-tooltip">
-                                <span class="small text-black fw-semibold m-0">Ainda não comprou na loja?</span>
-                                <h5 class="fw-semibold mb-2 mt-2">QUERODESCONTO10</h5>
-                                <span class="small text-secondary fw-semibold m-0">Use o cupom acima para ganhar 10% off em sua primeira compra</span>
-                            </div>
-                        </li>
-                        <li class="service nav-item me-2">
-                            <a class="nav-link d-flex align-items-center active" aria-current="page" href="#">
-                                <i class='bx bxl-whatsapp fs-1 me-2' ></i>
-                                <small class="fw-semibold lh-sm">Central de<br>Suporte</small>
-                            </a>
-                            <div class="service-tooltip">
-                                <ul class="p-2">
-                                    <span class="text-black fw-semibold">Atendimento:</span>
-                                    <li class="text-secondary mt-2 mb-2 <?php echo ($phone == "") ? "d-none" : ""; ?>">
-                                        <i class='bx bxs-phone' ></i> Telefone: 
-                                        <a href="tel:<?php echo $phone; ?>">
-                                            <?php echo $phone; ?>
-                                        </a>
-                                    </li>
-                                    <li class="text-secondary tel-whatsapp mb-2 <?php echo ($whatsapp == "") ? "d-none" : ""; ?>">
-                                        <i class="bx bxl-whatsapp"></i> Whatsapp: 
-                                        <a href="https://api.whatsapp.com/send?phone=<?php echo $formatted_whatsapp; ?>" target="_blank">
-                                            <?php echo $whatsapp; ?>
-                                        </a>
-                                    </li>
-                                    <li class="text-secondary <?php echo ($email == "") ? "d-none" : ""; ?>">
-                                        <i class="bx bxs-envelope"></i> E-mail: 
-                                        <a href="mailto:<?php echo $email; ?>">
-                                            <?php echo $email; ?>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
-                    </ul>
+                    <div class="navbar-nav service ms-auto mb-lg-0" id="actionContainer">
+                        <a class="nav-link d-flex align-items-center active" aria-current="page" href="#">
+                            <i class='bx bxl-whatsapp fs-1 me-2' ></i>
+                            <small class="fw-semibold lh-sm">Central de<br>Suporte</small>
+                        </a>
+                        <div class="service-tooltip" id="actionModal">
+                            <ul class="p-2">
+                                <div class="service-header d-flex align-items-center justify-content-between">
+                                    <span class="text-black fw-semibold">Atendimento</span>
+                                    <button class="navActionModalButton closeActionModal" type="button">
+                                        <i class="bx bx-x fs-1"></i>
+                                    </button>
+                                </div>
+                                <li class="text-secondary mt-2 mb-2 <?php echo ($phone == "") ? "d-none" : ""; ?>">
+                                    <i class='bx bxs-phone' ></i> Telefone: 
+                                    <a href="tel:<?php echo $phone; ?>">
+                                        <?php echo $phone; ?>
+                                    </a>
+                                </li>
+                                <li class="text-secondary tel-whatsapp mb-2 <?php echo ($whatsapp == "") ? "d-none" : ""; ?>">
+                                    <i class="bx bxl-whatsapp"></i> Whatsapp: 
+                                    <a href="https://api.whatsapp.com/send?phone=<?php echo $formatted_whatsapp; ?>" target="_blank">
+                                        <?php echo $whatsapp; ?>
+                                    </a>
+                                </li>
+                                <li class="text-secondary <?php echo ($email == "") ? "d-none" : ""; ?>">
+                                    <i class="bx bxs-envelope"></i> E-mail: 
+                                    <a href="mailto:<?php echo $email; ?>">
+                                        <?php echo $email; ?>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
-        <nav class="categories navbar bg-white navbar-expand-lg border-bottom border-body z-2" data-bs-theme="white">
+        <nav class="categories navbar bg-white navbar-expand-lg border-bottom border-body z-2" id="navCategories" data-bs-theme="white">
             <div class="container container-fluid" style="padding-right: calc(1.5rem + 15px); padding-left: calc(1.5rem + 15px);">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="navCategories collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav categorias me-auto mb-2 mb-lg-0">
                         <style>
                             .categorias {
@@ -580,11 +850,6 @@
                                 z-index: 1;
                             }
 
-                            .categorias li:hover .todas-categorias,
-                            .categorias li:hover .subcategorias {
-                                display: flex;
-                            }
-
                             /* Estilo do tooltip */
                             .todas-categorias li,
                             .subcategorias li {
@@ -602,10 +867,13 @@
                             }
                         </style>
                         <li class="nav-item">
-                            <a class="nav-link d-flex" href="#">
-                                <i class='bx bx-menu fs-3 me-2' id="toggle-categories"></i>
-                                Todas as Categorias
-                            </a>
+                            <div class="nav-link">
+                                <a href="<?php echo INCLUDE_PATH_LOJA; ?>" class="d-flex">
+                                    <i class='bx bx-menu fs-3 me-2' id="toggle-categories"></i>
+                                    Todas as Categorias
+                                </a>
+                                <i class="bx bx-chevron-down nav-arrow"></i>
+                            </div>
                             <ul class="todas-categorias">
                                 <?php
                                     // Nome da tabela para a busca
@@ -692,10 +960,12 @@
                                 $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
                                 echo "<li class='nav-item d-flex'>";
-                                echo "<a class='nav-link d-flex align-items-center' href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>";
+                                echo "<div class='nav-link'>";
+                                echo "<a href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>";
                                 echo "<img src='" . INCLUDE_PATH_DASHBOARD . "back-end/category/" . $shop_id . "/icon/" . $category['icon'] . "' alt='Ícone " . $category['name'] . "' class='me-2' style='width: 32px; height: 32px;'>";
                                 echo $category['name'];
                                 echo "</a>";
+                                echo "</div>";
                                 if (!empty($subcategories)) { // Verifica se há resultados em $subcategories
                                     echo "<ul class='subcategorias'>"; // Abre a lista apenas se houver resultados
                                 
@@ -735,7 +1005,7 @@
 
                         $countArticles = $stmt->rowCount();
                     ?>
-                    <a href="<?php echo INCLUDE_PATH_LOJA; ?>blog/" class="btn btn-light d-flex justify-content-end align-items-center <?php echo ($countArticles == 0) ? "d-none" : ""; ?>">
+                    <a href="<?php echo INCLUDE_PATH_LOJA; ?>blog/" class="blog btn btn-light d-flex justify-content-end align-items-center <?php echo ($countArticles == 0) ? "d-none" : ""; ?>">
                         <img style="height: 28px; margin-right: 7px;" src="https://cdn.awsli.com.br/2544/2544943/arquivos/blog.svg">
                         <strong class="titulo text-dark">Blog</strong>
                     </a>
@@ -743,8 +1013,32 @@
             </div>
         </nav>
     </header>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Adiciona uma seta após as categorias que têm subcategorias
+    $('.categorias li:has(.subcategorias)').each(function() {
+        $(this).find('.nav-link').append('<i class="bx bx-chevron-down nav-arrow"></i>');
+    });
+
+    // Quando a seta é clicada, adiciona ou remove a classe showSubcategories ao li
+    $('.categorias li .nav-arrow').click(function(e) {
+        e.preventDefault();
+        var $li = $(this).closest('li');
+        if ($li.hasClass('showSubcategories')) {
+            $li.removeClass('showSubcategories');
+        } else {
+            $('.categorias li').removeClass('showSubcategories');
+            $li.addClass('showSubcategories');
+        }
+    });
+});
+</script>
     <main>
-        <div id="myCarousel" class="carousel slide mb-4" data-bs-ride="carousel" style="margin-top: <?php echo ($top_highlight_bar == 1) ? "186.39px" : "154.39px"; ?>;">
+        <div id="bannerCarousel" class="carousel slide mb-4" data-bs-ride="carousel" style="margin-top: <?php echo ($top_highlight_bar == 1) ? "186.39px" : "154.39px"; ?>;">
             <!-- Indicators (pontos de navegação) -->
             <ol class="carousel-indicators">
             <?php
@@ -771,7 +1065,7 @@
                         $currentId = $row['id'];
 
                         $active = ($contador == 0) ? 'active' : ''; // Adicione a classe active ao ID 1
-                        echo "<li data-bs-target='#myCarousel' data-bs-slide-to='" . $contador . "' class='" . $active . "'></li>";
+                        echo "<li data-bs-target='#bannerCarousel' data-bs-slide-to='" . $contador . "' class='" . $active . "'></li>";
 
                         $contador++;
                     }
@@ -835,7 +1129,7 @@
                         ?>
                         <a href="<?= $banner['link'] ?>" target="<?= $banner['target'] ?>">
                             <div class="carousel-item <?= $active ?>">
-                                <img src="<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>" alt="<?= $banner['name'] ?>" onload="switchImage(this, '<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>', '<?= $mobileBannerSrc ?>')" class="w-100" style="height: 535px; object-fit: cover;">
+                                <img src="<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>" alt="<?= $banner['name'] ?>" onload="switchImage(this, '<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>', '<?= $mobileBannerSrc ?>')" class="w-100" style="object-fit: cover;">
                             </div>
                         </a>
                         <?php
@@ -848,11 +1142,11 @@
             </div>
 
             <!-- Controles (setas de navegação) -->
-            <a class="carousel-control-prev banner-full" href="#myCarousel" role="button" data-bs-slide="prev">
+            <a class="carousel-control-prev banner-full" href="#bannerCarousel" role="button" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Anterior</span>
             </a>
-            <a class="carousel-control-next banner-full" href="#myCarousel" role="button" data-bs-slide="next">
+            <a class="carousel-control-next banner-full" href="#bannerCarousel" role="button" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Próximo</span>
             </a>
@@ -993,13 +1287,13 @@
                 include_once('pages/pagina.php');
             } elseif ($route === "blog" || $route === "blog/") {
                 // Remove o banner padrao da loja
-                echo '<script>document.getElementById("myCarousel").classList.add("d-none");</script>';
+                echo '<script>document.getElementById("bannerCarousel").classList.add("d-none");</script>';
 
                 // Página de detalhes da página
                 include_once('pages/blog.php');
             } elseif (@$article) {
                 // Remove o banner padrao da loja
-                echo '<script>document.getElementById("myCarousel").classList.add("d-none");</script>';
+                echo '<script>document.getElementById("bannerCarousel").classList.add("d-none");</script>';
 
                 // Página de detalhes da página
                 include_once('pages/artigo.php');
@@ -1025,7 +1319,7 @@
 
         <!-- Feed Instagram -->
         <style>
-            .item::before
+            #instafeed.item::before
             {
                 content: '';
                 position: absolute;
@@ -1036,7 +1330,7 @@
                 transition: .6s;
                 pointer-events: none;
             }
-            .item .bxl-instagram
+            #instafeed.item .bxl-instagram
             {
                 position: absolute;
                 left: 50%;
@@ -1048,11 +1342,11 @@
                 transition: .3s;
                 pointer-events: none;
             }
-            .item:hover .bxl-instagram
+            #instafeed.item:hover .bxl-instagram
             {
                 opacity: 1;
             }
-            .item:hover::before
+            #instafeed.item:hover::before
             {
                 opacity: .5;
             }
@@ -1079,8 +1373,6 @@
                 Obrigado por se inscrever! Aguarde novidades da nossa loja em breve.
             </p>
         </div>
-
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <script>
             $(document).ready(function() {
@@ -1146,7 +1438,7 @@
                 </a>
             </h1>
             <div class="row">
-                <div class="col-md-4" style="margin-bottom: 4rem;">
+                <div class="col-md-4 mb-3" style="margin-bottom: 4rem;">
                     <span class="titulo fw-semibold">Sobre a loja</span>
                     <p class="mt-3" id="meuParagrafo"></p>
                     <button class="btn btn-dark more mb-4" id="verMaisBotao">Ver Mais</button>
@@ -1253,11 +1545,19 @@
                                     </a>
                                 </li>
                             <?php endif; ?>
+
+                            <?php if (!empty($tiktok)) : ?>
+                                <li class="me-2">
+                                    <a href="<?php echo $tiktok; ?>" class="btn btn-dark fs-6" target="_blank" aria-label="Siga-nos no TikTok">
+                                        <i class='bx bxl-tiktok'></i>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-2 mb-3">
                     <span class="titulo fw-semibold">Categorias</span>
                     <ul class="total-itens_8 mt-3">
 
@@ -1299,7 +1599,7 @@
                     </ul>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <span class="titulo fw-semibold">Institucional</span>
                     <ul class="mt-3">
                         <?php
@@ -1332,7 +1632,7 @@
                     </ul>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <span class="titulo fw-semibold">Atendimento</span>
                     <ul class="contact mt-3">
                         <li class="<?php echo ($phone == "") ? "d-none" : ""; ?>">
@@ -1407,8 +1707,33 @@
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 
-    <!-- Inclua o JavaScript do Bootstrap (certifique-se de que jQuery esteja incluído) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Logo -->
+    <script>
+        function obterTamanhoDaTela() {
+            // Obtém a largura da pagina
+            var largura = window.innerWidth;
+
+            // Obtém o elemento de imagem pelo ID
+            var imagemElement = document.getElementById('logo');
+
+            // Mobile Logo
+            var mobileLogo = '<?php echo $logo_mobile; ?>';
+
+            if (largura <= 768 && mobileLogo !== "") {
+                imagemElement.src = '<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo_mobile; ?>';
+            }
+            else
+            {
+                imagemElement.src = '<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/logos/' . $shop_id . '/' . $logo; ?>';
+            }
+        }
+
+        // Adiciona um ouvinte de evento para o redimensionamento da janela
+        window.addEventListener("resize", obterTamanhoDaTela);
+
+        // Chama a função para obter o tamanho da tela inicial
+        obterTamanhoDaTela();
+    </script>
 
     <!-- Mostrar menu categorias -->
     <script>
@@ -1430,23 +1755,163 @@
         });
     </script>
 
+    <!-- Mostrar/Fechar modais mobile -->
+    <script>
+        $(document).ready(function() {
+            // Mostrar ou fechar modal action mobile
+            $('.navActionModalButton').on('click', function() {
+                $('body').toggleClass('overflow-hidden');
+                $('#actionContainer').toggleClass('showActionContainer');
+                $('#actionModal').toggleClass('showActionModal');
+                $('.navActionModalButton').toggleClass('active');
+
+                // Fechar outros elementos
+                $('#search').removeClass('showSearch');
+                $('.navSearchButton').removeClass('active');
+                $('#navCategories').removeClass('showCategories');
+                $('.navCategoriesButton i').removeClass('bx-x').addClass('bx-menu');
+            });
+
+            // Mostrar ou fechar search mobile
+            $('.navSearchButton').on('click', function() {
+                $('#search').toggleClass('showSearch');
+                $('.navSearchButton').toggleClass('active');
+
+                // Fechar outros elementos
+                $('body').removeClass('overflow-hidden');
+                $('#actionContainer').removeClass('showActionContainer');
+                $('#actionModal').removeClass('showActionModal');
+                $('.navActionModalButton').removeClass('active');
+                $('#navCategories').removeClass('showCategories');
+                $('.navCategoriesButton i').removeClass('bx-x').addClass('bx-menu');
+            });
+
+            // Mostrar ou fechar menu categorias mobile
+            $('.navCategoriesButton').on('click', function() {
+                $('body').toggleClass('overflow-hidden');
+                $('#navCategories').toggleClass('showCategories');
+                $('.navCategoriesButton i').toggleClass('bx-menu bx-x');
+
+                // Fechar outros elementos
+                $('#search').removeClass('showSearch');
+                $('.navSearchButton').removeClass('active');
+                $('#actionContainer').removeClass('showActionContainer');
+                $('#actionModal').removeClass('showActionModal');
+                $('.navActionModalButton').removeClass('active');
+            });
+        });
+    </script>
+
+
+    <?php if (strpos($url, $substring_article) == false) { ?>
     <script>
         // Ative o carrossel
-        var meuCarrossel = new bootstrap.Carousel(document.getElementById('myCarousel'), {
-            interval: 2000, // Tempo de exibição de cada slide em milissegundos (opcional)
+        var bannerCarousel = new bootstrap.Carousel(document.getElementById('bannerCarousel'), {
+            interval: 3000, // Tempo de exibição de cada slide em milissegundos (opcional)
             wrap: true // Se o carrossel deve voltar ao primeiro slide após o último (opcional)
         });
     </script>
+    <?php } ?>
+
+    <!-- Responsive Carrossel -->
     <script>
-        var carouselProdutos = new bootstrap.Carousel(document.getElementById('carouselProdutos'), {
-            interval: 3000, // Tempo de exibição de cada produto em milissegundos (opcional)
-            wrap: true // Se o carrossel deve voltar ao primeiro produto após o último (opcional)
+        // Obtem o tamanho da imagem do produto  
+        function obterTamanhoDaImagem() {
+            // Obter a largura do elemento com id "meuDiv"
+            var larguraDoDiv = $('.product-image').width();
+
+            $('.product-image .card-img-top').css('height', larguraDoDiv);
+        }
+
+        // Função para verificar o tamanho da tela
+        function verificarTamanhoDaTela() {
+            // Obter a largura da tela
+            var larguraDaTela = $(window).width();
+
+            // Fazer algo com a largura, por exemplo, exibir um alerta
+            if (larguraDaTela < 576) {
+                $('.numBanner').removeClass('col-sm-3');
+                $('.numBanner').removeClass('col-sm-4');
+                $('.numBanner').removeClass('col-sm-6');
+
+                $('.numBanner').addClass('col-sm-12');
+            } else if (larguraDaTela < 992) {
+                $('.numBanner').removeClass('col-sm-3');
+                $('.numBanner').removeClass('col-sm-4');
+                $('.numBanner').removeClass('col-sm-12');
+
+                $('.numBanner').addClass('col-sm-6');
+            } else if (larguraDaTela < 1024) {
+                $('.numBanner').removeClass('col-sm-3');
+                $('.numBanner').removeClass('col-sm-6');
+                $('.numBanner').removeClass('col-sm-12');
+
+                $('.numBanner').addClass('col-sm-4');
+            } else {
+                $('.numBanner').removeClass('col-sm-4');
+                $('.numBanner').removeClass('col-sm-6');
+                $('.numBanner').removeClass('col-sm-12');
+
+                $('.numBanner').addClass('col-sm-3');
+            }
+        }
+
+        // Chamar a função ao carregar a página
+        $(document).ready(function() {
+            obterTamanhoDaImagem();
+            verificarTamanhoDaTela();
+        });
+
+        // Chamar a função ao redimensionar a tela
+        $(window).resize(function() {
+            obterTamanhoDaImagem();
+            verificarTamanhoDaTela();
         });
     </script>
+
+    <!-- Owl Carousel -->
+    <!-- Inclua o script do Owl Carousel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
     <script>
-        var blogCarrossel = new bootstrap.Carousel(document.getElementById('blogCarousel'), {
-            interval: 2000, // Tempo de exibição de cada slide em milissegundos (opcional)
-            wrap: true // Se o carrossel deve voltar ao primeiro slide após o último (opcional)
+        // Inicialize o carrossel
+        $('#categoriesCarousel').owlCarousel({
+            loop: false, // Loop infinito
+            margin: 15, // Espaçamento entre os itens
+            nav: true, // Navegação (setas)
+            responsive: { // Configurações responsivas
+                0: { // Quando a largura da tela for menor que 600px
+                    items: 2 // Mostrar apenas 1 item por vez
+                },
+                600: { // Quando a largura da tela for igual ou maior que 600px
+                    items: 2 // Mostrar 2 itens por vez
+                },
+                768: { // Quando a largura da tela for igual ou maior que 768px
+                    items: 4 // Mostrar 3 itens por vez
+                },
+                1200: { // Quando a largura da tela for igual ou maior que 1200px
+                    items: 6 // Mostrar 4 itens por vez
+                }
+            }
+        });
+    </script>
+
+    <script>
+        // Inicialize o carrossel
+        $('#testimonyCarousel').owlCarousel({
+            loop: false, // Loop infinito
+            margin: 15, // Espaçamento entre os itens
+            nav: true, // Navegação (setas)
+            autoplay: true, // Ativar autoplay
+            autoplayTimeout: 3000, // Tempo em milissegundos entre cada transição de slide
+            responsive: { // Configurações responsivas
+                0: { // Quando a largura da tela for menor que 768px
+                    items: 2 // Mostrar apenas 2 item por vez
+                },
+                768: { // Quando a largura da tela for igual ou maior que 768px
+                    items: 3 // Mostrar 3 itens por vez
+                }
+            }
         });
     </script>
 
@@ -1459,7 +1924,7 @@
     </script>
 
     <!-- Nav Categorias -->
-    <script>
+    <!-- <script>
         $(document).ready(function () {
             $('.categorias li').hover(
                 function () {
@@ -1470,9 +1935,11 @@
                 }
             );
         });
-    </script>
+    </script> -->
 
     <!-- Feed Instagram -->
+    <?php if (!empty($token_instagram)) { ?>
+
     <script type="text/javascript" src="js/instafeed.min.js"></script>
 
     <script src="js/jquery.min.js"></script>
@@ -1484,7 +1951,7 @@
             limit: 8,
             template: '<div class="item"><i class="bx bxl-instagram"></i><a href="{{link}}" target="_blank"><img title="{{caption}}" src="{{image}}" /></a></div>',
             after: function () {
-                $('.owl-carousel').owlCarousel({
+                $('#instafeed').owlCarousel({
                     loop: true,
                     nav: true,
                     responsiveClass: true,
@@ -1522,6 +1989,8 @@
         // Chame a função para obter e exibir o nome de usuário
         getUsername();
     </script>
+
+    <?php } ?>
 
     <!-- Ocultar categorias -->
     <script>

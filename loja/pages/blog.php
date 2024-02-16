@@ -201,3 +201,13 @@
         </div>
     </div>
 </div>
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+
+<script>
+    var blogCarrossel = new bootstrap.Carousel(document.getElementById('blogCarousel'), {
+        interval: 2000, // Tempo de exibição de cada slide em milissegundos (opcional)
+        wrap: true // Se o carrossel deve voltar ao primeiro slide após o último (opcional)
+    });
+</script>

@@ -223,6 +223,9 @@ input[type=checkbox], input[type=radio] {
 .row {
   --bs-gutter-x: 30px; }
 
+.row.g-2 {
+  --bs-gutter-x: .5rem; }
+
 .no-gap {
   --bs-gutter-x: 0; }
 

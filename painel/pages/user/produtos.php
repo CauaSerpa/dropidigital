@@ -1,4 +1,3 @@
-
 <?php
         // Nome da tabela para a busca
         $tabela = 'tb_products';
@@ -178,11 +177,18 @@
                     // Nome da tabela para a busca
                     $tabela = 'tb_products';
 
-                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                    // Configuração para paginação
+                    $limite = isset($_GET['limite']) ? intval($_GET['limite']) : 10;
+                    $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+                    $inicioConsulta = ($paginaAtual - 1) * $limite;
+
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT :inicioConsulta, :limite";
 
                     // Preparar e executar a consulta
                     $stmt = $conn_pdo->prepare($sql);
                     $stmt->bindParam(':shop_id', $id);
+                    $stmt->bindParam(':inicioConsulta', $inicioConsulta, PDO::PARAM_INT);
+                    $stmt->bindParam(':limite', $limite, PDO::PARAM_INT);
                     $stmt->execute();
 
                     // Recuperar os resultados
@@ -196,6 +202,11 @@
 
                         // Transforma o número no formato "R$ 149,90"
                         $price = "R$ " . number_format($preco, 2, ",", ".");
+
+                        $price = ($usuario['without_price'] == 1) ? "--" : $price;
+
+                        // SKU
+                        $sku = ($usuario['sku'] == "") ? "--" : $usuario['sku'];
 
                         //Formatacao para data
                         $date_create = date("d/m/Y", strtotime($usuario['date_create']));
@@ -235,26 +246,57 @@
                                     <td>' . $price . '</td>';
 
                         // Nome da tabela para a busca
-                        $tabela = 'tb_categories';
+                        $tabela = 'tb_product_categories';
 
-                        $sql = "SELECT (name) FROM $tabela WHERE id = :id ORDER BY id DESC";
+                        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id ORDER BY (main = 1) DESC";
 
                         // Preparar e executar a consulta
                         $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':id', $usuario['categories']);
+                        $stmt->bindParam(':shop_id', $id);
+                        $stmt->bindParam(':product_id', $usuario['id']);
                         $stmt->execute();
 
                         // Recuperar os resultados
-                        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        $productsCategory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                        foreach ($categories as $category) {
-                            echo "<td>";
-                            echo $category['name'];
-                            echo "</td>";
+                        // Inicia a classe primeiro elemento
+                        $primeiroElemento = true;
+
+                        echo "<td style='max-width: 50px;'>";
+
+                        if ($productsCategory) {
+                            foreach ($productsCategory as $productCategory) {
+
+                                // Nome da tabela para a busca
+                                $tabela = 'tb_categories';
+
+                                $sql = "SELECT (name) FROM $tabela WHERE shop_id = :shop_id AND id = :id ORDER BY id DESC";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindParam(':shop_id', $id);
+                                $stmt->bindParam(':id', $productCategory['category_id']);
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                foreach ($categories as $category) {
+                                    echo (!$primeiroElemento) ? ", " : "";
+
+                                    echo $category['name'];
+
+                                    $primeiroElemento = false;
+                                }
+                            }
+                        } else {
+                            echo "--";
                         }
 
+                        echo "</td>";
+
                         echo '
-                                    <td>' . $usuario['sku'] . '</td>
+                                    <td>' . $sku . '</td>
                                     <td>' . $date_create . '</td>
                                     <td>
                                         <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-produto?id=' . $usuario['id'] . '" class="btn btn-primary">
@@ -275,13 +317,13 @@
                 <div class="left">
                     <div class="container__button">
                         <div class="limitPageDropdown dropdown button button--flex select">
-                            <input type="text" class="text02" placeholder="10" readonly="">
+                            <input type="text" class="text02" value="<?php echo $limite; ?>" readonly>
                             <div class="option">
-                                <div onclick="show('10')">10</div>
-                                <div onclick="show('20')">20</div>
-                                <div onclick="show('30')">30</div>
-                                <div onclick="show('40')">40</div>
-                                <div onclick="show('50')">50</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 10) ? "selected" : "" ; ?>" data-value="10">10</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 20) ? "selected" : "" ; ?>" data-value="20">20</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 30) ? "selected" : "" ; ?>" data-value="30">30</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 40) ? "selected" : "" ; ?>" data-value="40">40</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 50) ? "selected" : "" ; ?>" data-value="50">50</div>
                             </div>
                         </div>
                         <label>Produtos por página</label>
@@ -289,7 +331,23 @@
                 </div>
                 <div class="right grid">
                     <div class="controller">
-                        <span class="analog pag-link active pag-link">1</span>
+                        <?php
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_products';
+
+                            // Lógica para exibição dos links de páginação
+                            $sql = "SELECT COUNT(*) as total FROM $tabela WHERE shop_id = :shop_id";
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $id);
+                            $stmt->execute();
+                            $totalProdutos = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                            $totalPaginas = ceil($totalProdutos / $limite);
+
+                            for ($i = 1; $i <= $totalPaginas; $i++) {
+                                $classeAtiva = ($i == $paginaAtual) ? "active" : "";
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . '" class="analog pag-link ' . $classeAtiva . '">' . $i . '</a>';
+                            }
+                        ?>
                     </div>
                 </div>
             <?php
@@ -309,6 +367,15 @@
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Adicionar um ouvinte de evento para a mudança de produtos por página
+    $(".alterar-produtos-por-pagina").on("click", function() {
+        var novoslimite = parseInt($(this).data("value"));
+        var url = window.location.href.split('?')[0];
+        window.location.href = url + "?limite=" + novoslimite + "&pagina=1";
+    });
+</script>
 
 <script>
     $(document).ready(function() {

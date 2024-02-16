@@ -351,9 +351,6 @@
     <li class="nav-item">
         <a class="nav-link <?php echo ($tab == "historico-de-faturas") ? "active" : ""; ?>" id="historico-de-faturas" onclick="changeTab('historico-de-faturas')" data-bs-toggle="tab" data-bs-target="#invoice-tab-pane" type="button" role="tab" aria-controls="invoice-tab-pane" aria-selected="<?php echo ($tab == "historico-de-faturas") ? "true" : "false"; ?>">Histórico de Faturas</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link <?php echo ($tab == "seguranca") ? "active" : ""; ?>" id="seguranca" onclick="changeTab('seguranca')" data-bs-toggle="tab" data-bs-target="#security-tab-pane" type="button" role="tab" aria-controls="security-tab-pane" aria-selected="<?php echo ($tab == "seguranca") ? "true" : "false"; ?>">Segurança</a>
-    </li>
 </ul>
 
 <div class="tab-content" id="myTabContent">
@@ -486,20 +483,40 @@
     // Nome da tabela para a busca
     $tabela = 'tb_domains';
 
+    // Consulta para obter o domínio que não seja "dropidigital.com.br"
     $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain != :domain";
-
-    // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':shop_id', $shop['id']);
     $stmt->bindValue(':domain', "dropidigital.com.br");
     $stmt->execute();
+    $domainWithoutDropi = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Recuperar os resultados
-    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Consulta para obter o domínio que seja "dropidigital.com.br"
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain";
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop['id']);
+    $stmt->bindValue(':domain', "dropidigital.com.br");
+    $stmt->execute();
+    $domainWithDropi = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($domain) {
-        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
-        $domain_url = $subdomain . $domain['domain'];
+    // Definir o domínio final com base nos resultados
+    if ($domainWithoutDropi) {
+        $subdomain = ($domainWithoutDropi['subdomain'] !== "www") ? $domainWithoutDropi['subdomain'] . "." : "";
+        $domain_url = $subdomain . $domainWithoutDropi['domain'];
+        $subdomain = $domainWithDropi['subdomain'] . "." . $domainWithDropi['domain'];
+
+        $domain = $domainWithoutDropi;
+    } else {
+        $domain_url = $domainWithDropi['subdomain'] . "." . $domainWithDropi['domain'];
+        $subdomain = $domain_url;
+
+        $domain = $domainWithDropi;
+
+        $domain['configure_date'] = $domain['register_date'];
+        $domain['active_date'] = $domain['register_date'];
+
+        $domain['configure'] = 1;
+        $domain['status'] = 1;
     }
 ?>
 
@@ -558,31 +575,10 @@
                         </ul>
                     </div>
                     
-                    <div class="line my-3"></div>
+                    <div class="line my-3 <?php echo (!$domainWithoutDropi) ? "d-none" : ""; ?>"></div>
 
-<?php
-    // Nome da tabela para a busca
-    $tabela = 'tb_domains';
-
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain";
-
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':shop_id', $shop['id']);
-    $stmt->bindValue(':domain', "dropidigital.com.br");
-    $stmt->execute();
-
-    // Recuperar os resultados
-    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($domain) {
-        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
-        $subdomain_url = $subdomain . $domain['domain'];
-    }
-?>
-
-                    <div class="d-flex align-items-center mb-3">
-                        <a href="<?php echo "https://" . $subdomain_url; ?>" target="_black" class="domain d-inline-flex align-items-center fs-5 fw-semibold" style="color: var(--bs-body-color);"><?php echo $subdomain_url; ?></a>
+                    <div class="d-flex align-items-center mb-3 <?php echo (!$domainWithoutDropi) ? "d-none" : ""; ?>">
+                        <a href="<?php echo "https://" . $subdomain; ?>" target="_black" class="domain d-inline-flex align-items-center fs-5 fw-semibold" style="color: var(--bs-body-color);"><?php echo $subdomain; ?></a>
                         <i class='bx bxs-copy fs-4 ms-1' id="copySubdomain"></i>
                     </div>
                 </div>
@@ -592,10 +588,7 @@
     </div>
 
     <input type="hidden" id="domain" value="<?php echo $domain_url; ?>">
-    <input type="hidden" id="subdomain" value="<?php echo $subdomain_url; ?>">
-
-    <input type="hidden" name="id" value="<?php echo $id; ?>">
-    <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+    <input type="hidden" id="subdomain" value="<?php echo $subdomain; ?>">
 
 </form>
 </div>
@@ -797,74 +790,6 @@
             ?>
         </div>
     </div>
-</div>
-
-<div class="tab-pane fade <?php echo ($tab == "seguranca") ? "show active" : ""; ?>" id="security-tab-pane" role="tabpanel" aria-labelledby="security-tab" tabindex="0">
-<form id="editPassword" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_password.php" method="post">
-    <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Alterar Senha</div>
-        <div class="card-body row px-4 py-3">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="password" class="form-label small">Senha atual</label>
-                    <div class="position-relative">
-                        <input type="password" class="form-control" name="currentPassword" id="password" aria-describedby="passwordHelp">
-                        <button type="button" class="btn toggle-password" data-target="#password">
-                            <i class='bx bx-show-alt' ></i>
-                        </button>
-                        <small id="password-error" class="invalid-feedback"></small>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="newPassword" class="form-label small">Nova senha</label>
-                    <div class="position-relative">
-                        <input type="password" class="form-control" name="newPassword" id="newPassword" aria-describedby="passwordHelp">
-                        <button type="button" class="btn toggle-password" data-target="#newPassword">
-                            <i class='bx bx-show-alt' ></i>
-                        </button>
-                        <small id="new-password-error" class="invalid-feedback"></small>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="confirmNewPassword" class="form-label small">Confirmar nova senha</label>
-                    <div class="position-relative">
-                        <input type="password" class="form-control" name="confirmNewPassword" id="confirmNewPassword" aria-describedby="passwordHelp">
-                        <button type="button" class="btn toggle-password" data-target="#confirmNewPassword">
-                            <i class='bx bx-show-alt' ></i>
-                        </button>
-                        <small id="confirm-new-password-error" class="invalid-feedback"></small>
-                    </div>
-                </div>
-
-                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-    
-                <button type="submit" name="buttonUpdPassword" id="buttonUpdPassword" class="btn btn-success fw-semibold px-4 py-2 small disabled">Salvar</button>
-            </div>
-        </div>
-    </div>
-</form>
-
-<form id="toggleTwoFactors" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/toggle_two_factors.php" method="post">
-    <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Autenticação de dois fatores</div>
-        <div class="card-body row px-4 py-3">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="activeTheme" class="form-label small">Ativar autenticação de dois fatores?</label>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="active2fa" role="switch" id="active2fa" value="1" <?php echo ($user['two_factors'] == 1) ? "checked" : ""; ?> <?php echo ($user['active_email'] !== 1) ? "disabled" : ""; ?>>
-                        <label class="form-check-label" id="text2fa" for="active2fa"><?php echo ($user['two_factors'] == 1) ? "Sim" : "Não"; ?></label>
-                    </div>
-                    <small class="<?php echo ($user['active_email'] == 1) ? "d-none" : ""; ?>">É necessário verificar seu e-mail antes! <a href="#" class="link">Reenviar E-mail</a></small>
-                </div>
-
-                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-
-                <button type="submit" name="SendEmail" class="btn btn-success fw-semibold px-4 py-2 small <?php echo ($user['active_email'] !== 1) ? "disabled" : ""; ?>">Salvar</button>
-            </div>
-        </div>
-    </div>
-</form>
 </div>
 
 </div>

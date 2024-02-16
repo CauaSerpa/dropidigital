@@ -463,7 +463,7 @@
                     <div class="center-text" id="text-1">
                         <i class='bx bx-image fs-1'></i>
                         <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
-                        <small>Dimensões: 1920 x 535px</small>
+                        <small id="dimensions">Dimensões: 1920 x 535px</small>
                     </div>
                 </label>
                 <input type="file" name="image" accept="image/*" class="file-input" id="file-input-1">
@@ -587,9 +587,13 @@
 
         $("#location").change(function() {
             if ($(this).val() === "full-banner") {
+                $('#dimensions').text('Dimensões: 1920 x 535px');
+
                 $("#addMobileBanner").removeClass("d-none");
                 $("#addMobileBanner").addClass("d-flex");
             } else {
+                $('#dimensions').text('Dimensões: 500 x 200px');
+
                 $("#addMobileBanner").removeClass("d-flex");
                 $("#addMobileBanner").addClass("d-none");
 
