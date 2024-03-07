@@ -71,8 +71,8 @@
 
     // Acessa o IF quando o usuário clicar no botão
     if (empty($dados['SendAddProduct'])) {
-        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, name, link, price, without_price, discount, video, description, sku, button_type, redirect_link, seo_name, seo_link, seo_description) VALUES 
-                                    (:shop_id, :status, :emphasis, :name, :link, :price, :without_price, :discount, :video, :description, :sku, :button_type, :redirect_link, :seo_name, :seo_link, :seo_description)";
+        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, name, price, without_price, discount, video, description, sku, button_type, redirect_link, seo_name, link, seo_description) VALUES 
+                                    (:shop_id, :status, :emphasis, :name, :price, :without_price, :discount, :video, :description, :sku, :button_type, :redirect_link, :seo_name, :link, :seo_description)";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -80,7 +80,6 @@
         $stmt->bindValue(':status', $status);
         $stmt->bindValue(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
-        $stmt->bindParam(':link', $dados['link']);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':without_price', $without_price);
         $stmt->bindParam(':discount', $discount);
@@ -90,7 +89,7 @@
         $stmt->bindParam(':button_type', $dados['button_type']);
         $stmt->bindParam(':redirect_link', $redirect_link);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
-        $stmt->bindParam(':seo_link', $dados['seo_link']);
+        $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
 
         $stmt->execute();

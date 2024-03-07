@@ -697,7 +697,7 @@ if(!empty($id)){
                     </div>
                     <div class="mb-3">
                         <label for="textInput2" class="form-label small">Link da página</label>
-                        <input type="text" class="form-control" name="seo_link" id="textInput2" placeholder="link-da-pagina" aria-label="link-da-pagina" aria-describedby="emailHelp" value="<?php echo $product['seo_link']; ?>">
+                        <input type="text" class="form-control" name="seo_link" id="textInput2" placeholder="link-da-pagina" aria-label="link-da-pagina" aria-describedby="emailHelp" value="<?php echo $product['link']; ?>">
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
@@ -711,15 +711,14 @@ if(!empty($id)){
                     <label for="exampleInputEmail2" class="form-label small">Visualização</label>
                     <div class="seo-preview p-3 rounded-2">
                         <h5 class="mb-0" id="textPreview1"><?php echo ($product['seo_name'] == "") ? $product['seo_name'] : "Título da página"; ?></h5>
-                        <p class="text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="textPreview2">link-da-pagina</span></p>
-                        <p class="small" id="textPreview3">Descrição da página</p>
+                        <p class="text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="textPreview2"><?php echo ($product['link'] == "") ? $product['link'] : "link-da-pagina"; ?></span></p>
+                        <p class="small" id="textPreview3"><?php echo ($product['seo_description'] == "") ? $product['seo_description'] : "Descrição da página"; ?></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <input type="hidden" name="link" id="link" value="<?php echo $product['link']; ?>">
+
     <input type="hidden" name="delete_images" id="delete-images-input">
     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
@@ -1498,7 +1497,6 @@ if(!empty($id)){
         valor = valor.replace(/\s+/g, "-").toLowerCase();
 
         span.text(valor);
-        $('#link').val(valor);
     }
 
     $(document).ready(function() {
@@ -1615,7 +1613,6 @@ if(!empty($id)){
         // Selecione o campo de entrada e o span
         var input = $("#name");
         var span = $("#linkPreview");
-        var inputPreview = $("#link");
 
         var inputText2 = $('#textInput2');
         var textPreview2 = $('#textPreview2');
@@ -1627,7 +1624,6 @@ if(!empty($id)){
             value = removerAcentosEespacos(value);
             
             span.text(value);
-            inputPreview.val(value);
 
             inputText2.val(value);
             textPreview2.text(value);
@@ -1950,6 +1946,7 @@ imageDisplay.addEventListener("click", (event) => {
         var inputText3 = $('#textInput3');
         var textPreview1 = $('#textPreview1');
         var textPreview2 = $('#textPreview2');
+        var linkPreview = $('#linkPreview');
         var textPreview3 = $('#textPreview3');
 
         inputText1.on('input', function () {
@@ -1964,12 +1961,13 @@ imageDisplay.addEventListener("click", (event) => {
             var text = inputText2.val();
             if (text === '') {
                 text = 'link-da-categoria';
+                linkPreview.text('...');
             }
             // Remover acentos e substituir espaços por traço
             newText = removerAcentosEespacos(text);
             $(this).val($(this).val().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
-            $('#link').val(newText);
+            linkPreview.text(newText);
         });
 
         inputText3.on('input', function () {
@@ -1995,7 +1993,7 @@ imageDisplay.addEventListener("click", (event) => {
 </script>
 
 <!-- SEO -->
-<script>
+<!-- <script>
     $(document).ready(function(){
         var inputText1 = $('#textInput1');
         var inputText2 = $('#textInput2');
@@ -2030,7 +2028,7 @@ imageDisplay.addEventListener("click", (event) => {
             textPreview3.text(newText);
         });
     });
-</script>
+</script> -->
 
 <!-- Text Counter -->
 <script>

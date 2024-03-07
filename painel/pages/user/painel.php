@@ -470,6 +470,9 @@
 
     // Calcula a porcentagem de dias restantes
     $percentDays = ($diferencaEmDias / $diasTotais) * 100;
+
+    // Verifica se undefined é igual a 1
+    $mensagemDiasRestantes = ($subs['undefined'] == 1) ? "Indefinido" : $diferencaEmDias . " dias";
 ?>
 
 
@@ -502,7 +505,7 @@
                     </div>
                 </div>
                 <div class="text line-height">
-                    <h4 class="fw-semibold mb-0"><?php echo $diferencaEmDias; ?> dias</h4>
+                    <h4 class="fw-semibold mb-0"><?php echo $mensagemDiasRestantes; ?></h4>
                     <p class="fs-6">para finalizar o ciclo</p>
                     <span class="warning">Seu plano <?php echo $plan_name; ?> será renovado automaticamente.</span>
                 </div>
@@ -700,6 +703,11 @@
                     // Transforma o número no formato "R$ 149,90"
                     $price = "R$ " . number_format($preco, 2, ",", ".");
 
+                    $price = ($usuario['without_price'] == 1) ? "--" : $price;
+
+                    // SKU
+                    $sku = ($usuario['sku'] == "") ? "--" : $usuario['sku'];
+
                     //Formatacao para data
                     $date_create = date("d/m/Y", strtotime($usuario['date_create']));
 
@@ -720,9 +728,13 @@
                     // Recuperar os resultados
                     $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Loop através dos resultados e exibir todas as colunas
-                    foreach ($imagens as $imagem) {
-                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
+                    if ($imagens) {
+                        // Loop através dos resultados e exibir todas as colunas
+                        foreach ($imagens as $imagem) {
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
+                        }
+                    } else {
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
                     }
                     
                     echo '
@@ -731,26 +743,57 @@
                                 <td>' . $price . '</td>';
 
                     // Nome da tabela para a busca
-                    $tabela = 'tb_categories';
+                    $tabela = 'tb_product_categories';
 
-                    $sql = "SELECT (name) FROM $tabela WHERE id = :id ORDER BY id DESC";
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id ORDER BY (main = 1) DESC";
 
                     // Preparar e executar a consulta
                     $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':id', $usuario['categories']);
+                    $stmt->bindParam(':shop_id', $id);
+                    $stmt->bindParam(':product_id', $usuario['id']);
                     $stmt->execute();
 
                     // Recuperar os resultados
-                    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $productsCategory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    foreach ($categories as $category) {
-                        echo "<td>";
-                        echo $category['name'];
-                        echo "</td>";
+                    // Inicia a classe primeiro elemento
+                    $primeiroElemento = true;
+
+                    echo "<td style='max-width: 50px;'>";
+
+                    if ($productsCategory) {
+                        foreach ($productsCategory as $productCategory) {
+
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_categories';
+
+                            $sql = "SELECT (name) FROM $tabela WHERE shop_id = :shop_id AND id = :id ORDER BY id DESC";
+
+                            // Preparar e executar a consulta
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $id);
+                            $stmt->bindParam(':id', $productCategory['category_id']);
+                            $stmt->execute();
+
+                            // Recuperar os resultados
+                            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            foreach ($categories as $category) {
+                                echo (!$primeiroElemento) ? ", " : "";
+
+                                echo $category['name'];
+
+                                $primeiroElemento = false;
+                            }
+                        }
+                    } else {
+                        echo "--";
                     }
-        
+
+                    echo "</td>";
+
                     echo '
-                                <td>' . $usuario['sku'] . '</td>
+                                <td>' . $sku . '</td>
                                 <td>' . $date_create . '</td>
                             </tr>
                         </tbody>

@@ -125,11 +125,18 @@
                             // Nome da tabela para a busca
                             $tabela = 'tb_categories';
 
-                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                            // Configuração para paginação
+                            $limite = isset($_GET['limite']) ? intval($_GET['limite']) : 10;
+                            $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+                            $inicioConsulta = ($paginaAtual - 1) * $limite;
+
+                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT :inicioConsulta, :limite";
 
                             // Preparar e executar a consulta
                             $stmt = $conn_pdo->prepare($sql);
                             $stmt->bindParam(':shop_id', $id);
+                            $stmt->bindParam(':inicioConsulta', $inicioConsulta, PDO::PARAM_INT);
+                            $stmt->bindParam(':limite', $limite, PDO::PARAM_INT);
                             $stmt->execute();
 
                             // Recuperar os resultados
@@ -165,20 +172,38 @@
                 <div class="left">
                     <div class="container__button">
                         <div class="limitPageDropdown dropdown button button--flex select">
-                            <input type="text" class="text02" placeholder="10" readonly="">
+                            <input type="text" class="text02" value="<?php echo $limite; ?>" readonly>
                             <div class="option">
-                                <div onclick="show('10')">10</div>
-                                <div onclick="show('20')">20</div>
-                                <div onclick="show('30')">30</div>
-                                <div onclick="show('40')">40</div>
-                                <div onclick="show('50')">50</div>
+                                <div class="alterar-categorias-por-pagina <?php echo ($limite == 10) ? "selected" : "" ; ?>" data-value="10">10</div>
+                                <div class="alterar-categorias-por-pagina <?php echo ($limite == 20) ? "selected" : "" ; ?>" data-value="20">20</div>
+                                <div class="alterar-categorias-por-pagina <?php echo ($limite == 30) ? "selected" : "" ; ?>" data-value="30">30</div>
+                                <div class="alterar-categorias-por-pagina <?php echo ($limite == 40) ? "selected" : "" ; ?>" data-value="40">40</div>
+                                <div class="alterar-categorias-por-pagina <?php echo ($limite == 50) ? "selected" : "" ; ?>" data-value="50">50</div>
                             </div>
                         </div>
-                        <label>Produtos por página</label>
+                        <label>Categorias por página</label>
                     </div>
                 </div>
                 <div class="right grid">
-                    <div class="controller"><span class="analog pag-link active pag-link">1</span></div>            
+                    <div class="controller">
+                        <?php
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_categories';
+
+                            // Lógica para exibição dos links de páginação
+                            $sql = "SELECT COUNT(*) as total FROM $tabela WHERE shop_id = :shop_id";
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $id);
+                            $stmt->execute();
+                            $totalCategorias = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                            $totalPaginas = ceil($totalCategorias / $limite);
+
+                            for ($i = 1; $i <= $totalPaginas; $i++) {
+                                $classeAtiva = ($i == $paginaAtual) ? "active" : "";
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . '" class="analog pag-link ' . $classeAtiva . '">' . $i . '</a>';
+                            }
+                        ?>
+                    </div>
                 </div>
             </div>
             <?php
@@ -202,6 +227,16 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <!-- Ajax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+
+<script>
+    // Adicionar um ouvinte de evento para a mudança de categorias por página
+    $(".alterar-categorias-por-pagina").on("click", function() {
+        var novoslimite = parseInt($(this).data("value"));
+        var url = window.location.href.split('?')[0];
+        window.location.href = url + "?limite=" + novoslimite + "&pagina=1";
+    });
+</script>
 
 <script>
     $(document).ready(function() {

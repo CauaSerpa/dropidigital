@@ -46,7 +46,7 @@
             // Nome da tabela para a busca
             $tabela = 'tb_subscriptions';
     
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC LIMIT 1";
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT 1";
     
             // Preparar e executar a consulta
             $stmt = $conn_pdo->prepare($sql);
@@ -74,7 +74,7 @@
             $tabelaInterval = 'tb_plans_interval';
             $tabelaPlans = 'tb_plans';
     
-            $sql = "SELECT p.name
+            $sql = "SELECT p.id, p.name
                     FROM $tabelaInterval i
                     JOIN $tabelaPlans p ON i.plan_id = p.id
                     WHERE i.id = :id
@@ -89,7 +89,7 @@
             $plan = $stmt->fetch(PDO::FETCH_ASSOC);
     
             if ($plan) {
-                $plan = $plan['name'];
+                $shopPlan = $plan['name'];
             }
 ?>
 
@@ -294,6 +294,148 @@
 </form>
 </div>
 
+<?php
+    date_default_timezone_set('America/Sao_Paulo');
+
+    $today = new DateTime();
+    $date = $today->format("Y-m-d");
+?>
+
+<div class="modal fade" id="editShopPlan" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="editShopPlanForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_shop_plan.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Editar Plano
+                </div>
+            </div>
+            <div class="modal-body row px-4 py-3">
+                <div class="mb-3">
+                    <label for="plan_id" class="form-label small">Plano *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="plan_id" id="plan_id" required>
+                            <option value="" disabled>Selecione o plano</option>
+                            <?php
+                                // Aqui você pode popular a tabela com dados do banco de dados
+                                // Vamos supor que cada linha tem um ID únic
+
+                                // Nome da tabela para a busca
+                                $tabelaInterval = 'tb_plans_interval';
+                                $tabelaPlans = 'tb_plans';
+
+                                // id do plano
+                                $shop['plan_id'] = ($sub['cycle'] == "MONTHLY") ? $shop['plan_id'] : ($shop['plan_id'] - 1);
+
+                                $sql = "SELECT i.id, p.name
+                                    FROM $tabelaInterval i
+                                    JOIN $tabelaPlans p ON i.plan_id = p.id
+                                    WHERE i.billing_interval = :billing_interval
+                                    ORDER BY p.id ASC";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindValue(':billing_interval', 'monthly');
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                if ($stmt->rowCount() > 0) {
+                                    // Loop através dos resultados e exibir todas as colunas
+                                    foreach ($resultados as $plan) {
+                                        $selected = ($shop['plan_id'] == $plan['id']) ? "selected" : "";
+
+                                        echo "<option value='" . $plan['id'] . "' $selected>" . $plan['name'] . "</option>";
+                                    }
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="cycle" class="form-label small">Tipo de Cobrança *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="cycle" id="cycle" required>
+                            <option value="" disabled>Selecione o tipo</option>
+                            <option value="MONTHLY">Mensal</option>
+                            <option value="YEARLY">Anual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6 class="mb-3">Duração</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label small">Início *</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" name="start_date" id="start_date" min="<?php echo $date; ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="due_date" class="form-label small">Fim *</label>
+                            <div class="input-group mb-2">
+                                <input type="date" class="form-control" name="due_date" id="due_date" min="<?php echo $date; ?>" required>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="undefined" id="undefined">
+                                <label class="form-check-label" for="undefined">Indefinido</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success border-danger d-flex align-items-center fw-semibold px-4 py-2 small" id="updShopPlan">Salvar</button>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+      $('#start_date').on('change', updateDueDate);
+      $('#cycle').on('change', updateDueDate);
+      $('#undefined').on('change', updateDueDate);
+
+      function updateDueDate() {
+        var startDateValue = $('#start_date').val();
+        var billingTypeValue = $('#cycle').val();
+        var undefinedCheckbox = $('#undefined');
+
+        if (undefinedCheckbox.is(':checked')) {
+          // Se o checkbox estiver marcado, desabilita o input e remove o valor
+          $('#due_date').prop('disabled', true).prop('required', false).val('');
+          $('#undefined').prop('required', true);
+        } else {
+          // Se o checkbox não estiver marcado, habilita o input e atualiza o valor mínimo
+          $('#due_date').prop('disabled', false).prop('required', true);
+          $('#undefined').prop('required', false);
+
+          if (startDateValue && billingTypeValue) {
+            var nextDate = new Date(startDateValue);
+
+            if (billingTypeValue === 'MONTHLY') {
+              nextDate.setMonth(nextDate.getMonth() + 1);
+            } else if (billingTypeValue === 'YEARLY') {
+              nextDate.setFullYear(nextDate.getFullYear() + 1);
+            }
+
+            var nextDateFormatted = nextDate.toISOString().split('T')[0];
+            $('#due_date').attr('min', nextDateFormatted);
+            $('#due_date').val(nextDateFormatted);
+          }
+        }
+      }
+    });
+</script>
+
 <div class="page__header center">
     <div class="header__title">
         <nav aria-label="breadcrumb">
@@ -384,7 +526,7 @@
                         </li>
                         <li class="d-flex justify-content-between">
                             <small class="fw-semibold">Plano atual:</small>
-                            <small><?php echo $plan; ?></small>
+                            <small><?php echo $shopPlan; ?></small>
                         </li>
                         <li class="d-flex justify-content-between">
                             <small class="fw-semibold">Vencimento:</small>
@@ -681,9 +823,11 @@
                         <h6 class="fs-6 fw-semibold mb-0">Alterar Plano</h6>
                         <small>Clique em alterar plano para alterar o plano da loja</small>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?id=<?php echo $user['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Alterar Plano</a>
-                    </div>
+                    <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#editShopPlan">
+                        <a href="#" class="btn btn-success d-flex align-items-center fw-semibold px-4 py-2 small">
+                            Alterar Plano
+                        </a>
+                    </button>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
                     <div>

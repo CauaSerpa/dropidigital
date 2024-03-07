@@ -2434,7 +2434,11 @@ select {
     margin-top: 0;
 }
 
-
+.card.table
+{
+    overflow-x: auto !important;
+    overflow-y: hidden;
+}
 
 
 .card .input-icon

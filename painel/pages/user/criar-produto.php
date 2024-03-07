@@ -665,7 +665,6 @@
         </div>
     </div>
 
-    <input type="hidden" name="link" id="link">
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
     <!-- Adicione esses campos ocultos no seu formulário -->
@@ -1330,7 +1329,6 @@
         // Selecione o campo de entrada e o span
         var input = $("#name");
         var span = $("#linkPreview");
-        var inputPreview = $("#link");
 
         var inputText2 = $('#textInput2');
         var textPreview2 = $('#textPreview2');
@@ -1342,7 +1340,6 @@
             value = removerAcentosEespacos(value);
             
             span.text(value);
-            inputPreview.val(value);
 
             inputText2.val(value);
             textPreview2.text(value);
@@ -1611,6 +1608,7 @@
         var inputText3 = $('#textInput3');
         var textPreview1 = $('#textPreview1');
         var textPreview2 = $('#textPreview2');
+        var linkPreview = $('#linkPreview');
         var textPreview3 = $('#textPreview3');
 
         inputText1.on('input', function () {
@@ -1625,12 +1623,13 @@
             var text = inputText2.val();
             if (text === '') {
                 text = 'link-da-categoria';
+                linkPreview.text('...');
             }
             // Remover acentos e substituir espaços por traço
             newText = removerAcentosEespacos(text);
             $(this).val($(this).val().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
-            $('#link').val(newText);
+            linkPreview.text(newText);
         });
 
         inputText3.on('input', function () {

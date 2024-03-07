@@ -74,14 +74,13 @@
         $tabela = 'tb_products';
 
         // Edita o produto no banco de dados da loja
-        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, link = :link, price = :price, without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description WHERE id = :id";
+        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, price = :price, without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, link = :link, seo_description = :seo_description WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
         $stmt->bindValue(':status', $status);
         $stmt->bindValue(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
-        $stmt->bindParam(':link', $dados['link']);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':without_price', $without_price);
         $stmt->bindParam(':discount', $discount);
@@ -91,7 +90,7 @@
         $stmt->bindParam(':button_type', $dados['button_type']);
         $stmt->bindParam(':redirect_link', $redirect_link);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
-        $stmt->bindParam(':seo_link', $dados['seo_link']);
+        $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
 
         // Id que sera editado

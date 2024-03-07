@@ -46,8 +46,8 @@ if ($arquivo['type'] == "application/vnd.openxmlformats-officedocument.spreadshe
             $linhas_nao_importadas++;
         } else {
             // Link nao encontrado
-            $query_usuario = "INSERT INTO tb_products (shop_id, status, emphasis, name, link, price, discount, description, categories, sku, button_type, redirect_link, seo_name, seo_link, seo_description) VALUES 
-                            (:shop_id, :status, :emphasis, :name, :link, :price, :discount, :description, :categories, :sku, :button_type, :redirect_link, :seo_name, :seo_link, :seo_description)";
+            $query_usuario = "INSERT INTO tb_products (shop_id, status, emphasis, name, link, price, discount, description, sku, button_type, redirect_link, seo_name, seo_link, seo_description) VALUES 
+                            (:shop_id, :status, :emphasis, :name, :link, :price, :discount, :description, :sku, :button_type, :redirect_link, :seo_name, :seo_link, :seo_description)";
 
             $cad_usuario = $conn_pdo->prepare($query_usuario);
 
@@ -59,7 +59,6 @@ if ($arquivo['type'] == "application/vnd.openxmlformats-officedocument.spreadshe
             $cad_usuario->bindValue(':price', ($linha['F'] ?? "NULL"));
             $cad_usuario->bindValue(':discount', ($linha['G'] ?? "NULL"));
             $cad_usuario->bindValue(':description', ($linha['H'] ?? "NULL"));
-            $cad_usuario->bindValue(':categories', ($linha['I'] ?? "NULL"));
             $cad_usuario->bindValue(':sku', ($linha['J'] ?? "NULL"));
             $cad_usuario->bindValue(':button_type', ($linha['K'] ?? "NULL"));
             $cad_usuario->bindValue(':redirect_link', ($linha['L'] ?? "NULL"));

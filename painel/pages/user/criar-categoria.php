@@ -258,6 +258,12 @@
     <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="text-decoration-none text-reset">Cancelar</a>
@@ -357,6 +363,42 @@
     ativarVisualizacaoImagem('iconInput', 'iconPreview');
 </script>
 
+<!-- Name -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Selecione o campo de entrada e o span
+        var input = $("#name");
+
+        var seoName = $('#textInput1');
+        var seoNamePreview = $('#textPreview1');
+
+        input.on("input", function() {
+            var value = input.val();
+
+            // Verifica se a string excede 67 caracteres
+            if (value.length > 67) {
+                // Limita a string aos primeiros 67 caracteres
+                value = value.substring(0, 67);
+            }
+
+            if (value.length < 67) {
+                seoName.val(value);
+                seoNamePreview.text(value);
+            } else if (value.length >= 67) {
+                value = value.substring(0, 67);
+
+                seoName.val(value + "...");
+                seoNamePreview.text(value + "...");
+            }
+
+            if (value === '') {
+                seoNamePreview.text("Título da página");
+            }
+        });
+    });
+</script>
+
 <!-- Link -->
 <script>
     // Aguarde o documento estar pronto
@@ -364,23 +406,69 @@
         // Selecione o campo de entrada e o span
         var input = $("#name");
         var span = $("#linkPreview");
+        var inputPreview = $("#link");
 
-        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        var inputText2 = $('#textInput2');
+        var textPreview2 = $('#textPreview2');
+
         input.on("input", function() {
-            // Obtenha o valor atual do campo de entrada
-            var valor = input.val();
+            var value = input.val();
 
-            if (valor === '') {
-                valor = '...';
+            // Remover acentos e substituir espaços por traço
+            value = removerAcentosEespacos(value);
+            
+            span.text(value);
+            inputPreview.val(value);
+
+            inputText2.val(value);
+            textPreview2.text(value);
+
+            if (value === '') {
+                span.text("...");
+                textPreview2.text("link-da-pagina");
             }
-            
-            // Substitua espaços extras por um único traço e converta para letras minúsculas
-            valor = valor.replace(/\s+/g, "-").toLowerCase();
-            
-            // Atualize o texto no span com o valor formatado
-            span.text(valor);
+        });
 
-            $('#link').val(valor);
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
+    });
+</script>
+
+<!-- Description -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Substitua 'meuTextarea' pelo ID real do seu textarea configurado com o TinyMCE
+        var description = $("#description");
+
+        description.on('input', function() {
+            var value = description.val();
+
+            // Selecione o campo de entrada e o span
+            var seoDescription = $("#textInput3");
+            var seoDescriptionPreview = $("#textPreview3");
+
+            // Verifica se a string excede 157 caracteres
+            if (value.length > 157) {
+                // Limita a string aos primeiros 157 caracteres
+                value = value.substring(0, 157);
+            }
+
+            if (value.length < 157) {
+                seoDescription.val(value);
+                seoDescriptionPreview.text(value);
+            } else if (value.length >= 157) {
+                value = value.substring(0, 157);
+
+                seoDescription.val(value + "...");
+                seoDescriptionPreview.text(value + "...");
+            }
+
+            if (value === '') {
+                seoDescriptionPreview.text("Descrição da página");
+            }
         });
     });
 </script>
@@ -603,8 +691,9 @@
             if (text === '') {
                 text = 'link-da-categoria';
             }
-            newText = text.replace(/\s+/g, "-").toLowerCase();
-            $(this).val($(this).val().replace(/\s+/g, "-").toLowerCase());
+            // Remover acentos e substituir espaços por traço
+            newText = removerAcentosEespacos(text);
+            $(this).val($(this).val().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
             $('#link').val(newText);
         });
@@ -616,6 +705,11 @@
             }
             textPreview3.text(newText);
         });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
     });
 </script>
 
@@ -657,14 +751,14 @@
         $('input, textarea').on('input', function () {
             formChanged = true;
             $('#saveButton').show();
-            $('.main.container').addClass('save-button-show');
+            $('.main .container').addClass('save-button-show');
         });
 
         $('#saveButton button').click(function () {
             if (formChanged) {
                 formChanged = false;
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container').removeClass('save-button-show');
             }
         });
 
@@ -680,7 +774,7 @@
             var hasChanges = $('input.changed, textarea.changed').length > 0;
             if (!hasChanges) {
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container').removeClass('save-button-show');
             }
         });
     });

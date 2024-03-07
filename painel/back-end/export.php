@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 $shop_id = $_GET['id'];
 
-$query_usuarios = "SELECT id, status, emphasis, name, link, price, discount, description, categories, sku, button_type, redirect_link, seo_name, seo_link, seo_description FROM tb_products WHERE shop_id = :shop_id ORDER BY id DESC";
+$query_usuarios = "SELECT id, status, emphasis, name, link, price, discount, description, sku, button_type, redirect_link, seo_name, seo_link, seo_description FROM tb_products WHERE shop_id = :shop_id ORDER BY id DESC";
 
 $result_usuarios = $conn_pdo->prepare($query_usuarios);
 $result_usuarios->bindParam(':shop_id', $shop_id);

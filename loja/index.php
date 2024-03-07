@@ -1074,21 +1074,30 @@ $(document).ready(function() {
             </ol>
 
             <script>
-                // Função para verificar a largura da tela e exibir a imagem apropriada
                 function switchImage(responsiveImage, desktopBanner, mobileBanner) {
-                    // Verificar a largura da tela
                     if (window.innerWidth < 768 && mobileBanner !== 'null') {
-                        // Se a largura da tela for menor que 768px e houver uma imagem móvel, exiba-a
                         responsiveImage.src = mobileBanner;
                     } else {
-                        // Se a largura da tela for 768px ou mais ou não houver uma imagem móvel, exiba a imagem do banner padrão
                         responsiveImage.src = desktopBanner;
                     }
                 }
 
-                // Executar a função ao carregar a página e quando a janela for redimensionada
-                window.onload = switchImage;
-                window.onresize = switchImage;
+                // Chame a função com os parâmetros corretos ao carregar a página e redimensionar
+                window.onload = function () {
+                    var responsiveImage = document.querySelector('#bannerCarousel .carousel-item.active img');
+                    var desktopBanner = responsiveImage.getAttribute('data-desktop-banner');
+                    var mobileBanner = responsiveImage.getAttribute('data-mobile-banner');
+
+                    switchImage(responsiveImage, desktopBanner, mobileBanner);
+                };
+
+                window.onresize = function () {
+                    var responsiveImage = document.querySelector('#bannerCarousel .carousel-item.active img');
+                    var desktopBanner = responsiveImage.getAttribute('data-desktop-banner');
+                    var mobileBanner = responsiveImage.getAttribute('data-mobile-banner');
+
+                    switchImage(responsiveImage, desktopBanner, mobileBanner);
+                };
             </script>
 
             <!-- Slides (itens do carrossel) -->
@@ -1129,7 +1138,14 @@ $(document).ready(function() {
                         ?>
                         <a href="<?= $banner['link'] ?>" target="<?= $banner['target'] ?>">
                             <div class="carousel-item <?= $active ?>">
-                                <img src="<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>" alt="<?= $banner['name'] ?>" onload="switchImage(this, '<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>', '<?= $mobileBannerSrc ?>')" class="w-100" style="object-fit: cover;">
+                                <img
+                                    src="<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>"
+                                    alt="<?= $banner['name'] ?>"
+                                    data-desktop-banner="<?= INCLUDE_PATH_DASHBOARD . 'back-end/banners/' . $imagem['banner_id'] . '/' . $imagem['image_name'] ?>"
+                                    data-mobile-banner="<?= $mobileBannerSrc ?>"
+                                    class="w-100"
+                                    style="object-fit: cover;"
+                                >
                             </div>
                         </a>
                         <?php

@@ -347,7 +347,7 @@
         // Nome da tabela para a busca
         $tabela = 'tb_products';
 
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND id != :current_product ORDER BY id ASC";
+        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND id != :current_product ORDER BY id ASC LIMIT 4";
 
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
@@ -432,7 +432,7 @@
                     }
 
                     if ($product['without_price']) {
-                        $priceAfterDiscount = "";
+                        $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
                     }
 
                     // Link do produto
@@ -520,4 +520,23 @@
         const nextThumbnail = document.querySelector(`.thumbnail[data-index="${nextIndex}"]`);
         showImage(nextThumbnail.querySelector("img").src, nextThumbnail);
     }
+</script>
+
+<!-- Title e description do produto -->
+<script>
+    // Use o jQuery para alterar o título e a descrição
+    $(document).ready(function() {
+        var productName = "<?php echo $product['seo_name']; ?>";
+        var shopName = "<?php echo ($title == "") ? $loja : $title; ?>";
+
+        // Novo título e descrição desejados
+        var novoTitulo = productName + " | " + shopName;
+        var novaDescricao = "<?php echo $product['seo_description']; ?>";
+
+        // Alterar o título
+        $('title').text(novoTitulo);
+
+        // Alterar a descrição
+        $('meta[name="description"]').attr('content', novaDescricao);
+    });
 </script>

@@ -131,11 +131,12 @@
                     <div class="col-lg-6 align-self-center">
                         <div class="home hero-content pt-115 pb-125 rpb-0 wow fadeInUp delay-0-4s">
                             <h1>#DropiDigital</h1>
-                            <p>Dropi Digital plataforma para Dropshipping de Inforprodutos e produtos físicos, onde você cria aqui a sua loja de vitual /e-commerce para a divulgação dos produtos do qual você é afiliado.<br><br>
-                                Somos o Integrador com melhores programas de afiliados do mercado. Hotmart, Eduzz, Monetizee, Amazon, Shopee, Magazine, Luiza, Clickbank entre outros.<br><br>
-                                Crie aqui sua loja e divulgue todos seus produtos de afiliados em um único lugar.</p>
-
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar" class="theme-btn mt-20 wow fadeInUp delay-0-6s">Criar Loja Grátis<i class="fas fa-long-arrow-right"></i></a>
+                            <p>Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje. Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.
+                                Todas as possibilidades e um únicos lugar. Dropi Digital. 
+                                Somos o Integrador com melhores programas de afiliados do mercado. Hotmart, Eduzz, Monetizee, Amazon, Shopee, Magazine, Luiza, Clickbank entre outros.
+                                Clique em criar conta e comece agora, mesmo que seja iniciante. É grátis.
+                            </p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar" class="theme-btn mt-20 wow fadeInUp delay-0-6s">Criar site Grátis<i class="fas fa-long-arrow-right"></i></a>
                             <div class="hero-shapes">
                                 <img class="shape one" src="assets/images/shapes/dabble-plus.png" alt="Shape">
                                 <img class="shape two" src="assets/images/shapes/dabble-plus.png" alt="Shape">

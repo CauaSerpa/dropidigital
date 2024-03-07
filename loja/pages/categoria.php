@@ -122,7 +122,7 @@
                             }
 
                             if ($product['without_price']) {
-                                $priceAfterDiscount = "";
+                                $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
                             }
 
                             // Link do produto
