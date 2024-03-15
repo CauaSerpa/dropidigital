@@ -12,18 +12,18 @@
 
             // Array de URLs de imagens correspondentes aos valores
             $imagens = [
-                "1" => INCLUDE_PATH . "loja/tarjas/01.jpg",
-                "2" => INCLUDE_PATH . "loja/tarjas/02.jpg",
-                "3" => INCLUDE_PATH . "loja/tarjas/03.jpg",
-                "4" => INCLUDE_PATH . "loja/tarjas/04.jpg",
-                "5" => INCLUDE_PATH . "loja/tarjas/05.jpg",
-                "6" => INCLUDE_PATH . "loja/tarjas/06.jpg",
-                "7" => INCLUDE_PATH . "loja/tarjas/07.jpg",
-                "8" => INCLUDE_PATH . "loja/tarjas/08.jpg",
-                "9" => INCLUDE_PATH . "loja/tarjas/09.jpg",
-                "10" => INCLUDE_PATH . "loja/tarjas/10.jpg",
-                "11" => INCLUDE_PATH . "loja/tarjas/11.jpg",
-                "12" => INCLUDE_PATH . "loja/tarjas/12.jpg"
+                "1" => INCLUDE_PATH . "assets/loja/tarjas/01.jpg",
+                "2" => INCLUDE_PATH . "assets/loja/tarjas/02.jpg",
+                "3" => INCLUDE_PATH . "assets/loja/tarjas/03.jpg",
+                "4" => INCLUDE_PATH . "assets/loja/tarjas/04.jpg",
+                "5" => INCLUDE_PATH . "assets/loja/tarjas/05.jpg",
+                "6" => INCLUDE_PATH . "assets/loja/tarjas/06.jpg",
+                "7" => INCLUDE_PATH . "assets/loja/tarjas/07.jpg",
+                "8" => INCLUDE_PATH . "assets/loja/tarjas/08.jpg",
+                "9" => INCLUDE_PATH . "assets/loja/tarjas/09.jpg",
+                "10" => INCLUDE_PATH . "assets/loja/tarjas/10.jpg",
+                "11" => INCLUDE_PATH . "assets/loja/tarjas/11.jpg",
+                "12" => INCLUDE_PATH . "assets/loja/tarjas/12.jpg"
             ];
 
             // Função para marcar os checkboxes
@@ -149,7 +149,7 @@
             foreach ($categories as $category) {
                 echo '<div class="item">';
                 echo '<div class="card border-0">';
-                echo '<a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="category-link">';
+                echo '<a href="' . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . '" class="category-link">';
                 echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/image/' . $category['image'] . '" class="card-img-top rounded-circle" alt="' . $category['name'] . '">';
                 echo '<div class="card-body text-center">';
                 echo '<h5 class="card-title">' . $category['name'] . '</h5>';
@@ -258,7 +258,7 @@
                 }
 
                 // Link do produto
-                $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
+                $link = INCLUDE_PATH_LOJA . $product['link'];
 
                 echo '<div class="col-sm-3 numBanner d-grid">';
                 echo '<a href="' . $link . '" class="product-link d-grid">';

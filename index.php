@@ -1480,6 +1480,10 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
         </footer>
         <!-- footer area end -->
         
+        <!-- WhatsApp Button -->
+        <a href="https://api.whatsapp.com/send?phone=5511940496818" target="_blank" class="home-page whatsapp-button">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
         
         <!-- Scroll Top Button -->
         <button class="scroll-top scroll-to-target" data-target="html"><span class="fas fa-angle-double-up"></span></button>

@@ -710,6 +710,27 @@ a.theme-btn {
     .slick-dots li.slick-active {
       background: var(--secondary-color); }
 
+/*** WhatsApp Button ***/
+.home-page.whatsapp-button {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  width: 40px;
+  height: 40px;
+  z-index: 99;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 40px;
+  border-radius: 5px;
+  background: var(--primary-color); }
+
+.home-page.whatsapp-button:hover {
+  color: white; }
+
 /*** Scroll Top style ***/
 .scroll-top {
   position: fixed;

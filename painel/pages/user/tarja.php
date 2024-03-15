@@ -250,18 +250,18 @@
 
                     // Array de URLs de imagens correspondentes aos valores
                     $imagens = [
-                        "1" => INCLUDE_PATH . "loja/tarjas/01.jpg",
-                        "2" => INCLUDE_PATH . "loja/tarjas/02.jpg",
-                        "3" => INCLUDE_PATH . "loja/tarjas/03.jpg",
-                        "4" => INCLUDE_PATH . "loja/tarjas/04.jpg",
-                        "5" => INCLUDE_PATH . "loja/tarjas/05.jpg",
-                        "6" => INCLUDE_PATH . "loja/tarjas/06.jpg",
-                        "7" => INCLUDE_PATH . "loja/tarjas/07.jpg",
-                        "8" => INCLUDE_PATH . "loja/tarjas/08.jpg",
-                        "9" => INCLUDE_PATH . "loja/tarjas/09.jpg",
-                        "10" => INCLUDE_PATH . "loja/tarjas/10.jpg",
-                        "11" => INCLUDE_PATH . "loja/tarjas/11.jpg",
-                        "12" => INCLUDE_PATH . "loja/tarjas/12.jpg"
+                        "1" => INCLUDE_PATH . "assets/loja/tarjas/01.jpg",
+                        "2" => INCLUDE_PATH . "assets/loja/tarjas/02.jpg",
+                        "3" => INCLUDE_PATH . "assets/loja/tarjas/03.jpg",
+                        "4" => INCLUDE_PATH . "assets/loja/tarjas/04.jpg",
+                        "5" => INCLUDE_PATH . "assets/loja/tarjas/05.jpg",
+                        "6" => INCLUDE_PATH . "assets/loja/tarjas/06.jpg",
+                        "7" => INCLUDE_PATH . "assets/loja/tarjas/07.jpg",
+                        "8" => INCLUDE_PATH . "assets/loja/tarjas/08.jpg",
+                        "9" => INCLUDE_PATH . "assets/loja/tarjas/09.jpg",
+                        "10" => INCLUDE_PATH . "assets/loja/tarjas/10.jpg",
+                        "11" => INCLUDE_PATH . "assets/loja/tarjas/11.jpg",
+                        "12" => INCLUDE_PATH . "assets/loja/tarjas/12.jpg"
                     ];
 
                     // Função para marcar os checkboxes

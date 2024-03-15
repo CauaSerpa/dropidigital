@@ -371,9 +371,11 @@
                             $totalProdutos = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                             $totalPaginas = ceil($totalProdutos / $limite);
 
+                            $search = isset($_GET['search']) ? "&search=" . $_GET['search'] : "";
+
                             for ($i = 1; $i <= $totalPaginas; $i++) {
                                 $classeAtiva = ($i == $paginaAtual) ? "active" : "";
-                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . '" class="analog pag-link ' . $classeAtiva . '">' . $i . '</a>';
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . $search . '" class="analog pag-link ' . $classeAtiva . '">' . $i . '</a>';
                             }
                         ?>
                     </div>
@@ -401,7 +403,7 @@
     $(".alterar-produtos-por-pagina").on("click", function() {
         var novoslimite = parseInt($(this).data("value"));
         var url = window.location.href.split('?')[0];
-        window.location.href = url + "?limite=" + novoslimite + "&pagina=1";
+        window.location.href = url + "?limite=" + novoslimite + "&pagina=1<?= isset($_GET['search']) ? "&search=" . $_GET['search'] : ""; ?>";
     });
 </script>
 

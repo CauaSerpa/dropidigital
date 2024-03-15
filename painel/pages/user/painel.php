@@ -565,7 +565,119 @@
             </div>
         </div>
     </div>
-    <div class="card__box top__products col-sm-4 grid">
+
+
+
+    <?php
+    // Defina o mês e ano desejados
+    $mes = (int)date("m"); // Converte para inteiro
+    $ano = (int)date("Y"); // Converte para inteiro
+
+    // Consulta SQL para recuperar os IDs dos produtos mais acessados
+    $sql = "SELECT product_id, SUM(contagem) AS total_visitas
+            FROM tb_visits
+            WHERE shop_id = :shop_id AND page = :page AND MONTH(data) = :mes AND YEAR(data) = :ano
+            GROUP BY product_id
+            ORDER BY total_visitas DESC
+            LIMIT 5";
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->bindValue(':page', 'product');
+    $stmt->bindParam(':mes', $mes);
+    $stmt->bindParam(':ano', $ano);
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<div class="card__box top__products col-sm-4 grid">
+    <div class="card grid">
+        <div class="card__header">
+            <h5 class="fw-semibold mb-0">
+                TOP Produtos
+                <i class="bx bx-help-circle small"></i>
+            </h5>
+            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="link">Ver Mais</a>
+        </div>
+        <div class="top-products">
+            <ul class="mb-0">
+                <?php
+                // Loop através dos resultados da consulta
+                foreach ($resultados as $row) {
+                    $product_id = $row['product_id'];
+                    $total_visitas = $row['total_visitas'];
+
+                    // Consultar informações adicionais do produto usando o $product_id
+                    $sqlProductInfo = "SELECT name FROM tb_products WHERE id = :product_id";
+                    $stmtProductInfo = $conn_pdo->prepare($sqlProductInfo);
+                    $stmtProductInfo->bindParam(':product_id', $product_id);
+                    $stmtProductInfo->execute();
+                    $productInfo = $stmtProductInfo->fetch(PDO::FETCH_ASSOC);
+
+                    $productName = $productInfo['name'];
+
+
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // Consulta SQL para selecionar todas as colunas com base no ID
+                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':usuario_id', $product_id);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    if ($imagens) {
+                        // Loop através dos resultados e exibir todas as colunas
+                        foreach ($imagens as $imagem) {
+                            $productImage = INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'];
+                        }
+                    } else {
+                        $productImage = INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg';
+                    }
+                ?>
+                <li class="product__item">
+                    <div class="container__image">
+                        <img class="product__image" src="<?php echo $productImage; ?>" alt="Imagem do produto">
+                    </div>
+                    <div class="product__details">
+                        <h6 class="product__name fs-6 fw-semibold mb-0"><?php echo $productName; ?></h6>
+                        <div class="product__info">
+                            <p class="small"><?php echo $total_visitas; ?> Cliques</p>
+                            <!-- Adicione outras informações do produto conforme necessário -->
+                        </div>
+                    </div>
+                </li>
+                <?php
+                }
+                ?>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+    <!-- <div class="card__box top__products col-sm-4 grid">
         <div class="card grid">
             <div class="card__header">
                 <h5 class="fw-semibold mb-0">
@@ -615,7 +727,7 @@
                 </ul>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <div class="row g-3">

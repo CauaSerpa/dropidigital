@@ -126,7 +126,7 @@
                             }
 
                             // Link do produto
-                            $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
+                            $link = INCLUDE_PATH_LOJA . $product['link'];
 
                             echo '<div class="col-sm-3 numBanner d-grid">';
                             echo '<a href="' . $link . '" class="product-link d-grid">';

@@ -27,6 +27,41 @@
     // Recuperar os resultados
     $category = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
+<?php
+    // Fuso horario Sao Paulo
+    date_default_timezone_set('America/Sao_Paulo');
+    // Data atual
+    $dataAtual = date("Y-m-d");
+
+    // Consulta para verificar se já há uma entrada para a data atual
+    $sql = "SELECT * FROM tb_visits WHERE shop_id = :shop_id AND page = :page AND product_id = :product_id AND data = :data";
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->bindValue(':page', 'product');
+    $stmt->bindValue(':product_id', $product['id']);
+    $stmt->bindParam(':data', $dataAtual);
+    $stmt->execute();
+
+    // Se não houver entrada para a data atual, insira uma nova entrada
+    if ($stmt->rowCount() == 0) {
+        $sql = "INSERT INTO tb_visits (shop_id, page, product_id, data, contagem) VALUES (:shop_id, :page, :product_id, :data, 1)";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'product');
+        $stmt->bindValue(':product_id', $product['id']);
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+    } else {
+        // Se houver entrada para a data atual, apenas atualize a contagem
+        $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE shop_id = :shop_id AND page = :page AND product_id = :product_id AND data = :data";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'product');
+        $stmt->bindValue(':product_id', $product['id']);
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+    }
+?>
 <style>
     .container-images {
         display: flex;
@@ -168,11 +203,11 @@
                     if ($category['parent_category'] == 1)
                     {
                         echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
-                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
+                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
                     } else {
                         echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
                         echo '<li class="breadcrumb-item small ms-2"><a href="' . INCLUDE_PATH_LOJA . $parent_category['link'] . '" class="text-decoration-none">' . $parent_category['name'] . '</a></li>';
-                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
+                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
                     }
                 ?>
                 <li class="breadcrumb-item small fw-semibold text-body-secondary text-decoration-none ms-2 active" aria-current="page"><?php echo $product['name']; ?></li>
@@ -436,7 +471,7 @@
                     }
 
                     // Link do produto
-                    $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
+                    $link = INCLUDE_PATH_LOJA . $product['link'];
 
                     echo '<div class="col-sm-3 numBanner">';
                     echo '<a href="' . $link . '" class="product-link">';

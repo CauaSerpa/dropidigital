@@ -217,21 +217,27 @@
     $dataAtual = date("Y-m-d");
 
     // Consulta para verificar se já há uma entrada para a data atual
-    $sql = "SELECT * FROM tb_visits WHERE data = :data";
+    $sql = "SELECT * FROM tb_visits WHERE shop_id = :shop_id AND page = :page AND data = :data";
     $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->bindValue(':page', 'shop');
     $stmt->bindParam(':data', $dataAtual);
     $stmt->execute();
 
     // Se não houver entrada para a data atual, insira uma nova entrada
     if ($stmt->rowCount() == 0) {
-        $sql = "INSERT INTO tb_visits (data, contagem) VALUES (:data, 1)";
+        $sql = "INSERT INTO tb_visits (shop_id, page, data, contagem) VALUES (:shop_id, :page, :data, 1)";
         $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'shop');
         $stmt->bindParam(':data', $dataAtual);
         $stmt->execute();
     } else {
         // Se houver entrada para a data atual, apenas atualize a contagem
-        $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE data = :data";
+        $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE shop_id = :shop_id AND page = :page AND data = :data";
         $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'shop');
         $stmt->bindParam(':data', $dataAtual);
         $stmt->execute();
     }
@@ -903,7 +909,7 @@
                                             }
 
                                             echo "<li>";
-                                            echo "<a href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>" . $category['name'] . "</a>";
+                                            echo "<a href='" . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . "'>" . $category['name'] . "</a>";
                                             echo "</li>";
 
                                             // Se o contador for um múltiplo de 6, feche a div
@@ -961,7 +967,7 @@
         
                                 echo "<li class='nav-item d-flex'>";
                                 echo "<div class='nav-link'>";
-                                echo "<a href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>";
+                                echo "<a href='" . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . "'>";
                                 echo "<img src='" . INCLUDE_PATH_DASHBOARD . "back-end/category/" . $shop_id . "/icon/" . $category['icon'] . "' alt='Ícone " . $category['name'] . "' class='me-2' style='width: 32px; height: 32px;'>";
                                 echo $category['name'];
                                 echo "</a>";
@@ -1175,7 +1181,7 @@ $(document).ready(function() {
             
             $url = $protocol . "://" . $host . $uri;
             
-            $substring_product = "produto/";
+            $substring_category = "categoria/";
             $substring_page = "atendimento/";
             $substring_article = "blog/";
             
@@ -1184,12 +1190,12 @@ $(document).ready(function() {
             
             $categoria = null; // Inicializa $categoria fora do bloco condicional
             
-            if (strpos($url, $substring_product) !== false) {
-                // Removendo "produto/" da URL
-                $link = preg_replace("/^produto\//", "", $route);
+            if (strpos($url, $substring_category) !== false) {
+                // Removendo "categoria/" da URL
+                $link = preg_replace("/^categoria\//", "", $route);
             
                 // Tabela que será pesquisada
-                $tabela = "tb_products";
+                $tabela = "tb_categories";
             
                 // Consulta SQL
                 $sql = "SELECT * FROM $tabela WHERE link = :link AND shop_id = :shop_id AND status = :status";
@@ -1205,11 +1211,11 @@ $(document).ready(function() {
                 // Executar a consulta
                 $stmt->execute();
             
-                // Obter o produto como um array associativo
-                $product = $stmt->fetch(PDO::FETCH_ASSOC);
+                // Obter o categoria como um array associativo
+                $category = $stmt->fetch(PDO::FETCH_ASSOC);
             
-                if ($product) {
-                    $product_id = $product['id'];
+                if ($category) {
+                    $category_id = $category['id'];
                 }
             } elseif (strpos($url, $substring_page) !== false) {
                 // Removendo "atendimento/" da URL
@@ -1267,7 +1273,7 @@ $(document).ready(function() {
                 }
             } else {
                 // Tabela que será pesquisada
-                $tabela = "tb_categories";
+                $tabela = "tb_products";
             
                 // Consulta SQL
                 $sql = "SELECT * FROM $tabela WHERE link = :link AND shop_id = :shop_id AND status = :status";
@@ -1283,11 +1289,11 @@ $(document).ready(function() {
                 // Executar a consulta
                 $stmt->execute();
             
-                // Obter o categoria como um array associativo
-                $category = $stmt->fetch(PDO::FETCH_ASSOC);
+                // Obter o produto como um array associativo
+                $product = $stmt->fetch(PDO::FETCH_ASSOC);
             
-                if ($category) {
-                    $category_id = $category['id'];
+                if ($product) {
+                    $product_id = $product['id'];
                 }
             }
             
@@ -1600,7 +1606,7 @@ $(document).ready(function() {
                                 // Loop através dos resultados e exibir todas as colunas
                                 foreach ($categories as $category) {
                                     echo "<li>";
-                                    echo "<a href='" . INCLUDE_PATH_LOJA . $category['link'] . "'>" . $category['name'] . "</a>";
+                                    echo "<a href='" . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . "'>" . $category['name'] . "</a>";
                                     echo "</li>";
                                 }
                             }
