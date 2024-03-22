@@ -208,7 +208,11 @@
                 <div class="container__description">
                     <div class="description">
                         <h2 class="title">Sobre a DropiDigital</h2>
-                        <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis lectus ac risus vulputate volutpat. Vestibulum tempor ultricies lobortis. Sed tempus diam eu laoreet iaculis. Nulla volutpat ultrices mauris, ac volutpat mi auctor at.</p>
+                        <p class="description">
+                            Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje.<br>
+                            Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.<br><br>
+                            Todas as possibilidades e um únicos lugar. Dropi Digital.<br><br>
+                            Clique em criar conta e comece agora, mesmo que seja iniciante. É grátis.</p>
                     </div>
                     <div class="balls"></div>
                 </div>
@@ -289,7 +293,8 @@
         }
         .sidebar .nav-links
         {
-            overflow-y: scroll;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
         }
         .sidebar.close .nav-links::before
         {
@@ -434,10 +439,10 @@
                 <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo">
                     <img class="logo" src="" alt="Logo" id="logo">
                 </a>
-                <form action="" class="search__form">
+                <form class="search__form">
                     <div class="search__container">
                         <input type="text" name="search" id="search" class="search" placeholder="Buscar produto..." title="Buscar produto..." autocomplete="off">
-                        <button type="button" class="button">
+                        <button type="button" class="button" id="buttonSearch">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path></svg>
                         </button>
                     </div>
@@ -632,7 +637,8 @@
         }
         .sidebar .nav-links
         {
-            overflow-y: scroll;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
         }
         .sidebar.close .nav-links::before
         {
@@ -1194,6 +1200,26 @@
             $('.dropdown').on('click', function () {
                 // Remove o elemento pai do botão, que é o card
                 $(".dropdown").toggleClass("selected");
+            });
+        });
+    </script>
+
+    <!-- Search products -->
+    <script>
+        $(document).ready(function() {
+            // Ao clicar no botão de pesquisa
+            $('#buttonSearch').click(function() {
+                // Obtenha o valor do campo de entrada de pesquisa
+                var searchTerm = $('#search').val();
+
+                // Verifique se o campo de pesquisa não está vazio
+                if (searchTerm && searchTerm.trim() !== '') {
+                    // Atualize a URL do navegador com os parâmetros de pesquisa
+                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos?search=' + searchTerm;
+                } else {
+                    // Se o campo de pesquisa estiver vazio, remova o parâmetro de pesquisa da URL
+                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos';
+                }
             });
         });
     </script>

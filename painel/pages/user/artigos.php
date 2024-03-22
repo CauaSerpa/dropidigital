@@ -60,6 +60,21 @@
     {
         border-top: 1px solid var(--border-color);
     }
+
+    #searchButton
+    {
+        height: 30px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--card-color);
+        background: var(--border-color);
+        font-weight: 600;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+    }
 </style>
 
 <div class="page__header center">
@@ -85,8 +100,11 @@
         ?>
                 <div class="card__title">
                     <div class="title__content grid">
-                        <div class="search__container">
-                            <input type="text" name="searchUsers" id="searchUsers" class="search" placeholder="Pesquisar" title="Pesquisar">
+                        <div class="search__container d-flex">
+                            <input type="text" name="searchInput" id="searchInput" class="search" placeholder="Pesquisar" title="Pesquisar" value="<?= (!empty($_GET['search'])) ? $_GET['search'] : ""; ?>">
+                            <button type="button" id="searchButton" class="btn btn-secondary ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path></svg>
+                            </button>
                         </div>
                         <button type="button" class="filter" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvasExample">
                             Filtrar
@@ -114,11 +132,28 @@
                     // Nome da tabela para a busca
                     $tabela = 'tb_articles';
 
-                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                    // Configuração para paginação
+                    $limite = isset($_GET['limite']) ? intval($_GET['limite']) : 10;
+                    $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+                    $inicioConsulta = ($paginaAtual - 1) * $limite;
+
+                    // Preparar a consulta com base na pesquisa (se houver)
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
+                    if (!empty($_GET['search'])) {
+                        $searchTerm = '%' . $_GET['search'] . '%';
+                        $sql .= " AND (name LIKE :searchTerm OR sku LIKE :searchTerm)"; // Substitua campo1 e campo2 pelos campos que deseja pesquisar
+                    }
+
+                    $sql .= " ORDER BY id DESC LIMIT :inicioConsulta, :limite";
 
                     // Preparar e executar a consulta
                     $stmt = $conn_pdo->prepare($sql);
                     $stmt->bindParam(':shop_id', $id);
+                    if (!empty($_GET['search'])) {
+                        $stmt->bindParam(':searchTerm', $searchTerm);
+                    }
+                    $stmt->bindParam(':inicioConsulta', $inicioConsulta, PDO::PARAM_INT);
+                    $stmt->bindParam(':limite', $limite, PDO::PARAM_INT);
                     $stmt->execute();
 
                     // Recuperar os resultados
@@ -177,21 +212,39 @@
                 <div class="left">
                     <div class="container__button">
                         <div class="limitPageDropdown dropdown button button--flex select">
-                            <input type="text" class="text02" placeholder="10" readonly="">
+                            <input type="text" class="text02" value="<?php echo $limite; ?>" readonly>
                             <div class="option">
-                                <div onclick="show('10')">10</div>
-                                <div onclick="show('20')">20</div>
-                                <div onclick="show('30')">30</div>
-                                <div onclick="show('40')">40</div>
-                                <div onclick="show('50')">50</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 10) ? "selected" : "" ; ?>" data-value="10">10</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 20) ? "selected" : "" ; ?>" data-value="20">20</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 30) ? "selected" : "" ; ?>" data-value="30">30</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 40) ? "selected" : "" ; ?>" data-value="40">40</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 50) ? "selected" : "" ; ?>" data-value="50">50</div>
                             </div>
                         </div>
-                        <label>Artigos por página</label>
+                        <label>Produtos por página</label>
                     </div>
                 </div>
                 <div class="right grid">
                     <div class="controller">
-                        <span class="analog pag-link active pag-link">1</span>
+                        <?php
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_products';
+
+                            // Lógica para exibição dos links de páginação
+                            $sql = "SELECT COUNT(*) as total FROM $tabela WHERE shop_id = :shop_id";
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $id);
+                            $stmt->execute();
+                            $totalProdutos = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                            $totalPaginas = ceil($totalProdutos / $limite);
+
+                            $search = isset($_GET['search']) ? "&search=" . $_GET['search'] : "";
+
+                            for ($i = 1; $i <= $totalPaginas; $i++) {
+                                $classeAtiva = ($i == $paginaAtual) ? "active" : "";
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . $search . '" class="analog pag-link ' . $classeAtiva . '">' . $i . '</a>';
+                            }
+                        ?>
                     </div>
                 </div>
             <?php
@@ -213,6 +266,15 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    // Adicionar um ouvinte de evento para a mudança de produtos por página
+    $(".alterar-produtos-por-pagina").on("click", function() {
+        var novoslimite = parseInt($(this).data("value"));
+        var url = window.location.href.split('?')[0];
+        window.location.href = url + "?limite=" + novoslimite + "&pagina=1<?= isset($_GET['search']) ? "&search=" . $_GET['search'] : ""; ?>";
+    });
+</script>
+
+<script>
     $(document).ready(function() {
         $('#checkAll').on('click', function() {
             $('.itemCheckbox').prop('checked', $(this).prop('checked'));
@@ -229,5 +291,63 @@
                 $('#checkAll').prop('checked', false);
             }
         });
+    });
+</script>
+
+<!-- Search -->
+<script>
+    $(document).ready(function() {
+        // Ao clicar no botão de pesquisa
+        $('#searchButton').click(function() {
+            // Obtenha o valor do campo de entrada de pesquisa
+            var searchTerm = $('#searchInput').val();
+
+            // Verifique se o campo de pesquisa não está vazio
+            if (searchTerm && searchTerm.trim() !== '') {
+                // Atualize a URL do navegador com os parâmetros de pesquisa
+                window.location.href = updateQueryStringParameter(window.location.href, 'search', searchTerm);
+            } else {
+                // Se o campo de pesquisa estiver vazio, remova o parâmetro de pesquisa da URL
+                window.location.href = removeQueryStringParameter(window.location.href, 'search');
+            }
+        });
+
+        // Função para atualizar os parâmetros da string de consulta na URL do navegador
+        function updateQueryStringParameter(uri, key, value) {
+            var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+            var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+            if (uri.match(re)) {
+                return uri.replace(re, '$1' + key + "=" + value + '$2');
+            }
+            else {
+                return uri + separator + key + "=" + value;
+            }
+        }
+
+        // Função para remover um parâmetro da string de consulta na URL do navegador
+        function removeQueryStringParameter(url, parameter) {
+            var urlParts = url.split('?');
+            if (urlParts.length >= 2) {
+                var prefix = encodeURIComponent(parameter) + '=';
+                var parts = urlParts[1].split(/[&;]/g);
+
+                // Iterar sobre os parâmetros na string de consulta
+                for (var i = parts.length; i-- > 0;) {
+                    if (parts[i].lastIndexOf(prefix, 0) !== -1) {
+                        parts.splice(i, 1);
+                    }
+                }
+
+                // Se ainda houver parâmetros, recrie a string de consulta
+                if (parts.length > 0) {
+                    url = urlParts[0] + '?' + parts.join('&');
+                } else {
+                    // Se não houver mais parâmetros, remova completamente a string de consulta
+                    url = urlParts[0];
+                }
+            }
+
+            return url;
+        }
     });
 </script>

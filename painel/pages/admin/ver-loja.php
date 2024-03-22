@@ -562,7 +562,7 @@
                             <small>Clique em acessar para acessar a loja</small>
                         </div>
                         <div class="d-flex align-items-center">
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?id=<?php echo $user['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Acessar</a>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?user_id=<?php echo $user['id']; ?>&shop_id=<?php echo $shop['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Acessar</a>
                         </div>
                     </div>
                     <div class="mb-3">

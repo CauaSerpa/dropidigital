@@ -23,8 +23,8 @@
         $tabela = 'tb_articles';
 
         // Edita o produto no banco de dados da loja
-        $sql = "INSERT INTO $tabela (shop_id, status, emphasis, name, link, content, seo_name, seo_link, seo_description) VALUES 
-                                    (:shop_id, :status, :emphasis, :name, :link, :content, :seo_name, :seo_link, :seo_description)";
+        $sql = "INSERT INTO $tabela (shop_id, status, emphasis, name, content, seo_name, link, seo_description) VALUES 
+                                    (:shop_id, :status, :emphasis, :name, :content, :seo_name, :link, :seo_description)";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -32,10 +32,9 @@
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
-        $stmt->bindParam(':link', $dados['link']);
         $stmt->bindParam(':content', $dados['content']);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
-        $stmt->bindParam(':seo_link', $dados['seo_link']);
+        $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
 
         $stmt->execute();

@@ -448,6 +448,16 @@
         justify-content: center;
     }
 
+    /* Form */
+    #newsletterForm
+    {
+        align-items: center;
+    }
+    #newsletterForm input.form-control,
+    #newsletterForm .btn.btn-dark
+    {
+        height: 48px;
+    }
     
     .categories
     {
@@ -489,7 +499,7 @@
     }
 
     /* Responsive */
-    @media screen and (max-width: 768px) {
+    @media screen and (max-width: 991px) {
         /* Header */
         .categories.scroll
         {
@@ -1012,7 +1022,7 @@
                         $countArticles = $stmt->rowCount();
                     ?>
                     <a href="<?php echo INCLUDE_PATH_LOJA; ?>blog/" class="blog btn btn-light d-flex justify-content-end align-items-center <?php echo ($countArticles == 0) ? "d-none" : ""; ?>">
-                        <img style="height: 28px; margin-right: 7px;" src="https://cdn.awsli.com.br/2544/2544943/arquivos/blog.svg">
+                        <img style="height: 28px; margin-right: 7px;" src="<?php echo INCLUDE_PATH; ?>assets/loja/icon/blog.png" alt="Icon">
                         <strong class="titulo text-dark">Blog</strong>
                     </a>
                 </div>
@@ -1380,8 +1390,8 @@ $(document).ready(function() {
         <div class="container">
             <div class="row p-4" id="newsletterContainer">
                 <p class="col-md-6 d-flex align-items-center fs-4">
-                    <i class='bx bx-mail-send fs-2 me-2'></i>
-                    Receba Ofertas e Novidades de nossa loja
+                    <i class='bx bxl-whatsapp fs-2 me-2'></i>
+                    Quero participar do canal do WhatsApp ou grupo fechado e receber as promoções
                 </p>
                 <form class="col-md-6 d-flex" role="text" id="newsletterForm">
                     <input class="form-control py-1 px-3 me-2" type="text" name="email" id="email" placeholder="E-mail" aria-label="E-mail">

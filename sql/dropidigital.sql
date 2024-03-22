@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 15/03/2024 às 03:56
+-- Tempo de geração: 21/03/2024 às 22:29
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -63,11 +63,10 @@ CREATE TABLE `tb_articles` (
   `status` tinyint(1) NOT NULL,
   `emphasis` tinyint(1) NOT NULL DEFAULT 0,
   `name` varchar(255) NOT NULL,
-  `link` varchar(255) NOT NULL,
   `image` varchar(255) NOT NULL,
   `content` text NOT NULL,
   `seo_name` varchar(255) NOT NULL,
-  `seo_link` varchar(255) NOT NULL,
+  `link` varchar(255) NOT NULL,
   `seo_description` varchar(255) NOT NULL,
   `date_create` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

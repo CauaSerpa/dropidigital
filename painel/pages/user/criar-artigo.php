@@ -73,8 +73,8 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="linkInput" class="form-label small">Nome do artigo *</label>
-                <input type="text" class="form-control" name="name" id="linkInput" maxlength="120" aria-describedby="nameHelp" require>
+                <label for="name" class="form-label small">Nome do artigo *</label>
+                <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require>
                 <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/blog/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
             <div class="mb-3">
@@ -138,11 +138,16 @@
         </div>
     </div>
 
-    <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
     <input type="hidden" name="image_id" value="<?php echo $image_id; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="text-decoration-none text-reset">Cancelar</a>
             <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
@@ -163,26 +168,33 @@
     // Aguarde o documento estar pronto
     $(document).ready(function() {
         // Selecione o campo de entrada e o span
-        var input = $("#linkInput");
+        var input = $("#name");
         var span = $("#linkPreview");
 
-        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        var inputText2 = $('#textInput2');
+        var textPreview2 = $('#textPreview2');
+
         input.on("input", function() {
-            // Obtenha o valor atual do campo de entrada
-            var valor = input.val();
+            var value = input.val();
 
-            if (valor === '') {
-                valor = '...';
+            // Remover acentos e substituir espaços por traço
+            value = removerAcentosEespacos(value);
+            
+            span.text(value);
+
+            inputText2.val(value);
+            textPreview2.text(value);
+
+            if (value === '') {
+                span.text("...");
+                textPreview2.text("link-da-pagina");
             }
-            
-            // Substitua espaços extras por um único traço e converta para letras minúsculas
-            valor = valor.replace(/\s+/g, "-").toLowerCase();
-            
-            // Atualize o texto no span com o valor formatado
-            span.text(valor);
-
-            $('#link').val(valor);
         });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
     });
 </script>
 
@@ -257,6 +269,7 @@
         var inputText3 = $('#textInput3');
         var textPreview1 = $('#textPreview1');
         var textPreview2 = $('#textPreview2');
+        var linkPreview = $('#linkPreview');
         var textPreview3 = $('#textPreview3');
 
         inputText1.on('input', function () {
@@ -270,11 +283,14 @@
         inputText2.on("input", function() {
             var text = inputText2.val();
             if (text === '') {
-                text = 'link-da-pagina';
+                text = 'link-da-categoria';
+                linkPreview.text('...');
             }
-            newText = text.replace(/\s+/g, "-").toLowerCase();
-            $(this).val($(this).val().replace(/\s+/g, "-").toLowerCase());
+            // Remover acentos e substituir espaços por traço
+            newText = removerAcentosEespacos(text);
+            $(this).val($(this).val().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
+            linkPreview.text(newText);
         });
 
         inputText3.on('input', function () {
@@ -284,6 +300,11 @@
             }
             textPreview3.text(newText);
         });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
     });
 </script>
 

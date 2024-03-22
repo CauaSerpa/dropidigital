@@ -44,6 +44,38 @@
         flex-direction: column;
         justify-content: center;
     }
+
+    @media screen and (max-width: 991px) {
+        /* Carrossel */
+        #blogCarousel
+        {
+            margin-top: <?php echo ($top_highlight_bar == 1) ? "99px" : "67px"; ?> !important;
+        }
+        #blogCarousel .carousel-control-prev
+        {
+            left: 32px;
+        }
+        #blogCarousel .carousel-control-next
+        {
+            right: 30px;
+        }
+
+        .article-carousel .article-item img
+        {
+            height: 300px !important;
+        }
+
+        .article-preview
+        {
+            display: block;
+        }
+
+        .article-preview img
+        {
+            width: 100%;
+            height: auto;
+        }
+    }
 </style>
 
 <div id="blogCarousel" class="carousel container slide mb-4 px-4" data-bs-ride="carousel" style="margin-top: <?php echo ($top_highlight_bar == 1) ? "186.39px" : "154.39px"; ?>;">
@@ -209,61 +241,5 @@
     var blogCarrossel = new bootstrap.Carousel(document.getElementById('blogCarousel'), {
         interval: 2000, // Tempo de exibição de cada slide em milissegundos (opcional)
         wrap: true // Se o carrossel deve voltar ao primeiro slide após o último (opcional)
-    });
-</script>
-
-<!-- Responsive Carrossel -->
-<script>
-    // Obtem o tamanho da imagem do produto  
-    function obterTamanhoDaImagem() {
-        // Obter a largura do elemento com id "meuDiv"
-        var larguraDoDiv = $('.product-image').width();
-
-        $('.product-image .card-img-top').css('height', larguraDoDiv);
-    }
-
-    // Função para verificar o tamanho da tela
-    function verificarTamanhoDaTela() {
-        // Obter a largura da tela
-        var larguraDaTela = $(window).width();
-
-        // Fazer algo com a largura, por exemplo, exibir um alerta
-        if (larguraDaTela < 576) {
-            $('.numBanner').removeClass('col-sm-3');
-            $('.numBanner').removeClass('col-sm-4');
-            $('.numBanner').removeClass('col-sm-6');
-
-            $('.numBanner').addClass('col-sm-12');
-        } else if (larguraDaTela < 992) {
-            $('.numBanner').removeClass('col-sm-3');
-            $('.numBanner').removeClass('col-sm-4');
-            $('.numBanner').removeClass('col-sm-12');
-
-            $('.numBanner').addClass('col-sm-6');
-        } else if (larguraDaTela < 1024) {
-            $('.numBanner').removeClass('col-sm-3');
-            $('.numBanner').removeClass('col-sm-6');
-            $('.numBanner').removeClass('col-sm-12');
-
-            $('.numBanner').addClass('col-sm-4');
-        } else {
-            $('.numBanner').removeClass('col-sm-4');
-            $('.numBanner').removeClass('col-sm-6');
-            $('.numBanner').removeClass('col-sm-12');
-
-            $('.numBanner').addClass('col-sm-3');
-        }
-    }
-
-    // Chamar a função ao carregar a página
-    $(document).ready(function() {
-        obterTamanhoDaImagem();
-        verificarTamanhoDaTela();
-    });
-
-    // Chamar a função ao redimensionar a tela
-    $(window).resize(function() {
-        obterTamanhoDaImagem();
-        verificarTamanhoDaTela();
     });
 </script>

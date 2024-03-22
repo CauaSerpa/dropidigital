@@ -87,7 +87,7 @@
 
                                     <ul class="navigation clearfix">
                                         <li><i class="far fa-envelope"></i> <a href="mailto:support@gmail.com">suporte@dropidigital.com.br</a></li>
-                                        <li><i class="fa-brands fa-whatsapp"></i><a href="callto:+5511992890194">+55 11 99289-0194</a></li>
+                                        <li><i class="fa-brands fa-whatsapp"></i><a href="https://api.whatsapp.com/send?phone=5511940496818" target="_blank">+55 11 94049-6818</a></li>
                                         <li class="for-none"><i class="far fa-clock"></i>São Paulo</li>
                                         <li>
                                             <div class="social-style-one">
@@ -129,12 +129,13 @@
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-6 align-self-center">
-                        <div class="home hero-content pt-115 pb-125 rpb-0 wow fadeInUp delay-0-4s">
+                        <div class="home hero-content pt-80 pb-125 rpb-0 wow fadeInUp delay-0-4s">
                             <h1>#DropiDigital</h1>
-                            <p>Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje. Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.
-                                Todas as possibilidades e um únicos lugar. Dropi Digital. 
-                                Somos o Integrador com melhores programas de afiliados do mercado. Hotmart, Eduzz, Monetizee, Amazon, Shopee, Magazine, Luiza, Clickbank entre outros.
-                                Clique em criar conta e comece agora, mesmo que seja iniciante. É grátis.
+                            <p>Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje. Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.<br><br>
+                                Todas as possibilidades e um únicos lugar. Dropi Digital.<br><br>
+                                Somos o Integrador com melhores programas de afiliados do mercado. Hotmart, kiwify, Eduzz, Monetizee, Amazon, Shopee, Magazine Luiza, shein, Clickbank entre outros.<br><br>
+                                Clique em criar conta e comece agora, mesmo que seja iniciante.<br>
+                                É grátis.
                             </p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar" class="theme-btn mt-20 wow fadeInUp delay-0-6s">Criar site Grátis<i class="fas fa-long-arrow-right"></i></a>
                             <div class="hero-shapes">
@@ -261,11 +262,11 @@
                         <div class="about-content rmb-65 wow fadeInLeft delay-0-2s">
                             <div class="section-title mb-30">
                                 <span class="sub-title mb-15">SOBRE NOS!</span>
-                                <h2>Bem-vindos a nossa fábrica de e-commerce</h2>
+                                <h2>Bem-vindos a nossa fábrica de Sites</h2>
                             </div>
-                            <p>Somos uma empresa que permite aos seus clientes / usuários à criarem suas lojas de dropshipping de produtos digitais, produtos físicos e serviços.<br><br>
-                                Na Dropi Digital você monta suas loja, cadastrando o seus links de afiliados permitindo a divulgação de diversos produtos ao mesmo tempo.<br><br>
-                                Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar um site de catálogo e divulgar sua empresa e serviços, com chama de ação para compra, conversa no WhatsApp, botão saber mais e agenda.</p>
+                            <p>Somos uma plataforma que permite aos seus clientes / usuários à criarem seus sites de serviços, dropshipping de produtos digitais e produtos físicos.<br><br>
+                                Na Dropi Digital você criar seu site, cadastrando o seus links de afiliados permitindo a divulgação de diversos produtos ao mesmo tempo.<br><br>
+                                Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar um site de catálogo e divulgar sua empresa e serviços, com chamada de ação para compra, conversa no WhatsApp, botão saber mais e agenda.</p>
                             <div class="about-btns mb-45">
                                 <a href="about.html" class="theme-btn mt-15">Cadastrar<i class="fas fa-long-arrow-right"></i></a>
                                 <div class="hotline mt-15">
@@ -280,7 +281,7 @@
                                 <div class="col-sm-6">
                                     <div class="service-item active">
                                         <div class="icon">
-                                            <img src="assets/images/services/icon2.png" alt="Icon">
+                                            <img src="assets/images/services/icon2.jpg" alt="Icon">
                                         </div>
                                         <h4><a href="service-details.html">Afiliados</a></h4>
                                         <p>Monte sua loja virtual em poucos cliques com os produtos do qual é afiliados. E comece a vender ainda hoje.</p>
@@ -289,7 +290,7 @@
                                 <div class="col-sm-6">
                                     <div class="service-item">
                                         <div class="icon">
-                                            <img src="assets/images/services/icon1.png" alt="Icon">
+                                            <img src="assets/images/services/icon1.jpg" alt="Icon">
                                         </div>
                                         <h4><a href="service-details.html">Site de catálogo</a></h4>
                                         <p>Monte seu site cadastrando seus produtos e seviços totalmente otimizado para o google.</p>
@@ -1348,7 +1349,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                             <div class="contact-info-part">
                                 <div class="contact-info-item">
                                     <div class="icon">
-                                        <i class="far fa-map-marked-alt"></i>
+                                        <i class="fa-regular fa-map"></i>
                                     </div>
                                     <div class="content">
                                         <span>Localização</span>
@@ -1357,7 +1358,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                                 </div>
                                 <div class="contact-info-item">
                                     <div class="icon">
-                                        <i class="far fa-envelope-open-text"></i>
+                                        <i class="fa-regular fa-envelope"></i>
                                     </div>
                                     <div class="content">
                                         <span>E-mail</span>
@@ -1366,11 +1367,11 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                                 </div>
                                 <div class="contact-info-item">
                                     <div class="icon">
-                                        <div class="far fa-phone"></div>
+                                        <i class="fa-brands fa-whatsapp"></i>
                                     </div>
                                     <div class="content">
                                         <span>Contato</span>
-                                        <h5><a href="calto:+000(123)45688">+55 12 98252-3912</a></h5>
+                                        <h5><a href="https://api.whatsapp.com/send?phone=5511940496818">+55 11 94049-6818</a></h5>
                                     </div>
                                 </div>
                             </div>

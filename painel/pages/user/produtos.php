@@ -427,6 +427,7 @@
     });
 </script>
 
+<!-- Search -->
 <script>
     $(document).ready(function() {
         // Ao clicar no botão de pesquisa

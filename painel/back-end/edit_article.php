@@ -23,7 +23,7 @@
         $tabela = 'tb_articles';
 
         // Edita o produto no banco de dados da loja
-        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, content = :content, link = :link, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description WHERE id = :id";
+        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, content = :content, seo_name = :seo_name, link = :link, seo_description = :seo_description WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -31,9 +31,8 @@
         $stmt->bindParam(':emphasis', $emphasis);
         $stmt->bindParam(':name', $dados['name']);
         $stmt->bindParam(':content', $dados['content']);
-        $stmt->bindParam(':link', $dados['link']);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
-        $stmt->bindParam(':seo_link', $dados['seo_link']);
+        $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
 
         // Id que sera editado
