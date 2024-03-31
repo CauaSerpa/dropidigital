@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 21/03/2024 às 22:29
+-- Tempo de geração: 30/03/2024 às 06:40
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -100,6 +100,25 @@ CREATE TABLE `tb_banner_info` (
   `target` varchar(255) DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 0,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_blog`
+--
+
+CREATE TABLE `tb_blog` (
+  `id` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `emphasis` tinyint(1) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `seo_name` varchar(255) NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `seo_description` varchar(255) NOT NULL,
   `date_create` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -457,6 +476,12 @@ ALTER TABLE `tb_banner_info`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tb_blog`
+--
+ALTER TABLE `tb_blog`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `tb_categories`
 --
 ALTER TABLE `tb_categories`
@@ -578,6 +603,12 @@ ALTER TABLE `tb_banner_img`
 -- AUTO_INCREMENT de tabela `tb_banner_info`
 --
 ALTER TABLE `tb_banner_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_blog`
+--
+ALTER TABLE `tb_blog`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

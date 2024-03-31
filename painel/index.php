@@ -392,6 +392,22 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios-proprios" class="<?php activeSidebarLink('dominios-proprios'); ?>">Domínios Próprios</a></li>
                 </ul>
             </li>
+            <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="sidebar_link">
+                                <i class='bx bx-desktop' ></i>
+                            </a>
+                            <span class="link_name">Blog</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos">Blog</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('editar-artigo'); ?>">Listar Artigos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">+ Criar Artigo</a></li>
+                </ul>
+            </li>
             <div class="sidebar_bottom">
                 <li>
                     <div class="iocn-link">

@@ -315,7 +315,7 @@
     <div class="row p-4">
         <div class="col-sm-12">
             <div id="video-display" class="d-flex justify-content-center">
-                <div class="d-flex justify-content-center">
+                <div class="video-wrapper d-flex justify-content-center">
                     <?php
                         // Função para extrair o código do vídeo do URL do YouTube
                         function getYoutubeEmbedCode($url) {
@@ -324,7 +324,7 @@
                                 $videoCode = $matches[1];
 
                                 // Gera o código de incorporação
-                                $embedCode = '<iframe width="1240" height="527" src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen></iframe>';
+                                $embedCode = '<iframe src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen></iframe>';
 
                                 return $embedCode;
                             } else {
@@ -415,36 +415,27 @@
                 echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/depositions/' . $product['img'] . '" class="rounded-circle mb-2" alt="Produto 1" style="width: 150px;">';
                 echo '<p class="card-title">' . $product['name'] . '</p>';
                 echo '<p class="card-text small lh-sm text-black-50 mb-2">"' . $product['testimony'] . '"</p>';
-                echo '<div class="rating' . $contador . ' dep-stars text-warning">';
-                
-                // Código JavaScript para gerar as estrelas de classificação com base na coluna 'rating' do banco de dados
-                echo '<script>';
-                echo 'const classificacao' . $contador . ' = ' . $product['qualification'] . ';';
-                echo 'const ratingContainer' . $contador . ' = document.createElement("div");';
-                echo 'ratingContainer' . $contador . '.className = "stars";';
-                echo 'for (let i = 0; i < 5; i++) {';
-                echo '  const star = document.createElement("i");';
-                echo '  if (i < classificacao' . $contador . ') {';
-                echo '    star.className = "bx bxs-star";'; // Estrela ativa
-                echo '  } else {';
-                echo '    star.className = "bx bx-star";'; // Estrela inativa
-                echo '  }';
-                echo '  ratingContainer' . $contador . '.appendChild(star);';
-                echo '}';
-                echo 'document.querySelector(".rating' . $contador . '").appendChild(ratingContainer' . $contador . ');';
-                echo '</script>';
-                
+                echo '<div class="dep-stars text-warning" data-qualification="' . $product['qualification'] . '"></div>';
                 echo '</div>';
                 echo '</div>';
                 echo '</div>';
-                echo '</div>';
-
-                // Incrementar o contador
-                $contador++;
             }
         ?>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.dep-stars').forEach(function(ratingContainer) {
+        const qualification = parseInt(ratingContainer.getAttribute('data-qualification'), 10);
+        for (let i = 0; i < 5; i++) {
+            const star = document.createElement("i");
+            star.className = i < qualification ? "bx bxs-star" : "bx bx-star";
+            ratingContainer.appendChild(star);
+        }
+    });
+});
+</script>
 
 <?php
     }

@@ -380,23 +380,41 @@
 
     <?php
         // Nome da tabela para a busca
-        $tabela = 'tb_products';
+        $tabela = 'tb_product_categories';
 
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND id != :current_product ORDER BY id ASC LIMIT 4";
+        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id ORDER BY (main = 1) DESC LIMIT 1";
 
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindParam(':shop_id', $shop_id);
-        $stmt->bindValue(':status', 1);
-        $stmt->bindParam(':current_product', $product['id']);
+        $stmt->bindParam(':product_id', $product['id']);
         $stmt->execute();
 
         // Recuperar os resultados
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $productCategory = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        // Verifica se encontrou a categoria
+        if ($productCategory) {
+            // Nova consulta para buscar produtos na mesma categoria
+            $sql = "SELECT p.* FROM tb_products p
+                    INNER JOIN tb_product_categories pc ON p.id = pc.product_id
+                    WHERE pc.category_id = :category_id AND p.shop_id = :shop_id AND p.status = :status AND p.id != :current_product
+                    GROUP BY p.id
+                    ORDER BY p.id ASC
+                    LIMIT 4";
 
-        // Inicialize uma variável de controle e um contador
-        $primeiroElemento = true;
-        $contador = 0;
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':category_id', $productCategory['category_id']);
+            $stmt->bindParam(':shop_id', $shop_id);
+            $stmt->bindValue(':status', 1);
+            $stmt->bindParam(':current_product', $product['id']);
+            $stmt->execute();
+
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Inicialize uma variável de controle e um contador
+            $primeiroElemento = true;
+            $contador = 0;
 
         if ($resultados) {
     ?>
@@ -466,12 +484,12 @@
                         $discount = $price;
                     }
 
+                    // Link do produto
+                    $link = INCLUDE_PATH_LOJA . $product['link'];
+
                     if ($product['without_price']) {
                         $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
                     }
-
-                    // Link do produto
-                    $link = INCLUDE_PATH_LOJA . $product['link'];
 
                     echo '<div class="col-sm-3 numBanner">';
                     echo '<a href="' . $link . '" class="product-link">';
@@ -507,6 +525,7 @@
     </div>
     <?php
         }
+    }
     ?>
 </div>
 <script>

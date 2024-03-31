@@ -479,6 +479,6 @@ function checkChanges() {
         echo "ID não encontrado.";
     }
 } else {
-    echo "É necessário selecionar um produto!";
+    echo "É necessário selecionar um artigo!";
 }
 ?>

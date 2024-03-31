@@ -468,6 +468,24 @@
         transform: translateY(-65px);
     }
 
+    /* Estilo para tornar o iframe do YouTube responsivo */
+    .video-wrapper
+    {
+        overflow: hidden;
+        padding-top: 56.20%; /* Mantém a proporção de 16:9 */
+        position: relative;
+        width: 100%;
+    }
+
+    .video-wrapper iframe
+    {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
     .to-top
     {
         position: fixed;
@@ -1931,7 +1949,7 @@ $(document).ready(function() {
     <script>
         // Inicialize o carrossel
         $('#testimonyCarousel').owlCarousel({
-            loop: false, // Loop infinito
+            loop: true, // Loop infinito
             margin: 15, // Espaçamento entre os itens
             nav: true, // Navegação (setas)
             autoplay: true, // Ativar autoplay

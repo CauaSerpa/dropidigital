@@ -64,6 +64,12 @@
     }
 </style>
 <style>
+    a:hover
+    {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
     .main .container.grid,
     .home .container
     {
