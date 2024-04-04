@@ -311,7 +311,7 @@
     }
 ?>
 
-<div class="container">
+<div class="container <?php echo ($video == "") ? "d-none" : ""; ?>">
     <div class="row p-4">
         <div class="col-sm-12">
             <div id="video-display" class="d-flex justify-content-center">

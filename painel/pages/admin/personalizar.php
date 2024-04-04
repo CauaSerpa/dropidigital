@@ -1,3 +1,33 @@
+<?php
+    // Tabela que sera feita a consulta
+    $tabela = "tb_home";
+
+    // ID que você deseja pesquisar
+    $id = 1;
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $home = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificar se o resultado foi encontrado
+    if ($home) {
+        // Remove tudo que não seja dígito ou o sinal de mais (+)
+        $formatted_number = preg_replace('/[^\d+]/', '', $home['whatsapp']);
+
+        // Cria link com o numero formatado
+        $whatsapp_link = "https://api.whatsapp.com/send?phone=" . $formatted_number;
+?>
 <style>
     .main
     {
@@ -61,6 +91,10 @@
     {
         background: var(--green-color);
         border-color: var(--green-color);
+    }
+    .btn.btn-success:hover
+    {
+        background: var(--dark-green-color);
     }
 </style>
 <style>
@@ -185,11 +219,15 @@
             <div class="modal-body">
                 <!-- Container para o input ou textarea -->
                 <div class="mb-3">
+                    <label for="namePartner" class="form-label small">Parceiro *</label>
+                    <input type="text" class="form-control" name="name_partner" id="namePartner" aria-describedby="namePartnerHelp" required>
+                </div>
+                <div class="mb-3">
                     <label for="linkPartner" class="form-label small">Link para site do parceiro *</label>
                     <input type="text" class="form-control" name="link_partner" id="linkPartner" aria-describedby="linkPartnerHelp" required>
                 </div>
-                <label for="upload-button" class="image-container mt-3">
-                    <input type="file" name="imagens[]" id="upload-button" multiple accept="image/*" />
+                <!-- <label for="upload-button" class="image-container mt-3">
+                    <input type="file" name="imagem" id="upload-button" accept="image/*" />
                     <div for="upload-button" class="dropzone">
                         <i class='bx bx-image fs-1'></i>
                         <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
@@ -198,15 +236,55 @@
                 </label>
                 <div class="sortable-container mt-3">
                     <div id="image-display"></div>
-                </div>
+                </div> -->
+                <label for="partner-image" class="image-container mt-3">
+                    <img src="#" alt="Image Preview" class="image-preview" id="partner-image-preview" style="display: none;">
+                    <div class="dropzone" id="text-1">
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                        <small id="dimensions">Dimensões: 1920 x 535px</small>
+                    </div>
+                </label>
+                <input type="file" name="image" id="partner-image" accept="image/*" />
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-success fw-semibold px-4 py-2 small">Adicionar</button>
+                <button type="button" class="btn btn-success fw-semibold px-4 py-2 small" id="addPartner" data-bs-dismiss="modal">Adicionar</button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function imagePreview(fileInputId, imagePreviewId, textId) {
+        const imagePreview = document.getElementById(imagePreviewId);
+        const fileInput = document.getElementById(fileInputId);
+        const text = document.getElementById(textId);
+        let previousImageSrc = "";
+
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previousImageSrc = imagePreview.src; // Armazenar imagem anterior
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    text.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reverter para a imagem anterior
+                imagePreview.src = previousImageSrc;
+                imagePreview.style.display = "none"; // Exibir a imagem anterior
+                text.style.display = "none";
+            }
+        });
+    }
+
+    // Inicialize para os três pares de botão de upload e visualização de imagem
+    imagePreview("partner-image", "partner-image-preview", "text-1");
+</script>
 
     <div class="page-wrapper">
 
@@ -300,23 +378,15 @@
                         <div class="home hero-content pt-80 pb-125 rpb-0 wow fadeInUp delay-0-4s">
                             <div class="editable-wrapper">
                                 <div class="editable-content">
-                                    <h1 class="editable" data-editable-id="1" data-input-type="text" data-max-length="70">#DropiDigital</h1>
+                                    <h1 class="editable" data-editable-id="1" data-input-type="text" data-max-length="70"><?= $home['title-1']; ?></h1>
                                 </div>
-                                <span class="edit-icon">&#9998;</span>
+                                <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                             </div>
                             <div class="editable-wrapper">
                                 <div class="editable-content">
-                                    <p class="editable" data-editable-id="2" data-input-type="textarea" data-max-length="1000">Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje. Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.<br><br>
-
-Todas as possibilidades e um únicos lugar. Dropi Digital.<br><br>
-
-Somos o Integrador com melhores programas de afiliados do mercado. Hotmart, kiwify, Eduzz, Monetizee, Amazon, Shopee, Magazine Luiza, shein, Clickbank entre outros.<br><br>
-
-Clique em criar conta e comece agora, mesmo que seja iniciante.<br>
-É grátis.
-                                    </p>
+                                    <p class="editable" data-editable-id="2" data-input-type="textarea" data-max-length="1000"><?= nl2br(htmlspecialchars($home['content-1'])); ?></p>
                                 </div>
-                                <span class="edit-icon">&#9998;</span>
+                                <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                             </div>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar" class="theme-btn mt-20 wow fadeInUp delay-0-6s">Criar site Grátis<i class="fas fa-long-arrow-right"></i></a>
                             <div class="hero-shapes">
@@ -346,111 +416,132 @@ Clique em criar conta e comece agora, mesmo que seja iniciante.<br>
                <div class="section-title text-center mb-50 wow fadeInUp delay-0-2s">
                     <div class="editable-wrapper d-inline-block">
                         <div class="editable-content">
-                            <span class="sub-title mb-15 editable" data-editable-id="3" data-input-type="text" data-max-length="255">Conheça os melhores programas de afiliados do mercado</span>
+                            <span class="sub-title mb-15 editable" data-editable-id="3" data-input-type="text" data-max-length="255"><?= $home['title-2']; ?></span>
                         </div>
-                        <span class="edit-icon">&#9998;</span>
+                        <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                     </div>
                     <div class="editable-wrapper">
                         <div class="editable-content">
-                            <h2 class="editable" data-editable-id="4" data-input-type="text" data-max-length="255">Empresas para gerar seus links de afiliados e montar sua loja aqui na Dropi Digital</h2>
+                            <h2 class="editable" data-editable-id="4" data-input-type="text" data-max-length="255"><?= $home['content-2']; ?></h2>
                         </div>
-                        <span class="edit-icon">&#9998;</span>
+                        <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                     </div>
                 </div>
-                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
-                    <div class="col">
+                <style>
+                    .col-custom-5 {
+                        flex: 0 0 auto !important;
+                        width: 20% !important;
+                    }
+                </style>
+                <div class="row g-2" id="partnersContainer">
+                    <?php
+                        // Tabela que sera feita a consulta
+                        $tabela = "tb_partners";
+
+                        // Consulta SQL
+                        $sql = "SELECT * FROM $tabela ORDER BY id ASC";
+
+                        // Preparar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+
+                        // Executar a consulta
+                        $stmt->execute();
+
+                        // Obter o resultado como um array associativo
+                        $partners = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        // Contador para dividir em linhas
+                        $contador = 0;
+                    ?>
+                    <!-- Loop para exibir os parceiros -->
+                    <?php foreach ($partners as $partner) : ?>
+                        <div class="col col-custom-5">
+                            <a href="<?= $partner['link']; ?>" class="partner-item wow fadeInUp delay-0-<?= $contador % 5 + 3 ?>s">
+                                <img src="<?= INCLUDE_PATH; ?>assets/images/partners/<?= $partner['image']; ?>" alt="Parceiro <?= $partner['name']; ?>">
+                            </a>
+                        </div>
+                        <?php $contador++; ?>
+                    <?php endforeach; ?>
+                    <!-- <div class="col col-custom-5">
                         <a href="https://hotmart.com/pt-br" class="partner-item wow fadeInUp delay-0-3s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-1.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://www.eduzz.com/pt-br" class="partner-item wow fadeInUp delay-0-4s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-2.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://www.monetizze.com.br" class="partner-item wow fadeInUp delay-0-5s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-3.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://associados.amazon.com.br" class="partner-item wow fadeInUp delay-0-6s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-4.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://shopee.com.br/m/afiliados" class="partner-item wow fadeInUp delay-0-7s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-5.jpg" alt="Partner">
                         </a>
                     </div>
-                </div>
-                <!-- Line 2 -->
-                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://site.braip.com/afiliado/" class="partner-item wow fadeInUp delay-0-3s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-6.svg" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://www.clickbank.com/affiliates-v2/" class="partner-item wow fadeInUp delay-0-4s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-7.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://m.shein.com/br/campus-affiliate-a-1500.html" class="partner-item wow fadeInUp delay-0-5s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-8.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://www.lomadee.com/pt_br/afiliados/" class="partner-item wow fadeInUp delay-0-6s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-9.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://www.parceiromagalu.com.br" class="partner-item wow fadeInUp delay-0-7s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-10.png" alt="Partner">
                         </a>
                     </div>
-                </div>
-                <!-- Line 3 -->
-                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://afilio.com.br/afiliados/" class="partner-item wow fadeInUp delay-0-3s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-11.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://www.leadsmarket.com/payday-loan-publisher-program" class="partner-item wow fadeInUp delay-0-4s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-12.svg" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://portals.aliexpress.com/affiportals/web/portals.htm#/home" class="partner-item wow fadeInUp delay-0-5s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-13.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://kiwify.com.br" class="partner-item wow fadeInUp delay-0-6s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-14.png" alt="Partner">
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-custom-5">
                         <a href="https://www.mercadolivre.com.br/l/afiliados-home?isSparkleRedirect=true#variant_sparkle/afiliados=26141&origin=sparkle" class="partner-item wow fadeInUp delay-0-7s">
                             <img src="<?php echo INCLUDE_PATH; ?>assets/images/partners/partner-15.png" alt="Partner">
                         </a>
-                    </div>
-                </div>
-                <!-- Line 4 -->
-                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
-                    <div class="col add-partner">
+                    </div> -->
+                    <div class="col col-custom-5 add-partner">
                         <a href="#" class="partner-item wow fadeInUp delay-0-3s" data-bs-toggle="modal" data-bs-target="#addPartnerModal">
                             <i class="fa-solid fa-plus fs-1"></i>
                         </a>
                     </div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
                 </div>
             </div>
         </section>
@@ -466,26 +557,22 @@ Clique em criar conta e comece agora, mesmo que seja iniciante.<br>
                             <div class="section-title mb-30">
                                 <div class="editable-wrapper">
                                     <div class="editable-content">
-                                        <span class="sub-title mb-15 editable" data-editable-id="5" data-input-type="text" data-max-length="255">SOBRE NOS!</span>
+                                        <span class="sub-title mb-15 editable" data-editable-id="5" data-input-type="text" data-max-length="255"><?= $home['about-subtitle-3']; ?></span>
                                     </div>
-                                    <span class="edit-icon">&#9998;</span>
+                                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                                 </div>
                                 <div class="editable-wrapper">
                                     <div class="editable-content">
-                                        <h2 class="editable" data-editable-id="6" data-input-type="text" data-max-length="255">Bem-vindos a nossa fábrica de Sites</h2>
+                                        <h2 class="editable" data-editable-id="6" data-input-type="text" data-max-length="255"><?= $home['about-title-3']; ?></h2>
                                     </div>
-                                    <span class="edit-icon">&#9998;</span>
+                                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                                 </div>
                             </div>
                             <div class="editable-wrapper">
                                 <div class="editable-content">
-                            <p class="editable" data-editable-id="7" data-input-type="textarea" data-max-length="1000">Somos uma plataforma que permite aos seus clientes / usuários à criarem seus sites de serviços, dropshipping de produtos digitais e produtos físicos.<br><br>
-
-Na Dropi Digital você criar seu site, cadastrando o seus links de afiliados permitindo a divulgação de diversos produtos ao mesmo tempo.<br><br>
-
-Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar um site de catálogo e divulgar sua empresa e serviços, com chamada de ação para compra, conversa no WhatsApp, botão saber mais e agenda.</p>
+                            <p class="editable" data-editable-id="7" data-input-type="textarea" data-max-length="1000"><?= nl2br(htmlspecialchars($home['about-content-3'])); ?></p>
                                 </div>
-                                <span class="edit-icon">&#9998;</span>
+                                <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                             </div>
                             <div class="about-btns mb-45">
                                 <a href="about.html" class="theme-btn mt-15">Cadastrar<i class="fas fa-long-arrow-right"></i></a>
@@ -501,38 +588,38 @@ Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar 
                                 <div class="col-sm-6">
                                     <div class="service-item active">
                                         <div class="icon">
-                                            <img src="<?php echo INCLUDE_PATH; ?>assets/images/services/icon2.jpg" alt="Icon">
+                                            <img src="<?php echo INCLUDE_PATH; ?>assets/images/services/<?= $home['service-icon-1']; ?>" alt="Icon">
                                         </div>
                                         <div class="editable-wrapper">
                                             <div class="editable-content">
-                                                <h4><a href="service-details.html" class="editable" data-editable-id="8" data-input-type="text" data-max-length="255">Afiliados</a></h4>
+                                                <h4><a href="service-details.html" class="editable" data-editable-id="8" data-input-type="text" data-max-length="255"><?= $home['service-title-1']; ?></a></h4>
                                             </div>
-                                            <span class="edit-icon">&#9998;</span>
+                                            <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                                         </div>
                                         <div class="editable-wrapper">
                                             <div class="editable-content">
-                                                <p class="editable" data-editable-id="9" data-input-type="textarea" data-max-length="1000">Monte sua loja virtual em poucos cliques com os produtos do qual é afiliados. E comece a vender ainda hoje.</p>
+                                                <p class="editable" data-editable-id="9" data-input-type="textarea" data-max-length="1000"><?= nl2br(htmlspecialchars($home['service-description-1'])); ?></p>
                                             </div>
-                                            <span class="edit-icon">&#9998;</span>
+                                            <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="service-item">
                                         <div class="icon">
-                                            <img src="<?php echo INCLUDE_PATH; ?>assets/images/services/icon1.jpg" alt="Icon">
+                                            <img src="<?php echo INCLUDE_PATH; ?>assets/images/services/<?= $home['service-icon-2']; ?>" alt="Icon">
                                         </div>
                                         <div class="editable-wrapper">
                                             <div class="editable-content">
-                                                <h4><a href="service-details.html" class="editable" data-editable-id="10" data-input-type="text" data-max-length="255">Site de catálogo</a></h4>
+                                                <h4><a href="service-details.html" class="editable" data-editable-id="10" data-input-type="text" data-max-length="255"><?= $home['service-title-2']; ?></a></h4>
                                             </div>
-                                            <span class="edit-icon">&#9998;</span>
+                                            <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                                         </div>
                                         <div class="editable-wrapper">
                                             <div class="editable-content">
-                                                <p class="editable" data-editable-id="11" data-input-type="textarea" data-max-length="1000">Monte seu site cadastrando seus produtos e seviços totalmente otimizado para o google.</p>
+                                                <p class="editable" data-editable-id="11" data-input-type="textarea" data-max-length="1000"><?= nl2br(htmlspecialchars($home['service-description-2'])); ?></p>
                                             </div>
-                                            <span class="edit-icon">&#9998;</span>
+                                            <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                                         </div>
                                     </div>
                                 </div>
@@ -563,15 +650,15 @@ Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar 
                <div class="section-title text-center mb-55 wow fadeInUp delay-0-2s">
                     <div class="editable-wrapper d-inline-block">
                         <div class="editable-content">
-                            <span class="sub-title mb-15 editable" data-editable-id="12" data-input-type="text" data-max-length="255">Vá direto ao ponto!</span>
+                            <span class="sub-title mb-15 editable" data-editable-id="12" data-input-type="text" data-max-length="255"><?= $home['subtitle-4']; ?></span>
                         </div>
-                        <span class="edit-icon">&#9998;</span>
+                        <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                     </div>
                     <div class="editable-wrapper">
                         <div class="editable-content">
-                            <h2 class="editable" data-editable-id="13" data-input-type="text" data-max-length="255">Pare de perde tempo com blogs e ficar torcendo por cliques no seu link de afiliado. Aqui na Dropi Digital você cria uma loja com as palavras que o cliente está pesquisando.</h2>
+                            <h2 class="editable" data-editable-id="13" data-input-type="text" data-max-length="255"><?= $home['title-4']; ?></h2>
                         </div>
-                        <span class="edit-icon">&#9998;</span>
+                        <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                     </div>
                 </div>
                 <div class="project-slider-active">
@@ -737,15 +824,15 @@ Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar 
             <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
                 <div class="editable-wrapper d-inline-block">
                     <div class="editable-content">
-                        <span class="sub-title mb-15 editable" data-editable-id="12" data-input-type="text" data-max-length="255">Siga esse passo a passo para criar sua loja de Dropshipping na Dropi Digital e venda todos os dias como afiliado mesmos sem estoque.</span>
+                        <span class="sub-title mb-15 editable" data-editable-id="14" data-input-type="text" data-max-length="255"><?= $home['subtitle-5']; ?></span>
                     </div>
-                    <span class="edit-icon">&#9998;</span>
+                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                 </div>
                 <div class="editable-wrapper d-inline-block">
                     <div class="editable-content">
-                        <h2 class="editable" data-editable-id="6" data-input-type="text" data-max-length="255">5 Passos simples para vender como afiliado na Dropi Digital</h2>
+                        <h2 class="editable" data-editable-id="15" data-input-type="text" data-max-length="255"><?= $home['title-5']; ?></h2>
                     </div>
-                    <span class="edit-icon">&#9998;</span>
+                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                 </div>
             </div>
             <div class="work-process-line text-center">
@@ -806,8 +893,18 @@ Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar 
         <!-- Work Process Area start -->
         <section class="work-process-area pt-130 pb-100 rpt-100 rpb-70 rel z-1">
             <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
-                <span class="sub-title mb-15">Como montar meu site de serviços na Dropi Digital e ter um negócio lucrativo na Internet</span>
-                <h2>5 Passos comprovados para ter um negócio na internet e receber contatos todos os dias.</h2>
+                <div class="editable-wrapper d-inline-block">
+                    <div class="editable-content">
+                        <span class="sub-title mb-15 editable" data-editable-id="15" data-input-type="text" data-max-length="255"><?= $home['subtitle-6']; ?></span>
+                    </div>
+                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                </div>
+                <div class="editable-wrapper d-inline-block">
+                    <div class="editable-content">
+                        <h2 class="editable" data-editable-id="16" data-input-type="text" data-max-length="255"><?= $home['title-6']; ?></h2>
+                    </div>
+                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                </div>
             </div>
             <div class="work-process-line text-center">
                 <img src="<?php echo INCLUDE_PATH; ?>assets/images/shapes/work-process-line.png" alt="line">
@@ -867,8 +964,18 @@ Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar 
         <section class="work-process-area pt-130 pb-100 rpt-100 rpb-70 rel z-1">
             <div class="container">
                 <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
-                    <span class="sub-title mb-15">Planos da Dropi Digital</span>
-                    <h2>Crie sua conta e escolha o melhor plano para você</h2>
+                    <div class="editable-wrapper d-inline-block">
+                        <div class="editable-content">
+                            <span class="sub-title mb-15 editable" data-editable-id="17" data-input-type="text" data-max-length="255"><?= $home['subtitle-7']; ?></span>
+                        </div>
+                        <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                    </div>
+                    <div class="editable-wrapper d-inline-block">
+                        <div class="editable-content">
+                            <h2 class="editable" data-editable-id="18" data-input-type="text" data-max-length="255"><?= $home['title-7']; ?></h2>
+                        </div>
+                        <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                    </div>
                 </div>
                 <div class="why-choose-tab">
                     <ul class="nav nav-pills nav-fill mb-80 rmb-50 wow fadeInUp delay-0-4s">
@@ -1074,8 +1181,18 @@ Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar 
                 <div class="row justify-content-center">
                     <div class="col-xl-8">
                         <div class="section-title text-center mb-45 wow fadeInUp delay-0-2s">
-                            <span class="sub-title mb-15">Chame os especialistas</span>
-                            <h2>UM TIME DE PESO, CRIANDO SOLUÇÕES DE SOFTWARE INCRÍVEIS</h2>
+                            <div class="editable-wrapper d-inline-block">
+                                <div class="editable-content">
+                                    <span class="sub-title mb-15 editable" data-editable-id="19" data-input-type="text" data-max-length="255"><?= $home['subtitle-8']; ?></span>
+                                </div>
+                                <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                            </div>
+                            <div class="editable-wrapper d-inline-block">
+                                <div class="editable-content">
+                                    <h2 class="editable" data-editable-id="20" data-input-type="text" data-max-length="255"><?= $home['title-8']; ?></h2>
+                                </div>
+                                <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1485,8 +1602,18 @@ Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar 
                     <div class="col-xl-5 col-lg-6">
                         <div class="faq-content rmb-65 wow fadeInLeft delay-0-2s">
                             <div class="section-title mb-30">
-                                <span class="sub-title mb-15">Faqs</span>
-                                <h2>Perguntas frequentes</h2>
+                                <div class="editable-wrapper">
+                                    <div class="editable-content">
+                                        <span class="sub-title mb-15 editable" data-editable-id="21" data-input-type="text" data-max-length="255"><?= $home['subtitle-9']; ?></span>
+                                    </div>
+                                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                                </div>
+                                <div class="editable-wrapper">
+                                    <div class="editable-content">
+                                        <h2 class="editable" data-editable-id="22" data-input-type="text" data-max-length="255"><?= $home['title-9']; ?></h2>
+                                    </div>
+                                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                                </div>
                             </div>
                             <div class="faq-accordion style-two pt-20" id="faq-accordion">
                                 <div class="accordion-item">
@@ -1603,8 +1730,18 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                     <div class="col-lg-5">
                         <div class="contact-info-wrap wow fadeInLeft delay-0-2s">
                             <div class="section-title mb-40">
-                                <span class="sub-title mb-10">Dúvidas?</span>
-                                <h2>Tem um projeto? Gostaríamos muito de ouvir de você.</h2>
+                                <div class="editable-wrapper d-inline-block">
+                                    <div class="editable-content">
+                                        <span class="sub-title mb-10 editable" data-editable-id="23" data-input-type="text" data-max-length="255"><?= $home['subtitle-10']; ?></span>
+                                    </div>
+                                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                                </div>
+                                <div class="editable-wrapper d-inline-block">
+                                    <div class="editable-content">
+                                        <h2 class="editable" data-editable-id="24" data-input-type="text" data-max-length="255"><?= $home['title-10']; ?></h2>
+                                    </div>
+                                    <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
+                                </div>
                             </div>
                             <div class="contact-info-part">
                                 <div class="contact-info-item">
@@ -1832,7 +1969,7 @@ $(document).ready(function() {
     }
 
     // Atualiza o texto na página
-    $('.editable[data-editable-id="' + editableId + '"]').text(editedText);
+    $('.editable[data-editable-id="' + editableId + '"]').html(editedText.replace(/\n/g, '<br>'));
 
     // Fecha o modal
     $('#editModal').modal('hide');
@@ -1859,3 +1996,89 @@ $(document).ready(function() {
   }
 });
 </script>
+
+<!-- Partner -->
+<script>
+    $(document).ready(function() {
+        var partners = []; // Array para armazenar os parceiros temporariamente
+
+        $('#addPartnerModal .btn-success').click(function() {
+            var name = $('#namePartner').val().trim();
+            var link = $('#linkPartner').val().trim();
+            var fileInput = $('#partner-image')[0];
+
+            if (name === "" || link === "" || fileInput.files.length === 0) {
+                alert("Por favor, preencha todos os campos e selecione uma imagem.");
+                return;
+            }
+
+            var file = fileInput.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var imageUrl = e.target.result;
+
+                // Adiciona ao array
+                partners.push({
+                    name: name,
+                    link: link,
+                    image: imageUrl // Este é um Data URL
+                });
+
+                console.log(partners);
+
+                // Aqui, vamos criar e adicionar o HTML do novo parceiro ao container
+                var newPartnerHTML = '<div class="col col-custom-5">' +
+                                    '<a href="' + link + '" class="partner-item wow fadeInUp delay-0-2s" target="_blank">' +
+                                    '<img src="' + imageUrl + '" alt="Partner" style="width:100%; height:auto;">' +
+                                    '</a></div>';
+
+                // Insere o novo parceiro antes do botão de adicionar novo parceiro
+                $(newPartnerHTML).insertBefore('.add-partner');
+
+                // Limpa o modal
+                $('#addPartnerModal').find('input').val('');
+                $('#partner-image').val('');
+
+                // Limpa o preview
+                $('#partner-image-preview').css('display', 'none');
+                $('#partner-image-preview').css('display', 'none');
+                $('#text-1').css('display', 'block');
+
+                // Oculta o modal
+                $('#addPartnerModal').modal('hide');
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Função para enviar todos os parceiros de uma vez
+        $('#save-all').click(function() {
+            if (partners.length === 0) {
+                alert("Adicione pelo menos um parceiro antes de salvar.");
+                return;
+            }
+
+            $.ajax({
+                url: 'seu_script_de_salvamento.php', // Substitua pela URL do seu script de backend
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ partners: partners }),
+                success: function(response) {
+                    // Tratamento de sucesso
+                    alert('Parceiros salvos com sucesso!');
+                    partners = []; // Limpa o array após o sucesso
+                },
+                error: function() {
+                    // Tratamento de erro
+                    alert('Erro ao salvar parceiros. Tente novamente.');
+                }
+            });
+        });
+    });
+</script>
+<?php
+    }
+?>

@@ -211,35 +211,69 @@
     }
 ?>
 <?php
+    // Função para adicionar um registro na tabela tb_visits
+    function addVisitToDatabase($conn_pdo, $shop_id) {
+        // Fuso horario Sao Paulo
+        date_default_timezone_set('America/Sao_Paulo');
+        // Data atual
+        $dataAtual = date("Y-m-d");
+
+        // Consulta para verificar se já há uma entrada para a data atual
+        $sql = "SELECT * FROM tb_visits WHERE shop_id = :shop_id AND page = :page AND data = :data";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'shop');
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+
+        if ($stmt->rowCount() == 0) {
+            // Se não houver entrada para a data atual, insira uma nova entrada
+            $sql = "INSERT INTO tb_visits (shop_id, page, data, contagem) VALUES (:shop_id, :page, :data, 1)";
+        } else {
+            // Se houver entrada para a data atual, apenas atualize a contagem
+            $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE shop_id = :shop_id AND page = :page AND data = :data";
+        }
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'shop');
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+    }
+
     // Fuso horario Sao Paulo
     date_default_timezone_set('America/Sao_Paulo');
-    // Data atual
-    $dataAtual = date("Y-m-d");
 
-    // Consulta para verificar se já há uma entrada para a data atual
-    $sql = "SELECT * FROM tb_visits WHERE shop_id = :shop_id AND page = :page AND data = :data";
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':shop_id', $shop_id);
-    $stmt->bindValue(':page', 'shop');
-    $stmt->bindParam(':data', $dataAtual);
-    $stmt->execute();
+    // Verifica se a sessão "access_page" existe
+    if (!isset($_SESSION['access_page'])) {
+        // Se não existir, cria a sessão e adiciona um registro na tabela tb_visits
+        $_SESSION['access_page'] = ["date" => date('Y-m-d H:i')]; // Salva a data, hora e minuto atuais na sessão
 
-    // Se não houver entrada para a data atual, insira uma nova entrada
-    if ($stmt->rowCount() == 0) {
-        $sql = "INSERT INTO tb_visits (shop_id, page, data, contagem) VALUES (:shop_id, :page, :data, 1)";
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $shop_id);
-        $stmt->bindValue(':page', 'shop');
-        $stmt->bindParam(':data', $dataAtual);
-        $stmt->execute();
+        addVisitToDatabase($conn_pdo, $shop_id);
     } else {
-        // Se houver entrada para a data atual, apenas atualize a contagem
-        $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE shop_id = :shop_id AND page = :page AND data = :data";
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $shop_id);
-        $stmt->bindValue(':page', 'shop');
-        $stmt->bindParam(':data', $dataAtual);
-        $stmt->execute();
+        // Session access
+        $access = $_SESSION['access_page'];
+
+        // Se a sessão existir, verifica se já passaram 10 minutos desde o último acesso
+        // Data fornecida
+        $date = $access['date'];
+        $currentDate = date('Y-m-d H:i');
+
+        // Converte as datas para objetos DateTime
+        $dateObj = new DateTime($date);
+        $currentDateObj = new DateTime($currentDate);
+
+        // Calcula a diferença entre as duas datas
+        $interval = $currentDateObj->diff($dateObj);
+
+        // Verifica se a diferença é de pelo menos 10 minutos
+        if ($interval->i >= 10 || $interval->h > 0 || $interval->d > 0 || $interval->m > 0 || $interval->y > 0) {
+            // Se já passaram 10 minutos, adiciona mais um registro na tabela tb_visits
+
+            $access['date'] = date('Y-m-d H:i'); // Atualiza a sessão com a nova data, hora e minuto
+            $_SESSION['access_page'] = $access;
+
+            addVisitToDatabase($conn_pdo, $shop_id);
+        }
     }
 ?>
 <!DOCTYPE html>
@@ -773,8 +807,8 @@
                     </button>
                 </div>
                 <div class="navActions collapse navbar-collapse" id="navbarSupportedContent">
-                    <form class="me-3" id="search" role="search">
-                        <input class="form-control py-1 px-3" type="search" placeholder="Buscar produto" aria-label="Search" style="border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);">
+                    <form class="me-3" id="search" role="search" action="<?php echo INCLUDE_PATH_LOJA; ?>busca" method="GET">
+                        <input class="form-control py-1 px-3" type="search" name="q" placeholder="Buscar produto" aria-label="Search" style="border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);" value="<?php echo @$_GET['q']; ?>">
                         <button class="btn btn-dark" type="submit" style="border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;">
                             <i class='bx bx-search-alt-2'></i>
                         </button>
@@ -1212,6 +1246,7 @@ $(document).ready(function() {
             $substring_category = "categoria/";
             $substring_page = "atendimento/";
             $substring_article = "blog/";
+            $substring_search = "busca";
             
             // Obtenha a rota da URL
             $route = isset($_GET['url']) ? $_GET['url'] : '';
@@ -1299,6 +1334,30 @@ $(document).ready(function() {
                 if ($article) {
                     $article_id = $article['id'];
                 }
+            } elseif (strpos($url, $substring_search) !== false) {
+                // Recuperar o valor do parâmetro 'q'
+                $search_query = isset($_GET['q']) ? $_GET['q'] : '';
+
+                // Tabela que será pesquisada
+                $tabela = "tb_products";
+
+                // Consulta SQL
+                $sql = "SELECT * FROM $tabela WHERE name LIKE :search_query AND shop_id = :shop_id AND status = :status";
+
+                // Preparar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+
+                // Vincular o valor do parâmetro de pesquisa
+                $search_query = '%' . $search_query . '%'; // Adicionando '%' para pesquisa parcial
+                $stmt->bindParam(':search_query', $search_query, PDO::PARAM_STR);
+                $stmt->bindParam(':shop_id', $shop_id);
+                $stmt->bindValue(':status', 1);
+
+                // Executar a consulta
+                $stmt->execute();
+
+                // Obter os produtos como um array associativo
+                $search_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             } else {
                 // Tabela que será pesquisada
                 $tabela = "tb_products";
@@ -1332,6 +1391,9 @@ $(document).ready(function() {
             } elseif (@$product) {
                 // Página de detalhes do produto
                 include_once('pages/produto.php');
+            } elseif (strpos($url, $substring_search) !== false) {
+                // Página de detalhes do produto
+                include_once('pages/busca.php');
             } elseif (@$page) {
                 // Página de detalhes da página
                 include_once('pages/pagina.php');
@@ -1851,7 +1913,6 @@ $(document).ready(function() {
             });
         });
     </script>
-
 
     <?php if (strpos($url, $substring_article) == false) { ?>
     <script>

@@ -192,10 +192,23 @@
             </div>
         </fieldset>
     </form>
+    <?php
+        if (!empty($_SESSION['create_new_shop'])) {
+    ?>
+    <div class="bottom__text signup">
+        <p>Quer voltar para o painel administrativo?</p>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">Voltar para o painel administrativo.</a>
+    </div>
+    <?php
+        } else {
+    ?>
     <div class="bottom__text signup">
         <p>Já possui uma loja na DropiDigital?</p>
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>login">Acesse sua conta agora.</a>
     </div>
+    <?php
+        }
+    ?>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

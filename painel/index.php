@@ -66,17 +66,27 @@
 
     // Pesquisar Loja
 
-    // Tabela que sera feita a consulta
+    // Verifica se há um selected_shop_id definido na sessão
+    $selectedShopId = isset($_SESSION['selected_shop_id']) ? $_SESSION['selected_shop_id'] : null;
+
+    // Tabela que será feita a consulta
     $tabela = "tb_shop";
 
-    // Consulta SQL
-    $sql = "SELECT id, plan_id, name, phone, whatsapp FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
+    // Ajusta a consulta SQL para dar prioridade ao selected_shop_id se ele existir
+    if ($selectedShopId) {
+        $sql = "SELECT id, plan_id, name, phone, whatsapp FROM $tabela WHERE user_id = :id ORDER BY id = :selectedShopId DESC, id DESC LIMIT 1";
+    } else {
+        $sql = "SELECT id, plan_id, name, phone, whatsapp FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
+    }
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
 
     // Vincular o valor do parâmetro
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    if ($selectedShopId) {
+        $stmt->bindParam(':selectedShopId', $selectedShopId, PDO::PARAM_INT);
+    }
 
     // Executar a consulta
     $stmt->execute();
@@ -162,6 +172,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Intro JS -->
     <link href="https://cdn.jsdelivr.net/npm/intro.js@7.0.1/minified/introjs.min.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <!-- Mercado pago -->
     <?php
@@ -597,9 +609,32 @@
                         </div>
                         <div class="shop">
                             <h5 class="fs-5 mb-1">Loja</h5>
+                            <?php
+                                // Tabela que será feita a consulta
+                                $tabela = "tb_shop";
+
+                                // Consulta SQL
+                                $sql = "SELECT id, name FROM $tabela WHERE user_id = :user_id ORDER BY id DESC";
+
+                                // Preparar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+
+                                // Vincular o valor do parâmetro
+                                $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+
+                                // Executar a consulta
+                                $stmt->execute();
+
+                                // Obter todos os resultados como um array associativo
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            ?>
+
                             <ul class="mb-0">
-                                <li class="small active">Loja 1</li>
-                                <li class="small">Loja 2</li>
+                                <?php foreach ($resultados as $loja): ?>
+                                    <li class="small <?php echo $loja['id'] == $id ? 'active' : ''; ?>">
+                                        <?php echo $loja['name']; ?>
+                                    </li>
+                                <?php endforeach; ?>
                             </ul>
                         </div>
                         <div class="account">
@@ -611,7 +646,7 @@
                                     </a>
                                 </li>
                                 <li class="small">
-                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-loja">
+                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-nova-loja">
                                         Criar Loja
                                     </a>
                                 </li>
@@ -995,6 +1030,142 @@
     </div>
   </div>
 </div>
+
+    <?php
+        if (isset($_SESSION['admin_id'])) {
+            // Tabela que sera feita a consulta
+            $tabela = "tb_warning";
+
+            // Consulta SQL
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND type = :type ORDER BY id DESC";
+
+            // Preparar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+
+            // Type 1 = "modal"
+            $type = 1;
+
+            // Vincular o valor do parâmetro
+            $stmt->bindParam(':shop_id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':type', $type, PDO::PARAM_INT);
+
+            // Executar a consulta
+            $stmt->execute();
+
+            // Obter o resultado como um array associativo
+            $warnings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Verificar se o resultado foi encontrado
+            foreach ($warnings as $warning) {
+    ?>
+        <style>
+            #warningModal .btn.btn-success
+            {
+                background: var(--green-color);
+                border: none;
+            }
+        </style>
+
+        <div class="modal fade" id="warningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="warningModalLabel">Aviso</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="fs-6 fw-semibold"><?= $warning['title']; ?></p>
+                        <span class="small"><?= nl2br(htmlspecialchars($warning['content'])); ?></span>
+                    </div>
+                    <div class="modal-footer fw-semibold px-4">
+                        <button type="button" class="btn btn-success d-flex align-items-center fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function(){
+                // Mostra o modal com id 'warningModal'
+                $("#warningModal").modal('show');
+            });
+        </script>
+    <?php
+            }
+        }
+    ?>
+
+    <?php
+        if (isset($_SESSION['admin_id'])) {
+            // Tabela que sera feita a consulta
+            $tabela = "tb_warning";
+
+            // Consulta SQL
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND type = :type ORDER BY id DESC";
+
+            // Preparar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+
+            // Type 2 = "Texto"
+            $type = 2;
+
+            // Vincular o valor do parâmetro
+            $stmt->bindParam(':shop_id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':type', $type, PDO::PARAM_INT);
+
+            // Executar a consulta
+            $stmt->execute();
+
+            // Obter o resultado como um array associativo
+            $warnings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Verificar se o resultado foi encontrado
+            foreach ($warnings as $warning) {
+                if ($warning['level'] == 1) {
+                    $level = "info";
+                } elseif ($warning['level'] == 2) {
+                    $level = "warning";
+                } else {
+                    $level = "danger";
+                }
+    ?>
+        <style>
+            .bd-callout {
+                --bs-link-color-rgb: var(--bd-callout-link);
+                --bs-code-color: var(--bd-callout-code-color);
+                padding: 1.25rem;
+                color: var(--bd-callout-color, inherit);
+                background-color: var(--bd-callout-bg, var(--bs-gray-100));
+                border-left: 0.25rem solid var(--bd-callout-border, var(--bs-gray-300))
+            }
+
+            .bd-callout-info {
+                --bd-callout-color: var(--bs-info-text-emphasis);
+                --bd-callout-bg: var(--bs-info-bg-subtle);
+                --bd-callout-border: var(--bs-info-border-subtle);
+            }
+
+            .bd-callout-warning {
+                --bd-callout-color: var(--bs-warning-text-emphasis);
+                --bd-callout-bg: var(--bs-warning-bg-subtle);
+                --bd-callout-border: var(--bs-warning-border-subtle);
+            }
+
+            .bd-callout-danger {
+                --bd-callout-color: var(--bs-danger-text-emphasis);
+                --bd-callout-bg: var(--bs-danger-bg-subtle);
+                --bd-callout-border: var(--bs-danger-border-subtle);
+            }
+        </style>
+
+        <div class="bd-callout bd-callout-<?= $level; ?>">
+            <p class="fs-6 fw-semibold"><?= $warning['title']; ?></p>
+            <span class="small"><?= nl2br(htmlspecialchars($warning['content'])); ?></span>
+        </div>
+    <?php
+            }
+        }
+    ?>
 
     <?php
         if(isset($_SESSION['admin_id'])){

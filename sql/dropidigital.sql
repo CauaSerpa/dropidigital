@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 30/03/2024 às 06:40
+-- Tempo de geração: 05/04/2024 às 00:53
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -180,6 +180,63 @@ CREATE TABLE `tb_domains` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tb_home`
+--
+
+CREATE TABLE `tb_home` (
+  `id` int(11) NOT NULL,
+  `logo` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `whatsapp` varchar(255) NOT NULL,
+  `location` varchar(255) NOT NULL,
+  `facebook` varchar(255) NOT NULL,
+  `twitter` varchar(255) NOT NULL,
+  `instagram` varchar(255) NOT NULL,
+  `linkedin` varchar(255) NOT NULL,
+  `title-1` varchar(255) NOT NULL,
+  `content-1` text NOT NULL,
+  `image-1` varchar(255) NOT NULL,
+  `subtitle-2` varchar(255) NOT NULL,
+  `title-2` varchar(255) NOT NULL,
+  `about-subtitle-3` varchar(255) NOT NULL,
+  `about-title-3` varchar(255) NOT NULL,
+  `about-content-3` text NOT NULL,
+  `about-image-1` varchar(255) NOT NULL,
+  `about-image-2` varchar(255) NOT NULL,
+  `service-icon-1` varchar(255) NOT NULL,
+  `service-title-1` varchar(255) NOT NULL,
+  `service-description-1` varchar(255) NOT NULL,
+  `service-icon-2` varchar(255) NOT NULL,
+  `service-title-2` varchar(255) NOT NULL,
+  `service-description-2` varchar(255) NOT NULL,
+  `subtitle-4` varchar(255) NOT NULL,
+  `title-4` varchar(255) NOT NULL,
+  `subtitle-5` varchar(255) NOT NULL,
+  `title-5` varchar(255) NOT NULL,
+  `subtitle-6` varchar(255) NOT NULL,
+  `title-6` varchar(255) NOT NULL,
+  `subtitle-7` varchar(255) NOT NULL,
+  `title-7` varchar(255) NOT NULL,
+  `subtitle-8` varchar(255) NOT NULL,
+  `title-8` varchar(255) NOT NULL,
+  `subtitle-9` varchar(255) NOT NULL,
+  `title-9` varchar(255) NOT NULL,
+  `image-9` varchar(255) NOT NULL,
+  `subtitle-10` varchar(255) NOT NULL,
+  `title-10` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tb_home`
+--
+
+INSERT INTO `tb_home` (`id`, `logo`, `description`, `email`, `whatsapp`, `location`, `facebook`, `twitter`, `instagram`, `linkedin`, `title-1`, `content-1`, `image-1`, `subtitle-2`, `title-2`, `about-subtitle-3`, `about-title-3`, `about-content-3`, `about-image-1`, `about-image-2`, `service-icon-1`, `service-title-1`, `service-description-1`, `service-icon-2`, `service-title-2`, `service-description-2`, `subtitle-4`, `title-4`, `subtitle-5`, `title-5`, `subtitle-6`, `title-6`, `subtitle-7`, `title-7`, `subtitle-8`, `title-8`, `subtitle-9`, `title-9`, `image-9`, `subtitle-10`, `title-10`) VALUES
+(1, 'logo-one.jpeg', 'Somos uma empresa de desenvolvimento de software com uma equipe altamente capacitada e dedicada. Acreditamos que as soluções de tecnologia devem ser acessíveis a todos e oferecer resultados concretos.', 'suporte@dropidigital.com.br', '+55 11 94049-6818', 'São Paulo', 'https://facebook.com/dropidigital', 'https://twitter.com/dropidigital', 'https://instagram.com/dropidigital', 'https://linkedin.com/dropidigital', '#DropiDigital', 'Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje. Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.\r\n\r\nTodas as possibilidades e um únicos lugar. Dropi Digital.\r\n\r\nSomos o Integrador com melhores programas de afiliados do mercado. Hotmart, kiwify, Eduzz, Monetizee, Amazon, Shopee, Magazine Luiza, shein, Clickbank entre outros.\r\n\r\nClique em criar conta e comece agora, mesmo que seja iniciante.\r\nÉ grátis.', 'hero-one.jpg', 'Conheça os melhores programas de afiliados do mercado', 'Empresas para gerar seus links de afiliados e montar sua loja aqui na Dropi Digital', 'SOBRE NOS!', 'Bem-vindos a nossa fábrica de Sites', 'Somos uma plataforma que permite aos seus clientes / usuários à criarem seus sites de serviços, dropshipping de produtos digitais e produtos físicos.\r\n\r\nNa Dropi Digital você criar seu site, cadastrando o seus links de afiliados permitindo a divulgação de diversos produtos ao mesmo tempo.\r\n\r\nAlém da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar um site de catálogo e divulgar sua empresa e serviços, com chamada de ação para compra, conversa no WhatsApp, botão saber mais e agenda.', 'about-2.jpg', 'about-1.jpg', 'icon2.jpg', 'Afiliados', 'Monte sua loja virtual em poucos cliques com os produtos do qual é afiliados. E comece a vender ainda hoje.', 'icon1.jpg', 'Site de catálogo', 'Monte seu site cadastrando seus produtos e seviços totalmente otimizado para o google.', 'Vá direto ao ponto!', 'Pare de perde tempo com blogs e ficar torcendo por cliques no seu link de afiliado. Aqui na Dropi Digital você cria uma loja com as palavras que o cliente está pesquisando.', 'Siga esse passo a passo para criar sua loja de Dropshipping na Dropi Digital e venda todos os dias como afiliado mesmos sem estoque.', '5 Passos simples para vender como afiliado na Dropi Digital', 'Como montar meu site de serviços na Dropi Digital e ter um negócio lucrativo na Internet', '5 Passos comprovados para ter um negócio na internet e receber contatos todos os dias.', 'Planos da Dropi Digital', 'Crie sua conta e escolha o melhor plano para você', 'Chame os especialistas', 'UM TIME DE PESO, CRIANDO SOLUÇÕES DE SOFTWARE INCRÍVEIS', 'Faqs', 'Perguntas frequentes', 'faq-right.jpg', 'Dúvidas?', 'Tem um projeto? Gostaríamos muito de ouvir de você.');
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `tb_invoice_info`
 --
 
@@ -243,6 +300,31 @@ CREATE TABLE `tb_pages` (
   `seo_description` varchar(160) NOT NULL,
   `date_create` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_partners`
+--
+
+CREATE TABLE `tb_partners` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tb_partners`
+--
+
+INSERT INTO `tb_partners` (`id`, `name`, `link`, `image`, `date_create`) VALUES
+(1, 'Hotmart', 'https://hotmart.com/pt-br', 'partner-1.png', '2024-04-03 18:42:20'),
+(2, 'Eduzz', 'https://www.eduzz.com/pt-br', 'partner-2.png', '2024-04-03 18:42:20'),
+(3, 'Monetizze', 'https://www.monetizze.com.br', 'partner-3.png', '2024-04-03 18:43:52'),
+(4, 'Amazon Afiliados', 'https://associados.amazon.com.br', 'partner-4.png', '2024-04-03 18:43:52'),
+(5, 'Shopee Afiliados', 'https://shopee.com.br/m/afiliados', 'partner-5.jpg', '2024-04-03 18:44:30');
 
 -- --------------------------------------------------------
 
@@ -441,6 +523,22 @@ CREATE TABLE `tb_visits` (
   `contagem` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_warning`
+--
+
+CREATE TABLE `tb_warning` (
+  `id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `level` tinyint(1) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `date_create` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Índices para tabelas despejadas
 --
@@ -500,6 +598,12 @@ ALTER TABLE `tb_domains`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tb_home`
+--
+ALTER TABLE `tb_home`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `tb_invoice_info`
 --
 ALTER TABLE `tb_invoice_info`
@@ -515,6 +619,12 @@ ALTER TABLE `tb_login`
 -- Índices de tabela `tb_pages`
 --
 ALTER TABLE `tb_pages`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_partners`
+--
+ALTER TABLE `tb_partners`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -569,6 +679,12 @@ ALTER TABLE `tb_users`
 -- Índices de tabela `tb_visits`
 --
 ALTER TABLE `tb_visits`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_warning`
+--
+ALTER TABLE `tb_warning`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -630,6 +746,12 @@ ALTER TABLE `tb_domains`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `tb_home`
+--
+ALTER TABLE `tb_home`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de tabela `tb_invoice_info`
 --
 ALTER TABLE `tb_invoice_info`
@@ -646,6 +768,12 @@ ALTER TABLE `tb_login`
 --
 ALTER TABLE `tb_pages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_partners`
+--
+ALTER TABLE `tb_partners`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `tb_plans`
@@ -699,6 +827,12 @@ ALTER TABLE `tb_users`
 -- AUTO_INCREMENT de tabela `tb_visits`
 --
 ALTER TABLE `tb_visits`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_warning`
+--
+ALTER TABLE `tb_warning`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 

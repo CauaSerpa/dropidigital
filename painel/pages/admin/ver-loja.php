@@ -254,6 +254,128 @@
 </form>
 </div>
 
+<div class="modal fade" id="warningShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="warningShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/warning_shop.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Criar Aviso
+                </div>
+            </div>
+            <div class="modal-body row px-4 py-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="level" class="form-label small">Nível de Relevância *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="level" id="level" required>
+                                <option value="" selected disabled>Selecione o nível de relevância</option>
+                                <option value="1">Baixo</option>
+                                <option value="2">Médio</option>
+                                <option value="3">Alto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="type" class="form-label small">Tipo *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="type" id="type" required>
+                                <option value="" selected disabled>Selecione o tipo</option>
+                                <option value="1">Modal</option>
+                                <option value="2">Texto fixo</option>
+                                <option value="3">Notificação</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="title" class="form-label small">Título *</label>
+                        <input type="text" class="form-control" name="title" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label small">Conteúdo *</label>
+                        <textarea class="form-control" name="content" id="content" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success border-danger d-flex align-items-center fw-semibold px-4 py-2 small" id="warningButton">
+                    <i class='bx bx-error-circle me-2' ></i>
+                    Avisar
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
+<div class="modal fade" id="updateWarningShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="updateWarningShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_warning_shop.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Editar Aviso
+                </div>
+            </div>
+            <div class="modal-body row px-4 py-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="level" class="form-label small">Nível de Relevância *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="level" id="level" required>
+                                <option value="" selected disabled>Selecione o nível de relevância</option>
+                                <option value="1">Baixo</option>
+                                <option value="2">Médio</option>
+                                <option value="3">Alto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="type" class="form-label small">Tipo *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="type" id="type" required>
+                                <option value="" selected disabled>Selecione o tipo</option>
+                                <option value="1">Modal</option>
+                                <option value="2">Texto fixo</option>
+                                <option value="3">Notificação</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="title" class="form-label small">Título *</label>
+                        <input type="text" class="form-control" name="title" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label small">Conteúdo *</label>
+                        <textarea class="form-control" name="content" id="content" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="id" id="id">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success d-flex align-items-center fw-semibold px-4 py-2 small" id="warningButton">
+                    <i class='bx bx-error-circle me-2' ></i>
+                    Editar Aviso
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
 <div class="modal fade" id="deleteShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 <form id="deleteShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/delete_shop.php" method="post">
     <div class="modal-dialog modal-lg">
@@ -500,7 +622,7 @@
 <div class="tab-pane fade <?php echo ($tab == "" || $tab == "loja") ? "show active" : ""; ?>" id="shop-tab-pane" role="tabpanel" aria-labelledby="shop-tab" tabindex="0">
     <div class="row">
         <div class="col-md-6">
-            <div class="card p-0">
+            <div class="card p-0 mb-3">
                 <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
                 <div class="card-body row px-4 py-3">
                     <ul class="mb-0">
@@ -551,6 +673,92 @@
                     </ul>
                 </div>
             </div>
+            <?php
+                // Tabela que sera feita a consulta
+                $tabela = "tb_warning";
+
+                // Consulta SQL
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+                // Preparar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+
+                // Vincular o valor do parâmetro
+                $stmt->bindParam(':shop_id', $shop['id'], PDO::PARAM_INT);
+
+                // Executar a consulta
+                $stmt->execute();
+
+                // Obter o resultado como um array associativo
+                $warnings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+
+            <style>
+                table#shopWarnings thead tr th,
+                table#shopWarnings tbody tr td
+                {
+                    padding: 0.5rem 1rem !important;
+                    font-size: .875rem;
+                }
+                table#shopWarnings tbody tr td
+                {
+                    max-width: 150px;
+                }
+                #shopWarnings .btn
+                {
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            </style>
+
+            <div class="card p-0 <?= (!$warnings) ? "d-none" : ""; ?>">
+                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Avisos</div>
+                <div class="card-body row px-4 py-3">
+                    <table id="shopWarnings">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="checkAll">
+                                </th>
+                                <th class="small">Título</th>
+                                <th class="small">Conteúdo</th>
+                                <th class="small">Data de Criação</th>
+                                <th class="small">Eventos</th>
+                            </tr>
+                        </thead>
+                        <?php
+                        // Loop através dos resultados e exibir todas as colunas
+                        foreach ($warnings as $warning) {
+                            $date_create = date("d/m/Y", strtotime($warning['date_create']));
+                        ?>
+                            <tbody>
+                                <tr>
+                                    <td scope="row">
+                                        <input class="form-check-input itemCheckbox" type="checkbox" name="selected_ids[]" value="<?= $warning['id']; ?>" id="defaultCheck2">
+                                    </td>
+                                    <td title="<?= $warning['title']; ?>"><?= $warning['title']; ?></td>
+                                    <td title="<?= $warning['content']; ?>"><?= $warning['content']; ?></td>
+                                    <td title="<?= $warning['date_create']; ?>"><?= $date_create; ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary editBtn" data-id="<?= $warning['id']; ?>" data-title="<?= htmlspecialchars($warning['title'], ENT_QUOTES); ?>" data-content="<?= htmlspecialchars($warning['content'], ENT_QUOTES); ?>" data-level="<?= $warning['level']; ?>" data-type="<?= $warning['type']; ?>">
+                                            <i class="bx bxs-edit"></i>
+                                        </button>
+                                        <a href="<?= INCLUDE_PATH_DASHBOARD; ?>excluir-aviso?id=<?= $warning['id']; ?>&shop=<?= $shop['id']; ?>" class="btn btn-danger">
+                                            <i class="bx bxs-trash" ></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        <?php
+                        }
+                    ?>
+                    </table>
+                </div>
+            </div>
         </div>
         <div class="col-md-6">
             <div class="card p-0">
@@ -596,12 +804,12 @@
                             <h6 class="fs-6 fw-semibold mb-0">Enviar Aviso</h6>
                             <small>Clique em aviso para enviar um aviso para a loja.</small>
                         </div>
-                        <div class="d-flex align-items-center">
+                        <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#warningShop">
                             <a href="#" class="btn btn-warning text-white d-flex align-items-center fw-semibold px-4 py-2 small">
                                 <i class='bx bx-error-circle me-2' ></i>
                                 Aviso
                             </a>
-                        </div>
+                        </button>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <div>
@@ -988,6 +1196,31 @@
                 copyButton.attr('disabled', 'disabled');
                 copyButton.addClass('disabled');
             }
+        });
+    });
+</script>
+
+<!-- Update Warning -->
+<script>
+    $(document).ready(function() {
+        // Função para abrir o modal de edição
+        $('.editBtn').click(function() {
+            // Obter dados do botão clicado
+            var id = $(this).data('id');
+            var title = $(this).data('title');
+            var content = $(this).data('content');
+            var level = $(this).data('level');
+            var type = $(this).data('type');
+
+            // Preencher o formulário do modal com os dados
+            $('#updateWarningShop #id').val(id);
+            $('#updateWarningShop #title').val(title);
+            $('#updateWarningShop #content').val(content);
+            $('#updateWarningShop #level').val(level);
+            $('#updateWarningShop #type').val(type);
+
+            // Abrir o modal
+            $('#updateWarningShop').modal('show');
         });
     });
 </script>

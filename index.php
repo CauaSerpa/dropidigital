@@ -1,5 +1,34 @@
 <?php
     include('./config.php');
+
+    // Tabela que sera feita a consulta
+    $tabela = "tb_home";
+
+    // ID que você deseja pesquisar
+    $id = 1;
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $home = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificar se o resultado foi encontrado
+    if ($home) {
+        // Remove tudo que não seja dígito ou o sinal de mais (+)
+        $formatted_number = preg_replace('/[^\d+]/', '', $home['whatsapp']);
+
+        // Cria link com o numero formatado
+        $whatsapp_link = "https://api.whatsapp.com/send?phone=" . $formatted_number;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -8,33 +37,33 @@
     <meta charset="utf-8">
     <meta name="title" content="Dropi Digital | Empreender na Internet">
     <meta name="description" content="Crie seu site em 5 minutos e venda seus serviços e produtos na Internet. Assuma o controle de sua presença online com o construtor de sites da Dropi Digital. Aprenda como construir seu site sem complicações. Comece agora!">
-    <meta property="og:image" content="<?php echo INCLUDE_PATH; ?>assets/images/logos/logo-one.jpeg">
+    <meta property="og:image" content="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Title -->
     <title>Dropi Digital | Empreender na Internet</title>
     <!-- Favicon Icon -->
-    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+    <link rel="shortcut icon" href="<?= INCLUDE_PATH; ?>assets/images/favicon.png" type="image/x-icon">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Flaticon -->
-    <link rel="stylesheet" href="assets/css/flaticon.min.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/flaticon.min.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="assets/css/fontawesome-5.14.0.min.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/fontawesome-5.14.0.min.css">
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/bootstrap.min.css">
     <!-- Magnific Popup -->
-    <link rel="stylesheet" href="assets/css/magnific-popup.min.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/magnific-popup.min.css">
     <!-- Nice Select -->
-    <link rel="stylesheet" href="assets/css/nice-select.min.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/nice-select.min.css">
     <!-- Animate -->
-    <link rel="stylesheet" href="assets/css/animate.min.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/animate.min.css">
     <!-- Slick -->
-    <link rel="stylesheet" href="assets/css/slick.min.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/slick.min.css">
     <!-- Main Style -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/style.css">
     <!--Font Awesome-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
@@ -54,7 +83,7 @@
 
                     <div class="header-inner rel d-flex align-items-center">
                         <div class="logo-outer">
-                            <div class="logo"><a href="index.html"><img src="assets/images/logos/logo-one.jpeg" alt="Logo" title="Logo"></a></div>
+                            <div class="logo"><a href="index.html"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo"></a></div>
                         </div>
 
                         <div class="nav-outer mx-auto clearfix">
@@ -63,7 +92,7 @@
                                 <div class="navbar-header">
                                    <div class="mobile-logo">
                                        <a href="index.html">
-                                            <img src="assets/images/logos/logo-one.jpeg" alt="Logo" title="Logo">
+                                            <img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo">
                                        </a>
                                    </div>
                                    
@@ -86,15 +115,15 @@
 
 
                                     <ul class="navigation clearfix">
-                                        <li><i class="far fa-envelope"></i> <a href="mailto:support@gmail.com">suporte@dropidigital.com.br</a></li>
-                                        <li><i class="fa-brands fa-whatsapp"></i><a href="https://api.whatsapp.com/send?phone=5511940496818" target="_blank">+55 11 94049-6818</a></li>
-                                        <li class="for-none"><i class="far fa-clock"></i>São Paulo</li>
+                                        <li><i class="far fa-envelope"></i> <a href="mailto:<?= $home['email']; ?>"><?= $home['email']; ?></a></li>
+                                        <li><i class="fa-brands fa-whatsapp"></i><a href="<?= $whatsapp_link; ?>" target="_blank"><?= $home['whatsapp']; ?></a></li>
+                                        <li class="for-none"><i class="far fa-clock"></i><?= $home['location']; ?></li>
                                         <li>
                                             <div class="social-style-one">
-                                                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                                <a href="#"><i class="fab fa-instagram"></i></a>
-                                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                                                <a href="<?= $home['facebook']; ?>"><i class="fab fa-facebook-f"></i></a>
+                                                <a href="<?= $home['twitter']; ?>"><i class="fab fa-twitter"></i></a>
+                                                <a href="<?= $home['instagram']; ?>"><i class="fab fa-instagram"></i></a>
+                                                <a href="<?= $home['linkedin']; ?>"><i class="fab fa-linkedin-in"></i></a>
                                             </div>
                                         </li>
                                     </ul>
@@ -130,30 +159,25 @@
                 <div class="row align-items-center">
                     <div class="col-lg-6 align-self-center">
                         <div class="home hero-content pt-80 pb-125 rpb-0 wow fadeInUp delay-0-4s">
-                            <h1>#DropiDigital</h1>
-                            <p>Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje. Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.<br><br>
-                                Todas as possibilidades e um únicos lugar. Dropi Digital.<br><br>
-                                Somos o Integrador com melhores programas de afiliados do mercado. Hotmart, kiwify, Eduzz, Monetizee, Amazon, Shopee, Magazine Luiza, shein, Clickbank entre outros.<br><br>
-                                Clique em criar conta e comece agora, mesmo que seja iniciante.<br>
-                                É grátis.
-                            </p>
+                            <h1><?= $home['title-1']; ?></h1>
+                            <p><?= nl2br(htmlspecialchars($home['content-1'])); ?></p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar" class="theme-btn mt-20 wow fadeInUp delay-0-6s">Criar site Grátis<i class="fas fa-long-arrow-right"></i></a>
                             <div class="hero-shapes">
-                                <img class="shape one" src="assets/images/shapes/dabble-plus.png" alt="Shape">
-                                <img class="shape two" src="assets/images/shapes/dabble-plus.png" alt="Shape">
-                                <img class="shape three" src="assets/images/shapes/plus.png" alt="Shape">
+                                <img class="shape one" src="<?= INCLUDE_PATH; ?>assets/images/shapes/dabble-plus.png" alt="Shape">
+                                <img class="shape two" src="<?= INCLUDE_PATH; ?>assets/images/shapes/dabble-plus.png" alt="Shape">
+                                <img class="shape three" src="<?= INCLUDE_PATH; ?>assets/images/shapes/plus.png" alt="Shape">
                             </div>
                         </div>
                     </div>
                     <div class="hero-images-container col-lg-6 align-self-end">
                         <div class="hero-images mt-80 wow fadeInLeft delay-0-2s">
-                            <img src="assets/images/hero/hero-one.jpg" alt="Hero">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/hero/<?= $home['image-1']; ?>" alt="Hero">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="hero-shapes">
-                <img class="shape bg-lines" src="assets/images/shapes/new-shape/shape.png" alt="Shape">
+                <img class="shape bg-lines" src="<?= INCLUDE_PATH; ?>assets/images/shapes/new-shape/shape.png" alt="Shape">
             </div>
         </section>
         <!-- Hero Section End -->
@@ -163,61 +187,73 @@
         <section class="partners-area mt-60 pt-150 pb-100 rmt-30 rpb-70 rel z-1">
             <div class="container">
                <div class="section-title text-center mb-50 wow fadeInUp delay-0-2s">
-                    <span class="sub-title mb-15">Conheça os melhores programas de afiliados do mercado</span>
-                    <h2>Empresas para gerar seus links de afiliados e montar sua loja aqui na Dropi Digital</h2>
+                    <span class="sub-title mb-15"><?= $home['subtitle-2']; ?></span>
+                    <h2><?= $home['title-2']; ?></h2>
                 </div>
-                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
+                <?php
+                    // Tabela que sera feita a consulta
+                    $tabela = "tb_partners";
+
+                    // Consulta SQL
+                    $sql = "SELECT * FROM $tabela ORDER BY id ASC";
+
+                    // Preparar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+
+                    // Executar a consulta
+                    $stmt->execute();
+
+                    // Obter o resultado como um array associativo
+                    $partners = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Contador para dividir em linhas
+                    $contador = 0;
+                ?>
+                <!-- Loop para exibir os parceiros -->
+                <?php foreach ($partners as $partner) : ?>
+                    <!-- Abre uma nova linha a cada 5 parceiros -->
+                    <?php if ($contador % 5 === 0) : ?>
+                        <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
+                    <?php endif; ?>
+
                     <div class="col">
-                        <a href="https://hotmart.com/pt-br" class="partner-item wow fadeInUp delay-0-3s">
-                            <img src="assets/images/partners/partner-1.png" alt="Partner">
+                        <a href="<?= $partner['link']; ?>" class="partner-item wow fadeInUp delay-0-<?= $contador % 5 + 3 ?>s">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/<?= $partner['image']; ?>" alt="Parceiro <?= $partner['name']; ?>">
                         </a>
                     </div>
-                    <div class="col">
-                        <a href="https://www.eduzz.com/pt-br" class="partner-item wow fadeInUp delay-0-4s">
-                            <img src="assets/images/partners/partner-2.png" alt="Partner">
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="https://www.monetizze.com.br" class="partner-item wow fadeInUp delay-0-5s">
-                            <img src="assets/images/partners/partner-3.png" alt="Partner">
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="https://associados.amazon.com.br" class="partner-item wow fadeInUp delay-0-6s">
-                            <img src="assets/images/partners/partner-4.png" alt="Partner">
-                        </a>
-                    </div>
-                    <div class="col">
-                        <a href="https://shopee.com.br/m/afiliados" class="partner-item wow fadeInUp delay-0-7s">
-                            <img src="assets/images/partners/partner-5.jpg" alt="Partner">
-                        </a>
-                    </div>
-                </div>
+
+                    <!-- Fecha a linha a cada 5 parceiros -->
+                    <?php if ($contador % 5 === 4 || $contador === count($partners) - 1) : ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php $contador++; ?>
+                <?php endforeach; ?>
                 <!-- Line 2 -->
                 <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
                     <div class="col">
                         <a href="https://site.braip.com/afiliado/" class="partner-item wow fadeInUp delay-0-3s">
-                            <img src="assets/images/partners/partner-6.svg" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-6.svg" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://www.clickbank.com/affiliates-v2/" class="partner-item wow fadeInUp delay-0-4s">
-                            <img src="assets/images/partners/partner-7.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-7.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://m.shein.com/br/campus-affiliate-a-1500.html" class="partner-item wow fadeInUp delay-0-5s">
-                            <img src="assets/images/partners/partner-8.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-8.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://www.lomadee.com/pt_br/afiliados/" class="partner-item wow fadeInUp delay-0-6s">
-                            <img src="assets/images/partners/partner-9.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-9.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://www.parceiromagalu.com.br" class="partner-item wow fadeInUp delay-0-7s">
-                            <img src="assets/images/partners/partner-10.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-10.png" alt="Partner">
                         </a>
                     </div>
                 </div>
@@ -225,27 +261,27 @@
                 <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 justify-content-center">
                     <div class="col">
                         <a href="https://afilio.com.br/afiliados/" class="partner-item wow fadeInUp delay-0-3s">
-                            <img src="assets/images/partners/partner-11.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-11.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://www.leadsmarket.com/payday-loan-publisher-program" class="partner-item wow fadeInUp delay-0-4s">
-                            <img src="assets/images/partners/partner-12.svg" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-12.svg" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://portals.aliexpress.com/affiportals/web/portals.htm#/home" class="partner-item wow fadeInUp delay-0-5s">
-                            <img src="assets/images/partners/partner-13.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-13.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://kiwify.com.br" class="partner-item wow fadeInUp delay-0-6s">
-                            <img src="assets/images/partners/partner-14.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-14.png" alt="Partner">
                         </a>
                     </div>
                     <div class="col">
                         <a href="https://www.mercadolivre.com.br/l/afiliados-home?isSparkleRedirect=true#variant_sparkle/afiliados=26141&origin=sparkle" class="partner-item wow fadeInUp delay-0-7s">
-                            <img src="assets/images/partners/partner-15.png" alt="Partner">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/partners/partner-15.png" alt="Partner">
                         </a>
                     </div>
                 </div>
@@ -261,19 +297,17 @@
                     <div class="col-lg-6">
                         <div class="about-content rmb-65 wow fadeInLeft delay-0-2s">
                             <div class="section-title mb-30">
-                                <span class="sub-title mb-15">SOBRE NOS!</span>
-                                <h2>Bem-vindos a nossa fábrica de Sites</h2>
+                                <span class="sub-title mb-15"><?= $home['about-subtitle-3']; ?></span>
+                                <h2><?= $home['about-title-3']; ?></h2>
                             </div>
-                            <p>Somos uma plataforma que permite aos seus clientes / usuários à criarem seus sites de serviços, dropshipping de produtos digitais e produtos físicos.<br><br>
-                                Na Dropi Digital você criar seu site, cadastrando o seus links de afiliados permitindo a divulgação de diversos produtos ao mesmo tempo.<br><br>
-                                Além da possíbilidade de dropshipping, aqui na Dropi Digital você pode criar um site de catálogo e divulgar sua empresa e serviços, com chamada de ação para compra, conversa no WhatsApp, botão saber mais e agenda.</p>
+                            <p><?= nl2br(htmlspecialchars($home['about-content-3'])); ?></p>
                             <div class="about-btns mb-45">
                                 <a href="about.html" class="theme-btn mt-15">Cadastrar<i class="fas fa-long-arrow-right"></i></a>
                                 <div class="hotline mt-15">
                                     <i class="fa-brands fa-whatsapp fs-4"></i>
                                     <div class="content">
                                         <span>Contato</span><br>
-                                        <a href="callto:+5511992890194">+55 11 99289-0194</a>
+                                        <a href="<?= $whatsapp_link; ?>"><?= $home['whatsapp']; ?></a>
                                     </div>
                                 </div>
                             </div>
@@ -281,19 +315,19 @@
                                 <div class="col-sm-6">
                                     <div class="service-item active">
                                         <div class="icon">
-                                            <img src="assets/images/services/icon2.jpg" alt="Icon">
+                                            <img src="<?= INCLUDE_PATH; ?>assets/images/services/<?= $home['service-icon-1']; ?>" alt="Icon">
                                         </div>
-                                        <h4><a href="service-details.html">Afiliados</a></h4>
-                                        <p>Monte sua loja virtual em poucos cliques com os produtos do qual é afiliados. E comece a vender ainda hoje.</p>
+                                        <h4><a href="service-details.html"><?= $home['service-title-1']; ?></a></h4>
+                                        <p><?= $home['service-description-1']; ?></p>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="service-item">
                                         <div class="icon">
-                                            <img src="assets/images/services/icon1.jpg" alt="Icon">
+                                            <img src="<?= INCLUDE_PATH; ?>assets/images/services/<?= $home['service-icon-2']; ?>" alt="Icon">
                                         </div>
-                                        <h4><a href="service-details.html">Site de catálogo</a></h4>
-                                        <p>Monte seu site cadastrando seus produtos e seviços totalmente otimizado para o google.</p>
+                                        <h4><a href="service-details.html"><?= $home['service-title-2']; ?></a></h4>
+                                        <p><?= $home['service-description-2']; ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -302,12 +336,12 @@
                     <div class="col-lg-6">
                         <div class="about-images">
                             <div class="top-part">
-                                <img class="wow fadeInRight delay-0-3s" src="assets/images/about/about-2.jpg" alt="About">
-                                <img class="wow zoomIn delay-0-5s" src="assets/images/about/about-logo.jpeg" alt="About">
+                                <img class="wow fadeInRight delay-0-3s" src="<?= INCLUDE_PATH; ?>assets/images/about/<?= $home['about-image-1']; ?>" alt="About">
+                                <img class="wow zoomIn delay-0-5s" src="<?= INCLUDE_PATH; ?>assets/images/about/about-logo.jpeg" alt="About">
                             </div>
                             <div class="bottom-part">
-                                <img class="wow fadeInDown delay-0-5s" src="assets/images/about/about-dots.png" alt="About">
-                                <img class="wow fadeInDown delay-0-3s" src="assets/images/about/about-1.jpg" alt="About">
+                                <img class="wow fadeInDown delay-0-5s" src="<?= INCLUDE_PATH; ?>assets/images/about/about-dots.png" alt="About">
+                                <img class="wow fadeInDown delay-0-3s" src="<?= INCLUDE_PATH; ?>assets/images/about/<?= $home['about-image-2']; ?>" alt="About">
                             </div>
                         </div>
                     </div>
@@ -321,13 +355,13 @@
         <section class="project-area overflow-hidden bgc-lighter pt-130 rpt-100 rel z-1">
             <div class="container">
                <div class="section-title text-center mb-55 wow fadeInUp delay-0-2s">
-                    <span class="sub-title mb-15">Vá direto ao ponto!</span>
-                    <h2>Pare de perde tempo com blogs e ficar torcendo por cliques no seu link de afiliado. Aqui na Dropi Digital você cria uma loja com as palavras que o cliente está pesquisando.</h2>
+                    <span class="sub-title mb-15"><?= $home['subtitle-4']; ?></span>
+                    <h2><?= $home['title-4']; ?></h2>
                 </div>
                 <div class="project-slider-active">
                     <div class="project-slider-item">
                        <div class="video">
-                           <img src="assets/images/projects/project-video1.png" alt="Video">
+                           <img src="<?= INCLUDE_PATH; ?>assets/images/projects/project-video1.png" alt="Video">
                            <a href="https://www.youtube.com/watch?v=_4ulL5doXW8" class="mfp-iframe video-play" tabindex="-1"><i class="fas fa-play"></i></a>
                        </div>
                        <div class="content">
@@ -392,15 +426,15 @@
                            <a href="#" class="theme-btn style-two mt-15">Saiba mais!<i class="fas fa-long-arrow-right"></i></a>
                        </div>
                        <div class="video">
-                           <img src="assets/images/projects/project-video.png" alt="Video">
+                           <img src="<?= INCLUDE_PATH; ?>assets/images/projects/project-video.png" alt="Video">
                            <a href="https://www.youtube.com/watch?v=TgXUduH1FxA" class="mfp-iframe video-play" tabindex="-1"><i class="fas fa-play"></i></a>
                        </div>
                     </div>
                 </div>
             </div>
             <div class="project-shapes">
-                <img class="shape one" src="assets/images/shapes/project-left.png" alt="shape">
-                <img class="shape two" src="assets/images/shapes/project-right.png" alt="shape">
+                <img class="shape one" src="<?= INCLUDE_PATH; ?>assets/images/shapes/project-left.png" alt="shape">
+                <img class="shape two" src="<?= INCLUDE_PATH; ?>assets/images/shapes/project-right.png" alt="shape">
             </div>
         </section>
         <!-- Project Area end -->
@@ -485,11 +519,11 @@
         <!-- Work Process Area start -->
         <section class="work-process-area pt-130 pb-100 rpt-100 rpb-70 rel z-1">
             <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
-                <span class="sub-title mb-15">Siga esse passo a passo para criar sua loja de Dropshipping na Dropi Digital e venda todos os dias como afiliado mesmos sem estoque.</span>
-                <h2>5 Passos simples para vender como afiliado na Dropi Digital</h2>
+                <span class="sub-title mb-15"><?= $home['subtitle-5']; ?></span>
+                <h2><?= $home['title-5']; ?></h2>
             </div>
             <div class="work-process-line text-center">
-                <img src="assets/images/shapes/work-process-line.png" alt="line">
+                <img src="<?= INCLUDE_PATH; ?>assets/images/shapes/work-process-line.png" alt="line">
             </div>
             <div class="container">
                 <div class="row row-cols-xl-5 row-cols-md-3 row-cols-sm-2 row-cols-1 justify-content-center">
@@ -546,11 +580,11 @@
         <!-- Work Process Area start -->
         <section class="work-process-area pt-130 pb-100 rpt-100 rpb-70 rel z-1">
             <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
-                <span class="sub-title mb-15">Como montar meu site de serviços na Dropi Digital e ter um negócio lucrativo na Internet</span>
-                <h2>5 Passos comprovados para ter um negócio na internet e receber contatos todos os dias.</h2>
+                <span class="sub-title mb-15"><?= $home['subtitle-6']; ?></span>
+                <h2><?= $home['title-6']; ?></h2>
             </div>
             <div class="work-process-line text-center">
-                <img src="assets/images/shapes/work-process-line.png" alt="line">
+                <img src="<?= INCLUDE_PATH; ?>assets/images/shapes/work-process-line.png" alt="line">
             </div>
             <div class="container">
                 <div class="row row-cols-xl-5 row-cols-md-3 row-cols-sm-2 row-cols-1 justify-content-center">
@@ -607,8 +641,8 @@
         <section class="work-process-area pt-130 pb-100 rpt-100 rpb-70 rel z-1">
             <div class="container">
                 <div class="section-title text-center mb-70 wow fadeInUp delay-0-2s">
-                    <span class="sub-title mb-15">Planos da Dropi Digital</span>
-                    <h2>Crie sua conta e escolha o melhor plano para você</h2>
+                    <span class="sub-title mb-15"><?= $home['subtitle-7']; ?></span>
+                    <h2><?= $home['title-7']; ?></h2>
                 </div>
                 <div class="why-choose-tab">
                     <ul class="nav nav-pills nav-fill mb-80 rmb-50 wow fadeInUp delay-0-4s">
@@ -814,8 +848,8 @@
                 <div class="row justify-content-center">
                     <div class="col-xl-8">
                         <div class="section-title text-center mb-45 wow fadeInUp delay-0-2s">
-                            <span class="sub-title mb-15">Chame os especialistas</span>
-                            <h2>UM TIME DE PESO, CRIANDO SOLUÇÕES DE SOFTWARE INCRÍVEIS</h2>
+                            <span class="sub-title mb-15"><?= $home['subtitle-8']; ?></span>
+                            <h2><?= $home['title-8']; ?></h2>
                         </div>
                     </div>
                 </div>
@@ -847,7 +881,7 @@
                             <div class="row gap-90 align-items-center">
                                 <div class="col-lg-6">
                                     <div class="why-choose-image rmb-55">
-                                        <img src="assets/images/about/why-choose1.jpg" alt="Why Choose">
+                                        <img src="<?= INCLUDE_PATH; ?>assets/images/about/why-choose1.jpg" alt="Why Choose">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
@@ -877,7 +911,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="why-choose-image rmt-55">
-                                        <img src="assets/images/about/why-choose2.jpg" alt="Why Choose">
+                                        <img src="<?= INCLUDE_PATH; ?>assets/images/about/why-choose2.jpg" alt="Why Choose">
                                     </div>
                                 </div>
                             </div>
@@ -886,7 +920,7 @@
                             <div class="row gap-90 align-items-center">
                                 <div class="col-lg-6">
                                     <div class="why-choose-image rmb-55">
-                                        <img src="assets/images/about/why-choose3.jpg" alt="Why Choose">
+                                        <img src="<?= INCLUDE_PATH; ?>assets/images/about/why-choose3.jpg" alt="Why Choose">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
@@ -917,7 +951,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="why-choose-image rmt-55">
-                                        <img src="assets/images/about/why-choose4.jpg" alt="Why Choose">
+                                        <img src="<?= INCLUDE_PATH; ?>assets/images/about/why-choose4.jpg" alt="Why Choose">
                                     </div>
                                 </div>
                             </div>
@@ -926,8 +960,8 @@
                 </div>
             </div>
             <div class="why-choose-shapes">
-                <img class="shape one" src="assets/images/about/why-choose-shape1.png" alt="Shape">
-                <img class="shape two" src="assets/images/about/why-choose-shape2.png" alt="Shape">
+                <img class="shape one" src="<?= INCLUDE_PATH; ?>assets/images/about/why-choose-shape1.png" alt="Shape">
+                <img class="shape two" src="<?= INCLUDE_PATH; ?>assets/images/about/why-choose-shape2.png" alt="Shape">
             </div>
         </section>
         <!-- Why Choose Us Area end -->
@@ -942,7 +976,7 @@
                 <div class="row justify-content-center">
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="team-member wow fadeInUp delay-0-2s">
-                            <img src="assets/images/team/renan.jpg" alt="Team">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/team/renan.jpg" alt="Team">
                             <h4>Renan Araujo</h4>
                             <span class="designation">CEO</span>
                             <div class="social-style-two">
@@ -955,7 +989,7 @@
                     </div>
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="team-member wow fadeInUp delay-0-4s">
-                            <img src="assets/images/team/roberto.jpg" alt="Team">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/team/roberto.jpg" alt="Team">
                             <h4>Roberto Costa Jr</h4>
                             <span class="designation">CTO</span>
                             <div class="social-style-two">
@@ -968,7 +1002,7 @@
                     </div>
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="team-member wow fadeInUp delay-0-6s">
-                            <img src="assets/images/team/bruna.jpg" alt="Team">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/team/bruna.jpg" alt="Team">
                             <h4>Bruna Monteiro</h4>
                             <span class="designation">Estrategia de négocio</span>
                             <div class="social-style-two">
@@ -981,7 +1015,7 @@
                     </div>
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="team-member wow fadeInUp delay-0-8s">
-                            <img src="assets/images/team/caua.jpg" alt="Team">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/team/caua.jpg" alt="Team">
                             <h4>Cauã Serpa</h4>
                             <span class="designation">UX/UI</span>
                             <div class="social-style-two">
@@ -1001,13 +1035,13 @@
         <!-- Statistics Area start -->
         <section class="statistics-area rel z-2">
             <div class="container">
-                <div class="statistics-inner bgs-cover text-white p-80 pb-20" style="background-image: url(assets/images/background/statistics.jpg);">
+                <div class="statistics-inner bgs-cover text-white p-80 pb-20" style="background-image: url(<?= INCLUDE_PATH; ?>assets/images/background/statistics.jpg);">
                     <div class="row align-items-xl-start align-items-center">
                         <div class="col-xl-5 col-lg-6">
                             <div class="statistics-content mb-55 wow fadeInUp delay-0-2s">
                                 <div class="section-title mb-30">
-                                    <span class="sub-title mb-15">Estatísticas da empresa</span>
-                                    <h2>Transformar suas ideias em soluções.</h2>
+                                    <span class="sub-title mb-15"><?= $home['subtitle-9']; ?></span>
+                                    <h2><?= $home['title-9']; ?></h2>
                                 </div>
                                 <a href="about.html" class="read-more">Saiba Mais!<i class="fas fa-long-arrow-right"></i></a>
                             </div>
@@ -1117,8 +1151,8 @@
                 </div>
             </div>
             <div class="price-shapes">
-                <img class="shape one wow fadeInLeft delay-0-5s" src="assets/images/shapes/price-left.png" alt="Shape">
-                <img class="shape two" src="assets/images/shapes/price-right.png" alt="Shape">
+                <img class="shape one wow fadeInLeft delay-0-5s" src="<?= INCLUDE_PATH; ?>assets/images/shapes/price-left.png" alt="Shape">
+                <img class="shape two" src="<?= INCLUDE_PATH; ?>assets/images/shapes/price-right.png" alt="Shape">
             </div>
         </section>
         <!-- Pricing Plan Area end -->
@@ -1136,22 +1170,22 @@
                             </div>
                             <div class="testi-image-slider">
                                 <div class="testi-image-item">
-                                    <img src="assets/images/testimonials/testi-author1.jpg" alt="Author">
+                                    <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testi-author1.jpg" alt="Author">
                                 </div>
                                 <div class="testi-image-item">
-                                    <img src="assets/images/testimonials/testi-author2.jpg" alt="Author">
+                                    <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testi-author2.jpg" alt="Author">
                                 </div>
                                 <div class="testi-image-item">
-                                    <img src="assets/images/testimonials/testi-author3.jpg" alt="Author">
+                                    <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testi-author3.jpg" alt="Author">
                                 </div>
                                 <div class="testi-image-item">
-                                    <img src="assets/images/testimonials/testi-author4.jpg" alt="Author">
+                                    <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testi-author4.jpg" alt="Author">
                                 </div>
                                 <div class="testi-image-item">
-                                    <img src="assets/images/testimonials/testi-author5.jpg" alt="Author">
+                                    <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testi-author5.jpg" alt="Author">
                                 </div>
                                 <div class="testi-image-item">
-                                    <img src="assets/images/testimonials/testi-author1.jpg" alt="Author">
+                                    <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testi-author1.jpg" alt="Author">
                                 </div>
                             </div>
                             <div class="testi-content-slider">
@@ -1202,14 +1236,14 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="testimonial-right-part wow fadeInRight delay-0-2s">
-                            <img src="assets/images/testimonials/testimonial.jpg" alt="Testimonial">
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testimonial.jpg" alt="Testimonial">
                             <div class="testi-image-over">
                                 <h3>We Have More 3248+ Reviews From Global Clients</h3>
-                                <img src="assets/images/testimonials/signature.png" alt="Signature">
+                                <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/signature.png" alt="Signature">
                             </div>
                             <div class="dot-shapes">
-                                <img src="assets/images/testimonials/testimonial-dots.png" alt="Dots">
-                                <img src="assets/images/testimonials/testimonial-dots.png" alt="Dots">
+                                <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testimonial-dots.png" alt="Dots">
+                                <img src="<?= INCLUDE_PATH; ?>assets/images/testimonials/testimonial-dots.png" alt="Dots">
                             </div>
                         </div>
                     </div>
@@ -1225,8 +1259,8 @@
                     <div class="col-xl-5 col-lg-6">
                         <div class="faq-content rmb-65 wow fadeInLeft delay-0-2s">
                             <div class="section-title mb-30">
-                                <span class="sub-title mb-15">Faqs</span>
-                                <h2>Perguntas frequentes</h2>
+                                <span class="sub-title mb-15"><?= $home['subtitle-10']; ?></span>
+                                <h2><?= $home['title-10']; ?></h2>
                             </div>
                             <div class="faq-accordion style-two pt-20" id="faq-accordion">
                                 <div class="accordion-item">
@@ -1288,8 +1322,8 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                     </div>
                     <div class="col-lg-6">
                         <div class="faq-images wow fadeInRight delay-0-2s">
-                            <div class="logo"><a href="index.html"><img src="assets/images/logos/logo-one.jpeg" alt="Logo" title="Logo"></a></div>
-                            <img src="assets/images/about/faq-right.jpg" alt="FAQs">
+                            <div class="logo"><a href="index.html"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo"></a></div>
+                            <img src="<?= INCLUDE_PATH; ?>assets/images/about/<?= $home['image-9']; ?>" alt="FAQs">
                         </div>
                     </div>
                 </div>
@@ -1301,7 +1335,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
         
         <br><br>
        <!-- Contact Form Section Start -->
-        <section class="contact-form-area py-130 rpy-100 bgs-cover" style="background-image: url(assets/images/background/contact-form-bg.jpg);">
+        <section class="contact-form-area py-130 rpy-100 bgs-cover" style="background-image: url(<?= INCLUDE_PATH; ?>assets/images/background/contact-form-bg.jpg);">
             <div class="container">
                 <div class="row gap-100 align-items-center">
                     <div class="col-lg-7">
@@ -1371,7 +1405,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                                     </div>
                                     <div class="content">
                                         <span>Contato</span>
-                                        <h5><a href="https://api.whatsapp.com/send?phone=5511940496818">+55 11 94049-6818</a></h5>
+                                        <h5><a href="<?= $whatsapp_link; ?>"><?= $home['whatsapp']; ?></a></h5>
                                     </div>
                                 </div>
                             </div>
@@ -1387,7 +1421,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
         <footer class="main-footer bgc-gray footer-white rel z-1">
             <div class="footer-cta-wrap">
                 <div class="container">
-                    <div class="footer-cta-inner bgs-cover" style="background-image: url(assets/images/footer/footer-cta-bg.jpg);">
+                    <div class="footer-cta-inner bgs-cover" style="background-image: url(<?= INCLUDE_PATH; ?>assets/images/footer/footer-cta-bg.jpg);">
                         <div class="section-title wow fadeInLeft delay-0-2s">
                             <span class="sub-title"></span>
                             <h2>Estamos prontos para o crescimento dos seus negócios!</h2>
@@ -1400,7 +1434,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                     <div class="col-xl-3 col-sm-6">
                         <div class="footer-widget widget_about wow fadeInUp delay-0-2s">
                             <div class="footer-logo mb-30">
-                                <a href="index.html"><img src="assets/images/logos/logo-one.jpeg" alt="Logo"></a>
+                                <a href="index.html"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo"></a>
                             </div>
                             <p>Somos uma empresa de desenvolvimento de software com uma equipe altamente capacitada e dedicada. Acreditamos que as soluções de tecnologia devem ser acessíveis a todos e oferecer resultados concretos.</p>
                         </div>
@@ -1416,10 +1450,10 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                             </form>
                             <h5>Siga-nos</h5>
                             <div class="social-style-one">
-                                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                <a href="#"><i class="fab fa-instagram"></i></a>
-                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="<?= $home['facebook']; ?>"><i class="fab fa-facebook-f"></i></a>
+                                <a href="<?= $home['twitter']; ?>"><i class="fab fa-twitter"></i></a>
+                                <a href="<?= $home['instagram']; ?>"><i class="fab fa-instagram"></i></a>
+                                <a href="<?= $home['linkedin']; ?>"><i class="fab fa-linkedin-in"></i></a>
                             </div>
                         </div>
                     </div>
@@ -1467,22 +1501,22 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                         </div>
                         <div class="col-lg-4">
                             <div class="copyright-text text-lg-end wow fadeInLeft delay-0-2s">
-                                <p>TODOS OS DIREITOS RESERVADOS ©2023 Dropi Digital. <br>Uma empresa especialista em soluções digitais.</p>
+                                <p>TODOS OS DIREITOS RESERVADOS ©<?= date('Y'); ?> Dropi Digital. <br>Uma empresa especialista em soluções digitais.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="footer-shapes">
-                <img class="shape one" src="assets/images/footer/footer-bg-weve-shape.png" alt="Shape">
-                <img class="shape two" src="assets/images/footer/footer-bg-line-shape.png" alt="Shape">
-                <img class="shape three wow fadeInRight delay-0-8s" src="assets/images/footer/footer-right.png" alt="Shape">
+                <img class="shape one" src="<?= INCLUDE_PATH; ?>assets/images/footer/footer-bg-weve-shape.png" alt="Shape">
+                <img class="shape two" src="<?= INCLUDE_PATH; ?>assets/images/footer/footer-bg-line-shape.png" alt="Shape">
+                <img class="shape three wow fadeInRight delay-0-8s" src="<?= INCLUDE_PATH; ?>assets/images/footer/footer-right.png" alt="Shape">
             </div>
         </footer>
         <!-- footer area end -->
         
         <!-- WhatsApp Button -->
-        <a href="https://api.whatsapp.com/send?phone=5511940496818" target="_blank" class="home-page whatsapp-button">
+        <a href="<?= $whatsapp_link; ?>" target="_blank" class="home-page whatsapp-button">
             <i class="fa-brands fa-whatsapp"></i>
         </a>
         
@@ -1494,27 +1528,30 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
    
     
     <!-- Jquery -->
-    <script src="assets/js/jquery-3.6.0.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap -->
-    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/bootstrap.min.js"></script>
     <!-- Appear Js -->
-    <script src="assets/js/appear.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/appear.min.js"></script>
     <!-- Slick -->
-    <script src="assets/js/slick.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/slick.min.js"></script>
     <!-- Magnific Popup -->
-    <script src="assets/js/jquery.magnific-popup.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/jquery.magnific-popup.min.js"></script>
     <!-- Nice Select -->
-    <script src="assets/js/jquery.nice-select.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/jquery.nice-select.min.js"></script>
     <!-- Image Loader -->
-    <script src="assets/js/imagesloaded.pkgd.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/imagesloaded.pkgd.min.js"></script>
     <!-- Circle Progress -->
-    <script src="assets/js/circle-progress.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/circle-progress.min.js"></script>
     <!-- Isotope -->
-    <script src="assets/js/isotope.pkgd.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/isotope.pkgd.min.js"></script>
     <!--  WOW Animation -->
-    <script src="assets/js/wow.min.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/wow.min.js"></script>
     <!-- Custom script -->
-    <script src="assets/js/script.js"></script>
+    <script src="<?= INCLUDE_PATH; ?>assets/js/script.js"></script>
 
 </body>
 </html>
+<?php
+    }
+?>

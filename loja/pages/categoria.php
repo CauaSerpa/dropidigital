@@ -121,12 +121,12 @@
                                 $discount = $price;
                             }
 
+                            // Link do produto
+                            $link = INCLUDE_PATH_LOJA . $product['link'];
+
                             if ($product['without_price']) {
                                 $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
                             }
-
-                            // Link do produto
-                            $link = INCLUDE_PATH_LOJA . $product['link'];
 
                             echo '<div class="col-sm-3 numBanner d-grid">';
                             echo '<a href="' . $link . '" class="product-link d-grid">';

@@ -28,38 +28,71 @@
     $category = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <?php
+    // Função para adicionar um registro na tabela tb_visits
+    function addVisitProductToDatabase($conn_pdo, $shop_id, $product_id) {
+        // Fuso horario Sao Paulo
+        date_default_timezone_set('America/Sao_Paulo');
+        // Data atual
+        $dataAtual = date("Y-m-d");
+
+        // Consulta para verificar se já há uma entrada para a data atual
+        $sql = "SELECT * FROM tb_visits WHERE shop_id = :shop_id AND page = :page AND product_id = :product_id AND data = :data";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'product');
+        $stmt->bindValue(':product_id', $product_id);
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+
+        if ($stmt->rowCount() == 0) {
+            // Se não houver entrada para a data atual, insira uma nova entrada
+            $sql = "INSERT INTO tb_visits (shop_id, page, product_id, data, contagem) VALUES (:shop_id, :page, :product_id, :data, 1)";
+        } else {
+            // Se houver entrada para a data atual, apenas atualize a contagem
+            $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE shop_id = :shop_id AND page = :page AND product_id = :product_id AND data = :data";
+        }
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':page', 'product');
+        $stmt->bindValue(':product_id', $product_id);
+        $stmt->bindParam(':data', $dataAtual);
+        $stmt->execute();
+    }
+
     // Fuso horario Sao Paulo
     date_default_timezone_set('America/Sao_Paulo');
-    // Data atual
-    $dataAtual = date("Y-m-d");
 
-    // Consulta para verificar se já há uma entrada para a data atual
-    $sql = "SELECT * FROM tb_visits WHERE shop_id = :shop_id AND page = :page AND product_id = :product_id AND data = :data";
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':shop_id', $shop_id);
-    $stmt->bindValue(':page', 'product');
-    $stmt->bindValue(':product_id', $product['id']);
-    $stmt->bindParam(':data', $dataAtual);
-    $stmt->execute();
+    // Verifica se a sessão "access_product_" . $product['id'] existe
+    if (!isset($_SESSION['access_product_' . $product['id']])) {
+        // Se não existir, cria a sessão e adiciona um registro na tabela tb_visits
+        $_SESSION['access_product_' . $product['id']] = ["date" => date('Y-m-d H:i')]; // Salva a data, hora e minuto atuais na sessão
 
-    // Se não houver entrada para a data atual, insira uma nova entrada
-    if ($stmt->rowCount() == 0) {
-        $sql = "INSERT INTO tb_visits (shop_id, page, product_id, data, contagem) VALUES (:shop_id, :page, :product_id, :data, 1)";
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $shop_id);
-        $stmt->bindValue(':page', 'product');
-        $stmt->bindValue(':product_id', $product['id']);
-        $stmt->bindParam(':data', $dataAtual);
-        $stmt->execute();
+        addVisitProductToDatabase($conn_pdo, $shop_id, $product['id']);
     } else {
-        // Se houver entrada para a data atual, apenas atualize a contagem
-        $sql = "UPDATE tb_visits SET contagem = contagem + 1 WHERE shop_id = :shop_id AND page = :page AND product_id = :product_id AND data = :data";
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $shop_id);
-        $stmt->bindValue(':page', 'product');
-        $stmt->bindValue(':product_id', $product['id']);
-        $stmt->bindParam(':data', $dataAtual);
-        $stmt->execute();
+        // Session access
+        $access = $_SESSION['access_product_' . $product['id']];
+
+        // Se a sessão existir, verifica se já passaram 10 minutos desde o último acesso
+        // Data fornecida
+        $date = $access['date'];
+        $currentDate = date('Y-m-d H:i');
+
+        // Converte as datas para objetos DateTime
+        $dateObj = new DateTime($date);
+        $currentDateObj = new DateTime($currentDate);
+
+        // Calcula a diferença entre as duas datas
+        $interval = $currentDateObj->diff($dateObj);
+
+        // Verifica se a diferença é de pelo menos 10 minutos
+        if ($interval->i >= 10 || $interval->h > 0 || $interval->d > 0 || $interval->m > 0 || $interval->y > 0) {
+            // Se já passaram 10 minutos, adiciona mais um registro na tabela tb_visits
+
+            $access['date'] = date('Y-m-d H:i'); // Atualiza a sessão com a nova data, hora e minuto
+            $_SESSION['access_product_' . $product['id']] = $access;
+
+            addVisitProductToDatabase($conn_pdo, $shop_id, $product['id']);
+        }
     }
 ?>
 <style>

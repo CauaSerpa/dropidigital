@@ -604,24 +604,22 @@
             <ul class="mb-0">
                 <?php
                 // Loop através dos resultados da consulta
-                foreach ($resultados as $row) {
-                    $product_id = $row['product_id'];
-                    $total_visitas = $row['total_visitas'];
+                if ($resultados) {
+                    foreach ($resultados as $row) {
+                        $product_id = $row['product_id'];
+                        $total_visitas = $row['total_visitas'];
 
-                    // Consultar informações adicionais do produto usando o $product_id
-                    $sqlProductInfo = "SELECT name FROM tb_products WHERE id = :product_id";
-                    $stmtProductInfo = $conn_pdo->prepare($sqlProductInfo);
-                    $stmtProductInfo->bindParam(':product_id', $product_id);
-                    $stmtProductInfo->execute();
-                    $productInfo = $stmtProductInfo->fetch(PDO::FETCH_ASSOC);
+                        // Consultar informações adicionais do produto usando o $product_id
+                        $sqlProductInfo = "SELECT name FROM tb_products WHERE id = :product_id";
+                        $stmtProductInfo = $conn_pdo->prepare($sqlProductInfo);
+                        $stmtProductInfo->bindParam(':product_id', $product_id);
+                        $stmtProductInfo->execute();
+                        $productInfo = $stmtProductInfo->fetch(PDO::FETCH_ASSOC);
 
-                    $productName = $productInfo['name'];
-
-
-                    
+                        $productName = $productInfo['name'];
 
 
-
+                        
 
 
 
@@ -634,25 +632,28 @@
 
 
 
-                    // Consulta SQL para selecionar todas as colunas com base no ID
-                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
 
-                    // Preparar e executar a consulta
-                    $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':usuario_id', $product_id);
-                    $stmt->execute();
 
-                    // Recuperar os resultados
-                    $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    if ($imagens) {
-                        // Loop através dos resultados e exibir todas as colunas
-                        foreach ($imagens as $imagem) {
-                            $productImage = INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'];
+                        // Consulta SQL para selecionar todas as colunas com base no ID
+                        $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':usuario_id', $product_id);
+                        $stmt->execute();
+
+                        // Recuperar os resultados
+                        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        if ($imagens) {
+                            // Loop através dos resultados e exibir todas as colunas
+                            foreach ($imagens as $imagem) {
+                                $productImage = INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'];
+                            }
+                        } else {
+                            $productImage = INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg';
                         }
-                    } else {
-                        $productImage = INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg';
-                    }
                 ?>
                 <li class="product__item">
                     <div class="container__image">
@@ -667,6 +668,13 @@
                     </div>
                 </li>
                 <?php
+                    }
+                } else {
+                    echo
+                    '</div><div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center">
+                        <i class="bx bx-package" style="font-size: 3.5rem;"></i>
+                        <p class="fw-semibold px-4">Não há registros de acessos aos produtos do seu site até o momento</p>
+                    ';
                 }
                 ?>
             </ul>
