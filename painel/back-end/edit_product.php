@@ -98,8 +98,7 @@
 
         $stmt->execute();
 
-
-
+        // Categorias
         // Recupera o valor do input hidden com o ID das categorias
         $categoriasInputValue = $_POST['categoriasSelecionadas'];
 
@@ -158,8 +157,6 @@
         }
 
         echo "sucesso";
-
-
 
         // Deletar imagens
         if (isset($_POST['delete_images'])) {

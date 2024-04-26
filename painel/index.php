@@ -40,7 +40,7 @@
     $id = @$_SESSION['user_id'];
 
     // Consulta SQL
-    $sql = "SELECT permissions, name, email FROM $tabela WHERE id = :id";
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -62,21 +62,26 @@
         $permissions = $resultado['permissions'];
         $name = $resultado['name'];
         $email = $resultado['email'];
+        $docType = $resultado['docType'];
+        $docNumber = $resultado['docNumber'];
+        $razaoSocial = $resultado['razaoSocial'];
+        $phone = $resultado['phone'];
+        $last_shop_login = $resultado['last_shop_login'];
     }
 
     // Pesquisar Loja
 
-    // Verifica se há um selected_shop_id definido na sessão
-    $selectedShopId = isset($_SESSION['selected_shop_id']) ? $_SESSION['selected_shop_id'] : null;
+    // Verifica se há um shop_id definido na sessão
+    @$shop_id = isset($_SESSION['shop_id']) ? $_SESSION['shop_id'] : $last_shop_login;
 
     // Tabela que será feita a consulta
     $tabela = "tb_shop";
 
-    // Ajusta a consulta SQL para dar prioridade ao selected_shop_id se ele existir
-    if ($selectedShopId) {
-        $sql = "SELECT id, plan_id, name, phone, whatsapp FROM $tabela WHERE user_id = :id ORDER BY id = :selectedShopId DESC, id DESC LIMIT 1";
+    // Ajusta a consulta SQL para dar prioridade ao shop_id se ele existir
+    if ($shop_id) {
+        $sql = "SELECT * FROM $tabela WHERE user_id = :id ORDER BY id = :shop_id DESC, id DESC LIMIT 1";
     } else {
-        $sql = "SELECT id, plan_id, name, phone, whatsapp FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
+        $sql = "SELECT * FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
     }
 
     // Preparar a consulta
@@ -84,8 +89,8 @@
 
     // Vincular o valor do parâmetro
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-    if ($selectedShopId) {
-        $stmt->bindParam(':selectedShopId', $selectedShopId, PDO::PARAM_INT);
+    if ($shop_id) {
+        $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
     }
 
     // Executar a consulta
@@ -404,6 +409,38 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios-proprios" class="<?php activeSidebarLink('dominios-proprios'); ?>">Domínios Próprios</a></li>
                 </ul>
             </li>
+            <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('criar-site-pronto'); ?> <?php activeSidebarLink('editar-site-pronto'); ?> <?php activeSidebarLink('relatorio-sites-prontos'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('editar-site-pronto'); ?> <?php showSidebarLinks('criar-site-pronto'); ?> <?php showSidebarLinks('relatorio-sites-prontos'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos" class="sidebar_link">
+                                <i class='bx bx-windows'></i>
+                            </a>
+                            <span class="link_name">Sites Prontos</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos">Sites Prontos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos" class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('criar-site-pronto'); ?> <?php activeSidebarLink('editar-site-pronto'); ?>">Sites Prontos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>relatorio-sites-prontos" class="<?php activeSidebarLink('relatorio-sites-prontos'); ?>">Relatórios</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('criar-servico'); ?> <?php activeSidebarLink('editar-servico'); ?> <?php activeSidebarLink('relatorio-servicos'); ?> <?php showSidebarLinks('servicos'); ?> <?php showSidebarLinks('criar-servico'); ?> <?php showSidebarLinks('editar-servico'); ?> <?php showSidebarLinks('relatorio-servicos'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="sidebar_link">
+                                <i class='bx bx-wrench' ></i>
+                            </a>
+                            <span class="link_name">Serviços</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Serviços</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="<?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('criar-servico'); ?> <?php activeSidebarLink('editar-servico'); ?>">Serviços</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>relatorio-servicos" class="<?php activeSidebarLink('relatorio-servicos'); ?>">Relatórios</a></li>
+                </ul>
+            </li>
             <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
                 <div class="iocn-link">
                         <p>
@@ -505,7 +542,7 @@
                         $domain_url = "https://" . $subdomain . $domain['domain'];
                     ?>
                     <a href="<?php echo $domain_url; ?>" target="_blank" class="text-dark text-decoration-none fs-6 fw-semibold">
-                        Ver a loja
+                        Ver o site
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="ms-1" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
                     </a>
                 </div>
@@ -614,16 +651,20 @@
                                 $tabela = "tb_shop";
 
                                 // Consulta SQL
-                                $sql = "SELECT id, name FROM $tabela WHERE user_id = :user_id ORDER BY id DESC";
+                                $sql = "SELECT id, name FROM $tabela WHERE user_id = :user_id ORDER BY (id = :shop_id) DESC";
 
                                 // Preparar a consulta
                                 $stmt = $conn_pdo->prepare($sql);
 
                                 // Vincular o valor do parâmetro
                                 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                                $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
 
                                 // Executar a consulta
                                 $stmt->execute();
+
+                                // Contar o numero de contas
+                                $countShops = $stmt->rowCount();
 
                                 // Obter todos os resultados como um array associativo
                                 $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -632,7 +673,9 @@
                             <ul class="mb-0">
                                 <?php foreach ($resultados as $loja): ?>
                                     <li class="small <?php echo $loja['id'] == $id ? 'active' : ''; ?>">
-                                        <?php echo $loja['name']; ?>
+                                        <a href="<?= INCLUDE_PATH_DASHBOARD; ?>alterar-loja?id=<?= $loja['id']; ?>" class="text-body text-decoration-none">
+                                            <?php echo $loja['name']; ?>
+                                        </a>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
@@ -645,9 +688,20 @@
                                         Editar Conta
                                     </a>
                                 </li>
+                                <?php
+                                    if ($countShops < 5) {
+                                        $href = "href='" . INCLUDE_PATH_DASHBOARD . "criar-nova-loja'";
+                                        $css = "";
+                                        $i = "";
+                                    } else {
+                                        $href = "";
+                                        $css = 'class="text-body-secondary text-decoration-none"';
+                                        $i = '<i class="bx bx-help-circle" data-toggle="tooltip" data-placement="top" aria-label="Sua conta chegou no limite máximo de sites" data-bs-original-title="Sua conta chegou no limite máximo de sites"></i>';
+                                    }
+                                ?>
                                 <li class="small">
-                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-nova-loja">
-                                        Criar Loja
+                                    <a <?= $href; ?> <?= $css; ?>>
+                                        Criar Site <?= $i; ?>
                                     </a>
                                 </li>
                                 <li class="small">
@@ -859,17 +913,20 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">Redes Sociais</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('servicos'); ?>">
+            <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?> <?php activeSidebarLink('servicos'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('site-pronto'); ?> <?php showSidebarLinks('servicos'); ?>">
                 <div class="iocn-link">
-                    <p>
-                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">
-                            <i class='bx bx-bulb' ></i>
-                        </a>
-                        <span class="link_name">Serviços</span>
-                    </p>
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="sidebar_link">
+                                <i class='bx bx-bulb' ></i>
+                            </a>
+                            <span class="link_name">Soluções</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Serviços</a></li>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Soluções</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="<?php activeSidebarLink('servicos'); ?>">Serviços</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos" class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?>">Sites Prontos</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
@@ -1388,6 +1445,13 @@
                 // Remove o elemento pai do botão, que é o card
                 $(".dropdown").toggleClass("selected");
             });
+        });
+    </script>
+
+    <!-- Tooltip -->
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
 

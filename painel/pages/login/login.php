@@ -59,7 +59,7 @@
         </button>
     </form>
     <div class="bottom__text signup">
-        <p>Ainda não possui uma loja na DropiDigital?</p>
+        <p>Ainda não possui um Site na DropiDigital?</p>
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar">Crie sua loja virtual grátis agora.</a>
     </div>
 </div>

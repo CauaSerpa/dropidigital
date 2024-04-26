@@ -2,7 +2,7 @@
     <div class="header__title">
         <div class="page__header center">
             <div class="header__title">
-                <h2 class="title">Soluções</h2>
+                <h2 class="title">Serviços</h2>
             </div>
         </div>
     </div>

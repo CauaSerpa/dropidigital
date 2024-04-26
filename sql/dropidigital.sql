@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05/04/2024 às 00:53
+-- Tempo de geração: 26/04/2024 às 02:13
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -237,6 +237,29 @@ INSERT INTO `tb_home` (`id`, `logo`, `description`, `email`, `whatsapp`, `locati
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tb_home_services`
+--
+
+CREATE TABLE `tb_home_services` (
+  `id` int(11) NOT NULL,
+  `icon` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tb_home_services`
+--
+
+INSERT INTO `tb_home_services` (`id`, `icon`, `title`, `description`, `date_create`) VALUES
+(1, '', 'Consultoria Digital', 'Informe o seu projeto e tediremos como você pode aplica-lo aqui na Dropi Digital. Afiliado, Dropshipping de produtos físicos e serviços.\r\n\r\n', '2024-04-05 05:49:20'),
+(2, '', 'Criamos a sua loja', 'A plataforma é totalmente intuitiva, e você pode sozinho montar sua loja, mas caso precise que alguém monte seu site aqui. Montamos para você, com banners, produtos cadastrados e totalmente otimizado para os mecanismos de busca. Consultar valores.', '2024-04-05 05:50:15'),
+(3, '', 'Criamos os Banners da sua Loja/Site', 'Precisa da criação dos banners para sua loja? Fique tranquilo, fazemos para você. Envie as especificações e montamos as suas artes. Consultar valores.', '2024-04-05 05:50:54');
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `tb_invoice_info`
 --
 
@@ -315,16 +338,31 @@ CREATE TABLE `tb_partners` (
   `date_create` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Despejando dados para a tabela `tb_partners`
+-- Estrutura para tabela `tb_payments`
 --
 
-INSERT INTO `tb_partners` (`id`, `name`, `link`, `image`, `date_create`) VALUES
-(1, 'Hotmart', 'https://hotmart.com/pt-br', 'partner-1.png', '2024-04-03 18:42:20'),
-(2, 'Eduzz', 'https://www.eduzz.com/pt-br', 'partner-2.png', '2024-04-03 18:42:20'),
-(3, 'Monetizze', 'https://www.monetizze.com.br', 'partner-3.png', '2024-04-03 18:43:52'),
-(4, 'Amazon Afiliados', 'https://associados.amazon.com.br', 'partner-4.png', '2024-04-03 18:43:52'),
-(5, 'Shopee Afiliados', 'https://shopee.com.br/m/afiliados', 'partner-5.jpg', '2024-04-03 18:44:30');
+CREATE TABLE `tb_payments` (
+  `id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `plan_id` int(11) NOT NULL,
+  `customer_id` varchar(255) DEFAULT NULL,
+  `payment_id` varchar(255) DEFAULT NULL,
+  `value` varchar(255) NOT NULL,
+  `billing_type` varchar(255) DEFAULT NULL,
+  `status` varchar(255) NOT NULL,
+  `start_date` datetime NOT NULL,
+  `due_date` date DEFAULT NULL,
+  `undefined` tinyint(1) NOT NULL DEFAULT 0,
+  `cycle` varchar(255) NOT NULL,
+  `pix_expirationDate` datetime DEFAULT NULL,
+  `pix_encodedImage` longtext DEFAULT NULL,
+  `pix_payload` longtext DEFAULT NULL,
+  `credit_card_number` varchar(255) DEFAULT NULL,
+  `credit_card_flag` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -400,6 +438,46 @@ CREATE TABLE `tb_product_categories` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tb_ready_sites`
+--
+
+CREATE TABLE `tb_ready_sites` (
+  `id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `plan_id` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `emphasis` tinyint(1) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `without_price` tinyint(1) NOT NULL,
+  `discount` decimal(10,2) NOT NULL,
+  `video` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `items_included` text DEFAULT NULL,
+  `sku` varchar(255) NOT NULL,
+  `seo_name` varchar(255) NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `seo_description` varchar(255) NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_ready_site_img`
+--
+
+CREATE TABLE `tb_ready_site_img` (
+  `id` int(11) NOT NULL,
+  `ready_site_id` int(11) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `date_create` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `tb_scripts`
 --
 
@@ -409,6 +487,43 @@ CREATE TABLE `tb_scripts` (
   `status` int(11) NOT NULL DEFAULT 0,
   `name` varchar(255) NOT NULL,
   `script` text NOT NULL,
+  `date_create` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_services`
+--
+
+CREATE TABLE `tb_services` (
+  `id` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `emphasis` tinyint(1) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `without_price` tinyint(1) NOT NULL,
+  `discount` decimal(10,2) NOT NULL,
+  `video` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `buy_together` text NOT NULL,
+  `sku` varchar(255) NOT NULL,
+  `seo_name` varchar(255) NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `seo_description` varchar(255) NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_service_img`
+--
+
+CREATE TABLE `tb_service_img` (
+  `id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `image` varchar(255) NOT NULL,
   `date_create` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -461,6 +576,19 @@ CREATE TABLE `tb_shop` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tb_site_services`
+--
+
+CREATE TABLE `tb_site_services` (
+  `id` int(11) NOT NULL,
+  `ready_site_id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `main` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `tb_subscriptions`
 --
 
@@ -499,13 +627,14 @@ CREATE TABLE `tb_users` (
   `token` varchar(255) DEFAULT NULL,
   `docType` varchar(255) NOT NULL,
   `docNumber` varchar(255) NOT NULL,
+  `razaoSocial` varchar(255) DEFAULT NULL,
   `phone` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `recup_password` varchar(255) DEFAULT NULL,
   `two_factors` tinyint(1) NOT NULL DEFAULT 0,
   `two_factors_token` varchar(255) DEFAULT NULL,
   `date_create` datetime NOT NULL,
-  `last_login` datetime NOT NULL
+  `last_shop_login` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -604,6 +733,12 @@ ALTER TABLE `tb_home`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tb_home_services`
+--
+ALTER TABLE `tb_home_services`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `tb_invoice_info`
 --
 ALTER TABLE `tb_invoice_info`
@@ -625,6 +760,12 @@ ALTER TABLE `tb_pages`
 -- Índices de tabela `tb_partners`
 --
 ALTER TABLE `tb_partners`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_payments`
+--
+ALTER TABLE `tb_payments`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -652,15 +793,45 @@ ALTER TABLE `tb_product_categories`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tb_ready_sites`
+--
+ALTER TABLE `tb_ready_sites`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_ready_site_img`
+--
+ALTER TABLE `tb_ready_site_img`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `tb_scripts`
 --
 ALTER TABLE `tb_scripts`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tb_services`
+--
+ALTER TABLE `tb_services`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_service_img`
+--
+ALTER TABLE `tb_service_img`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `tb_shop`
 --
 ALTER TABLE `tb_shop`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_site_services`
+--
+ALTER TABLE `tb_site_services`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -752,6 +923,12 @@ ALTER TABLE `tb_home`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT de tabela `tb_home_services`
+--
+ALTER TABLE `tb_home_services`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT de tabela `tb_invoice_info`
 --
 ALTER TABLE `tb_invoice_info`
@@ -773,7 +950,13 @@ ALTER TABLE `tb_pages`
 -- AUTO_INCREMENT de tabela `tb_partners`
 --
 ALTER TABLE `tb_partners`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_payments`
+--
+ALTER TABLE `tb_payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `tb_plans`
@@ -800,15 +983,45 @@ ALTER TABLE `tb_product_categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `tb_ready_sites`
+--
+ALTER TABLE `tb_ready_sites`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_ready_site_img`
+--
+ALTER TABLE `tb_ready_site_img`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `tb_scripts`
 --
 ALTER TABLE `tb_scripts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `tb_services`
+--
+ALTER TABLE `tb_services`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_service_img`
+--
+ALTER TABLE `tb_service_img`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `tb_shop`
 --
 ALTER TABLE `tb_shop`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_site_services`
+--
+ALTER TABLE `tb_site_services`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

@@ -1,71 +1,84 @@
 <?php
+    $shop_id = $id;
+
     if (isset($_GET['s'])) {
-        $shop_id = $id;
-        
         $subscription_id = $_GET['s'];
         
         $s = base64_decode($subscription_id);
 
         // Consulta SQL
         $sql = "SELECT * FROM tb_subscriptions WHERE subscription_id = :s AND shop_id = :shop_id";
+    } else {
+        $subscription_id = $_GET['p'];
+        
+        $p = base64_decode($subscription_id);
 
-        // Preparação da declaração PDO
+        // Consulta SQL
+        $sql = "SELECT * FROM tb_payments WHERE payment_id = :p AND shop_id = :shop_id";
+    }
+
+    // Preparação da declaração PDO
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Bind do valor do ID
+    if (isset($_GET['s'])) {
+        $stmt->bindParam(':s', $s);
+    } else {
+        $stmt->bindParam(':p', $p);
+    }
+
+    $stmt->bindParam(':shop_id', $id);
+
+    // Execução da consulta
+    $stmt->execute();
+
+    // Obtenção do resultado
+    $sub = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificação se a consulta retornou algum resultado
+    if ($sub) {
+        if ($sub['status'] == "OVERDUE" || $sub['status'] == "INACTIVE")
+        {
+            $_SESSION['msgcad'] = "<p class='red'>A cobrança já foi fechada!</p>";
+            // Redireciona para a página de login ou exibe uma mensagem de sucesso
+            header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
+            exit;
+        }
+
+        if ($sub['cycle'] == "MONTHLY")
+        {
+            $cycle = "Mensal";
+        } else {
+            $cycle = "Anual";
+        }
+
+        if ($sub['billing_type'] == "CREDIT_CARD")
+        {
+            $billing_type = "Cartão de crédito";
+        } else {
+            $billing_type = "Pix";
+        }
+
+        $date = new DateTime($sub['due_date']);
+        $due_date = $date->format("d/m/Y");
+
+        $sql = "SELECT * FROM tb_plans_interval WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
 
-        // Bind do valor do ID
-        $stmt->bindParam(':s', $s);
-        $stmt->bindParam(':shop_id', $id);
+        $stmt->bindParam(':id', $sub['plan_id']);
 
-        // Execução da consulta
         $stmt->execute();
 
-        // Obtenção do resultado
-        $sub = $stmt->fetch(PDO::FETCH_ASSOC);
+        $plan_interval = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verificação se a consulta retornou algum resultado
-        if ($sub) {
-            if ($sub['status'] == "OVERDUE" || $sub['status'] == "INACTIVE")
-            {
-                $_SESSION['msgcad'] = "<p class='red'>A cobrança já foi fechada!</p>";
-                // Redireciona para a página de login ou exibe uma mensagem de sucesso
-                header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
-                exit;
-            }
+        $sql = "SELECT * FROM tb_plans WHERE id = :id";
+        $stmt = $conn_pdo->prepare($sql);
 
-            if ($sub['cycle'] == "MONTHLY")
-            {
-                $cycle = "Mensal";
-            } else {
-                $cycle = "Anual";
-            }
+        $stmt->bindParam(':id', $plan_interval['plan_id']);
 
-            if ($sub['billing_type'] == "CREDIT_CARD")
-            {
-                $billing_type = "Cartão de crédito";
-            } else {
-                $billing_type = "Pix";
-            }
+        $stmt->execute();
 
-            $date = new DateTime($sub['due_date']);
-            $due_date = $date->format("d/m/Y");
-
-            $sql = "SELECT * FROM tb_plans_interval WHERE id = :id";
-            $stmt = $conn_pdo->prepare($sql);
-
-            $stmt->bindParam(':id', $sub['plan_id']);
-
-            $stmt->execute();
-
-            $plan_interval = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $sql = "SELECT * FROM tb_plans WHERE id = :id";
-            $stmt = $conn_pdo->prepare($sql);
-
-            $stmt->bindParam(':id', $plan_interval['plan_id']);
-
-            $stmt->execute();
-
-            $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+        $plan = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <style>
     /* Formatando main */
@@ -186,14 +199,9 @@
     </div>
 </div>
 <?php
-        } else {
-            $_SESSION['msg'] = "<p class='red'>Nenhum resultado encontrado.</p>";
-            header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
-            exit;
-        }
     } else {
-        $_SESSION['msg'] = "<p class='red'>O ID da assinatura não está definido.</p>";
-        header("Location: " . INCLUDE_PATH_DASHBOARD);
+        $_SESSION['msg'] = "<p class='red'>Nenhum resultado encontrado.</p>";
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "historico-de-faturas");
         exit;
     }
 ?>

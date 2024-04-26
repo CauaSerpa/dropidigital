@@ -1,12 +1,7 @@
 <?php
-    include_once('../../../config.php');
+    include_once('./../config.php');
 
     if (!empty($_SESSION['user_id'])) {
-        session_start();
-
-        $_SESSION['create_new_shop'] = true;
-        $_SESSION['user_id_for_create_shop'] = $_SESSION['user_id'];
-
         // Tabela que sera feita a consulta
         $tabela = "tb_users";
 
@@ -25,11 +20,24 @@
         // Obter o resultado como um array associativo
         $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verificar se o resultado foi encontrado
-        if ($resultado) {
-            $_SESSION['email'] = $resultado['email'];
-        }
+        // Contar o numero de contas
+        $countShops = $stmt->rowCount();
 
-        header("Location: " . INCLUDE_PATH_DASHBOARD . "criar-loja");
-        exit();
+        if ($countShops < 5) {
+            $_SESSION['create_new_shop'] = true;
+            $_SESSION['user_id_for_create_shop'] = $_SESSION['user_id'];
+
+            // Verificar se o resultado foi encontrado
+            if ($resultado) {
+                $_SESSION['email'] = $resultado['email'];
+            }
+
+            header("Location: " . INCLUDE_PATH_DASHBOARD . "criar-loja");
+            exit();
+        } else {
+            $_SESSION['msg'] = "<p class='red'>Você atingiu o limite máximo permitido de 5 sites criados.</p>";
+
+            header("Location: " . INCLUDE_PATH_DASHBOARD);
+            exit();
+        }
     }

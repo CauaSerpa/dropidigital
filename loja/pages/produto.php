@@ -471,33 +471,33 @@
         <div class="row g-3 p-4">
             <?php
                 // Loop através dos resultados e exibir todas as colunas
-                foreach ($resultados as $product) {
+                foreach ($resultados as $related_product) {
                     // Consulta SQL para selecionar todas as colunas com base no ID
                     $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
 
                     // Preparar e executar a consulta
                     $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':usuario_id', $product['id']);
+                    $stmt->bindParam(':usuario_id', $related_product['id']);
                     $stmt->execute();
 
                     // Recuperar os resultados
                     $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Formatação preço
-                    $preco = $product['price'];
+                    $preco = $related_product['price'];
 
                     // Transforma o número no formato "R$ 149,90"
                     $price = "R$ " . number_format($preco, 2, ",", ".");
 
                     // Formatação preço com desconto
-                    $desconto = $product['discount'];
+                    $desconto = $related_product['discount'];
 
                     // Transforma o número no formato "R$ 149,90"
                     $discount = "R$ " . number_format($desconto, 2, ",", ".");
 
                     // Calcula a porcentagem de desconto
-                    if ($product['price'] != 0) {
-                        $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                    if ($related_product['price'] != 0) {
+                        $porcentagemDesconto = (($related_product['price'] - $related_product['discount']) / $related_product['price']) * 100;
                     } else {
                         // Lógica para lidar com o caso em que $product['price'] é zero
                         $porcentagemDesconto = 0; // Ou outro valor padrão
@@ -506,7 +506,7 @@
                     // Arredonda o resultado para duas casas decimais
                     $porcentagemDesconto = round($porcentagemDesconto, 0);
 
-                    if ($product['discount'] == "0.00") {
+                    if ($related_product['discount'] == "0.00") {
                         $activeDiscount = "d-none";
 
                         $priceAfterDiscount = $price;
@@ -518,9 +518,9 @@
                     }
 
                     // Link do produto
-                    $link = INCLUDE_PATH_LOJA . $product['link'];
+                    $link = INCLUDE_PATH_LOJA . $related_product['link'];
 
-                    if ($product['without_price']) {
+                    if ($related_product['without_price']) {
                         $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
                     }
 
@@ -532,18 +532,18 @@
                         foreach ($imagens as $imagem) {
                             echo '<div class="product-image">';
                             echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
-                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $related_product['name'] . '">';
                             echo '</div>';
                         }
                     } else {
                         echo '<div class="product-image">';
                         echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
-                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" class="card-img-top" alt="' . $product['name'] . '">';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" class="card-img-top" alt="' . $related_product['name'] . '">';
                         echo '</div>';
                     }
 
                     echo '<div class="card-body">';
-                    echo '<p class="card-title mb-0">' . $product['name'] . '</p>';
+                    echo '<p class="card-title mb-0">' . $related_product['name'] . '</p>';
                     echo '<div class="d-flex mb-3">';
                     echo '<small class="fw-semibold text-body-secondary text-decoration-line-through me-2 ' . $activeDiscount . '">' . $discount . '</small>';
                     echo '<h4 class="card-text">' . $priceAfterDiscount . '</h4>';

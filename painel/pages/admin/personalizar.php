@@ -71,7 +71,8 @@
         position: relative;
         display: table;
     }
-    .editable-wrapper .edit-icon
+    .editable-wrapper .edit-icon,
+    .editable-wrapper .edit-image-icon
     {
         position: absolute;
         right: -18px;
@@ -95,6 +96,11 @@
     .btn.btn-success:hover
     {
         background: var(--dark-green-color);
+    }
+
+    .theme-btn
+    {
+        text-decoration: none !important;
     }
 </style>
 <style>
@@ -204,6 +210,10 @@
         border: 2px dotted #ced4da;
         border-radius: 0.3rem;
     }
+    .main .container.grid #addPartnerModal .modal-body .image-container .dropzone p
+    {
+        margin-bottom: 0 !important;
+    }
 </style>
 
 <!-- Modal para edição -->
@@ -242,7 +252,7 @@
                     <div class="dropzone" id="text-1">
                         <i class='bx bx-image fs-1'></i>
                         <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
-                        <small id="dimensions">Dimensões: 1920 x 535px</small>
+                        <small id="dimensions">Dimensões: 160 x 60px</small>
                     </div>
                 </label>
                 <input type="file" name="image" id="partner-image" accept="image/*" />
@@ -250,6 +260,55 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
                 <button type="button" class="btn btn-success fw-semibold px-4 py-2 small" id="addPartner" data-bs-dismiss="modal">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #updateImage input[type="file"]
+    {
+        display: none;
+    }
+    #updateImage .modal-body .image-container
+    {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 3rem;
+        border: 2px dotted #ced4da;
+        border-radius: 0.3rem;
+    }
+    .main .container.grid #updateImage .modal-body .image-container .dropzone p
+    {
+        margin-bottom: 0 !important;
+    }
+</style>
+
+<!-- Modal para edição de imagens -->
+<div class="modal fade" id="updateImage" tabindex="-1" role="dialog" aria-labelledby="updateImageLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateImageLabel">Editar Imagem</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="image" class="image-container mt-3">
+                    <img src="#" alt="Image Preview" class="image-preview" id="preview" style="display: none;">
+                    <div class="dropzone" id="text-2">
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                    </div>
+                </label>
+                <input type="file" name="image" id="image" accept="image/*" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-success fw-semibold px-4 py-2 small" id="updateImageButton" data-bs-dismiss="modal">Adicionar</button>
             </div>
         </div>
     </div>
@@ -284,6 +343,7 @@
 
     // Inicialize para os três pares de botão de upload e visualização de imagem
     imagePreview("partner-image", "partner-image-preview", "text-1");
+    imagePreview("image", "image-preview", "text-2");
 </script>
 
     <div class="page-wrapper">
@@ -398,7 +458,12 @@
                     </div>
                     <div class="hero-images-container col-lg-6 align-self-end">
                         <div class="hero-images mt-80 wow fadeInLeft delay-0-2s">
-                            <img src="<?php echo INCLUDE_PATH; ?>assets/images/hero/hero-one.jpg" alt="Hero">
+                            <div class="editable-wrapper">
+                                <div class="editable-content">
+                                    <img class="editable-image" data-editable-id="1" data-input-type="image" src="<?php echo INCLUDE_PATH; ?>assets/images/hero/hero-one.jpg" alt="Hero">
+                                </div>
+                                <span class="edit-image-icon"><i class='bx bxs-pencil' ></i></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -422,7 +487,7 @@
                     </div>
                     <div class="editable-wrapper">
                         <div class="editable-content">
-                            <h2 class="editable" data-editable-id="4" data-input-type="text" data-max-length="255"><?= $home['content-2']; ?></h2>
+                            <h2 class="editable" data-editable-id="4" data-input-type="text" data-max-length="255"><?= $home['title-2']; ?></h2>
                         </div>
                         <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                     </div>
@@ -626,15 +691,49 @@
                             </div>
                         </div>
                     </div>
+                    <style>
+                        .about-images .top-part .editable-image
+                        {
+                            margin-left: 15px !important;
+                            width: 100% !important;
+                            max-width: 100% !important;
+                            margin-top: 0 !important;
+                        }
+                        .about-images .top-part .logo
+                        {
+                            margin-left: 15px !important;
+                        }
+                        .about-images .bottom-part .editable-image
+                        {
+                            margin-top: -50% !important;
+                            width: 100% !important;
+                        }
+                        .about-images .bottom-part .edit-image-icon
+                        {
+                            margin-top: -50% !important;
+                        }
+                    </style>
                     <div class="col-lg-6">
                         <div class="about-images">
                             <div class="top-part">
-                                <img class="wow fadeInRight delay-0-3s" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-2.jpg" alt="About">
-                                <img class="wow zoomIn delay-0-5s" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-logo.jpeg" alt="About">
+                                <div class="editable-wrapper">
+                                    <div class="editable-content">
+                                        <img class="editable-image wow fadeInRight delay-0-3s" data-editable-id="2" data-input-type="image" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-2.jpg" alt="About">
+                                    </div>
+                                    <span class="edit-image-icon"><i class='bx bxs-pencil' ></i></span>
+                                </div>
+                                <!-- <img class="wow fadeInRight delay-0-3s" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-2.jpg" alt="About"> -->
+                                <img class="logo wow zoomIn delay-0-5s" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-logo.jpeg" alt="About">
                             </div>
                             <div class="bottom-part">
                                 <img class="wow fadeInDown delay-0-5s" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-dots.png" alt="About">
-                                <img class="wow fadeInDown delay-0-3s" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-1.jpg" alt="About">
+                                <!-- <img class="wow fadeInDown delay-0-3s" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-1.jpg" alt="About"> -->
+                                <div class="editable-wrapper">
+                                    <div class="editable-content">
+                                        <img class="editable-image wow fadeInDown delay-0-3s" data-editable-id="3" data-input-type="image" src="<?php echo INCLUDE_PATH; ?>assets/images/about/about-1.jpg" alt="About">
+                                    </div>
+                                    <span class="edit-image-icon"><i class='bx bxs-pencil' ></i></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -970,7 +1069,7 @@
                         </div>
                         <span class="edit-icon"><i class='bx bxs-pencil' ></i></span>
                     </div>
-                    <div class="editable-wrapper d-inline-block">
+                    <div class="editable-wrapper d-block">
                         <div class="editable-content">
                             <h2 class="editable" data-editable-id="18" data-input-type="text" data-max-length="255"><?= $home['title-7']; ?></h2>
                         </div>
@@ -1601,7 +1700,7 @@
                 <div class="row align-items-center justify-content-between">
                     <div class="col-xl-5 col-lg-6">
                         <div class="faq-content rmb-65 wow fadeInLeft delay-0-2s">
-                            <div class="section-title mb-30">
+                            <div class="section-title mb-30 mt-30">
                                 <div class="editable-wrapper">
                                     <div class="editable-content">
                                         <span class="sub-title mb-15 editable" data-editable-id="21" data-input-type="text" data-max-length="255"><?= $home['subtitle-9']; ?></span>
@@ -1676,7 +1775,12 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                     <div class="col-lg-6">
                         <div class="faq-images wow fadeInRight delay-0-2s">
                             <div class="logo"><a href="index.html"><img src="<?php echo INCLUDE_PATH; ?>assets/images/logos/logo-one.jpeg" alt="Logo" title="Logo"></a></div>
-                            <img src="<?php echo INCLUDE_PATH; ?>assets/images/about/faq-right.jpg" alt="FAQs">
+                            <div class="editable-wrapper" style="z-index: -1;">
+                                <div class="editable-content">
+                                    <img class="editable-image" data-editable-id="4" data-input-type="image" src="<?php echo INCLUDE_PATH; ?>assets/images/about/faq-right.jpg" alt="FAQs">
+                                </div>
+                                <span class="edit-image-icon"><i class='bx bxs-pencil' ></i></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1994,6 +2098,67 @@ $(document).ready(function() {
     var charCount = element.value.length;
     $('.char-count').text(charCount + '/' + maxLength);
   }
+});
+</script>
+
+<!-- Update Image -->
+<script>
+$(document).ready(function() {
+  // Quando o ícone de edição de imagem é clicado
+  $('.edit-image-icon').on('click', function() {
+    var currentImage = $(this).prev('.editable-content').find('.editable-image');
+    var editableId = currentImage.data('editable-id');
+    var currentSrc = currentImage.attr('src');
+
+    // Define o ID e a fonte de imagem atual no modal para referência
+    $('#updateImage').data('editableId', editableId);
+    $('#preview').attr('src', currentSrc).show();
+    $('#text-2').css('display', 'none');
+
+    // Mostra o modal
+    $('#updateImage').modal('show');
+  });
+
+  // Quando seleciona uma imagem para upload
+  $('#image').change(function() {
+    if (this.files && this.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+        $('#preview').attr('src', e.target.result).show();
+      }
+
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  // Quando o botão de atualizar imagem é clicado
+  $('#updateImageButton').on('click', function() {
+    var editableId = $('#updateImage').data('editableId');
+    var newImageSrc = $('#preview').attr('src');
+
+    // Atualiza a imagem na página
+    $('.editable-image[data-editable-id="' + editableId + '"]').attr('src', newImageSrc);
+
+    // Fecha o modal
+    $('#updateImage').modal('hide');
+
+    // Faça uma chamada AJAX para salvar a nova imagem no servidor
+    $.ajax({
+      url: 'salvar_imagem.php', // Substitua pelo seu arquivo PHP para processar o upload da imagem
+      method: 'POST',
+      data: { id: editableId, imagem: newImageSrc },
+      processData: false,
+      contentType: false,
+      success: function(response) {
+        // Processar a resposta do servidor, se necessário
+        console.log(response);
+      },
+      error: function(error) {
+        console.error('Erro ao salvar a imagem:', error);
+      }
+    });
+  });
 });
 </script>
 

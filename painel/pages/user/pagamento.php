@@ -1,18 +1,32 @@
 <?php
     $shop_id = $id;
 
-    $subscription_id = $_GET['s'];
+    if (isset($_GET['s'])) {
+        $subscription_id = $_GET['s'];
 
-    $s = base64_decode($subscription_id);
+        $s = base64_decode($subscription_id);
+        
+        // Consulta SQL
+        $sql = "SELECT * FROM tb_subscriptions WHERE subscription_id = :s AND shop_id = :shop_id";
+    } else {
+        $payment_id = $_GET['p'];
 
-    // Consulta SQL
-    $sql = "SELECT * FROM tb_subscriptions WHERE subscription_id = :s AND shop_id = :shop_id";
+        $p = base64_decode($payment_id);
+
+        // Consulta SQL
+        $sql = "SELECT * FROM tb_payments WHERE payment_id = :p AND shop_id = :shop_id";
+    }
 
     // Preparação da declaração PDO
     $stmt = $conn_pdo->prepare($sql);
 
     // Bind do valor do ID
+    if (isset($_GET['s'])) {
     $stmt->bindParam(':s', $s);
+    } else {
+        $stmt->bindParam(':p', $p);
+    }
+
     $stmt->bindParam(':shop_id', $id);
 
     // Execução da consulta
@@ -61,7 +75,7 @@
     <div class="border rounded p-4 d-flex flex-column align-items-center" style="width: 425px;">
         <p class="fw-semibold">Validade do pagamento:</p>
         <div id="temporizador" class="fs-1 fw-semibold"></div>
-        <p class="fs-5 fw-semibold">Total a pagar: <span class="fs-4 text-success fw-semibold">R$ <?php echo $valor ?></span></p>
+        <p class="fs-5 fw-semibold">Total a pagar: <span class="fs-4 text-success fw-semibold">R$ <?php echo number_format($valor, 2, ",", ".") ?></span></p>
 
         <img src="data:image/png;base64,<?php echo $pix_encodedImage ?>" alt="QR Code Pix" style="width: 350px;">
 
@@ -129,6 +143,9 @@
                 clearInterval(temporizador);
                 alert("Tempo expirado para o Cobrança ID: " + produtoId);
 
+                // Remover o item do localStorage
+                localStorage.removeItem("tempoRestante_" + produtoId);
+
                 // Envia o id para alterar status para cancelado
                 window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/pagamento_expirado.php?shop=<?php echo $shop_id; ?>&subs=<?php echo $subscription_id; ?>";
             }
@@ -161,12 +178,12 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/status_pagamento.php', // Crie um arquivo PHP para lidar com a verificação
-            data: { subscription_id: "<?php echo $s; ?>" },
+            data: { payment_id: "<?php echo $p; ?>" },
             dataType: 'JSON',
             success: function(response) {
                 if (response.status == 'pago') {
                     // Se o pagamento foi aprovado, redirecione para a página desejada
-                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?s=<?php echo $subscription_id; ?>';
+                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?p=<?php echo $payment_id; ?>';
                 } else {
                     // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
                     console.log('O pagamento ainda não foi aprovado.');

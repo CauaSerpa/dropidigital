@@ -58,13 +58,12 @@
         }
 
         // Insere o usuário no banco de dados
-        $sql = "INSERT INTO $tabela (name, email, password, date_create, last_login) VALUES (:name, :email, :password, :date_create, :last_login)";
+        $sql = "INSERT INTO $tabela (name, email, password, date_create) VALUES (:name, :email, :password, :date_create)";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':email', $email);
         $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
         $stmt->bindValue(':date_create', $current_date);
-        $stmt->bindValue(':last_login', $current_date);
 
         if ($stmt->execute()) {
             // Caminho para o diretório pai
