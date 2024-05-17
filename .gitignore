@@ -1,11 +1,11 @@
 .env
 
-back-end/articles/*
-back-end/banners/*
-back-end/category/*
-back-end/imagens/*
-back-end/logos/*
+/painel/back-end/articles/*
+/painel/back-end/banners/*
+/painel/back-end/category/*
+/painel/back-end/imagens/*
+/painel/back-end/logos/*
 
-back-end/admin/articles/*
-back-end/admin/ready-website/*
-back-end/admin/service/*
+/painel/back-end/admin/articles/*
+/painel/back-end/admin/ready-website/*
+/painel/back-end/admin/service/*
