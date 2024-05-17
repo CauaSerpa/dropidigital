@@ -1,10 +1,24 @@
 .env
 
 /painel/back-end/articles/*
+!/painel/back-end/articles/.gitignore
+!/painel/back-end/articles/
+
 /painel/back-end/banners/*
+!/painel/back-end/banners/.gitignore
+!/painel/back-end/banners/
+
 /painel/back-end/category/*
+!/painel/back-end/category/.gitignore
+!/painel/back-end/category/
+
 /painel/back-end/imagens/*
+!/painel/back-end/imagens/.gitignore
+!/painel/back-end/imagens/
+
 /painel/back-end/logos/*
+!/painel/back-end/logos/.gitignore
+!/painel/back-end/logos/
 
 /painel/back-end/admin/articles/*
 /painel/back-end/admin/ready-website/*
