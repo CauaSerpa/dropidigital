@@ -34,7 +34,7 @@
 
     foreach ($payments['data'] as $payment) {
         if (isset($_POST['subscription_id'])) {
-            $asaas_id = $payment['subscription'];
+            $asaas_id = @$payment['subscription'];
         } else {
             $asaas_id = $payment['id'];
         }
@@ -42,6 +42,9 @@
     
         // Verificar se o pagamento foi concluído
         if ($asaas_id == $id && $status == 'RECEIVED') {
+            include_once("../copy_site_shop.php");
+            copyReadySiteToShop($_POST['params']);
+
             // O pagamento foi recebido, você pode prosseguir com a atualização no banco de dados
             // Chame uma função para atualizar o banco de dados com o status do pagamento
             atualizarBancoDeDados($id, 'RECEIVED');

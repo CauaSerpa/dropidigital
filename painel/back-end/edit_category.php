@@ -18,12 +18,18 @@
         $emphasis = 0;
     }
 
+    // Define o fuso horário para São Paulo (UTC-3)
+    date_default_timezone_set('America/Sao_Paulo');
+
+    // Cria um objeto DateTime com a data e hora atual
+    $datetime = new DateTime();
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_categories';
 
         // Edita o produto no banco de dados da loja
-        $sql = "UPDATE $tabela SET name = :name, link = :link, description = :description, parent_category = :parent_category, status = :status, emphasis = :emphasis, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description WHERE id = :id";
+        $sql = "UPDATE $tabela SET name = :name, link = :link, description = :description, parent_category = :parent_category, status = :status, emphasis = :emphasis, seo_name = :seo_name, seo_link = :seo_link, seo_description = :seo_description, last_modification = :last_modification WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $dados['name']);
         $stmt->bindValue(':link', $dados['link']);
@@ -34,6 +40,7 @@
         $stmt->bindValue(':seo_name', $dados['seo_name']);
         $stmt->bindValue(':seo_link', $dados['seo_link']);
         $stmt->bindValue(':seo_description', $dados['seo_description']);
+        $stmt->bindParam(':last_modification', $datetime);
 
         // Id que sera editado
         $stmt->bindValue(':id', $dados['id']);

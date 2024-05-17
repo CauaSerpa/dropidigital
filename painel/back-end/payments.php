@@ -9,6 +9,8 @@ $config['asaas_api_key'] = $asaas_key;
 $dataForm = [];
 parse_str(base64_decode($_POST['params']), $dataForm);
 
+$dataForm['order_id'] = $_POST["order_id"];
+
 makeDonation($dataForm, $config);
 
 $response = array(
@@ -43,19 +45,34 @@ function makeDonation($dataForm, $config){
             }
         }
 
-        if ($subscriptionPrice !== null) {
+        if (@$subscriptionPrice !== null) {
             $dataForm['value'] = $dataForm['value'] - $subscriptionPrice;
         }
 
         include_once('./asaas/criar_cliente.php');
         include_once('./asaas/cobranca_cartao.php');
+        include_once('./asaas/assinatura_cartao.php');
         include_once('./asaas/cobranca_pix.php');
         include_once('./asaas/qr_code.php');
+        include_once('./asaas/cancelar_antigas_cobrancas.php');
 
         switch($_POST["method"]) {
             case 'creditCard':
                 $customer_id = asaas_CriarCliente($dataForm, $config);
                 $payment_id = asaas_CriarCobrancaCartao($customer_id, $dataForm, $config);
+                if ($subscriptionPrice !== null) {
+                    $dataForm['value'] = $subscriptionPrice;
+
+                    if ($dataForm['plan_period'] == "monthly") {
+                        $dataForm["period"] = "MONTHLY";
+                    } else {
+                        $dataForm["period"] = "YEARLY";
+                    }
+
+                    $subs_payment_id = asaas_CriarAssinaturaCartao($customer_id, $dataForm, $config);
+                    asaas_CancelarAntigasAssinaturas($dataForm, $subs_payment_id, $config);
+                }
+                copyReadySiteToShop($dataForm, $config);
                 echo json_encode(["status"=>200, "code"=>$payment_id, "id"=>$customer_id]);
                 break;
             case 'pix':

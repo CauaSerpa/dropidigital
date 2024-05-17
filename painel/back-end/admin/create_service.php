@@ -33,6 +33,8 @@
 
         $video = $_POST['video'];
         $description = $_POST['description'];
+        $tooltip_content = $_POST['tooltip_content'];
+        $items_included = $_POST['itemsIncludedArray'];
         $sku = $_POST['sku'];
         $seo_name = $_POST['seo_name'];
         $link = $_POST['seo_link'];
@@ -42,8 +44,8 @@
         $tabela = 'tb_services';
         
         // Insere o usuário no banco de dados
-        $sql = "INSERT INTO $tabela (status, emphasis, name, price, without_price, discount, video, description, sku, seo_name, link, seo_description) VALUES 
-                                    (:status, :emphasis, :name, :price, :without_price, :discount, :video, :description, :sku, :seo_name, :link, :seo_description)";
+        $sql = "INSERT INTO $tabela (status, emphasis, name, price, without_price, discount, video, description, tooltip_content, items_included, sku, seo_name, link, seo_description) VALUES 
+                                    (:status, :emphasis, :name, :price, :without_price, :discount, :video, :description, :tooltip_content, :items_included, :sku, :seo_name, :link, :seo_description)";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':emphasis', $emphasis);
@@ -53,6 +55,8 @@
         $stmt->bindParam(':discount', $discount);
         $stmt->bindParam(':video', $video);
         $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':tooltip_content', $tooltip_content);
+        $stmt->bindParam(':items_included', $items_included);
         $stmt->bindParam(':sku', $sku);
         $stmt->bindParam(':seo_name', $seo_name);
         $stmt->bindParam(':link', $link);

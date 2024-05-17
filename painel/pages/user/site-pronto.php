@@ -1,20 +1,33 @@
 <?php
-// Pega o id da loja
-$shop_id = $id;
+// Obtém a URL atual
+$urlPath = $_GET['url'];
 
-$id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+// Remove qualquer string de consulta, se houver
+$urlPath = parse_url($urlPath, PHP_URL_PATH);
+
+// Divide a URL em partes
+$urlParts = explode('/', trim($urlPath, '/'));
+
+// Verifica se há partes suficientes na URL
+if (count($urlParts) >= 2) {
+    $link = $urlParts[1]; // O nome do arquivo é a segunda parte
+} else {
+    $_SESSION['msg'] = "<p class='red'>Nenhum Site Pronto encontrado!</p>";
+    header('Location: ' . INCLUDE_PATH_DASHBOARD . 'sites-prontos');
+    exit();
+}
 
 // Tabela que sera feita a consulta
 $tabela = "tb_ready_sites";
 
 // Consulta SQL
-$sql = "SELECT * FROM $tabela WHERE id = :id";
+$sql = "SELECT * FROM $tabela WHERE link = :link";
 
 // Preparar a consulta
 $stmt = $conn_pdo->prepare($sql);
 
 // Vincular o valor do parâmetro
-$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+$stmt->bindParam(':link', $link, PDO::PARAM_INT);
 
 // Executar a consulta
 $stmt->execute();
@@ -87,6 +100,8 @@ if ($site) {
         $priceAfterDiscount = $price;
 
         $priceNoFormat = $site['price'];
+
+        $installment = $site['price'] / 12;
     } else {
         $activeDiscount = "";
 
@@ -94,7 +109,11 @@ if ($site) {
         $discount = $price;
 
         $priceNoFormat = $site['discount'];
+
+        $installment = $site['discount'] / 12;
     }
+
+    $installmentValue = "R$ " . number_format($installment, 2, ",", ".");
 
     // Domain
     // Nome da tabela para a busca
@@ -144,6 +163,31 @@ if ($site) {
     </div>
 </div>
 
+<style>
+    .description
+    {
+        overflow-wrap: anywhere;
+    }
+
+    /* Estilo para tornar o iframe do YouTube responsivo */
+    .video-wrapper
+    {
+        overflow: hidden;
+        padding-top: 56.20%; /* Mantém a proporção de 16:9 */
+        position: relative;
+        width: 100%;
+    }
+
+    .video-wrapper iframe
+    {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
 <form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD; ?>checkout" method="post">
     <div class="card mb-3 p-0">
         <div class="row px-4 py-3">
@@ -151,12 +195,41 @@ if ($site) {
                 <h4 class="mb-3"><?= $site['name']; ?></h4>
                 <div class="row mb-3">
                     <div class="col-md-2 small">Versão <?= $site['version']; ?></div>
-                    <div class="col-md-2 small">Suporte <?= $site['version']; ?></div>
-                    <div class="col-md-2 small">Instalação <?= $site['version']; ?></div>
-                    <div class="col-md-6 small">Segmento <?= $segment; ?></div>
+                    <div class="col-md-3 small">Suporte <?= $site['support']; ?></div>
+                    <div class="col-md-3 small">Instalação Imediata</div>
+                    <div class="col-md-4 small">Segmento <?= $segment; ?></div>
                 </div>
                 <hr>
                 <div class="description mt-3">
+                    <div id="video-display" class="d-flex justify-content-center mb-3 <?php echo ($site['video'] == "") ? "d-none" : ""; ?>">
+                        <div class="video-wrapper d-flex justify-content-center">
+                            <?php
+                                // Função para extrair o código do vídeo do URL do YouTube
+                                function getYoutubeEmbedCode($url) {
+                                    // Verifica se o URL é um link válido do YouTube
+                                    if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                                        $videoCode = $matches[1];
+
+                                        // Gera o código de incorporação
+                                        $embedCode = '<iframe src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen></iframe>';
+
+                                        return $embedCode;
+                                    } else {
+                                        // URL inválido do YouTube
+                                        return 'URL do YouTube inválido.';
+                                    }
+                                }
+
+                                // Exemplo de uso:
+                                $youtubeURL = $site['video'];
+                                $embedCode = getYoutubeEmbedCode($youtubeURL);
+
+                                if ($embedCode !== 'URL do YouTube inválido.') {
+                                    echo $embedCode;
+                                }
+                            ?>
+                        </div>
+                    </div>
                     <?= $site['description']; ?>
                 </div>
             </div>
@@ -195,7 +268,7 @@ if ($site) {
                 </div>
                 <?php
                     // Sua consulta SQL com JOIN para obter os serviços associados a um site
-                    $sql = "SELECT ss.*, s.* FROM tb_site_services ss JOIN tb_services s ON ss.service_id = s.id WHERE ss.ready_site_id = :ready_site_id";
+                    $sql = "SELECT ss.*, s.* FROM tb_ready_site_services ss JOIN tb_services s ON ss.service_id = s.id WHERE ss.ready_site_id = :ready_site_id";
 
                     // Prepara a consulta
                     $stmt = $conn_pdo->prepare($sql);
@@ -205,6 +278,9 @@ if ($site) {
 
                     // Executa a consulta
                     $stmt->execute();
+
+                    // Obtém os resultados
+                    $siteServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Obtém o numero de resultados
                     $countSiteServices = $stmt->rowCount();
@@ -245,7 +321,7 @@ if ($site) {
                                         $stmt = $conn_pdo->prepare($sql);
 
                                         // Binde o parâmetro
-                                        $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
+                                        $stmt->bindParam(':id', $plan_interval['plan_id'], PDO::PARAM_INT);
 
                                         // Executa a consulta
                                         $stmt->execute();
@@ -262,6 +338,8 @@ if ($site) {
                                                 $billing_interval = "(anual)";
                                                 $price = $plan_interval['price'] / 12;
                                             }
+
+                                            if ($plan_id <= $plan['id'] || $plan['id'] <= 1) {
                             ?>
 
                             <li class="d-flex align-items-center justify-content-between mb-1">
@@ -280,26 +358,12 @@ if ($site) {
                             </li>
 
                             <?php
+                                            }
                                         }
                                     }
                                 }
                             ?>
                             <?php
-                                // Sua consulta SQL com JOIN para obter os serviços associados a um site
-                                $sql = "SELECT ss.*, s.* FROM tb_site_services ss JOIN tb_services s ON ss.service_id = s.id WHERE ss.ready_site_id = :ready_site_id";
-
-                                // Prepara a consulta
-                                $stmt = $conn_pdo->prepare($sql);
-
-                                // Binde o parâmetro
-                                $stmt->bindParam(':ready_site_id', $site['id'], PDO::PARAM_INT);
-
-                                // Executa a consulta
-                                $stmt->execute();
-
-                                // Obtém os resultados
-                                $siteServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                                 // Verificar se o resultado foi encontrado
                                 if ($siteServices) {
                                     foreach ($siteServices as $siteService) {
@@ -370,21 +434,21 @@ if ($site) {
                     <p class="fs-5 fw-semibold">Total:</p>
                     <div class="d-flex flex-column align-items-end">
                         <div class="d-flex align-items-end">
-                            <p class="text-secondary fw-semibold text-decoration-line-through me-2 mb-0"><?= $discount; ?></p>
+                            <p class="text-secondary fw-semibold text-decoration-line-through me-2 mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></p>
                             <p class="fs-5 fw-semibold mb-0" id="total"><?= $priceAfterDiscount; ?></p>
                         </div>
-                        <p class="text-secondary fw-semibold mb-0">12x de R$ 50,57 com juros</p>
+                        <p class="text-secondary fw-semibold mb-0">12x de <?= $installmentValue; ?> sem juros</p>
                     </div>
                 </div>
 
-                <input type="hidden" name="ready_site_id" id="ready_site_id" value="<?= $id; ?>">
+                <input type="hidden" name="ready_site_id" id="ready_site_id" value="<?= $site['id']; ?>">
                 <input type="hidden" name="ready_site_price" id="ready_site_price" value="<?= $priceNoFormat; ?>">
                 <input type="hidden" name="price" id="price" value="<?= $priceNoFormat; ?>">
                 <input type="hidden" id="selectedServices" name="selectedServices" value="">
 
                 <!-- Aqui está o seu botão. Eu adicionei um ID para poder referenciá-lo no script JavaScript -->
                 <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small w-100 mb-3" id="submitButton">
-                    Comprar
+                    Comprar/Instalar
                 </button>
 
                 <style>
@@ -456,6 +520,15 @@ if ($site) {
         // Atualizar a lista de serviços selecionados e preparar para enviar
         function updateSelectedServices() {
             selectedServices = []; // Resetar o array
+
+            // Adicionar informações do ready-site
+            selectedServices.push({
+                type: "ready-site",
+                id: <?= $id; ?>,
+                value: <?= $priceNoFormat; ?>
+            });
+
+            // Adicionar informações dos serviços selecionados
             $('input[type="checkbox"]:checked').each(function() {
                 selectedServices.push({
                     type: $(this).data('type'),
@@ -476,6 +549,9 @@ if ($site) {
         $('#submitBtn').click(function() {
             $('#servicesForm').submit();
         });
+
+        // Chame updateSelectedServices() para incluir as informações do ready-site
+        updateSelectedServices();
     });
 </script>
 

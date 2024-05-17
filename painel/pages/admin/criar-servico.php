@@ -213,18 +213,45 @@
     }
 </style>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/create_service.php" method="post" enctype="multipart/form-data">
-
-    <div class="page__header center">
-        <div class="header__title">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb align-items-center mb-3">
-                    <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>servicos" class="fs-5 text-decoration-none text-reset">Serviços</a></li>
-                    <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Criar Serviço</li>
-                </ol>
-            </nav>
+<!-- Modal de Servicos -->
+<div class="modal fade" id="categoriasModal" tabindex="-1" role="dialog" aria-labelledby="categoriasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Escolher Serviço
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <!-- Adicione aqui a lógica para exibir as categorias do banco de dados e a funcionalidade de pesquisa -->
+                <input type="text" id="searchCategoria" class="form-control mb-3" placeholder="Pesquisar Serviços">
+                <p class="fw-semibold d-none" id="noResultCategories">Nenhum Serviço Encontrado</p>
+                <table class="table" id="resultCategories">
+                    <tbody id="listaCategorias">
+                    <!-- Categorias serão exibidas aqui -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-success fw-semibold px-4 py-2 small" onclick="adicionarCategorias()">Selecionar</button>
+            </div>
         </div>
     </div>
+</div>
+
+<div class="page__header center">
+    <div class="header__title">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-3">
+                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>servicos" class="fs-5 text-decoration-none text-reset">Serviços</a></li>
+                <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Criar Serviço</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/create_service.php" method="post" enctype="multipart/form-data">
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
@@ -323,6 +350,167 @@
         <div class="card-body px-5 py-3">
             <label for="editor" class="form-label small">Descrição do Serviço</label>
             <textarea name="description" id="editor"></textarea>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Tooltip</div>
+        <div class="card-body px-5 py-3">
+            <div class="d-flex justify-content-between">
+                <label for="tooltipContent" class="form-label small">Conteúdo do Tooltip do Serviço</label>
+                <small id="tooltipContentCounter" class="form-text text-muted">0 de 160 caracteres</small>
+            </div>
+            <textarea class="form-control" name="tooltip_content" id="tooltipContent" maxlength="160" rows="3"></textarea>
+        </div>
+    </div>
+
+    <style>
+        #serviceList .icon
+        {
+            color: var(--green-color);
+        }
+
+        #serviceList li
+        {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin: .25rem 0;
+        }
+        #serviceList .actions
+        {
+            display: none;
+            align-items: center;
+            margin-left: .3rem;
+        }
+        #serviceList li:hover .actions
+        {
+            display: flex;
+        }
+        #serviceList .actions button
+        {
+            border: none;
+            background: none;
+        }
+        #serviceList .save 
+        {
+            height: 38px;
+            padding: 0 1rem;
+            color: white;
+            background: var(--green-color);
+            border: none;
+            border-radius: .3rem;
+            cursor: pointer;
+            margin-left: .3rem;
+        }
+        #serviceList .save:hover
+        {
+            background: var(--dark-green-color);
+        }
+    </style>
+
+    <div class="col-md-12">
+        <div class="card mb-3 p-0">
+            <div class="card-header fw-semibold px-4 py-3 bg-transparent">Benefícios</div>
+            <div class="card-body row px-5 py-3">
+                <div class="col-md-6">
+                    <label for="servico" class="form-label small">
+                        Benefícios
+                        <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Selecione Benefícios que serão exibidos na compra do Site Pronto."></i>
+                    </label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="servico" name="servico" placeholder="Adicionar Benefícios" aria-label="Adicionar Benefícios">
+                        <button type="button" class="btn btn-outline-dark fw-semibold px-4" id="addService">Adicionar</button>
+                    </div>
+                    <small class="d-flex mb-3 px-3 py-2" id="noItems" style="color: #4A90E2; background: #ECF3FC;">Nenhum Item Adicionado</small>
+                    <ul class="list-style-one" id="serviceList">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campo oculto para armazenar os serviços adicionados -->
+    <input type="hidden" id="itemsIncludedArray" name="itemsIncludedArray">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            services = [];
+
+            function updateServiceDisplay() {
+                if (services.length === 0) {
+                    $('#noItems').removeClass('d-none').addClass('d-block');
+                } else {
+                    $('#noItems').removeClass('d-block').addClass('d-none');
+                }
+            }
+
+            updateServiceDisplay();  // Chama no carregamento inicial para setar corretamente a visibilidade
+
+            $('#addService').click(function() {
+                var newService = $('#servico').val().trim();
+                if (newService) {
+                    $('#serviceList').append(`<li><i class='bx bx-check icon me-1' ></i> ${newService} <div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button> <button class="remove"><i class='bx bx-x'></i></button></div></li>`);
+                    services.push(newService);
+                    $('#itemsIncludedArray').val(JSON.stringify(services));
+                    $('#servico').val('');
+                    updateServiceDisplay();  // Atualiza a visibilidade do #noItems
+                } else {
+                    alert("Por favor, insira um nome de item válido.");
+                }
+            });
+
+            $('#serviceList').on('click', '.edit', function() {
+                var li = $(this).closest('li');
+                var text = li.text().trim();
+                li.html(`<input type='text' class='form-control editInput' value='${text}'><button class='save'>Salvar</button>`);
+            });
+
+            $('#serviceList').on('click', '.save', function() {
+                var input = $(this).siblings('.editInput');
+                var newValue = input.val().trim();
+                var li = $(this).closest('li');
+                li.html(`<i class='bx bx-check icon me-1' ></i> ${newValue} <div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button> <button class="remove"><i class='bx bx-x'></i></button></div>`);
+                services = $('#serviceList li').map(function() {
+                    return $(this).contents().not($(this).children()).text().trim();
+                }).get();
+                $('#itemsIncludedArray').val(JSON.stringify(services));
+                updateServiceDisplay();  // Atualiza a visibilidade do #noItems
+            });
+
+            $('#serviceList').on('click', '.remove', function() {
+                $(this).closest('li').remove();
+                services = $('#serviceList li').map(function() {
+                    return $(this).contents().not($(this).children()).text().trim();
+                }).get();
+                $('#itemsIncludedArray').val(JSON.stringify(services));
+                updateServiceDisplay();  // Atualiza a visibilidade do #noItems
+            });
+        });
+    </script>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Ofertas</div>
+        <div class="card-body px-5 py-3">
+            <label for="searchOutsideModal" class="form-label small">
+                Serviços
+                <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Selecione serviços que serão oferecidos na compra do Site Pronto."></i>
+            </label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="searchOutsideModal" placeholder="Buscar serviços já cadastradas" aria-label="Buscar serviços já cadastradas">
+                <button type="button" class="btn btn-outline-dark fw-semibold px-4" data-bs-toggle="modal" data-bs-target="#categoriasModal">Ver Serviços</button>
+            </div>
+            <small class="d-flex mb-3 px-3 py-2" id="noCategories" style="color: #4A90E2; background: #ECF3FC;">Nenhum Serviço Adicionado</small>
+            <table class="table table-hover d-none" id="categoriesTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="small">Nome do Serviço</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="categoriasSelecionadas"></tbody>
+            </table>
         </div>
     </div>
 
@@ -952,6 +1140,7 @@
         }
 
         inputCounter('name', 'nameCounter');
+        inputCounter('tooltipContent', 'tooltipContentCounter');
     });
 </script>
 

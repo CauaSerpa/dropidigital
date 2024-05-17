@@ -22,7 +22,7 @@
 
     // Bind do valor do ID
     if (isset($_GET['s'])) {
-    $stmt->bindParam(':s', $s);
+        $stmt->bindParam(':s', $s);
     } else {
         $stmt->bindParam(':p', $p);
     }
@@ -174,16 +174,46 @@
 <script>
     // Função para realizar a consulta AJAX
     function realizarConsulta() {
+        <?php
+            if ($_GET['site']) {
+                if (isset($p)) {
+                    $payment = "payment_id: '$p'";
+                } else {
+                    $payment = "subscription_id: '$s'";
+                }
+        ?>
+            var params = {
+                shop_id: <?php echo $shop_id; ?>,
+                ready_site_id: <?php echo $_GET['site']; ?>
+            };
+        <?php
+                $ajaxData = "{ params: params, $payment }";
+            } else {
+                if (isset($p)) {
+                    $ajaxData = "payment_id: '$p'";
+                } else {
+                    $ajaxData = "subscription_id: '$s'";
+                }
+            }
+        ?>
+
         // Enviar uma solicitação AJAX para verificar o pagamento
         $.ajax({
             type: 'POST',
             url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/status_pagamento.php', // Crie um arquivo PHP para lidar com a verificação
-            data: { payment_id: "<?php echo $p; ?>" },
+            data: <?php echo $ajaxData; ?>,
             dataType: 'JSON',
             success: function(response) {
                 if (response.status == 'pago') {
-                    // Se o pagamento foi aprovado, redirecione para a página desejada
-                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?p=<?php echo $payment_id; ?>';
+                    var redirect = <?= (isset($_GET['r']) == 1) ? 1 : 0; ?>;
+
+                    if (redirect == 1) {
+                        // Se o pagamento foi aprovado, redirecione para a página desejada
+                        window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano-asaas?p=<?php echo $plan_id; ?>&r=1';
+                    } else {
+                        // Se o pagamento foi aprovado, redirecione para a página desejada
+                        window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?<?php echo (isset($payment_id)) ? "p=$payment_id" : "s=$subscription_id"; ?>';
+                    }
                 } else {
                     // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
                     console.log('O pagamento ainda não foi aprovado.');

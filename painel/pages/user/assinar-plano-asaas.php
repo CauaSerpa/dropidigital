@@ -3,6 +3,47 @@ $shop_id = $id;
 $shop_plan = $plan_id;
 
 // Obtém o ID do parâmetro GET
+$redirect = isset($_GET['r']) ? 1 : 0;
+
+if ($redirect == 1) {
+?>
+    <style>
+        .bd-callout {
+            --bs-link-color-rgb: var(--bd-callout-link);
+            --bs-code-color: var(--bd-callout-code-color);
+            padding: 1.25rem;
+            color: var(--bd-callout-color, inherit);
+            background-color: var(--bd-callout-bg, var(--bs-gray-100));
+            border-left: 0.25rem solid var(--bd-callout-border, var(--bs-gray-300))
+        }
+
+        .bd-callout-info {
+            --bd-callout-color: var(--bs-info-text-emphasis);
+            --bd-callout-bg: var(--bs-info-bg-subtle);
+            --bd-callout-border: var(--bs-info-border-subtle);
+        }
+
+        .bd-callout-warning {
+            --bd-callout-color: var(--bs-warning-text-emphasis);
+            --bd-callout-bg: var(--bs-warning-bg-subtle);
+            --bd-callout-border: var(--bs-warning-border-subtle);
+        }
+
+        .bd-callout-danger {
+            --bd-callout-color: var(--bs-danger-text-emphasis);
+            --bd-callout-bg: var(--bs-danger-bg-subtle);
+            --bd-callout-border: var(--bs-danger-border-subtle);
+        }
+    </style>
+
+    <div class="bd-callout bd-callout-info">
+        <p class="fs-6 fw-semibold">Seu Site Pronto foi comprado com sucesso!</p>
+        <span class="small">Agora, para começar a utilizar seu novo tema, por favor, faça o pagamento do plano.</span>
+    </div>
+<?php
+}
+
+// Obtém o ID do parâmetro GET
 $plan_id = isset($_GET['p']) ? intval($_GET['p']) : 0;
 
 // Nome da tabela para a busca

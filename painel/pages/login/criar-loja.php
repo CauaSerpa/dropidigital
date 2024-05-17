@@ -150,7 +150,7 @@
                 <input type="text" name="cep" id="cep" class="inputUser" oninput="getCepData()">
                 <span id="cep-error" class="error-message"></span>
             </div>
-            <div id="addressContent" style="overflow: hidden; height: 0; transition: all .3s;">
+            <div id="addressContent" class="mb-3" style="overflow: hidden; height: 0; transition: all .3s;">
                 <div class="inputBox">
                     <label for="endereco" class="labelInput">Endereço <span class="danger">*</span></label>
                     <input type="text" name="endereco" id="endereco" class="inputUser">

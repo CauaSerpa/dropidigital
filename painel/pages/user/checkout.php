@@ -9,14 +9,57 @@ $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
 
 // Preparar e executar a consulta
 $stmt = $conn_pdo->prepare($sql);
-$stmt->bindParam(':shop_id', $id);
+$stmt->bindParam(':shop_id', $shop_id);
 $stmt->execute();
 
 // Obter o resultado como um array associativo
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Tabela que sera feita a consulta
-$tabela = "tb_ready_sites";
+
+
+
+
+
+
+
+$selectedServices = $_POST['selectedServices'];
+
+// Decodificar os dados JSON para um array PHP
+$service = json_decode($selectedServices, true);
+
+$type = $service[0]['type'];
+
+if ($type == "ready-site") {
+    // Id do site
+    $id = $_POST['ready_site_id'];
+
+    // Tabela que sera feita a consulta
+    $tabela = "tb_ready_sites";
+
+    // Nome da tabela para a busca
+    $tabelaImg = 'tb_ready_site_img';
+
+    // Nome da tabela para a busca
+    $tabelaAssociatedServices = 'tb_ready_site_services';
+} elseif ($type == "service") {
+    // Id do site
+    $id = $service[0]['id'];
+
+    // Tabela que sera feita a consulta
+    $tabela = "tb_services";
+
+    // Nome da tabela para a busca
+    $tabelaImg = 'tb_service_img';
+
+    // Nome da tabela para a busca
+    $tabelaAssociatedServices = 'tb_service_services';
+}
+
+
+
+
+
+
 
 // Consulta SQL
 $sql = "SELECT * FROM $tabela WHERE id = :id";
@@ -25,7 +68,7 @@ $sql = "SELECT * FROM $tabela WHERE id = :id";
 $stmt = $conn_pdo->prepare($sql);
 
 // Vincular o valor do parâmetro
-$stmt->bindParam(':id', $_POST['ready_site_id'], PDO::PARAM_INT);
+$stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
 // Executar a consulta
 $stmt->execute();
@@ -35,20 +78,25 @@ $site = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Verifica se o ID é válido (maior que zero)
 if ($site) {
-    // Nome da tabela para a busca
-    $tabela = 'tb_ready_site_img';
-
-    $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY id DESC LIMIT 1";
+    if ($type == "ready-site") {
+        $sql = "SELECT * FROM $tabelaImg WHERE ready_site_id = :id ORDER BY id DESC LIMIT 1";
+    } elseif ($type == "service") {
+        $sql = "SELECT * FROM $tabelaImg WHERE service_id = :id ORDER BY id DESC LIMIT 1";
+    }
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':ready_site_id', $site['id']);
+    $stmt->bindParam(':id', $site['id']);
     $stmt->execute();
 
     // Recuperar os resultados
     $image = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $image['ready_site_id'] . "/" . $image['image'];
+    if ($type == "ready-site") {
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $image['ready_site_id'] . "/" . $image['image'];
+    } elseif ($type == "service") {
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $image['service_id'] . "/" . $image['image'];
+    }
 ?>
 <style>
     .disabled
@@ -205,7 +253,39 @@ if ($site) {
                     </div>
                 </div>
             </div>
-            <div class="card mb-4 p-0">
+            <?php
+                if ($type == "ready-site") {
+                    // Sua consulta SQL com JOIN para obter os serviços associados a um site
+                    $sql = "SELECT ss.*, s.* FROM $tabelaAssociatedServices ss JOIN tb_services s ON ss.service_id = s.id WHERE ss.ready_site_id = :id";
+                } elseif ($type == "service") {
+                    // Sua consulta SQL com JOIN para obter os serviços associados a um site
+                    $sql = "SELECT ss.*, s.* FROM $tabelaAssociatedServices ss JOIN tb_services s ON ss.associated_service_id = s.id WHERE ss.service_id = :id";
+                }
+
+                // Prepara a consulta
+                $stmt = $conn_pdo->prepare($sql);
+
+                // Binde o parâmetro
+                $stmt->bindParam(':id', $site['id'], PDO::PARAM_INT);
+
+                // Executa a consulta
+                $stmt->execute();
+
+                // Obtém os resultados
+                $siteServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Obtém o numero de resultados
+                $countSiteServices = $stmt->rowCount();
+
+                $isActive = false;
+
+                if ($countSiteServices == 0) {
+                    if (!isset($site['plan_id']) || $site['plan_id'] == 1) {
+                        $isActive = " d-none";
+                    }
+                }
+            ?>
+            <div class="card mb-4 p-0<?= $isActive; ?>">
                 <div class="card-header fw-semibold px-4 py-3 bg-transparent">Ofertas</div>
                 <div class="card-body px-4 py-3">
                     <?php
@@ -214,6 +294,8 @@ if ($site) {
                         // Decodificar os dados JSON para um array PHP
                         $servicesArray = json_decode($selectedServices, true);
 
+                        $services = array_shift($servicesArray);
+
                         // Array para armazenar apenas os IDs dos itens selecionados
                         $selectedIds = array();
 
@@ -221,56 +303,61 @@ if ($site) {
                         if (isset($_POST['selectedServices']) && is_array($servicesArray)) {
                             // Iterar sobre os itens e obter os IDs dos itens selecionados
                             foreach ($servicesArray as $service) {
-                                $selectedIds[] = $service['id'];
+                                if ($service['type'] == "service") {
+                                    $selectedIds[] = $service['id'];
+                                } elseif ($service['type'] == "subscription") {
+                                    $selectedPlanId = $service['id'];
+                                }
                             }
                         }
 
-                        if ($site['plan_id'] != 1) {
-                            // Tabela que será feita a consulta
-                            $tabela = "tb_plans_interval";
-
-                            // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
-                            $sql = "SELECT id, plan_id, price FROM $tabela WHERE id = :id";
-
-                            // Prepara a consulta
-                            $stmt = $conn_pdo->prepare($sql);
-
-                            // Binde o parâmetro
-                            $stmt->bindParam(':id', $site['plan_id'], PDO::PARAM_INT);
-
-                            // Executa a consulta
-                            $stmt->execute();
-
-                            // Obtém os resultados
-                            $plan_interval = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                            // Verificar se o resultado foi encontrado
-                            if ($plan_interval) {
+                        if (isset($site['plan_id'])) {
+                            if ($site['plan_id'] != 1 && $site['plan_id'] <= $plan['plan_id']) {
                                 // Tabela que será feita a consulta
-                                $tabela = "tb_plans";
+                                $tabela = "tb_plans_interval";
 
                                 // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
-                                $sql = "SELECT id, name, sub_name, resources FROM $tabela WHERE id = :id";
+                                $sql = "SELECT id, plan_id, billing_interval, price FROM $tabela WHERE id = :id";
 
                                 // Prepara a consulta
                                 $stmt = $conn_pdo->prepare($sql);
 
                                 // Binde o parâmetro
-                                $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
+                                $stmt->bindParam(':id', $site['plan_id'], PDO::PARAM_INT);
 
                                 // Executa a consulta
                                 $stmt->execute();
 
                                 // Obtém os resultados
-                                $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+                                $plan_interval = $stmt->fetch(PDO::FETCH_ASSOC);
 
                                 // Verificar se o resultado foi encontrado
-                                if ($plan) {
-                                    // Verificar se o ID está presente nos itens selecionados
-                                    $isChecked = in_array($plan_interval['id'], $selectedIds);
+                                if ($plan_interval) {
+                                    // Tabela que será feita a consulta
+                                    $tabela = "tb_plans";
 
-                                    // Adiciona o atributo "checked" se estiver presente nos itens selecionados
-                                    $checkedAttribute = $isChecked ? 'checked' : '';
+                                    // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
+                                    $sql = "SELECT id, name, sub_name, resources FROM $tabela WHERE id = :id";
+
+                                    // Prepara a consulta
+                                    $stmt = $conn_pdo->prepare($sql);
+
+                                    // Binde o parâmetro
+                                    $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
+
+                                    // Executa a consulta
+                                    $stmt->execute();
+
+                                    // Obtém os resultados
+                                    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                    // Verificar se o resultado foi encontrado
+                                    if ($plan) {
+                                        // Verificar se o ID está presente nos itens selecionados
+                                        $isChecked = (isset($selectedPlanId));
+
+                                        // Adiciona o atributo "checked" se estiver presente nos itens selecionados
+                                        $checkedAttribute = $isChecked ? 'checked' : '';
                     ?>
 
                                 <div class="card mb-3">
@@ -290,27 +377,16 @@ if ($site) {
                                     </div>
                                 </div>
 
+                                <input type="hidden" name="plan_id" value="<?php echo $site['plan_id']; ?>">
+            					<input type="hidden" name="plan_period" id="plan_period" value="<?php echo $plan_interval['billing_interval']; ?>">
+
                     <?php
+                                    }
                                 }
                             }
                         }
                     ?>
                     <?php
-                        // Sua consulta SQL com JOIN para obter os serviços associados a um site
-                        $sql = "SELECT ss.*, s.* FROM tb_site_services ss JOIN tb_services s ON ss.service_id = s.id WHERE ss.ready_site_id = :ready_site_id";
-
-                        // Prepara a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-
-                        // Binde o parâmetro
-                        $stmt->bindParam(':ready_site_id', $site['id'], PDO::PARAM_INT);
-
-                        // Executa a consulta
-                        $stmt->execute();
-
-                        // Obtém os resultados
-                        $siteServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                         // Verificar se o resultado foi encontrado
                         if ($siteServices) {
                             foreach ($siteServices as $siteService) {
@@ -464,7 +540,7 @@ if ($site) {
                             <div class="input-group">
                                 <select class="form-select" name="installment" id="installment" aria-label="Default select example" required>
                                     <option value="1|<?php echo $_POST['price']; ?>" selected>À vista</option>
-                                    <?php for ($i = 2; $i <= 6; $i++): ?>
+                                    <?php for ($i = 2; $i <= 12; $i++): ?>
                                         <?php $installmentValue = round($_POST['price'] / $i, 2); ?>
                                         <option value="<?php echo $i . '|' . $installmentValue; ?>"> <?php echo $i; ?>x de R$ <?php echo number_format($installmentValue, 2, ',', ''); ?> sem juros</option>
                                     <?php endfor; ?>
@@ -476,7 +552,9 @@ if ($site) {
 					<input type="hidden" name="value" id="value" value="<?php echo $_POST['price']; ?>">
 					<input type="hidden" name="ready_site_price" id="ready_site_price" value="<?php echo $_POST['ready_site_price']; ?>">
 					<input type="hidden" name="selectedServices" id="selectedServices" value='<?php echo $_POST['selectedServices']; ?>'>
-                    <input type="hidden" name="plan_price" id="plan_price" value="<?php echo $plan_interval['price']; ?>">
+                    <?php if (isset($plan_interval)) { ?>
+                        <input type="hidden" name="plan_price" id="plan_price" value="<?php echo $plan_interval['price']; ?>">
+                    <?php } ?>
 
                     <div class="user-data">
                         <input type="hidden" name="email" value="<?php echo $user['email']; ?>">
@@ -548,6 +626,14 @@ if ($site) {
         // Função para atualizar o array de serviços selecionados no input hidden
         function updateSelectedServices() {
             var selectedServices = [];
+
+            // Adicionar informações do ready-site
+            selectedServices.push({
+                type: "<?= $type; ?>",
+                id: <?= $site['id']; ?>,
+                value: <?= $_POST['ready_site_price']; ?>
+            });
+
             $('.form-check-input:checked').each(function() {
                 var type = $(this).data('type');
                 var id = $(this).data('service-id');
@@ -612,6 +698,9 @@ if ($site) {
 
         // Evento de mudança nos checkboxes
         $('.form-check-input, #installment, input[type="radio"][name="type"]').change(updateButtonAndInstallments);
+
+        // Chame updateSelectedServices() para incluir as informações do ready-site
+        updateSelectedServices();
 
         // Chama a função inicialmente para definir o valor
         updateButtonAndInstallments();
@@ -888,15 +977,50 @@ if ($site) {
         processForm(this);
     });
 
+
+
+
+
+
+
+
     function processForm(dataForm) {
         var typePayment = $('input[name="type"]:checked').val();
         method = typePayment;
 
+        // Obter o order_id da resposta da primeira requisição
+        var orderId = ''; // Defina o valor do order_id aqui
+
         var ajaxData = {
             method: method,
-            params: btoa($(dataForm).serialize())
+            params: btoa($(dataForm).serialize()),
+            order_id: orderId // Incluir o order_id nos parâmetros
         };
 
+        $.ajax({
+            url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/orders.php',
+            method: 'POST',
+            data: ajaxData,
+            dataType: 'JSON',
+            success: function (response) {
+                // Definir o order_id da resposta
+                orderId = response.id;
+
+                // Adicionar o order_id aos parâmetros antes de enviar para o endpoint de pagamentos
+                ajaxData.order_id = orderId;
+                
+                // Enviar para o endpoint de pagamentos
+                sendToPayments(ajaxData);
+                
+
+                // alert("Pedido criado com sucesso! ID: " + response.id);
+            }
+        });
+    }
+
+    function sendToPayments(ajaxData) {
+                console.log("Teste");
+                console.log(ajaxData);
         $.ajax({
             url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/payments.php',
             method: 'POST',
@@ -916,28 +1040,46 @@ if ($site) {
                 var shopId = <?php echo $shop_id; ?>;
 
                 // $.ajax({
-				// 	url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/asaas/alterar_plano.php',
-				// 	method: 'POST',
-				// 	data: {
+                // 	url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/asaas/alterar_plano.php',
+                // 	method: 'POST',
+                // 	data: {
                 //         plan_id: planId,
                 //         shop_id: shopId
                 //     },
-				// 	dataType: 'JSON',
+                // 	dataType: 'JSON',
                 //     success: function(response) {
                 //         console.log("Plano alterado com sucesso!");
                 //     }
-				// })
+                // })
 
                 if (selectedPaymentType === "creditCard") {
                     // Redirecionar para página de pagamento
                     window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento-confirmado?p=" + encodedCode;
                 } else if (selectedPaymentType === "pix") {
                     // Redirecionar para página de pagamento
-                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?p=" + encodedCode;
+                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?p=" + encodedCode + "&r=1&id=<?= $site['plan_id']; ?>&site=<?= $site['id']; ?>";
                 }
             }
         })
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
 <?php

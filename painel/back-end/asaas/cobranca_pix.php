@@ -39,11 +39,12 @@ function asaas_CriarCobrancaPix($customer_id, $dataForm, $config) {
 
         $tabela = 'tb_payments';
 
-        $stmt = $conn->prepare("INSERT INTO $tabela (shop_id, customer_id, payment_id, value, billing_type, status, start_date, due_date) VALUES (
-            :shop_id, :customer_id, :payment_id, :value, :billing_type, :status, :start_date, :due_date)");
+        $stmt = $conn->prepare("INSERT INTO $tabela (shop_id, order_id, customer_id, payment_id, value, billing_type, status, start_date, due_date) VALUES (
+            :shop_id, :order_id, :customer_id, :payment_id, :value, :billing_type, :status, :start_date, :due_date)");
 
         // Bind dos parâmetros
         $stmt->bindParam(':shop_id', $dataForm['shop_id'], PDO::PARAM_STR);
+        $stmt->bindParam(':order_id', $dataForm["order_id"], PDO::PARAM_INT);
         $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_STR);
         $stmt->bindParam(':payment_id', $retorno['id'], PDO::PARAM_STR);
         $stmt->bindParam(':value', $retorno['value'], PDO::PARAM_STR);

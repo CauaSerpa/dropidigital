@@ -270,8 +270,7 @@ if(!empty($id)){
     </div>
 </div>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_ready_website.php" method="post" enctype="multipart/form-data">
-
+<div class="page__header center">
     <div class="page__header center">
         <div class="header__title">
             <nav aria-label="breadcrumb">
@@ -282,6 +281,19 @@ if(!empty($id)){
             </nav>
         </div>
     </div>
+    <div class="header__actions">
+        <div class="container__button d-flex align-items-center">
+            <div class="container__button">
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/admin/access_ready_site.php?user_id=' . $id . '&shop_id=' . $site['shop_id']; ?>" target="_black" class="button button--flex new text-decoration-none d-flex align-items-center text-nowrap">
+                    Ver Loja
+                    <i class='bx bx-log-in ms-1'></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_ready_website.php" method="post" enctype="multipart/form-data">
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
@@ -291,152 +303,153 @@ if(!empty($id)){
                 <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" required value="<?php echo $site['name']; ?>">
                 <p class="small text-decoration-none" style="color: #01C89B;">https://dropidigital.com.br/sites-prontos/<span class="fw-semibold" id="linkPreview"><?php echo $site['link']; ?></span></p>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="plan" class="form-label small">Plano do Site Pronto *</label>
-                        <div class="input-group">
-                            <select class="form-select" name="plan" id="plan" aria-label="Default select example" required>
-                                <option value="" disabled selected>-- Qual o plano do Site Pronto --</option>
-                                <?php
-                                    // Aqui você pode popular a tabela com dados do banco de dados
-                                    // Vamos supor que cada linha tem um ID únic
-
-                                    // Nome da tabela para a busca
-                                    $tabelaInterval = 'tb_plans_interval';
-                                    $tabelaPlans = 'tb_plans';
-
-                                    $sql = "SELECT i.id, p.name
-                                        FROM $tabelaInterval i
-                                        JOIN $tabelaPlans p ON i.plan_id = p.id
-                                        WHERE i.billing_interval = :billing_interval
-                                        ORDER BY p.id ASC";
-
-                                    // Preparar e executar a consulta
-                                    $stmt = $conn_pdo->prepare($sql);
-                                    $stmt->bindValue(':billing_interval', 'monthly');
-                                    $stmt->execute();
-
-                                    // Recuperar os resultados
-                                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                                    if ($stmt->rowCount() > 0) {
-                                        // Loop através dos resultados e exibir todas as colunas
-                                        foreach ($resultados as $plan) {
-                                            $selected = ($plan['id'] == $site['plan_id']) ? "selected" : "";
-
-                                            echo "<option value='" . $plan['id'] . "' $selected>" . $plan['name'] . "</option>";
-                                        }
-                                    }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <?php
-                    // Nome da tabela para a busca
-                    $tabela = 'tb_shop';
-
-                    $sql = "SELECT * FROM $tabela WHERE id = :id ORDER BY id DESC";
-
-                    // Preparar e executar a consulta
-                    $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':id', $site['shop_id']);
-                    $stmt->execute();
-
-                    // Recuperar os resultados
-                    $shop = $stmt->fetch(PDO::FETCH_ASSOC);
-                ?>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="segment" class="form-label small">Segmento *</label>
-                        <div class="input-group">
-                            <select class="form-select" name="segment" id="segment" aria-label="Default select example" required>
-                                <option value="" disabled>-- Qual o segmento do Site Pronto --</option>
-                                <option value="0" <?php echo ($shop['segment'] == 0) ? "selected" : ""; ?>>Dropshipping Infoproduto</option>
-                                <option value="1" <?php echo ($shop['segment'] == 1) ? "selected" : ""; ?>>Dropshipping produto físico</option>
-                                <option value="2" <?php echo ($shop['segment'] == 2) ? "selected" : ""; ?>>Site divulgação de serviços</option>
-                                <option value="3" <?php echo ($shop['segment'] == 3) ? "selected" : ""; ?>>Site comércio físico</option>
-                                <option value="4" <?php echo ($shop['segment'] == 4) ? "selected" : ""; ?>>Site para agendamento</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <style>
-                    .textInput
-                    {
-                        position: absolute;
-                        right: .75rem;
-                        top: 50%;
-                        transform: translateY(-50%);
-                    }
-                </style>
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label for="version" class="form-label small">Versão do Site Pronto</label>
-                        <input type="text" class="form-control" name="version" id="version" placeholder="1.0.0" aria-label="Versão" aria-describedby="version" value="<?php echo $site['version']; ?>">
-                    </div>
-                </div>
-                <?php
-                    // Nome da tabela para a busca
-                    $tabela = 'tb_domains';
-
-                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
-
-                    // Preparar e executar a consulta
-                    $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':shop_id', $site['shop_id']);
-                    $stmt->execute();
-
-                    // Recuperar os resultados
-                    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
-                ?>
-                <style>
-                    .input-error
-                    {
-                        border-color: rgb(220,53,69);
-                    }
-                    .error-message
-                    {
-                        font-size: .875rem;
-                        color: rgb(220,53,69);
-                    }
-                </style>
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <label for="url" class="form-label small">URL do Site Pronto</label>
-                        <div class="position-relative">
-                            <input type="text" class="form-control <?= (isset($_SESSION['msg_url'])) ? "input-error" : ""; ?>" name="url" id="url" aria-label="URL" aria-describedby="url" value="<?php echo $domain['subdomain']; ?>">
-                            <label for="url" class="textInput">.dropidigital.com.br</label>
-                        </div>
-                        <span id="url-error" class="error-message">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="plan" class="form-label small">Plano do Site Pronto *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="plan" id="plan" aria-label="Default select example" required>
+                            <option value="" disabled selected>-- Qual o plano do Site Pronto --</option>
                             <?php
-                                if(isset($_SESSION['msg_url'])){
-                                    echo $_SESSION['msg_url'];
-                                    unset($_SESSION['msg_url']);
+                                // Aqui você pode popular a tabela com dados do banco de dados
+                                // Vamos supor que cada linha tem um ID únic
+
+                                // Nome da tabela para a busca
+                                $tabelaInterval = 'tb_plans_interval';
+                                $tabelaPlans = 'tb_plans';
+
+                                $sql = "SELECT i.id, p.name, i.billing_interval
+                                    FROM $tabelaInterval i
+                                    JOIN $tabelaPlans p ON i.plan_id = p.id
+                                    ORDER BY p.id ASC";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                if ($stmt->rowCount() > 0) {
+                                    // Loop através dos resultados e exibir todas as colunas
+                                    foreach ($resultados as $plan) {
+                                        $selected = ($plan['id'] == $site['plan_id']) ? "selected" : "";
+                                        $billing_interval = ($plan['billing_interval'] == "monthly") ? "(mensal)" : "(anual)";
+
+                                        echo "<option value='" . $plan['id'] . "' $selected>" . $plan['name'] . " $billing_interval</option>";
+                                    }
                                 }
                             ?>
-                        </span>
+                        </select>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div>
-                        <label for="activeReadyWebsite" class="form-label small">Site ativo?</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeReadyWebsite" value='1' <?php echo ($site['status'] == 1) ? "checked" : ""; ?>>
-                            <label class="form-check-label" id="activeCheckbox" for="activeReadyWebsite"><?php echo ($site['status'] == 1) ? "Sim" : "Não"; ?></label>
-                        </div>
+            <?php
+                // Nome da tabela para a busca
+                $tabela = 'tb_shop';
+
+                $sql = "SELECT * FROM $tabela WHERE id = :id ORDER BY id DESC";
+
+                // Preparar e executar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':id', $site['shop_id']);
+                $stmt->execute();
+
+                // Recuperar os resultados
+                $shop = $stmt->fetch(PDO::FETCH_ASSOC);
+            ?>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="segment" class="form-label small">Segmento *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="segment" id="segment" aria-label="Default select example" required>
+                            <option value="" disabled>-- Qual o segmento do Site Pronto --</option>
+                            <option value="0" <?php echo ($shop['segment'] == 0) ? "selected" : ""; ?>>Dropshipping Infoproduto</option>
+                            <option value="1" <?php echo ($shop['segment'] == 1) ? "selected" : ""; ?>>Dropshipping produto físico</option>
+                            <option value="2" <?php echo ($shop['segment'] == 2) ? "selected" : ""; ?>>Site divulgação de serviços</option>
+                            <option value="3" <?php echo ($shop['segment'] == 3) ? "selected" : ""; ?>>Site comércio físico</option>
+                            <option value="4" <?php echo ($shop['segment'] == 4) ? "selected" : ""; ?>>Site para agendamento</option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <div id="containerEmphasis">
-                        <label for="emphasisReadyWebsite" class="form-label small">Destacar?</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasisReadyWebsite" value="1" <?php echo ($site['emphasis'] == 1) ? "checked" : ""; ?>>
-                            <label class="form-check-label" id="emphasisCheckbox" for="emphasisReadyWebsite"><?php echo ($site['emphasis'] == 1) ? "Sim" : "Não"; ?></label>
-                        </div>
+            </div>
+            <style>
+                .textInput
+                {
+                    position: absolute;
+                    right: .75rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+            </style>
+            <div class="col-md-2">
+                <div class="mb-3">
+                    <label for="version" class="form-label small">Versão do Site Pronto</label>
+                    <input type="text" class="form-control" name="version" id="version" placeholder="1.0.0" aria-label="Versão" aria-describedby="version" value="<?php echo $site['version']; ?>">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="support" class="form-label small">Suporte do Site Pronto</label>
+                    <input type="text" class="form-control" name="support" id="support" placeholder="30 dias" aria-label="Suporte" aria-describedby="support" value="<?php echo $site['support']; ?>">
+                </div>
+            </div>
+            <?php
+                // Nome da tabela para a busca
+                $tabela = 'tb_domains';
+
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+                // Preparar e executar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':shop_id', $site['shop_id']);
+                $stmt->execute();
+
+                // Recuperar os resultados
+                $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+            ?>
+            <style>
+                .input-error
+                {
+                    border-color: rgb(220,53,69);
+                }
+                .error-message
+                {
+                    font-size: .875rem;
+                    color: rgb(220,53,69);
+                }
+            </style>
+            <div class="col-md-7">
+                <div class="mb-3">
+                    <label for="url" class="form-label small">URL do Site Pronto</label>
+                    <div class="position-relative">
+                        <input type="text" class="form-control <?= (isset($_SESSION['msg_url'])) ? "input-error" : ""; ?>" name="url" id="url" aria-label="URL" aria-describedby="url" value="<?php echo $domain['subdomain']; ?>">
+                        <label for="url" class="textInput">.dropidigital.com.br</label>
+                    </div>
+                    <span id="url-error" class="error-message">
+                        <?php
+                            if(isset($_SESSION['msg_url'])){
+                                echo $_SESSION['msg_url'];
+                                unset($_SESSION['msg_url']);
+                            }
+                        ?>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div>
+                    <label for="activeReadyWebsite" class="form-label small">Site ativo?</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeReadyWebsite" value='1' <?php echo ($site['status'] == 1) ? "checked" : ""; ?>>
+                        <label class="form-check-label" id="activeCheckbox" for="activeReadyWebsite"><?php echo ($site['status'] == 1) ? "Sim" : "Não"; ?></label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div id="containerEmphasis">
+                    <label for="emphasisReadyWebsite" class="form-label small">Destacar?</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasisReadyWebsite" value="1" <?php echo ($site['emphasis'] == 1) ? "checked" : ""; ?>>
+                        <label class="form-check-label" id="emphasisCheckbox" for="emphasisReadyWebsite"><?php echo ($site['emphasis'] == 1) ? "Sim" : "Não"; ?></label>
                     </div>
                 </div>
             </div>
@@ -599,7 +612,7 @@ if(!empty($id)){
     </div>
 
     <!-- Campo oculto para armazenar os serviços adicionados -->
-    <input type="hidden" id="itemsIncludedArray" name="itemsIncludedArray" value="<?php echo $site['items_included']; ?>">
+    <input type="hidden" id="itemsIncludedArray" name="itemsIncludedArray" value='<?php echo $site['items_included']; ?>'>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -754,7 +767,7 @@ if(!empty($id)){
     <!-- Adicione esses campos ocultos no seu formulário -->
     <input type="hidden" name="categoriasSelecionadas[]" id="categoriasSelecionadasInput" value="<?php
         // Nome da tabela para a busca
-        $tabela = 'tb_site_services';
+        $tabela = 'tb_ready_site_services';
 
         $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY (main = 1) DESC";
 
@@ -785,7 +798,7 @@ if(!empty($id)){
 
     <?php
         // Nome da tabela para a busca
-        $tabela = 'tb_site_services';
+        $tabela = 'tb_ready_site_services';
 
         $sql = "SELECT service_id FROM $tabela WHERE ready_site_id = :ready_site_id AND main = :main ORDER BY id DESC LIMIT 1";
 
@@ -850,7 +863,7 @@ if(!empty($id)){
 
 <?php
     // Nome da tabela para a busca
-    $tabelaProductCategories = 'tb_site_services';
+    $tabelaProductCategories = 'tb_ready_site_services';
     $tabelaCategories = 'tb_services';
 
     $sqlProductCategories = "SELECT * FROM $tabelaProductCategories WHERE service_id = :service_id ORDER BY (main = 1) DESC";
@@ -1962,24 +1975,31 @@ imageDisplay.addEventListener("click", (event) => {
 <!-- Text Counter -->
 <script>
     $(document).ready(function() {
-        $('#textInput1').on('input', function() {
+        // Esta função será chamada quando a página carregar
+        $('#textInput1, #textInput3').on('input', function() {
             var currentText = $(this).val();
             var currentLength = currentText.length;
             var maxLength = parseInt($(this).attr('maxlength'));
-            $('#textCounter1').text(currentLength + ' de ' + maxLength + ' caracteres');
-        });
-    });
-</script>
 
-<!-- Text Counter -->
-<script>
-    $(document).ready(function() {
-        $('#textInput3').on('input', function() {
-            var currentText = $(this).val();
-            var currentLength = currentText.length;
-            var maxLength = parseInt($(this).attr('maxlength'));
-            $('#textCounter3').text(currentLength + ' de ' + maxLength + ' caracteres');
+            if ($(this).is('#textInput1')) {
+                $('#textCounter1').text(currentLength + ' de ' + maxLength + ' caracteres');
+            } else if ($(this).is('#textInput3')) {
+                $('#textCounter3').text(currentLength + ' de ' + maxLength + ' caracteres');
+            }
         });
+
+        // Defina o valor inicial do contador quando a página carregar
+        var seoName = "<?php echo $site['seo_name']; ?>";
+        var seoDescription = "<?php echo str_replace(array("\r\n", "\r", "\n"), "", $site['seo_description']); ?>";
+
+        var currentLength1 = seoName.length;
+        var currentLength3 = seoDescription.length;
+
+        var maxLength1 = parseInt($('#textInput1').attr('maxlength'));
+        var maxLength3 = parseInt($('#textInput3').attr('maxlength'));
+
+        $('#textCounter1').text(currentLength1 + ' de ' + maxLength1 + ' caracteres');
+        $('#textCounter3').text(currentLength3 + ' de ' + maxLength3 + ' caracteres');
     });
 </script>
 

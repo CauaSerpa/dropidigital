@@ -63,6 +63,25 @@
     session_start();
     include('../config.php');
 
+    // Sitemap
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $uri = $_SERVER['REQUEST_URI'];
+    
+    $url = $protocol . "://" . $host . $uri;
+    
+    $substring_sitemap = "sitemap.xml";
+    
+    // Obtenha a rota da URL
+    $route = isset($_GET['url']) ? $_GET['url'] : '';
+    
+    $categoria = null; // Inicializa $categoria fora do bloco condicional
+    
+    if (strpos($url, $substring_sitemap) !== false) {
+        include('./sitemap/sitemap.php');
+        exit;
+    }
+
     // Pesquisar dominio
     // Tabela que sera feita a consulta
     $tabela = "tb_domains";
@@ -110,6 +129,7 @@
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
         $shop_id = $resultado['id'];
+        $status = $resultado['status'];
         $user_id = $resultado['user_id'];
         $loja = $resultado['name'];
         $title = $resultado['title'];
@@ -148,6 +168,12 @@
         $top_highlight_bar_text = $resultado['top_highlight_bar_text'];
         $center_highlight_images = $resultado['center_highlight_images'];
     } else {
+        // Página de error 404
+        include_once('pages/404.php');
+        die;
+    }
+
+    if ($status == 0 || $status == 2) {
         // Página de error 404
         include_once('pages/404.php');
         die;

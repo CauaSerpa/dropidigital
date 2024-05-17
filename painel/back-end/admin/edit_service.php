@@ -34,6 +34,8 @@
 
         $video = $_POST['video'];
         $description = $_POST['description'];
+        $tooltip_content = $_POST['tooltip_content'];
+        $items_included = $_POST['itemsIncludedArray'];
         $sku = $_POST['sku'];
         $seo_name = $_POST['seo_name'];
         $link = $_POST['seo_link'];
@@ -43,9 +45,9 @@
         $tabela = 'tb_services';
         
         // Insere o usuário no banco de dados
-        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, price = :price,
-                                    without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku,
-                                    seo_name = :seo_name, link = :link, seo_description = :seo_description
+        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, price = :price, without_price = :without_price, discount = :discount,
+                                    video = :video, description = :description, tooltip_content = :tooltip_content, items_included = :items_included,
+                                    sku = :sku, seo_name = :seo_name, link = :link, seo_description = :seo_description
                 WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindParam(':status', $status);
@@ -56,6 +58,8 @@
         $stmt->bindParam(':discount', $discount);
         $stmt->bindParam(':video', $video);
         $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':tooltip_content', $tooltip_content);
+        $stmt->bindParam(':items_included', $items_included);
         $stmt->bindParam(':sku', $sku);
         $stmt->bindParam(':seo_name', $seo_name);
         $stmt->bindParam(':link', $link);
@@ -140,7 +144,7 @@
 
         $_SESSION['msgcad'] = "<p class='green'>Site Pronto criado com sucesso!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
-        header("Location: " . INCLUDE_PATH_DASHBOARD . "sites-prontos");
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "servicos");
         exit;
     }
 ?>

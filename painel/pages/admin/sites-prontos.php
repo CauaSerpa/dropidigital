@@ -259,6 +259,9 @@
                                 }
 
                         echo '
+                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'back-end/admin/access_ready_site.php?user_id=' . $id . '&shop_id=' . $site['shop_id'] . '" class="btn btn-success">
+                                            <i class="bx bx-log-in" ></i>
+                                        </a>
                                         <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-site-pronto?id=' . $site['id'] . '" class="btn btn-primary">
                                             <i class="bx bxs-edit" ></i>
                                         </a>

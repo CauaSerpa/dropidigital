@@ -240,18 +240,18 @@
     </div>
 </div>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/create_ready_website.php" method="post" enctype="multipart/form-data">
-
-    <div class="page__header center">
-        <div class="header__title">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb align-items-center mb-3">
-                    <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>sites-prontos" class="fs-5 text-decoration-none text-reset">Sites Prontos</a></li>
-                    <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Criar Site Pronto</li>
-                </ol>
-            </nav>
-        </div>
+<div class="page__header center">
+    <div class="header__title">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-3">
+                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>sites-prontos" class="fs-5 text-decoration-none text-reset">Sites Prontos</a></li>
+                <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Criar Site Pronto</li>
+            </ol>
+        </nav>
     </div>
+</div>
+
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/create_ready_website.php" method="post" enctype="multipart/form-data">
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
@@ -261,112 +261,114 @@
                 <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require>
                 <p class="small text-decoration-none" style="color: #01C89B;">https://dropidigital.com.br/sites-prontos/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="plan" class="form-label small">Plano do Site Pronto *</label>
-                        <div class="input-group">
-                            <select class="form-select" name="plan" id="plan" aria-label="Default select example" required>
-                                <option value="" disabled selected>-- Qual o plano do Site Pronto --</option>
-                                <?php
-                                    // Aqui você pode popular a tabela com dados do banco de dados
-                                    // Vamos supor que cada linha tem um ID únic
-
-                                    // Nome da tabela para a busca
-                                    $tabelaInterval = 'tb_plans_interval';
-                                    $tabelaPlans = 'tb_plans';
-
-                                    $sql = "SELECT i.id, p.name, i.billing_interval
-                                        FROM $tabelaInterval i
-                                        JOIN $tabelaPlans p ON i.plan_id = p.id
-                                        ORDER BY p.id ASC";
-
-                                    // Preparar e executar a consulta
-                                    $stmt = $conn_pdo->prepare($sql);
-                                    $stmt->execute();
-
-                                    // Recuperar os resultados
-                                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                                    if ($stmt->rowCount() > 0) {
-                                        // Loop através dos resultados e exibir todas as colunas
-                                        foreach ($resultados as $plan) {
-                                            $selected = ($plan['id'] == 1) ? "selected" : "";
-                                            $billing_interval = ($plan['billing_interval'] == "monthly") ? "(mensal)" : "(anual)";
-
-                                            echo "<option value='" . $plan['id'] . "' $selected>" . $plan['name'] . " $billing_interval</option>";
-                                        }
-                                    }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="segment" class="form-label small">Segmento *</label>
-                        <div class="input-group">
-                            <select class="form-select" name="segment" id="segment" aria-label="Default select example" required>
-                                <option value="" disabled selected>-- Qual o segmento do Site Pronto --</option>
-                                <option value="0">Dropshipping Infoproduto</option>
-                                <option value="1">Dropshipping produto físico</option>
-                                <option value="2">Site divulgação de serviços</option>
-                                <option value="3">Site comércio físico</option>
-                                <option value="4">Site para agendamento</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <style>
-                    .textInput
-                    {
-                        position: absolute;
-                        right: .75rem;
-                        top: 50%;
-                        transform: translateY(-50%);
-                    }
-                </style>
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label for="version" class="form-label small">Versão do Site Pronto</label>
-                        <input type="text" class="form-control" name="version" id="version" placeholder="1.0.0" aria-label="Versão" aria-describedby="version">
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <label for="url" class="form-label small">URL do Site Pronto</label>
-                        <div class="position-relative">
-                            <input type="text" class="form-control <?= (isset($_SESSION['msg_url'])) ? "input-error" : ""; ?>" name="url" id="url" aria-label="URL" aria-describedby="url">
-                            <label for="url" class="textInput">.dropidigital.com.br</label>
-                        </div>
-                        <span id="url-error" class="error-message">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="plan" class="form-label small">Plano do Site Pronto *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="plan" id="plan" aria-label="Default select example" required>
+                            <option value="" disabled selected>-- Qual o plano do Site Pronto --</option>
                             <?php
-                                if(isset($_SESSION['msg_url'])){
-                                    echo $_SESSION['msg_url'];
-                                    unset($_SESSION['msg_url']);
+                                // Aqui você pode popular a tabela com dados do banco de dados
+                                // Vamos supor que cada linha tem um ID únic
+
+                                // Nome da tabela para a busca
+                                $tabelaInterval = 'tb_plans_interval';
+                                $tabelaPlans = 'tb_plans';
+
+                                $sql = "SELECT i.id, p.name, i.billing_interval
+                                    FROM $tabelaInterval i
+                                    JOIN $tabelaPlans p ON i.plan_id = p.id
+                                    ORDER BY p.id ASC";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                if ($stmt->rowCount() > 0) {
+                                    // Loop através dos resultados e exibir todas as colunas
+                                    foreach ($resultados as $plan) {
+                                        $selected = ($plan['id'] == 1) ? "selected" : "";
+                                        $billing_interval = ($plan['billing_interval'] == "monthly") ? "(mensal)" : "(anual)";
+
+                                        echo "<option value='" . $plan['id'] . "' $selected>" . $plan['name'] . " $billing_interval</option>";
+                                    }
                                 }
                             ?>
-                        </span>
+                        </select>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div>
-                        <label for="activeReadyWebsite" class="form-label small">Site ativo?</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeReadyWebsite" value='1' checked>
-                            <label class="form-check-label" id="activeCheckbox" for="activeReadyWebsite">Não</label>
-                        </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="segment" class="form-label small">Segmento *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="segment" id="segment" aria-label="Default select example" required>
+                            <option value="" disabled selected>-- Qual o segmento do Site Pronto --</option>
+                            <option value="0">Dropshipping Infoproduto</option>
+                            <option value="1">Dropshipping produto físico</option>
+                            <option value="2">Site divulgação de serviços</option>
+                            <option value="3">Site comércio físico</option>
+                            <option value="4">Site para agendamento</option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <div id="containerEmphasis">
-                        <label for="emphasisProduct" class="form-label small">Destacar?</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasisProduct" value="1">
-                            <label class="form-check-label" id="emphasisCheckbox" for="emphasisProduct">Não</label>
-                        </div>
+            </div>
+            <style>
+                .textInput
+                {
+                    position: absolute;
+                    right: .75rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+            </style>
+            <div class="col-md-2">
+                <div class="mb-3">
+                    <label for="version" class="form-label small">Versão do Site Pronto</label>
+                    <input type="text" class="form-control" name="version" id="version" placeholder="1.0.0" aria-label="Versão" aria-describedby="version">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="support" class="form-label small">Suporte do Site Pronto</label>
+                    <input type="text" class="form-control" name="support" id="support" placeholder="30 dias" aria-label="Suporte" aria-describedby="support">
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="mb-3">
+                    <label for="url" class="form-label small">URL do Site Pronto</label>
+                    <div class="position-relative">
+                        <input type="text" class="form-control <?= (isset($_SESSION['msg_url'])) ? "input-error" : ""; ?>" name="url" id="url" aria-label="URL" aria-describedby="url">
+                        <label for="url" class="textInput">.dropidigital.com.br</label>
+                    </div>
+                    <span id="url-error" class="error-message">
+                        <?php
+                            if(isset($_SESSION['msg_url'])){
+                                echo $_SESSION['msg_url'];
+                                unset($_SESSION['msg_url']);
+                            }
+                        ?>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div>
+                    <label for="activeReadyWebsite" class="form-label small">Site ativo?</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeReadyWebsite" value='1' checked>
+                        <label class="form-check-label" id="activeCheckbox" for="activeReadyWebsite">Não</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div id="containerEmphasis">
+                    <label for="emphasisProduct" class="form-label small">Destacar?</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="emphasis" role="switch" id="emphasisProduct" value="1">
+                        <label class="form-check-label" id="emphasisCheckbox" for="emphasisProduct">Não</label>
                     </div>
                 </div>
             </div>
@@ -442,184 +444,131 @@
         </div>
     </div>
 
-    <div class="row">
+    <style>
+        #serviceList .icon
+        {
+            color: var(--green-color);
+        }
 
+        #serviceList li
+        {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin: .25rem 0;
+        }
+        #serviceList .actions
+        {
+            display: none;
+            align-items: center;
+            margin-left: .3rem;
+        }
+        #serviceList li:hover .actions
+        {
+            display: flex;
+        }
+        #serviceList .actions button
+        {
+            border: none;
+            background: none;
+        }
+        #serviceList .save 
+        {
+            height: 38px;
+            padding: 0 1rem;
+            color: white;
+            background: var(--green-color);
+            border: none;
+            border-radius: .3rem;
+            cursor: pointer;
+            margin-left: .3rem;
+        }
+        #serviceList .save:hover
+        {
+            background: var(--dark-green-color);
+        }
+    </style>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <style>
-            #serviceList .icon
-            {
-                color: var(--green-color);
-            }
-
-            #serviceList li
-            {
-                position: relative;
-                display: flex;
-                align-items: center;
-                margin: .25rem 0;
-            }
-            #serviceList .actions
-            {
-                display: none;
-                align-items: center;
-                margin-left: .3rem;
-            }
-            #serviceList li:hover .actions
-            {
-                display: flex;
-            }
-            #serviceList .actions button
-            {
-                border: none;
-                background: none;
-            }
-            #serviceList .save 
-            {
-                height: 38px;
-                padding: 0 1rem;
-                color: white;
-                background: var(--green-color);
-                border: none;
-                border-radius: .3rem;
-                cursor: pointer;
-                margin-left: .3rem;
-            }
-            #serviceList .save:hover
-            {
-                background: var(--dark-green-color);
-            }
-        </style>
-
-        <div class="col-md-6">
-            <div class="card mb-3 p-0">
-                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Benefícios</div>
-                <div class="card-body row px-5 py-3">
-                    <div>
-                        <label for="servico" class="form-label small">
-                            Benefícios
-                            <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Selecione Benefícios que serão exibidos na compra do Site Pronto."></i>
-                        </label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" id="servico" name="servico" placeholder="Adicionar Benefícios" aria-label="Adicionar Benefícios">
-                            <button type="button" class="btn btn-outline-dark fw-semibold px-4" id="addService">Adicionar</button>
-                        </div>
-                        <small class="d-flex mb-3 px-3 py-2" id="noItems" style="color: #4A90E2; background: #ECF3FC;">Nenhum Item Adicionado</small>
-                        <ul class="list-style-one" id="serviceList">
-                        </ul>
+    <div class="col-md-12">
+        <div class="card mb-3 p-0">
+            <div class="card-header fw-semibold px-4 py-3 bg-transparent">Benefícios</div>
+            <div class="card-body row px-5 py-3">
+                <div class="col-md-6">
+                    <label for="servico" class="form-label small">
+                        Benefícios
+                        <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Selecione Benefícios que serão exibidos na compra do Site Pronto."></i>
+                    </label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="servico" name="servico" placeholder="Adicionar Benefícios" aria-label="Adicionar Benefícios">
+                        <button type="button" class="btn btn-outline-dark fw-semibold px-4" id="addService">Adicionar</button>
                     </div>
+                    <small class="d-flex mb-3 px-3 py-2" id="noItems" style="color: #4A90E2; background: #ECF3FC;">Nenhum Item Adicionado</small>
+                    <ul class="list-style-one" id="serviceList">
+                    </ul>
                 </div>
             </div>
         </div>
-
-        <!-- Campo oculto para armazenar os serviços adicionados -->
-        <input type="hidden" id="itemsIncludedArray" name="itemsIncludedArray">
-
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                services = [];
-
-                function updateServiceDisplay() {
-                    if (services.length === 0) {
-                        $('#noItems').removeClass('d-none').addClass('d-block');
-                    } else {
-                        $('#noItems').removeClass('d-block').addClass('d-none');
-                    }
-                }
-
-                updateServiceDisplay();  // Chama no carregamento inicial para setar corretamente a visibilidade
-
-                $('#addService').click(function() {
-                    var newService = $('#servico').val().trim();
-                    if (newService) {
-                        $('#serviceList').append(`<li><i class='bx bx-check icon me-1' ></i> ${newService} <div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button> <button class="remove"><i class='bx bx-x'></i></button></div></li>`);
-                        services.push(newService);
-                        $('#itemsIncludedArray').val(JSON.stringify(services));
-                        $('#servico').val('');
-                        updateServiceDisplay();  // Atualiza a visibilidade do #noItems
-                    } else {
-                        alert("Por favor, insira um nome de item válido.");
-                    }
-                });
-
-                $('#serviceList').on('click', '.edit', function() {
-                    var li = $(this).closest('li');
-                    var text = li.text().trim();
-                    li.html(`<input type='text' class='form-control editInput' value='${text}'><button class='save'>Salvar</button>`);
-                });
-
-                $('#serviceList').on('click', '.save', function() {
-                    var input = $(this).siblings('.editInput');
-                    var newValue = input.val().trim();
-                    var li = $(this).closest('li');
-                    li.html(`<i class='bx bx-check icon me-1' ></i> ${newValue} <div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button> <button class="remove"><i class='bx bx-x'></i></button></div>`);
-                    services = $('#serviceList li').map(function() {
-                        return $(this).contents().not($(this).children()).text().trim();
-                    }).get();
-                    $('#itemsIncludedArray').val(JSON.stringify(services));
-                    updateServiceDisplay();  // Atualiza a visibilidade do #noItems
-                });
-
-                $('#serviceList').on('click', '.remove', function() {
-                    $(this).closest('li').remove();
-                    services = $('#serviceList li').map(function() {
-                        return $(this).contents().not($(this).children()).text().trim();
-                    }).get();
-                    $('#itemsIncludedArray').val(JSON.stringify(services));
-                    updateServiceDisplay();  // Atualiza a visibilidade do #noItems
-                });
-            });
-        </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <div class="col-md-6">
-            <div class="card mb-3 p-0">
-                <div class="card-header fw-semibold px-4 py-3 bg-transparent">SKU</div>
-                <div class="card-body px-5 py-3">
-                    <div class="mb-3">
-                        <label for="skuResult" class="form-label small">
-                            Código SKU
-                            <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
-                        </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="sku" id="skuResult" placeholder="SKU" aria-label="SKU" aria-describedby="skuResult" style="max-width: 250px;">
-                            <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="gerarSKU">GERAR</button>
-                        </div>
-                        <small class="text-decoration-none" id="error-sku" style="color: rgb(229, 15, 56);"></small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- Campo oculto para armazenar os serviços adicionados -->
+    <input type="hidden" id="itemsIncludedArray" name="itemsIncludedArray">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            services = [];
+
+            function updateServiceDisplay() {
+                if (services.length === 0) {
+                    $('#noItems').removeClass('d-none').addClass('d-block');
+                } else {
+                    $('#noItems').removeClass('d-block').addClass('d-none');
+                }
+            }
+
+            updateServiceDisplay();  // Chama no carregamento inicial para setar corretamente a visibilidade
+
+            $('#addService').click(function() {
+                var newService = $('#servico').val().trim();
+                if (newService) {
+                    $('#serviceList').append(`<li><i class='bx bx-check icon me-1' ></i> ${newService} <div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button> <button class="remove"><i class='bx bx-x'></i></button></div></li>`);
+                    services.push(newService);
+                    $('#itemsIncludedArray').val(JSON.stringify(services));
+                    $('#servico').val('');
+                    updateServiceDisplay();  // Atualiza a visibilidade do #noItems
+                } else {
+                    alert("Por favor, insira um nome de item válido.");
+                }
+            });
+
+            $('#serviceList').on('click', '.edit', function() {
+                var li = $(this).closest('li');
+                var text = li.text().trim();
+                li.html(`<input type='text' class='form-control editInput' value='${text}'><button class='save'>Salvar</button>`);
+            });
+
+            $('#serviceList').on('click', '.save', function() {
+                var input = $(this).siblings('.editInput');
+                var newValue = input.val().trim();
+                var li = $(this).closest('li');
+                li.html(`<i class='bx bx-check icon me-1' ></i> ${newValue} <div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button> <button class="remove"><i class='bx bx-x'></i></button></div>`);
+                services = $('#serviceList li').map(function() {
+                    return $(this).contents().not($(this).children()).text().trim();
+                }).get();
+                $('#itemsIncludedArray').val(JSON.stringify(services));
+                updateServiceDisplay();  // Atualiza a visibilidade do #noItems
+            });
+
+            $('#serviceList').on('click', '.remove', function() {
+                $(this).closest('li').remove();
+                services = $('#serviceList li').map(function() {
+                    return $(this).contents().not($(this).children()).text().trim();
+                }).get();
+                $('#itemsIncludedArray').val(JSON.stringify(services));
+                updateServiceDisplay();  // Atualiza a visibilidade do #noItems
+            });
+        });
+    </script>
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Ofertas</div>
@@ -642,6 +591,25 @@
                 </thead>
                 <tbody id="categoriasSelecionadas"></tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card mb-3 p-0">
+            <div class="card-header fw-semibold px-4 py-3 bg-transparent">SKU</div>
+            <div class="card-body px-5 py-3">
+                <div class="mb-3">
+                    <label for="skuResult" class="form-label small">
+                        Código SKU
+                        <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="sku" id="skuResult" placeholder="SKU" aria-label="SKU" aria-describedby="skuResult" style="max-width: 250px;">
+                        <button class="btn btn-outline-dark fw-semibold px-4" type="button" id="gerarSKU">GERAR</button>
+                    </div>
+                    <small class="text-decoration-none" id="error-sku" style="color: rgb(229, 15, 56);"></small>
+                </div>
+            </div>
         </div>
     </div>
 

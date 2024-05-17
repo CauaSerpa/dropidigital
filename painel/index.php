@@ -3,11 +3,26 @@
     $url = isset($_GET['url']) ? $_GET['url'] : 'painel';
 
     //Edita o escrito da url para ser colocado no title
-    if ($url == "")
-    {
+    if ($url == "") {
         $title = "Painel";
     } else {
-        $title = ucwords(str_replace("-", " ", $url));
+        // Obtém a URL atual
+        $urlPath = $url;
+
+        // Remove qualquer string de consulta, se houver
+        $urlPath = parse_url($urlPath, PHP_URL_PATH);
+
+        // Divide a URL em partes
+        $urlParts = explode('/', trim($urlPath, '/'));
+
+        // Verifica se há partes suficientes na URL
+        if (count($urlParts) >= 2) {
+            $urlTitle = $urlParts[1]; // O nome do arquivo é a segunda parte
+        } else {
+            $urlTitle = $url;
+        }
+
+        $title = ucwords(str_replace("-", " ", $urlTitle));
     }
 
     // Caminho para o diretório pai
@@ -59,7 +74,7 @@
     // Verificar se o resultado foi encontrado
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
-        $permissions = $resultado['permissions'];
+        $permissions = (isset($_SESSION['ready_site'])) ? 0 : $resultado['permissions'];
         $name = $resultado['name'];
         $email = $resultado['email'];
         $docType = $resultado['docType'];
@@ -354,7 +369,7 @@
 
     <nav class="sidebar close">
         <ul class="nav-links">
-            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?>">
+            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?> <?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?>">
                 <div class="iocn-link">
                     <p>
                         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">
@@ -407,6 +422,19 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios">Domínios</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios" class="<?php activeSidebarLink('dominios'); ?>">Domínios</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios-proprios" class="<?php activeSidebarLink('dominios-proprios'); ?>">Domínios Próprios</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('site-catalogo'); ?> <?php activeSidebarLink('site-catalogo'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>site-catalogo">
+                            <i class='bx bx-customize'></i>
+                        </a>
+                        <span class="link_name">Site Catálogo</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>site-catalogo">Site Catálogo</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('criar-site-pronto'); ?> <?php activeSidebarLink('editar-site-pronto'); ?> <?php activeSidebarLink('relatorio-sites-prontos'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('editar-site-pronto'); ?> <?php showSidebarLinks('criar-site-pronto'); ?> <?php showSidebarLinks('relatorio-sites-prontos'); ?>">
@@ -913,7 +941,7 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">Redes Sociais</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?> <?php activeSidebarLink('servicos'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('site-pronto'); ?> <?php showSidebarLinks('servicos'); ?>">
+            <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?> <?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('servico'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('site-pronto'); ?> <?php showSidebarLinks('servicos'); ?> <?php showSidebarLinks('servico'); ?>">
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="sidebar_link">
@@ -925,7 +953,7 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Soluções</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="<?php activeSidebarLink('servicos'); ?>">Serviços</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="<?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('servico'); ?>">Serviços</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos" class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?>">Sites Prontos</a></li>
                 </ul>
             </li>

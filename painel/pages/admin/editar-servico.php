@@ -243,18 +243,45 @@ if(!empty($id)){
     }
 </style>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_service.php" method="post" enctype="multipart/form-data">
-
-    <div class="page__header center">
-        <div class="header__title">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb align-items-center mb-3">
-                    <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>servicos" class="fs-5 text-decoration-none text-reset">Serviços</a></li>
-                    <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Editar Serviço</li>
-                </ol>
-            </nav>
+<!-- Modal de Servicos -->
+<div class="modal fade" id="categoriasModal" tabindex="-1" role="dialog" aria-labelledby="categoriasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Escolher Serviço
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <!-- Adicione aqui a lógica para exibir as categorias do banco de dados e a funcionalidade de pesquisa -->
+                <input type="text" id="searchCategoria" class="form-control mb-3" placeholder="Pesquisar Serviços">
+                <p class="fw-semibold d-none" id="noResultCategories">Nenhum Serviço Encontrado</p>
+                <table class="table" id="resultCategories">
+                    <tbody id="listaCategorias">
+                    <!-- Categorias serão exibidas aqui -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-success fw-semibold px-4 py-2 small" onclick="adicionarCategorias()">Selecionar</button>
+            </div>
         </div>
     </div>
+</div>
+
+<div class="page__header center">
+    <div class="header__title">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-3">
+                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>servicos" class="fs-5 text-decoration-none text-reset">Serviços</a></li>
+                <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Editar Serviço</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_service.php" method="post" enctype="multipart/form-data">
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
@@ -379,6 +406,171 @@ if(!empty($id)){
     </div>
 
     <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Tooltip</div>
+        <div class="card-body px-5 py-3">
+            <div class="d-flex justify-content-between">
+                <label for="tooltipContent" class="form-label small">Descrição para tooltip do Serviço</label>
+                <small id="tooltipContentCounter" class="form-text text-muted">0 de 160 caracteres</small>
+            </div>
+            <textarea class="form-control" name="tooltip_content" id="tooltipContent" maxlength="160" rows="3"><?php echo $service['tooltip_content']; ?></textarea>
+        </div>
+    </div>
+
+    <style>
+        #serviceList .icon
+        {
+            color: var(--green-color);
+        }
+
+        #serviceList li
+        {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin: .25rem 0;
+        }
+        #serviceList .actions
+        {
+            display: none;
+            align-items: center;
+            margin-left: .3rem;
+        }
+        #serviceList li:hover .actions
+        {
+            display: flex;
+        }
+        #serviceList .actions button
+        {
+            border: none;
+            background: none;
+        }
+        #serviceList .save 
+        {
+            height: 38px;
+            padding: 0 1rem;
+            color: white;
+            background: var(--green-color);
+            border: none;
+            border-radius: .3rem;
+            cursor: pointer;
+            margin-left: .3rem;
+        }
+        #serviceList .save:hover
+        {
+            background: var(--dark-green-color);
+        }
+    </style>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Benefícios</div>
+        <div class="card-body row px-5 py-3">
+            <div class="col-md-6">
+                <label for="servico" class="form-label small">
+                    Benefícios
+                    <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Selecione Benefícios que serão exibidos na compra do Site Pronto."></i>
+                </label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="servico" name="servico" placeholder="Adicionar Benefícios" aria-label="Adicionar Benefícios">
+                    <button type="button" class="btn btn-outline-dark fw-semibold px-4" id="addService">Adicionar</button>
+                </div>
+                <small class="d-flex mb-3 px-3 py-2" id="noItems" style="color: #4A90E2; background: #ECF3FC;">Nenhum Item Adicionado</small>
+                <ul class="list-style-one" id="serviceList">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campo oculto para armazenar os serviços adicionados -->
+    <input type="hidden" id="itemsIncludedArray" name="itemsIncludedArray" value='<?php echo $service['items_included']; ?>'>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var services = JSON.parse($('#itemsIncludedArray').val() || '[]');
+
+            function updateServiceDisplay() {
+                if (services.length === 0) {
+                    $('#noItems').removeClass('d-none').addClass('d-block');
+                } else {
+                    $('#noItems').removeClass('d-block').addClass('d-none');
+                }
+            }
+
+            function refreshServiceList() {
+                $('#serviceList').empty();
+                $.each(services, function(index, service) {
+                    $('#serviceList').append(`<li><i class='bx bx-check icon me-1'></i>${service}<div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button><button class="remove"><i class='bx bx-x'></i></button></div></li>`);
+                });
+                updateServiceDisplay();
+            }
+
+            refreshServiceList();  // Preenche a lista na inicialização
+
+            $('#addService').click(function() {
+                var newService = $('#servico').val().trim();
+                if (newService) {
+                    services.push(newService);
+                    $('#itemsIncludedArray').val(JSON.stringify(services));
+                    $('#servico').val('');
+                    refreshServiceList();  // Atualiza a lista e a visibilidade do #noItems
+                } else {
+                    alert("Por favor, insira um nome de item válido.");
+                }
+            });
+
+            $('#serviceList').on('click', '.edit', function() {
+                var li = $(this).closest('li');
+                var text = li.text().trim();
+                li.html(`<input type='text' class='form-control editInput' value='${text}'><button class='save'>Salvar</button>`);
+            });
+
+            $('#serviceList').on('click', '.save', function() {
+                var input = $(this).siblings('.editInput');
+                var newValue = input.val().trim();
+                var li = $(this).closest('li');
+                li.html(`<i class='bx bx-check icon me-1' ></i> ${newValue} <div class="actions"><button class="edit"><i class='bx bx-pencil'></i></button> <button class="remove"><i class='bx bx-x'></i></button></div>`);
+                services = $('#serviceList li').map(function() {
+                    return $(this).contents().not($(this).children()).text().trim();
+                }).get();
+                $('#itemsIncludedArray').val(JSON.stringify(services));
+                updateServiceDisplay();  // Atualiza a visibilidade do #noItems
+            });
+
+            $('#serviceList').on('click', '.remove', function() {
+                var li = $(this).closest('li');
+                var index = li.index();
+                services.splice(index, 1);
+                $('#itemsIncludedArray').val(JSON.stringify(services));
+                refreshServiceList();  // Atualiza a lista e a visibilidade do #noItems
+            });
+        });
+    </script>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Ofertas</div>
+        <div class="card-body px-5 py-3">
+            <label for="searchOutsideModal" class="form-label small">
+                Serviços
+                <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Selecione serviços que serão oferecidos na compra do Site Pronto."></i>
+            </label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="searchOutsideModal" placeholder="Buscar serviços já cadastradas" aria-label="Buscar serviços já cadastradas">
+                <button type="button" class="btn btn-outline-dark fw-semibold px-4" data-bs-toggle="modal" data-bs-target="#categoriasModal">Ver Serviços</button>
+            </div>
+            <small class="d-flex mb-3 px-3 py-2" id="noCategories" style="color: #4A90E2; background: #ECF3FC;">Nenhum Serviço Adicionado</small>
+            <table class="table table-hover d-none" id="categoriesTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="small">Nome do Serviço</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="categoriasSelecionadas"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">SKU</div>
         <div class="card-body px-5 py-3">
             <div class="mb-3">
@@ -435,6 +627,57 @@ if(!empty($id)){
     <input type="hidden" name="delete_images" id="delete-images-input">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
 
+    <!-- Adicione esses campos ocultos no seu formulário -->
+    <input type="hidden" name="categoriasSelecionadas[]" id="categoriasSelecionadasInput" value="<?php
+        // Nome da tabela para a busca
+        $tabela = 'tb_ready_site_services';
+
+        $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY (main = 1) DESC";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':ready_site_id', $service['id']);
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $readySitesServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $primeiroElemento = false;
+        $main = 0;
+
+        if ($readySitesServices) {
+            // Loop através dos resultados e exibir todas as colunas
+            foreach ($readySitesServices as $readySiteService) {
+                $main = ($readySiteService['main'] == "1") ? $readySiteService['service_id'] : "";
+
+                echo ($primeiroElemento) ? "," : "";
+
+                echo $readySiteService['service_id'];
+
+                $primeiroElemento = true;
+            }
+        }
+    ?>">
+
+    <?php
+        // Nome da tabela para a busca
+        $tabela = 'tb_ready_site_services';
+
+        $sql = "SELECT service_id FROM $tabela WHERE ready_site_id = :ready_site_id AND main = :main ORDER BY id DESC LIMIT 1";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':ready_site_id', $service['id']);
+        $stmt->bindValue(':main', 1);
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $service = $stmt->fetch(PDO::FETCH_ASSOC);
+    ?>
+
+    <!-- Categoria principal -->
+    <input type="hidden" name="inputMainCategory" id="inputMainCategory" value="<?php echo @$service['service_id']; ?>">
+
     <!-- Botao salvar -->
     <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="text-decoration-none text-reset">Cancelar</a>
@@ -481,29 +724,101 @@ if(!empty($id)){
     });
 </script>
 
+<!-- Link para criar category -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Selecione o campo de entrada e o span
+        var input = $("#categoryName");
+        var link = $("#categoryLink");
+
+        input.on("input", function() {
+            var value = input.val();
+
+            // Remover acentos e substituir espaços por traço
+            value = removerAcentosEespacos(value);
+
+            link.val(value);
+        });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
+    });
+</script>
+
 <?php
     // Nome da tabela para a busca
-    $tabela = 'tb_categories';
+    $tabelaProductCategories = 'tb_service_services';
+    $tabelaCategories = 'tb_services';
 
-    $sql = "SELECT id, name FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+    $sqlProductCategories = "SELECT * FROM $tabelaProductCategories WHERE service_id = :service_id ORDER BY (main = 1) DESC";
+
+    // Preparar e executar a consulta
+    $stmtProductCategories = $conn_pdo->prepare($sqlProductCategories);
+    $stmtProductCategories->bindParam(':service_id', $service['id']);
+    $stmtProductCategories->execute();
+
+    // Recuperar os resultados
+    $readySitesServices = $stmtProductCategories->fetchAll(PDO::FETCH_ASSOC);
+
+    $resultArray = [];
+
+    if ($readySitesServices) {
+        // Loop através dos resultados de tb_product_categories
+        foreach ($readySitesServices as $readySiteService) {
+            // Consultar tb_categories para obter o nome da categoria
+            $sqlCategories = "SELECT * FROM $tabelaCategories WHERE id = :id ORDER BY id DESC";
+
+            // Preparar e executar a consulta
+            $stmtCategories = $conn_pdo->prepare($sqlCategories);
+            $stmtCategories->bindParam(':id', $readySiteService['service_id']);
+            $stmtCategories->execute();
+
+            // Recuperar os resultados
+            $services = $stmtCategories->fetch(PDO::FETCH_ASSOC);
+
+            // Convertendo o id para formato numérico
+            $serviceId = (int)$readySiteService['service_id'];
+
+            // Adicionar ao array de resultados
+            $resultArray[] = [
+                'id' => $serviceId,
+                'name' => $services['name']
+            ];
+        }
+    }
+?>
+
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_services';
+
+    $sql = "SELECT id, name FROM $tabela WHERE id != :id ORDER BY id DESC";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':shop_id', $id);
+    $stmt->bindParam(':id', $service['id']);
     $stmt->execute();
 
     // Fetch all retorna um array contendo todas as linhas do conjunto de resultados
-    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!-- Script jQuery para manipular o modal e as categorias -->
 <script>
-    $(document).ready(function() {
-        // Array de categorias (substitua com a lógica do seu banco de dados)
-        var categoriasDisponiveis = <?php echo json_encode($categories); ?>;
+    $(document).ready(function () {
+        // Array de categorias disponíveis (substitua com a lógica do seu banco de dados)
+        var categoriasDisponiveis = <?php echo json_encode($services); ?>;
 
-        // Categorias selecionadas
-        var categoriasSelecionadas = [];
+        // Array de categorias selecionadas (substitua com a lógica do seu banco de dados)
+        var categoriasSelecionadas = <?php echo json_encode($resultArray); ?>;
+
+        // Garante que categoriasSelecionadas seja sempre um array
+        if (!Array.isArray(categoriasSelecionadas)) {
+            categoriasSelecionadas = [];
+        }
 
         // Usando jQuery para lidar com o envio do formulário de criação de categoria
         $('#createCategory').submit(function (event) {
@@ -521,9 +836,11 @@ if(!empty($id)){
                             name: response.data.name
                         };
 
+                        // Adiciona a nova categoria às arrays
                         categoriasDisponiveis.push(novaCategoria);
                         categoriasSelecionadas.push(novaCategoria);
 
+                        // Adiciona a nova categoria à tabela
                         adicionarCategoriaNaTabela(novaCategoria);
 
                         $('#criarCategoriasModal').modal('hide');
@@ -579,8 +896,10 @@ if(!empty($id)){
             var tabelaCategorias = $("#categoriesTable");
             var categoriasSelecionadasDiv = $("#categoriasSelecionadas");
             categoriasSelecionadasDiv.empty();
+            
+            var mainCategoria = $("#inputMainCategory").val();
 
-            if (categoriasSelecionadas.length === 0) {
+            if (!Array.isArray(categoriasSelecionadas) || categoriasSelecionadas.length === 0) {
                 // Se nenhuma categoria estiver selecionada, adiciona a classe d-none
                 tabelaCategorias.addClass('d-none');
                 semCategoria.removeClass('d-none');
@@ -588,13 +907,13 @@ if(!empty($id)){
                 tabelaCategorias.removeClass('d-none');
                 semCategoria.addClass('d-none');
 
-                categoriasSelecionadas.forEach(function(categoria) {
+                categoriasSelecionadas.forEach(function (categoria) {
                     categoriasSelecionadasDiv.append('<tr><td>' + categoria.name +
                         '<span class="mainCategory ms-2" data-categoria="' + categoria.id + '"><i class="bx bx-star" ></i></span></td><td class="remove"><span class="remover-categoria" data-categoria="' + categoria.id + '"><i class="bx bx-x fs-5"></i></span></td></tr>');
                 });
 
                 // Adiciona o evento de clique para remover a categoria
-                $(".remover-categoria").click(function() {
+                $(".remover-categoria").click(function () {
                     var categoriaRemover = $(this).data("categoria");
                     removerCategoria(categoriaRemover);
                 });
@@ -633,7 +952,7 @@ if(!empty($id)){
                 $("#noResultCategories").addClass("d-none");
                 $("#resultCategories").removeClass("d-none");
 
-                categoriasDisponiveis.forEach(function(categoria) {
+                categoriasDisponiveis.forEach(function (categoria) {
                     var isChecked = categoriasSelecionadas.some(cs => cs.id === categoria.id);
 
                     listaCategorias.append('<tr><td class="checkbox" scope="row">' +
@@ -648,9 +967,67 @@ if(!empty($id)){
             exibirCategorias();
         });
 
+        // Função para exibir categorias selecionadas
+        function exibirCategoriasSelecionadasQuandoCarregar() {
+            var semCategoria = $("#noCategories");
+            var tabelaCategorias = $("#categoriesTable");
+            var categoriasSelecionadasDiv = $("#categoriasSelecionadas");
+
+            var mainCategoryId = <?php echo (isset($service['service_id'])) ? $service['service_id'] : 0; ?>;
+
+            categoriasSelecionadasDiv.empty();
+
+            if (categoriasSelecionadas.length === 0) {
+                // Se nenhuma categoria estiver selecionada, adiciona a classe d-none
+                tabelaCategorias.addClass('d-none');
+                semCategoria.removeClass('d-none');
+            } else {
+                tabelaCategorias.removeClass('d-none');
+                semCategoria.addClass('d-none');
+
+                categoriasSelecionadas.forEach(function(categoria) {
+                    var mainCategoryClass = (categoria.id === mainCategoryId) ? 'mainCategory mainActive' : 'mainCategory';
+                    var mainCategoryIcon = (categoria.id === mainCategoryId) ? 'bxs-star' : 'bx-star';
+
+                    categoriasSelecionadasDiv.append('<tr><td>' + categoria.name +
+                        '<span class="' + mainCategoryClass + ' ms-2" data-categoria="' + categoria.id + '"><i class="bx ' + mainCategoryIcon + '" ></i></span></td><td class="remove"><span class="remover-categoria" data-categoria="' + categoria.id + '"><i class="bx bx-x fs-5"></i></span></td></tr>');
+                });
+
+                // Adiciona o evento de clique para remover a categoria
+                $(".remover-categoria").click(function() {
+                    var categoriaRemover = $(this).data("categoria");
+                    removerCategoria(categoriaRemover);
+                });
+
+                // Adiciona o evento de clique para alternar a categoria principal
+                $(".mainCategory").click(function () {
+                    var isActive = $(this).hasClass("mainActive");
+
+                    // Remove as classes de todas as categorias
+                    $('.mainCategory i').removeClass("bxs-star");
+                    $('.mainCategory').removeClass("mainActive");
+                    $('#inputMainCategory').val("");
+
+                    if (!isActive) {
+                        // Adiciona as classes se a categoria não estiver ativa
+                        $(this).addClass("mainActive");
+                        $(this).find('i').addClass("bxs-star");
+
+                        var mainCategoryId = $(this).data("categoria");
+                        $('#inputMainCategory').val(mainCategoryId);
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            // Chama a função para carregar as categorias selecionadas ao reiniciar a página
+            exibirCategoriasSelecionadasQuandoCarregar();
+        });
+
         // Adicionar categorias selecionadas ao formulário
-        window.adicionarCategorias = function() {
-            $("input[type='checkbox']:checked").each(function() {
+        window.adicionarCategorias = function () {
+            $("input[type='checkbox']:checked").each(function () {
                 var categoriaId = parseInt($(this).val());
                 var categoria = categoriasDisponiveis.find(c => c.id === categoriaId);
 
@@ -660,7 +1037,7 @@ if(!empty($id)){
             });
 
             // Remover categoria se o checkbox for desmarcado no modal
-            $("#listaCategorias input[type='checkbox']").each(function() {
+            $("#listaCategorias input[type='checkbox']").each(function () {
                 var categoriaId = parseInt($(this).val());
                 var categoria = categoriasDisponiveis.find(c => c.id === categoriaId);
 
@@ -677,7 +1054,7 @@ if(!empty($id)){
         };
 
         // Função para remover uma categoria
-        window.removerCategoria = function(categoriaId) {
+        window.removerCategoria = function (categoriaId) {
             categoriasSelecionadas = categoriasSelecionadas.filter(cs => cs.id !== categoriaId);
 
             // Atualizar o campo de categorias oculto no formulário
@@ -693,7 +1070,7 @@ if(!empty($id)){
         }
 
         // Adiciona um ouvinte de evento de entrada ao campo #searchOutsideModal
-        $('#searchOutsideModal').on('input', function() {
+        $('#searchOutsideModal').on('input', function () {
             var valorPesquisa = $(this).val();
 
             // Define o valor no campo #searchCategoria
@@ -706,13 +1083,13 @@ if(!empty($id)){
         });
 
         // Filtrar categorias com base na pesquisa
-        $("#searchCategoria").on("input", function() {
+        $("#searchCategoria").on("input", function () {
             var termoPesquisa = $(this).val().toLowerCase();
 
             if (termoPesquisa === "") {
                 exibirCategorias();
             } else {
-                var categoriasFiltradas = categoriasDisponiveis.filter(function(categoria) {
+                var categoriasFiltradas = categoriasDisponiveis.filter(function (categoria) {
                     return categoria.name.toLowerCase().includes(termoPesquisa);
                 });
 
@@ -736,7 +1113,7 @@ if(!empty($id)){
             var listaCategorias = $("#listaCategorias");
             listaCategorias.empty();
 
-            pesquisarCategoria.forEach(function(categoria) {
+            pesquisarCategoria.forEach(function (categoria) {
                 var isChecked = categoriasSelecionadas.some(cs => cs.id === categoria.id);
 
                 listaCategorias.append('<tr><td class="checkbox" scope="row">' +
@@ -1008,6 +1385,7 @@ if(!empty($id)){
         }
 
         inputCounter('name', 'nameCounter');
+        inputCounter('tooltipContent', 'tooltipContentCounter');
     });
 </script>
 

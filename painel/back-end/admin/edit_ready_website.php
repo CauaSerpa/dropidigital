@@ -48,6 +48,7 @@
 
         $plan_id = $_POST['plan'];
         $version = $_POST['version'];
+        $support = $_POST['support'];
 
         // Checkbox sem preco
         if (isset($_POST["without_price"]))
@@ -63,6 +64,7 @@
 
         $video = $_POST['video'];
         $description = $_POST['description'];
+        $items_included = $_POST['itemsIncludedArray'];
         $sku = $_POST['sku'];
         $seo_name = $_POST['seo_name'];
         $link = $_POST['seo_link'];
@@ -95,9 +97,9 @@
         $tabela = 'tb_ready_sites';
         
         // Insere o usuário no banco de dados
-        $sql = "UPDATE $tabela SET plan_id = :plan_id, status = :status, emphasis = :emphasis, name = :name, version = :version, price = :price,
-                                    without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku,
-                                    seo_name = :seo_name, link = :link, seo_description = :seo_description
+        $sql = "UPDATE $tabela SET plan_id = :plan_id, status = :status, emphasis = :emphasis, name = :name, version = :version, support = :support, price = :price,
+                                    without_price = :without_price, discount = :discount, video = :video, description = :description, items_included = :items_included,
+                                    sku = :sku, seo_name = :seo_name, link = :link, seo_description = :seo_description
                 WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindParam(':plan_id', $plan_id);
@@ -105,11 +107,13 @@
         $stmt->bindParam(':emphasis', $emphasis);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':version', $version);
+        $stmt->bindParam(':support', $support);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':without_price', $without_price);
         $stmt->bindParam(':discount', $discount);
         $stmt->bindParam(':video', $video);
         $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':items_included', $items_included);
         $stmt->bindParam(':sku', $sku);
         $stmt->bindParam(':seo_name', $seo_name);
         $stmt->bindParam(':link', $link);
@@ -148,7 +152,7 @@
         $categoriasIds = explode(',', $categoriasInputValue);
 
         // Consulta SQL para recuperar as categorias existentes para o produto específico
-        $sqlExistingCategories = "SELECT service_id FROM tb_site_services WHERE ready_site_id = :ready_site_id";
+        $sqlExistingCategories = "SELECT service_id FROM tb_ready_site_services WHERE ready_site_id = :ready_site_id";
         $stmtExistingCategories = $conn_pdo->prepare($sqlExistingCategories);
         $stmtExistingCategories->bindParam(':ready_site_id', $_POST['id']);
         $stmtExistingCategories->execute();
@@ -165,7 +169,7 @@
                 // Categoria não está presente no banco de dados, então insira
                 $main = ($_POST['inputMainCategory'] == $categoriaId) ? 1 : 0;
 
-                $tabela = "tb_site_services";
+                $tabela = "tb_ready_site_services";
                 $sqlInsertCategory = "INSERT INTO $tabela (ready_site_id, service_id, main) VALUES (:ready_site_id, :service_id, :main)";
                 $stmtInsertCategory = $conn_pdo->prepare($sqlInsertCategory);
                 $stmtInsertCategory->bindParam(':ready_site_id', $_POST['id']);
@@ -179,7 +183,7 @@
         foreach ($existingCategoryIds as $existingCategoryId) {
             if (!in_array($existingCategoryId, $categoriasIds)) {
                 // Categoria não está presente no input, então delete
-                $tabela = "tb_site_services";
+                $tabela = "tb_ready_site_services";
                 $sqlDeleteCategory = "DELETE FROM $tabela WHERE ready_site_id = :ready_site_id AND service_id = :service_id";
                 $stmtDeleteCategory = $conn_pdo->prepare($sqlDeleteCategory);
                 $stmtDeleteCategory->bindParam(':ready_site_id', $_POST['id']);

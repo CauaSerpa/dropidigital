@@ -129,101 +129,92 @@
                             <th class="small">Eventos</th>
                         </tr>
                     </thead>
-                    <?php
-                    // Nome da tabela para a busca
-                    $tabela = 'tb_users';
-
-                    // Configuração para paginação
-                    $limite = isset($_GET['limite']) ? intval($_GET['limite']) : 10;
-                    $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
-                    $inicioConsulta = ($paginaAtual - 1) * $limite;
-
-                    // Preparar a consulta com base na pesquisa (se houver)
-                    $sql = "SELECT * FROM $tabela WHERE permissions = :permissions";
-                    if (!empty($_GET['search'])) {
-                        $searchTerm = '%' . $_GET['search'] . '%';
-                        $sql .= " AND (name LIKE :searchTerm OR docNumber LIKE :searchTerm)"; // Substitua campo1 e campo2 pelos campos que deseja pesquisar
-                    }
-
-                    $sql .= " ORDER BY id DESC";
-
-                    // Preparar e executar a consulta
-                    $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindValue(':permissions', 0, PDO::PARAM_INT);
-                    if (!empty($_GET['search'])) {
-                        $stmt->bindParam(':searchTerm', $searchTerm);
-                    }
-                    $stmt->execute();
-
-                    // Recuperar os resultados
-                    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    // Loop através dos resultados e exibir todas as colunas
-                    foreach ($users as $user) {
+                    <tbody>
+                        <?php
                         // Nome da tabela para a busca
-                        $tabela = 'tb_shop';
+                        $tabela = 'tb_users';
 
-                        $sql = "SELECT * FROM $tabela WHERE user_id = :user_id ORDER BY id DESC";
+                        // Configuração para paginação
+                        $limite = isset($_GET['limite']) ? intval($_GET['limite']) : 10;
+                        $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+                        $inicioConsulta = ($paginaAtual - 1) * $limite;
+
+                        // Preparar a consulta com base na pesquisa (se houver)
+                        $sql = "SELECT u.*, s.name AS shop_name, s.cpf_cnpj, s.plan_id, s.id AS shop_id
+                                FROM $tabela u
+                                JOIN tb_shop s ON u.id = s.user_id
+                                WHERE u.permissions = :permissions";
+
+                        if (!empty($_GET['search'])) {
+                            $searchTerm = '%' . $_GET['search'] . '%';
+                            $sql .= " AND (u.name LIKE :searchTerm OR u.docNumber LIKE :searchTerm)";
+                        }
+
+                        $sql .= " ORDER BY s.id DESC LIMIT :inicioConsulta, :limite";
 
                         // Preparar e executar a consulta
                         $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':user_id', $user['id']);
+                        $stmt->bindValue(':permissions', 0, PDO::PARAM_INT);
+                        $stmt->bindParam(':inicioConsulta', $inicioConsulta, PDO::PARAM_INT);
+                        $stmt->bindParam(':limite', $limite, PDO::PARAM_INT);
+                        if (!empty($_GET['search'])) {
+                            $stmt->bindParam(':searchTerm', $searchTerm);
+                        }
                         $stmt->execute();
 
                         // Recuperar os resultados
-                        $shops = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         // Loop através dos resultados e exibir todas as colunas
-                        foreach ($shops as $shop) {
+                        foreach ($rows as $row) {
                             echo '
-                                <tbody>
-                                    <tr>
-                                        <td scope="row">
-                                            <input class="form-check-input itemCheckbox" type="checkbox" name="selected_ids[]" value="' . $shop['id'] . '" id="defaultCheck2">
-                                        </td>
-                                        <td>' . $user['name'] . '</td>
-                                        <td>' . $shop['name'] . '</td>
-                                        <td>' . $shop['cpf_cnpj'] . '</td>
-                                        <td>' . $user['email'] . '</td>
+                                <tr>
+                                    <td scope="row">
+                                        <input class="form-check-input itemCheckbox" type="checkbox" name="selected_ids[]" value="' . $row['shop_id'] . '" id="defaultCheck2">
+                                    </td>
+                                    <td>' . $row['name'] . '</td>
+                                    <td>' . $row['shop_name'] . '</td>
+                                    <td>' . $row['cpf_cnpj'] . '</td>
+                                    <td>' . $row['email'] . '</td>
                             ';
 
-                                    // Nome da tabela para a busca
-                                    $tabelaInterval = 'tb_plans_interval';
-                                    $tabelaPlans = 'tb_plans';
+                            // Recuperar o nome do plano atual
+                            $tabelaInterval = 'tb_plans_interval';
+                            $tabelaPlans = 'tb_plans';
 
-                                    $sql = "SELECT p.name
-                                            FROM $tabelaInterval i
-                                            JOIN $tabelaPlans p ON i.plan_id = p.id
-                                            WHERE i.id = :id
-                                            ORDER BY i.id DESC";
+                            $sql = "SELECT p.name
+                                    FROM $tabelaInterval i
+                                    JOIN $tabelaPlans p ON i.plan_id = p.id
+                                    WHERE i.id = :id
+                                    ORDER BY i.id DESC";
 
-                                    // Preparar e executar a consulta
-                                    $stmt = $conn_pdo->prepare($sql);
-                                    $stmt->bindParam(':id', $shop['plan_id']);
-                                    $stmt->execute();
+                            // Preparar e executar a consulta
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':id', $row['plan_id']);
+                            $stmt->execute();
 
-                                    // Recuperar os resultados
-                                    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+                            // Recuperar os resultados
+                            $plan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                                    if ($plan) {
-                                        echo "<td>";
-                                        echo $plan['name'];
-                                        echo "</td>";
-                                    }
-                                        
+                            if ($plan) {
+                                echo "<td>{$plan['name']}</td>";
+                            }
+
                             echo '
-                                        <td>' . date("d/m/Y", strtotime($user['date_create'])) . '</td>
-                                        <td>
-                                            <a href="' . INCLUDE_PATH_DASHBOARD . 'ver-loja?id=' . $shop['id'] . '" class="btn btn-secondary">
-                                                <i class="bx bx-show" ></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                    <td>' . date("d/m/Y", strtotime($row['date_create'])) . '</td>
+                                    <td>
+                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'back-end/admin/access_shop.php?user_id=' . $row['id'] . '&shop_id=' . $row['shop_id'] . '" class="btn btn-success">
+                                            <i class="bx bx-log-in" ></i>
+                                        </a>
+                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'ver-loja?id=' . $row['shop_id'] . '" class="btn btn-secondary">
+                                            <i class="bx bx-show" ></i>
+                                        </a>
+                                    </td>
+                                </tr>
                             ';
                         }
-                    }
-                ?>
+                        ?>
+                    </tbody>
                 </table>
             </div>
             <div class="center">
@@ -246,48 +237,19 @@
                     <div class="controller">
                         <?php
                             // Nome da tabela para a busca
-                            $tabela = 'tb_users';
+                            $tabela = 'tb_shop';
 
-                            // Configuração para paginação
-                            $limite = isset($_GET['limite']) ? intval($_GET['limite']) : 10;
-                            $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
-                            $inicioConsulta = ($paginaAtual - 1) * $limite;
-
-                            // Preparar a consulta com base na pesquisa (se houver)
-                            $sql = "SELECT * FROM $tabela WHERE permissions = :permissions";
-                            if (!empty($_GET['search'])) {
-                                $searchTerm = '%' . $_GET['search'] . '%';
-                                $sql .= " AND (name LIKE :searchTerm OR docNumber LIKE :searchTerm)"; // Substitua campo1 e campo2 pelos campos que deseja pesquisar
-                            }
-
-                            $sql .= " ORDER BY id DESC";
+                            $sql = "SELECT s.*, u.name as user_name, u.email as user_email
+                                    FROM $tabela s
+                                    INNER JOIN tb_users u ON s.user_id = u.id
+                                    ORDER BY s.id DESC";
 
                             // Preparar e executar a consulta
                             $stmt = $conn_pdo->prepare($sql);
-                            $stmt->bindValue(':permissions', 0, PDO::PARAM_INT);
-                            if (!empty($_GET['search'])) {
-                                $stmt->bindParam(':searchTerm', $searchTerm);
-                            }
                             $stmt->execute();
 
-                            // Recuperar os resultados
-                            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                            // Loop através dos resultados e exibir todas as colunas
-                            foreach ($users as $user) {
-                                $user_id = $user['id'];
-                            }
-
-                            // Nome da tabela para a busca
-                            $tabelaShop = 'tb_shop'; // Corrigido para o nome correto da tabela
-
-                            // Lógica para exibição dos links de páginação
-                            $sqlShop = "SELECT COUNT(*) as total FROM $tabelaShop WHERE user_id = :user_id";
-                            $stmtShop = $conn_pdo->prepare($sqlShop);
-                            $stmtShop->bindParam(':user_id', $user_id);
-                            $stmtShop->execute();
-                            $totalProdutos = $stmtShop->fetch(PDO::FETCH_ASSOC)['total'];
-                            $totalPaginas = ceil($totalProdutos / $limite);
+                            $countShop = $stmt->rowCount();
+                            $totalPaginas = ceil($countShop / $limite);
 
                             $search = isset($_GET['search']) ? "&search=" . $_GET['search'] : "";
 

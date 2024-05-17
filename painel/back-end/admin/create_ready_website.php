@@ -60,6 +60,7 @@
 
         $video = $_POST['video'];
         $description = $_POST['description'];
+        $items_included = $_POST['itemsIncludedArray'];
         $sku = $_POST['sku'];
         $seo_name = $_POST['seo_name'];
         $link = $_POST['seo_link'];
@@ -92,8 +93,8 @@
         $tabela = 'tb_ready_sites';
         
         // Insere o usuário no banco de dados
-        $sql = "INSERT INTO $tabela (shop_id, plan_id, status, emphasis, name, version, price, without_price, discount, video, description, sku, seo_name, link, seo_description) VALUES 
-                                    (:shop_id, :plan_id, :status, :emphasis, :name, :version, :price, :without_price, :discount, :video, :description, :sku, :seo_name, :link, :seo_description)";
+        $sql = "INSERT INTO $tabela (shop_id, plan_id, status, emphasis, name, version, support, price, without_price, discount, video, description, items_included, sku, seo_name, link, seo_description) VALUES 
+                                    (:shop_id, :plan_id, :status, :emphasis, :name, :version, :support, :price, :without_price, :discount, :video, :description, :items_included, :sku, :seo_name, :link, :seo_description)";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindParam(':shop_id', $shop_id);
         $stmt->bindParam(':plan_id', $plan_id);
@@ -101,11 +102,13 @@
         $stmt->bindParam(':emphasis', $emphasis);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':version', $version);
+        $stmt->bindParam(':support', $support);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':without_price', $without_price);
         $stmt->bindParam(':discount', $discount);
         $stmt->bindParam(':video', $video);
         $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':items_included', $items_included);
         $stmt->bindParam(':sku', $sku);
         $stmt->bindParam(':seo_name', $seo_name);
         $stmt->bindParam(':link', $link);
@@ -157,7 +160,7 @@
             $main = ($dados['inputMainCategory'] == $categoriaId) ? 1 : 0;
 
             // Consulta SQL para inserir a associação entre produto e categoria
-            $tabela = "tb_site_services";
+            $tabela = "tb_ready_site_services";
             $sql = "INSERT INTO $tabela (ready_site_id, service_id, main) VALUES (:ready_site_id, :service_id, :main)";
             $stmt = $conn_pdo->prepare($sql);
 

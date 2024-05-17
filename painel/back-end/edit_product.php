@@ -6,7 +6,6 @@
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
-
     // Pesquisar plano da Loja
     $tabelaShop = "tb_shop";
     $tabelaPlans = "tb_plans_interval";
@@ -69,12 +68,18 @@
         $without_price = 0;
     }
 
+    // Define o fuso horário para São Paulo (UTC-3)
+    date_default_timezone_set('America/Sao_Paulo');
+
+    // Cria um objeto DateTime com a data e hora atual
+    $datetime = new DateTime();
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_products';
 
         // Edita o produto no banco de dados da loja
-        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, price = :price, without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, link = :link, seo_description = :seo_description WHERE id = :id";
+        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, name = :name, price = :price, without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, link = :link, seo_description = :seo_description, last_modification = :last_modification WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -92,6 +97,7 @@
         $stmt->bindParam(':seo_name', $dados['seo_name']);
         $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
+        $stmt->bindParam(':last_modification', $datetime);
 
         // Id que sera editado
         $stmt->bindParam(':id', $dados['id']);
