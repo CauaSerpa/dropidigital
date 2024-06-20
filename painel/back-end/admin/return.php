@@ -14,7 +14,7 @@
 
         $_SESSION['user_id'] = $admin_id;
 
-        if (isset($_SESSION['ready_site'])) {
+        if (empty($_SESSION['ready_site'])) {
             header("Location: " . INCLUDE_PATH_DASHBOARD . "sites-prontos");
         } else {
             header("Location: " . INCLUDE_PATH_DASHBOARD . "ver-loja?id=" . $shop_id);

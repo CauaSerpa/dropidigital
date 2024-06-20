@@ -1,4 +1,7 @@
 <?php
+    echo verificaPermissaoPagina($permissions);
+?>
+<?php
     $shop_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
     
     if (!empty($shop_id)) {

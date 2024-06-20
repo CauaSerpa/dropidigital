@@ -225,8 +225,22 @@
     }
 </style>
 
+<?php
+    date_default_timezone_set('America/Sao_Paulo'); // Define o fuso horário para o horário de Brasília (ajuste conforme necessário)
+
+    $hour = date('H'); // Obtém a hora atual no formato de 24 horas
+    
+    if ($hour >= 5 && $hour < 12) {
+        $salute = "Bom dia";
+    } elseif ($hour >= 12 && $hour < 18) {
+        $salute = "Boa tarde";
+    } else {
+        $salute = "Boa noite";
+    }
+?>
+
 <div class="system-message">
-    <p>Boa Noite</p>
+    <p><?= $salute; ?></p>
     <h2><?php echo $name; ?></h2>
 </div>
 <div class="card__container row g-3">
@@ -738,43 +752,65 @@
     </div> -->
 </div>
 
-<div class="row g-3">
-    <a href="https://pay.hotmart.com/I87196553U" target="__black" class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-1.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </a>
-    <a href="https://mpago.la/1b4q8Mk" target="__black" class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-2.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </a>
-    <a href="https://mpago.la/2gmWgJQ" target="__black" class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-3.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </a>
-    <a herf="https://mpago.la/2aJm9Bz" target="__black" class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-4.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </a>
-    <a href="https://mpago.la/1piXCSS" target="__black" class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-5.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </a>
-    <a href="https://mpago.li/25cjbHY" target="__black" class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-6.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </a>
-    <a href="https://mpago.li/2NoQfiV" target="__black" class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-7.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </a>
-    <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-8.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-    <div class="col-sm-4">
-        <img src="<?php echo INCLUDE_PATH; ?>assets/images/home-banners/banner-9.jpeg" class="w-100 rounded-2" alt="Anúncio Banner">
-    </div>
-</div>
 
 
 
 
 
+<style>
+    .card-subtitle.segment
+    {
+        display: inline;
+        align-items: center;
+        justify-content: center;
+        font-size: .875rem;
+    }
+    .card-subtitle.segment i
+    {
+        font-size: .875rem;
+    }
+    .card-discount
+    {
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        width: 100px;
+        height: 32px;
+        font-weight: 600;
+        border-radius: 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        color: #fff;
+    }
+
+    #readySitesCarousel .owl-stage
+    {
+        display: flex;
+    }
+    #readySitesCarousel .item,
+    #readySitesCarousel .card
+    {
+        height: 100%;
+    }
+    
+    .owl-nav button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 4rem !important;
+    }
+    .owl-nav button.owl-prev {
+        left: -20px;
+    }
+    .owl-nav button.owl-next {
+        right: -18px;
+    }
+</style>
 
 <h3 class="title h5 fw-semibold mt-2 mb-2">Sites Prontos</h3>
-<div class="row g-3">
+<div class="owl-carousel d-grid" id="readySitesCarousel">
 <?php
     // Nome da tabela para a busca
     $tabela = 'tb_ready_sites';
@@ -792,20 +828,7 @@
 
     // Loop através dos resultados e exibir todas as colunas
     foreach ($sites as $site) {
-        // Nome da tabela para a busca
-        $tabela = 'tb_ready_site_img';
-
-        $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY id DESC LIMIT 1";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':ready_site_id', $site['id']);
-        $stmt->execute();
-
-        // Recuperar os resultados
-        $image = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $image['ready_site_id'] . "/" . $image['image'];
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $site['id'] . "/card-image/" . $site['card_image'];
 
         // Shop
         // Nome da tabela para a busca
@@ -870,11 +893,12 @@
         // Nome da tabela para a busca
         $tabela = 'tb_domains';
 
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT 1";
+        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain ORDER BY id DESC LIMIT 1";
 
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindParam(':shop_id', $site['shop_id']);
+        $stmt->bindValue(':domain', 'dropidigital.com.br');
         $stmt->execute();
 
         // Recuperar os resultados
@@ -886,36 +910,7 @@
         // Link
         $link = INCLUDE_PATH_DASHBOARD . "site-pronto/" . $site['link'];
 ?>
-    <style>
-        .card-subtitle.segment
-        {
-            display: inline;
-            align-items: center;
-            justify-content: center;
-            font-size: .875rem;
-        }
-        .card-subtitle.segment i
-        {
-            font-size: .875rem;
-        }
-        .card-discount
-        {
-            position: absolute;
-            left: 15px;
-            top: 10px;
-            width: 100px;
-            height: 32px;
-            font-weight: 600;
-            border-radius: 0.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            color: #fff;
-        }
-    </style>
-
-    <div class="col-sm-3 numBanner d-grid">
+    <div class="item">
         <div class="card p-0">
             <div class="product-image">
                 <span class="card-discount small <?= $activeDiscount; ?>"><?= $porcentagemDesconto; ?>% OFF</span>
@@ -948,8 +943,47 @@
 
 
 
+<style>
+    .card-subtitle.segment
+    {
+        display: inline;
+        align-items: center;
+        justify-content: center;
+        font-size: .875rem;
+    }
+    .card-subtitle.segment i
+    {
+        font-size: .875rem;
+    }
+    .card-discount
+    {
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        width: 100px;
+        height: 32px;
+        font-weight: 600;
+        border-radius: 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        color: #fff;
+    }
+
+    #servicesCarousel .owl-stage
+    {
+        display: flex;
+    }
+    #servicesCarousel .item,
+    #servicesCarousel .card
+    {
+        height: 100%;
+    }
+</style>
+
 <h3 class="title h5 fw-semibold mt-2 mb-2">Serviços</h3>
-<div class="row g-3">
+<div class="owl-carousel d-grid" id="servicesCarousel">
 <?php
     // Nome da tabela para a busca
     $tabela = 'tb_services';
@@ -963,98 +997,56 @@
     $stmt->execute();
 
     // Recuperar os resultados
-    $sites = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Loop através dos resultados e exibir todas as colunas
-    foreach ($sites as $site) {
-        // Nome da tabela para a busca
-        $tabela = 'tb_service_img';
-
-        $sql = "SELECT * FROM $tabela WHERE service_id = :service_id ORDER BY id DESC LIMIT 1";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':service_id', $site['id']);
-        $stmt->execute();
-
-        // Recuperar os resultados
-        $image = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $image['service_id'] . "/" . $image['image'];
+    foreach ($services as $service) {
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $service['id'] . "/card-image/" . $service['card_image'];
 
         // Preco
         // Transforma o número no formato "R$ 149,90"
-        $price = "R$ " . number_format($site['price'], 2, ",", ".");
-        $discount = "R$ " . number_format($site['discount'], 2, ",", ".");
+        $price = "R$ " . number_format($service['price'], 2, ",", ".");
+        $discount = "R$ " . number_format($service['discount'], 2, ",", ".");
 
         // Calcula a porcentagem de desconto
-        if ($site['price'] != 0) {
-            $porcentagemDesconto = (($site['price'] - $site['discount']) / $site['price']) * 100;
+        if ($service['price'] != 0) {
+            $porcentagemDesconto = (($service['price'] - $service['discount']) / $service['price']) * 100;
         } else {
-            // Lógica para lidar com o caso em que $site['price'] é zero
+            // Lógica para lidar com o caso em que $service['price'] é zero
             $porcentagemDesconto = 0; // Ou outro valor padrão
         }
 
         // Arredonda o resultado para duas casas decimais
         $porcentagemDesconto = round($porcentagemDesconto, 0);
 
-        if ($site['discount'] == "0.00") {
+        if ($service['discount'] == "0.00") {
             $activeDiscount = "d-none";
 
             $priceAfterDiscount = $price;
 
-            $installment = $site['price'] / 12;
+            $installment = $service['price'] / 12;
         } else {
             $activeDiscount = "";
 
             $priceAfterDiscount = $discount;
             $discount = $price;
 
-            $installment = $site['discount'] / 12;
+            $installment = $service['discount'] / 12;
         }
 
         $installmentValue = "R$ " . number_format($installment, 2, ",", ".");
 
         // Link
-        $link = INCLUDE_PATH_DASHBOARD . "servico/" . $site['link'];
+        $link = INCLUDE_PATH_DASHBOARD . "servico/" . $service['link'];
 ?>
-    <style>
-        .card-subtitle.segment
-        {
-            display: inline;
-            align-items: center;
-            justify-content: center;
-            font-size: .875rem;
-        }
-        .card-subtitle.segment i
-        {
-            font-size: .875rem;
-        }
-        .card-discount
-        {
-            position: absolute;
-            left: 15px;
-            top: 10px;
-            width: 100px;
-            height: 32px;
-            font-weight: 600;
-            border-radius: 0.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            color: #fff;
-        }
-    </style>
-
-    <div class="col-sm-3 numBanner d-grid">
+    <div class="item">
         <div class="card p-0">
             <div class="product-image">
                 <span class="card-discount small <?= $activeDiscount; ?>"><?= $porcentagemDesconto; ?>% OFF</span>
                 <img src="<?= $image; ?>" class="card-img-top" alt="Imagem Site Pronto">
             </div>
             <div class="card-body">
-                <p class="card-title mb-3"><?= $site['name']; ?></p>
+                <p class="card-title mb-3"><?= $service['name']; ?></p>
                 <small class="fw-semibold text-body-secondary text-decoration-line-through mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></small>
                 <h5 class="card-text mb-0"><?= $priceAfterDiscount; ?></h5>
                 <small class="fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
@@ -1073,15 +1065,66 @@
 
 
 
+<!-- Owl Carousel -->
+<!-- Inclua o script do Owl Carousel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+<script>
+    // Inicialize o carrossel
+    $('#readySitesCarousel').owlCarousel({
+        loop: false, // Loop infinito
+        margin: 16, // Espaçamento entre os itens
+        nav: true, // Navegação (setas)
+        responsive: { // Configurações responsivas
+            0: { // Quando a largura da tela for menor que 600px
+                items: 1 // Mostrar apenas 1 item por vez
+            },
+            600: { // Quando a largura da tela for igual ou maior que 600px
+                items: 2 // Mostrar 2 itens por vez
+            },
+            768: { // Quando a largura da tela for igual ou maior que 768px
+                items: 3 // Mostrar 3 itens por vez
+            },
+            1200: { // Quando a largura da tela for igual ou maior que 1200px
+                items: 4 // Mostrar 4 itens por vez
+            }
+        }
+    });
+</script>
+
+<script>
+    // Inicialize o carrossel
+    $('#servicesCarousel').owlCarousel({
+        loop: false, // Loop infinito
+        margin: 16, // Espaçamento entre os itens
+        nav: true, // Navegação (setas)
+        responsive: { // Configurações responsivas
+            0: { // Quando a largura da tela for menor que 600px
+                items: 1 // Mostrar apenas 1 item por vez
+            },
+            600: { // Quando a largura da tela for igual ou maior que 600px
+                items: 2 // Mostrar 2 itens por vez
+            },
+            768: { // Quando a largura da tela for igual ou maior que 768px
+                items: 3 // Mostrar 3 itens por vez
+            },
+            1200: { // Quando a largura da tela for igual ou maior que 1200px
+                items: 4 // Mostrar 4 itens por vez
+            }
+        }
+    });
+</script>
 
 
-<div class="card__container grid one tabPanel" style="display: grid;">
-    <div class="card__box grid">
-        <div class="card table">
-            <div class="card__header">
-                <h3 class="title h5 fw-semibold">Produtos Cadastrados</h3>
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="link">Ver Mais</a>
-            </div>
+
+
+<div class="card__container grid one tabPanel mb-4" style="display: grid;">
+    <div class="card card__box p-0">
+        <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between p-4 pb-2">
+            <h3 class="title h5 fw-semibold mb-0">Produtos Cadastrados</h3>
+            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="link text-nowrap">Ver Mais</a>
+        </div>
+        <div class="card-body table pt-0 pb-0">
     <?php
         // Nome da tabela para a busca
         $tabela = 'tb_products';

@@ -1,67 +1,10 @@
 <?php
-    // Pega o dominio da pagina
-    $dominioCompleto = $_SERVER['HTTP_HOST'];
-    
-    function temSubdominio($dominio) {
-        // Divide o domínio em partes usando o ponto como delimitador
-        $partes = explode('.', $dominio);
-    
-        // Verifica se há mais de uma parte (subdomínios)
-        return count($partes) > 2;
-    }
-    
-    function separarDominioSubdominio($url) {
-        // Divide a URL em partes usando o ponto como delimitador
-        $partes = explode('.', $url);
-    
-        // Verifica se há mais de uma parte (subdomínios presentes)
-        if (count($partes) > 2) {
-            // Subdomínio é a primeira parte
-            $subdominio = $partes[0];
-    
-            // Domínio é a parte a partir da segunda até a última
-            $dominio = implode('.', array_slice($partes, 1));
-        } else {
-            // Não há subdomínios, o subdomínio é vazio
-            $subdominio = 'www';
-            
-            // Domínio é a URL completa
-            $dominio = $url;
-        }
-    
-        return [
-            'subdominio' => $subdominio,
-            'dominio' => $dominio,
-        ];
-    }
-    
-    if (temSubdominio($dominioCompleto)) {
-        $resultadoComSubdominio = separarDominioSubdominio($dominioCompleto);
-        $subdomain = $resultadoComSubdominio['subdominio'];
-        $domain = $resultadoComSubdominio['dominio'];
-
-        // Combina todas as partes para obter a URL completa
-        $urlCompleta = "https://$subdomain.$domain/";
-    } else {
-        $resultadoSemSubdominio = separarDominioSubdominio($dominioCompleto);
-        $subdomain = $resultadoSemSubdominio['subdominio'];
-        $domain = $resultadoSemSubdominio['dominio'];
-
-        // Combina todas as partes para obter a URL completa
-        $urlCompleta = "https://$domain/";
-    }
-
-    // echo $subdomain;
-    // echo $domain;
-
-    $subdomain = "minha-loja";
-    $domain = "dropidigital.com.br";
-    $urlCompleta = "http://localhost/dropidigital/app/catalogo/";
-
-    define('INCLUDE_PATH_LOJA', $urlCompleta);
-
     session_start();
     include('../config.php');
+
+    $urlCompleta = INCLUDE_PATH . "catalogo/";
+
+    define('INCLUDE_PATH_LOJA', $urlCompleta);
 
     // Sitemap
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
@@ -81,31 +24,9 @@
         include('./sitemap/sitemap.php');
         exit;
     }
-
-    // Pesquisar dominio
-    // Tabela que sera feita a consulta
-    $tabela = "tb_domains";
-
-    // Consulta SQL
-    $sql = "SELECT shop_id FROM $tabela WHERE subdomain = :subdomain AND domain = :domain";
-
-    // Preparar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-
-    // Vincular o valor do parâmetro
-    $stmt->bindParam(':subdomain', $subdomain, PDO::PARAM_STR);
-    $stmt->bindParam(':domain', $domain, PDO::PARAM_STR);
-
-    // Executar a consulta
-    $stmt->execute();
-
-    // Obter o resultado como um array associativo
-    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($resultado) {
-        $shop_id = $resultado['shop_id'];
-    }
-
+    
+    $shop_id = 2;
+    
     // Pesquisar Loja
     // Tabela que sera feita a consulta
     $tabela = "tb_shop";

@@ -180,22 +180,8 @@
                                     <td title="' . $service['name'] . '">
                         ';
 
-                        // Consulta SQL para selecionar todas as colunas com base no ID
-                        $sql = "SELECT * FROM tb_service_img WHERE service_id = :service_id ORDER BY id ASC LIMIT 1";
-
-                        // Preparar e executar a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':service_id', $service['id']);
-                        $stmt->execute();
-
-                        // Recuperar os resultados
-                        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        if ($imagens) {
-                            // Loop através dos resultados e exibir todas as colunas
-                            foreach ($imagens as $imagem) {
-                                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/admin/service/' . $imagem['id'] . '/' . $imagem['image'] . '" alt="Capa do Serviço" style="width: 38px; height: 38px; object-fit: cover;">';
-                            }
+                        if (!empty($service['card_image'])) {
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/admin/service/' . $service['id'] . '/card-image/' . $service['card_image'] . '" alt="Capa do Serviço" style="width: 38px; height: 38px; object-fit: cover;">';
                         } else {
                             echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" alt="Capa do Serviço" style="width: 38px; height: 38px; object-fit: cover;">';
                         }

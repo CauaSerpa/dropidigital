@@ -1,4 +1,7 @@
 <?php
+    echo verificaPermissaoPagina($permissions);
+?>
+<?php
     // Tabela que sera feita a consulta
     $tabela = "tb_home";
 

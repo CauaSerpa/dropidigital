@@ -64,7 +64,7 @@
     }
 
     function verificaPermissaoMenu($permissao) {
-        if ($_SESSION['cargo'] == $permissao) {
+        if ($permissao == 1) {
             return;
         } else {
             echo 'style="display: none;"';
@@ -72,10 +72,10 @@
     }
 
     function verificaPermissaoPagina($permissao) {
-        if ($_SESSION['cargo'] == $permissao) {
+        if ($permissao == 1) {
             return;
         } else {
-            include('pages/permissao-negada.php');
+            include('pages/admin/permissao-negada.php');
             die();
         }
     }

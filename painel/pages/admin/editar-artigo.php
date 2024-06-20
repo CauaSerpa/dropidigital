@@ -4,7 +4,7 @@ $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 if(!empty($id)){
     // Tabela que sera feita a consulta
-    $tabela = "tb_articles";
+    $tabela = "tb_blog";
 
     // Consulta SQL
     $sql = "SELECT * FROM $tabela WHERE id = :id";
@@ -81,6 +81,21 @@ if(!empty($id)){
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Artigo</div>
         <div class="card-body px-5 py-3">
             <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="name" class="form-label small">Nome do artigo *</label>
+                        <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" value="<?php echo $article['name']; ?>" required>
+                        <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/blog/<span class="fw-semibold" id="linkPreview"><?php echo $article['link']; ?></span></p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tag" class="form-label small">Tag do artigo *</label>
+                        <input type="text" class="form-control" name="tag" id="tag" aria-describedby="tagHelp" value="<?php echo $article['tag']; ?>" required>
+                    </div>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label for="description" class="form-label small">Descrição do artigo</label>
+                    <textarea class="form-control" name="description" id="description" maxlength="160" rows="3" required><?php echo $article['description']; ?></textarea>
+                </div>
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
                         <label for="activeArticle" class="form-label small">Artigo ativo?</label>
@@ -98,15 +113,6 @@ if(!empty($id)){
                     </div>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="name" class="form-label small">Nome do artigo *</label>
-                <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" value="<?php echo $article['name']; ?>" required>
-                <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/blog/<span class="fw-semibold" id="linkPreview"><?php echo $article['link']; ?></span></p>
-            </div>
-            <div class="mb-3">
-                <label for="editor" class="form-label small">Conteúdo do artigo</label>
-                <textarea name="content" id="editor"><?php echo $article['content']; ?></textarea>
-            </div>
         </div>
     </div>
 
@@ -117,7 +123,7 @@ if(!empty($id)){
         </div>
         <div class="card-body px-5 py-3">
             <label for="file-input" class="image-preview-container mt-3">
-                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/articles/' . $article['id'] . '/' . $article['image']; ?>" alt="Image Preview" class="image-preview" id="image-preview" <?php echo (!empty($article['image'])) ? "style='display: block;'" : ""; ?>>
+                <img src="<?php echo INCLUDE_PATH_DASHBOARD . 'back-end/admin/articles/' . $article['id'] . '/' . $article['image']; ?>" alt="Image Preview" class="image-preview" id="image-preview" <?php echo (!empty($article['image'])) ? "style='display: block;'" : ""; ?>>
                 <div class="center-text <?php echo (!empty($article['image'])) ? "d-none" : ""; ?>" style="padding: 1em 0;">
                     <i class='bx bx-image fs-1'></i>
                     <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
@@ -125,6 +131,14 @@ if(!empty($id)){
             </label>
             <input type="file" name="image" accept="image/*" class="file-input" id="file-input">
             <p class="small text-end mt-3">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Conteúdo do artigo</div>
+        <div class="card-body px-5 py-3">
+            <label for="editor" class="form-label small">Conteúdo do artigo</label>
+            <textarea name="content" id="editor"><?php echo $article['content']; ?></textarea>
         </div>
     </div>
     
@@ -165,6 +179,7 @@ if(!empty($id)){
     </div>
 
     <input type="hidden" name="id" value="<?php echo $article['id']; ?>">
+    <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
 
     <!-- Botao salvar -->
     <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">

@@ -37,10 +37,10 @@ if ($type == "ready-site") {
     $tabela = "tb_ready_sites";
 
     // Nome da tabela para a busca
-    $tabelaImg = 'tb_ready_site_img';
-
-    // Nome da tabela para a busca
     $tabelaAssociatedServices = 'tb_ready_site_services';
+
+    // Nome da pasta
+    $path = "site-pronto/";
 } elseif ($type == "service") {
     // Id do site
     $id = $service[0]['id'];
@@ -49,10 +49,10 @@ if ($type == "ready-site") {
     $tabela = "tb_services";
 
     // Nome da tabela para a busca
-    $tabelaImg = 'tb_service_img';
-
-    // Nome da tabela para a busca
     $tabelaAssociatedServices = 'tb_service_services';
+
+    // Nome da pasta
+    $path = "servico/";
 }
 
 
@@ -79,23 +79,9 @@ $site = $stmt->fetch(PDO::FETCH_ASSOC);
 // Verifica se o ID é válido (maior que zero)
 if ($site) {
     if ($type == "ready-site") {
-        $sql = "SELECT * FROM $tabelaImg WHERE ready_site_id = :id ORDER BY id DESC LIMIT 1";
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $site['id'] . "/card-image/" . $site['card_image'];
     } elseif ($type == "service") {
-        $sql = "SELECT * FROM $tabelaImg WHERE service_id = :id ORDER BY id DESC LIMIT 1";
-    }
-
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':id', $site['id']);
-    $stmt->execute();
-
-    // Recuperar os resultados
-    $image = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($type == "ready-site") {
-        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $image['ready_site_id'] . "/" . $image['image'];
-    } elseif ($type == "service") {
-        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $image['service_id'] . "/" . $image['image'];
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $site['id'] . "/card-image/" . $site['card_image'];
     }
 ?>
 <style>
@@ -209,7 +195,7 @@ if ($site) {
 <div class="d-flex justify-content-center">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>site-pronto?id=<?php echo $_POST['ready_site_id']; ?>" class="title text-reset text-decoration-none">Escolher Site Pronto</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD . $path . $site['link']; ?>" class="title text-reset text-decoration-none">Escolher Site Pronto</a></li>
             <li class="breadcrumb-item fw-semibold text-body-secondary active" aria-current="page">Informações de pagamento</li>
         </ol>
     </nav>
@@ -312,7 +298,7 @@ if ($site) {
                         }
 
                         if (isset($site['plan_id'])) {
-                            if ($site['plan_id'] != 1 && $site['plan_id'] <= $plan['plan_id']) {
+                            if ($site['plan_id'] != 1 && $site['plan_id'] >= $plan['plan_id']) {
                                 // Tabela que será feita a consulta
                                 $tabela = "tb_plans_interval";
 
@@ -354,7 +340,7 @@ if ($site) {
                                     // Verificar se o resultado foi encontrado
                                     if ($plan) {
                                         // Verificar se o ID está presente nos itens selecionados
-                                        $isChecked = (isset($selectedPlanId));
+                                        $isChecked = (!isset($selectedPlanId));
 
                                         // Adiciona o atributo "checked" se estiver presente nos itens selecionados
                                         $checkedAttribute = $isChecked ? 'checked' : '';
@@ -1059,8 +1045,35 @@ if ($site) {
                     // Redirecionar para página de pagamento
                     window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?p=" + encodedCode + "&r=1&id=<?= $site['plan_id']; ?>&site=<?= $site['id']; ?>";
                 }
+            } else {
+                // Exibir mensagem de erro ao usuário
+                if (response.errors && response.errors.length > 0) {
+                    var errorMessage = response.errors[0].description;
+                    alert("Erro: " + errorMessage);
+        
+                    //Botão carregando
+                    $("#loaderButton").removeClass('d-flex').addClass('d-none');
+                    $("#submitButton").removeClass('d-none').addClass('d-block');
+                }
             }
         })
+        .fail(function (jqXHR) {
+            // Capturar e exibir o erro retornado pelo Asaas
+            if (jqXHR.responseJSON && jqXHR.responseJSON.errors && jqXHR.responseJSON.errors.length > 0) {
+                var errorMessage = jqXHR.responseJSON.errors[0].description;
+                alert("Erro: " + errorMessage);
+        
+                //Botão carregando
+                $("#loaderButton").removeClass('d-flex').addClass('d-none');
+                $("#submitButton").removeClass('d-none').addClass('d-block');
+            } else {
+                alert("Erro desconhecido. Tente novamente mais tarde.");
+        
+                //Botão carregando
+                $("#loaderButton").removeClass('d-flex').addClass('d-none');
+                $("#submitButton").removeClass('d-none').addClass('d-block');
+            }
+        });
     }
 
 

@@ -66,39 +66,59 @@
         // Recebendo id da loja
         $service_id = $conn_pdo->lastInsertId();
 
-        // Imagens
-        $total = count($_FILES['imagens']['name']);
+        // Card Image
+        // Diretório para salvar as imagens de 'image'
+        $diretorioCardImage = "./service/$service_id/card-image/";
 
-        // Loop através de cada arquivo
-        for ($i = 0; $i < $total; $i++) {
-            // Certifique-se de que a pasta para as imagens exista
-            $uploadDir = "service/$service_id/";
-            if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
+        // Certifique-se de que os diretórios de destino existam
+        if (!is_dir($diretorioCardImage)) {
+            mkdir($diretorioCardImage, 0755, true);
+        }
+
+        // Verifique se o campo de upload de imagens não está vazio para 'image'
+        if ($_FILES['card_image']['error'] !== 4) {
+            $fileName = time() . '.jpg';
+            $uploadFile = $diretorioCardImage . basename($fileName);
+
+            if (move_uploaded_file($_FILES['card_image']['tmp_name'], $uploadFile)) {
+                $tabela = "tb_services";
+                $sql = "UPDATE $tabela SET card_image = :card_image WHERE id = :id";
+                $stmt = $conn_pdo->prepare($sql);
+
+                $stmt->bindValue(':card_image', $fileName);
+                $stmt->bindValue(':id', $service_id);
+
+                $stmt->execute();
+            }
+        }
+
+        // Imagem
+        // Radio select
+        if ($_POST['select'] == 'image') {
+            // Imagem
+            // Diretório para salvar as imagens de 'image'
+            $diretorioImage = "./service/$service_id/image/";
+
+            // Certifique-se de que os diretórios de destino existam
+            if (!is_dir($diretorioImage)) {
+                mkdir($diretorioImage, 0755, true);
             }
 
-            $fileName = $_FILES['imagens']['name'][$i];
-            $tmp_name = $_FILES['imagens']['tmp_name'][$i];
-            $uploadFile = $uploadDir . basename($fileName);
+            // Verifique se o campo de upload de imagens não está vazio para 'image'
+            if ($_FILES['image']['error'] !== 4) {
+                $fileName = time() . '.jpg';
+                $uploadFile = $diretorioImage . basename($fileName);
 
-            if (move_uploaded_file($tmp_name, $uploadFile)) {
-                // Inserir informações da imagem no banco de dados, associando-a ao registro principal
-                $sqlInsertImagem = "INSERT INTO tb_service_img (service_id, image) VALUES (:service_id, :image)";
-                $stmtInsertImagem = $conn_pdo->prepare($sqlInsertImagem);
-                $stmtInsertImagem->bindParam(':service_id', $service_id);
-                $stmtInsertImagem->bindParam(':image', $fileName);
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+                    $tabela = "tb_services";
+                    $sql = "UPDATE $tabela SET image = :image WHERE id = :id";
+                    $stmt = $conn_pdo->prepare($sql);
 
-                if ($stmtInsertImagem->execute()) {
-                    echo "Imagem " . $fileName . ", salva com sucesso";
-                } else {
-                    $_SESSION['msg'] = "<p class='red'>Erro ao salvar imagem do Serviço!</p>";
-                    // Redireciona para a página de login ou exibe uma mensagem de sucesso
-                    header("Location: " . INCLUDE_PATH_DASHBOARD . "servicos");
+                    $stmt->bindValue(':image', $fileName);
+                    $stmt->bindValue(':id', $service_id);
+
+                    $stmt->execute();
                 }
-            } else {
-                $_SESSION['msg'] = "<p class='red'>Erro ao salvar imagem do Serviço!</p>";
-                // Redireciona para a página de login ou exibe uma mensagem de sucesso
-                header("Location: " . INCLUDE_PATH_DASHBOARD . "servicos");
             }
         }
 

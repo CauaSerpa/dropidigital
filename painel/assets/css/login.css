@@ -915,7 +915,7 @@ input:checked[type="checkbox"]::before
 .box .bottom__text a
 {
     color: var(--green-color);
-    font-size: var(--small-font-size);
+    font-size: var(--h3-font-size);
     font-weight: 600;
 }
 .box .bottom__text a:hover

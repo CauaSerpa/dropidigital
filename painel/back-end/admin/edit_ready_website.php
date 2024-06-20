@@ -62,7 +62,12 @@
             $without_price = 0;
         }
 
-        $video = $_POST['video'];
+        // Radio select
+        if ($_POST['select'] == 'video') {
+            $video = $_POST['video'];
+            $image = null;
+        }
+
         $description = $_POST['description'];
         $items_included = $_POST['itemsIncludedArray'];
         $sku = $_POST['sku'];
@@ -192,76 +197,75 @@
             }
         }
 
-        // Imagens
-        // Deletar imagens
-        if (isset($_POST['delete_images'])) {
-            $postString = $_POST['delete_images']; // Sua string post com valores separados por vírgula
-            $array = explode(", ", $postString); // Divida a string em um array
+        $ready_site_id = $_POST['id'];
 
-            // Loop através dos IDs selecionados e exclua as linhas correspondentes
-            foreach ($array as $selectedId) {
-                // Consulta para obter o diretório da imagem
-                $query = "SELECT id, image, ready_site_id FROM tb_ready_site_img WHERE id = :id";
-                $stmt = $conn_pdo->prepare($query);
-                $stmt->bindParam(':id', $selectedId);
-                $stmt->execute();
+        // Diretório para salvar a imagem de 'card_image'
+        $diretorioImage = "./ready-website/$ready_site_id/card-image/";
 
-                if ($stmt->rowCount() > 0) {
-                    // Obtenha o ID do usuário
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Certifique-se de que os diretórios de destino existam
+        if (!is_dir($diretorioImage)) {
+            mkdir($diretorioImage, 0755, true);
+        }
 
-                    $image = $row['image'];
-                    $ready_site_id = $row['ready_site_id'];
-
-                    // Diretório das imagens
-                    $diretorio = "./ready-website/$ready_site_id/";
-
-                    // Consulta para excluir as imagens do banco de dados
-                    $query = "DELETE FROM tb_ready_site_img WHERE id = :id";
-                    $stmt = $conn_pdo->prepare($query);
-                    $stmt->bindParam(':id', $selectedId);
-                    $stmt->execute();
-
-                    // Agora, exclua as imagens no diretório
-                    $files = glob($diretorio . $image);
-                    foreach ($files as $file) {
-                        unlink($file);
-                    }
+        // Verifique se o campo de upload de imagens não está vazio para 'image'
+        if ($_FILES['card_image']['error'] !== 4) {
+            // Deletar todas as imagens existentes na pasta
+            $files = glob($diretorioImage . '*'); // Obtém todos os arquivos na pasta
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file); // Exclui o arquivo
                 }
+            }
+
+            // Cadastra nova imagem para 'image'
+            $fileName = time() . '.jpg';
+            $uploadFile = $diretorioImage . basename($fileName);
+
+            if (move_uploaded_file($_FILES['card_image']['tmp_name'], $uploadFile)) {
+                $tabela = "tb_ready_sites";
+                $sql = "UPDATE $tabela SET card_image = :card_image WHERE id = :id";
+                $stmt = $conn_pdo->prepare($sql);
+
+                $stmt->bindValue(':card_image', $fileName);
+                $stmt->bindValue(':id', $ready_site_id);
+
+                $stmt->execute();
             }
         }
 
-        // Recupere o ID do último registro inserido
-        $ready_site_id = $_POST['id'];
+        // Imagem
+        if ($_POST['select'] == 'image') {
+            // Diretório para salvar as imagens de 'image'
+            $diretorioImage = "./ready-website/$ready_site_id/image/";
 
-        if (isset($_FILES['imagens'])) {
-            // Diretório para salvar as imagens (substitua pelo caminho real)
-            $diretorio = "./ready-website/$ready_site_id/";
-
-            // Certifique-se de que o diretório de destino exista
-            if (!is_dir($diretorio)) {
-                mkdir($diretorio, 0755, true);
+            // Certifique-se de que os diretórios de destino existam
+            if (!is_dir($diretorioImage)) {
+                mkdir($diretorioImage, 0755, true);
             }
 
-            // Verifique se o campo de upload de imagens não está vazio
-            if (!empty($_FILES['imagens'])) {
-                $total = count($_FILES['imagens']['name']);
-                
-                // Loop através de cada arquivo
-                for ($i = 0; $i < $total; $i++) {
-                    $fileName = $_FILES['imagens']['name'][$i];
-                    $tmp_name = $_FILES['imagens']['tmp_name'][$i];
-                    $uploadFile = $diretorio . basename($fileName);
-
-                    if (move_uploaded_file($tmp_name, $uploadFile)) {
-                        // Inserir informações da imagem no banco de dados, associando-a ao registro principal
-                        $sqlInsertImagem = "INSERT INTO tb_ready_site_img (ready_site_id, image) VALUES (:ready_site_id, :image)";
-                        $stmtInsertImagem = $conn_pdo->prepare($sqlInsertImagem);
-                        $stmtInsertImagem->bindParam(':ready_site_id', $ready_site_id);
-                        $stmtInsertImagem->bindParam(':image', $fileName);
-
-                        $stmtInsertImagem->execute();
+            // Verifique se o campo de upload de imagens não está vazio para 'image'
+            if ($_FILES['image']['error'] !== 4) {
+                // Deletar todas as imagens existentes na pasta
+                $files = glob($diretorioImage . '*'); // Obtém todos os arquivos na pasta
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file); // Exclui o arquivo
                     }
+                }
+
+                // Cadastra nova imagem para 'image'
+                $fileName = time() . '.jpg';
+                $uploadFile = $diretorioImage . basename($fileName);
+
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+                    $tabela = "tb_ready_sites";
+                    $sql = "UPDATE $tabela SET image = :image WHERE id = :id";
+                    $stmt = $conn_pdo->prepare($sql);
+    
+                    $stmt->bindValue(':image', $fileName);
+                    $stmt->bindValue(':id', $ready_site_id);
+    
+                    $stmt->execute();
                 }
             }
         }

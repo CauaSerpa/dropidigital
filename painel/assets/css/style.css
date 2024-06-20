@@ -3605,6 +3605,88 @@ input[type="number"]::-webkit-inner-spin-button
 
 
 
+@media screen and (max-width: 768px) {
+    .main
+    {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .header__icon
+    {
+        margin-right: var(--mb-0-75);
+    }
+
+    nav.sidebar
+    {
+        background: white !important;
+    }
+    .sidebar.close
+    {
+        display: none;
+    }
+    .sidebar
+    {
+        display: block;
+    }
+    .backdrop
+    {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        opacity: .5;
+        z-index: 99;
+    }
+    .backdrop.show
+    {
+        display: block;
+    }
+
+    .shop-link a
+    {
+        padding: 0;
+    }
+    .shop-link a span
+    {
+        display: none;
+    }
+
+    .back .back-link
+    {
+        padding: .5rem !important;
+    }
+    .back .back-link span
+    {
+        display: none;
+    }
+    
+    .main .card__container .card__box.shop__info .card .shop__details .details__content
+    {
+        align-items: center;
+    }
+    .main .card__container .card__box.shop__info .card .shop__details .details__content .shop__metrics
+    {
+        display: block;
+    }
+    .main .card__container .card__box.shop__info .card .shop__details .details__content h1
+    {
+        margin-bottom: 0;
+    }
+
+    .main .card__container .card__box .card .card__header .link
+    {
+        text-wrap: nowrap;
+    }
+
+    .card.info-card
+    {
+        display: none;
+    }
+}
 
 
 

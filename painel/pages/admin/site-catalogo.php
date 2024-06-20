@@ -29,7 +29,7 @@
                     <small class="col-md-8">Clique no botão ao lado para acessar e editar o Site de Catálogo da Dropi Digital</small>
                     <div class="col-md-4 d-flex align-items-center justify-content-end">
                         <a href="<?php echo INCLUDE_PATH; ?>catalogo/" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small">Ver Site</a>
-                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_ready_site.php?user_id=1&shop_id=1" class="btn btn-success fw-semibold px-4 py-2 small ms-2">Acessar</a>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_ready_site.php?user_id=1&shop_id=2" class="btn btn-success fw-semibold px-4 py-2 small ms-2">Acessar</a>
                     </div>
                 </div>
             </div>

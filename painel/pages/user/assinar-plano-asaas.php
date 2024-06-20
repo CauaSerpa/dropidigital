@@ -241,7 +241,7 @@ if ($id > 0) {
                                 $tabela = "tb_plans_interval";
 
                                 // Consulta SQL
-                                $sql = "SELECT id, mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
+                                $sql = "SELECT id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
 
                                 // Preparar a consulta
                                 $stmt = $conn_pdo->prepare($sql);
@@ -259,7 +259,6 @@ if ($id > 0) {
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
                                     $yearly_id = $price['id'];
-                                    $mpago_id_yearly = $price['mpago_id'];
                                     $yearly_price = $price['price'];
                             ?>
 
@@ -283,7 +282,7 @@ if ($id > 0) {
                                 $tabela = "tb_plans_interval";
 
                                 // Consulta SQL
-                                $sql = "SELECT id, mpago_id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
+                                $sql = "SELECT id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
 
                                 // Preparar a consulta
                                 $stmt = $conn_pdo->prepare($sql);
@@ -301,7 +300,6 @@ if ($id > 0) {
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
                                     $monthly_id = $price['id'];
-                                    $mpago_id_monthly = $price['mpago_id'];
                                     $monthly_price = $price['price'];
                             ?>
 
@@ -666,16 +664,12 @@ if ($id > 0) {
                     $('#installmentContainer').removeClass('d-none');
                     $('#creditCartTextType').text('anual');
 
-                    $('input[name="id_plan"]').val('<?php echo $mpago_id_yearly; ?>');
-
                     $('input[name="value"]').val('<?php echo $yearly_price; ?>');
 
                     $('input[name="plan_id"]').val('<?php echo $yearly_id; ?>');
                 } else if ($(this).val() === "mensal") {
                     $('#installmentContainer').addClass('d-none');
                     $('#creditCartTextType').text('mensal');
-
-                    $('input[name="id_plan"]').val('<?php echo $mpago_id_monthly; ?>');
 
                     $('input[name="value"]').val('<?php echo $monthly_price; ?>');
 
@@ -851,22 +845,22 @@ if ($id > 0) {
                 var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
                 var encodedCode = btoa(response.code);
 
-                // Informacoes da loja e do plano
+                // Informações da loja e do plano
                 var planId = <?php echo $plan_id; ?>;
                 var shopId = <?php echo $shop_id; ?>;
 
                 $.ajax({
-					url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/asaas/alterar_plano.php',
-					method: 'POST',
-					data: {
+                    url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/asaas/alterar_plano.php',
+                    method: 'POST',
+                    data: {
                         plan_id: planId,
                         shop_id: shopId
                     },
-					dataType: 'JSON',
+                    dataType: 'JSON',
                     success: function(response) {
                         console.log("Plano alterado com sucesso!");
                     }
-				})
+                })
 
                 if (selectedPaymentType === "creditCard") {
                     // Redirecionar para página de pagamento
@@ -875,8 +869,35 @@ if ($id > 0) {
                     // Redirecionar para página de pagamento
                     window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?s=" + encodedCode;
                 }
+            } else {
+                // Exibir mensagem de erro ao usuário
+                if (response.errors && response.errors.length > 0) {
+                    var errorMessage = response.errors[0].description;
+                    alert("Erro: " + errorMessage);
+        
+                    //Botão carregando
+                    $("#loaderButton").removeClass('d-flex').addClass('d-none');
+                    $("#submitButton").removeClass('d-none').addClass('d-block');
+                }
             }
         })
+        .fail(function (jqXHR) {
+            // Capturar e exibir o erro retornado pelo Asaas
+            if (jqXHR.responseJSON && jqXHR.responseJSON.errors && jqXHR.responseJSON.errors.length > 0) {
+                var errorMessage = jqXHR.responseJSON.errors[0].description;
+                alert("Erro: " + errorMessage);
+        
+                //Botão carregando
+                $("#loaderButton").removeClass('d-flex').addClass('d-none');
+                $("#submitButton").removeClass('d-none').addClass('d-block');
+            } else {
+                alert("Erro desconhecido. Tente novamente mais tarde.");
+        
+                //Botão carregando
+                $("#loaderButton").removeClass('d-flex').addClass('d-none');
+                $("#submitButton").removeClass('d-none').addClass('d-block');
+            }
+        });
     }
 </script>
 
@@ -884,9 +905,14 @@ if ($id > 0) {
 
     } else {
         // ID não encontrado ou não existente
-        echo "ID não encontrado.";
+        $_SESSION['msg'] = "<p class='red'>ID não encontrado.</p>";
+        // Redireciona para a página de login ou exibe uma mensagem de sucesso
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "planos");
     }
 } else {
-    echo "É necessário selecionar um produto!";
+    // ID não informado
+    $_SESSION['msg'] = "<p class='red'>É necessário selecionar um produto!</p>";
+    // Redireciona para a página de login ou exibe uma mensagem de sucesso
+    header("Location: " . INCLUDE_PATH_DASHBOARD . "planos");
 }
 ?>

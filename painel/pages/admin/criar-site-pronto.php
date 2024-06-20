@@ -213,6 +213,65 @@
     }
 </style>
 
+<style>
+    .image-preview-container {
+        position: relative;
+        text-align: center;
+
+        background-color: #f9f9f9;
+        width: 100%;
+        padding: 3.12em 1.87em;
+        border: 2px dashed #c4c4c4;
+        border-radius: 0.5em;
+        cursor: pointer;
+    }
+
+    .image-preview {
+        max-width: 100%;
+        max-height: 400px;
+        margin: 0 auto;
+        display: none; /* A imagem está oculta inicialmente */
+    }
+
+    .file-input {
+        display: none; /* Ocultar o input de arquivo original */
+    }
+</style>
+
+<style>
+    .select-container
+    {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .select
+    {
+        padding: 3rem 2rem;
+        margin: 0 2rem;
+        border: 1px solid var(--border-color);
+        border-radius: .3rem;
+        background-color: #f9f9f9;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+</style>
+
+<style>
+    .input-error
+    {
+        border-color: var(--red-color);
+    }
+    .error-message
+    {
+        color: var(--red-color);
+    }
+</style>
+
 <!-- Modal de Servicos -->
 <div class="modal fade" id="categoriasModal" tabindex="-1" role="dialog" aria-labelledby="categoriasModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -344,7 +403,7 @@
                         <input type="text" class="form-control <?= (isset($_SESSION['msg_url'])) ? "input-error" : ""; ?>" name="url" id="url" aria-label="URL" aria-describedby="url">
                         <label for="url" class="textInput">.dropidigital.com.br</label>
                     </div>
-                    <span id="url-error" class="error-message">
+                    <span id="url-error" class="error-message small">
                         <?php
                             if(isset($_SESSION['msg_url'])){
                                 echo $_SESSION['msg_url'];
@@ -402,33 +461,99 @@
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             Imagens
-            <label for="upload-button" class="small" style="cursor: pointer;">Selecionar imagem</label>
+            <label for="file-input-1" class="small" style="cursor: pointer;">Selecionar imagem</label>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="upload-button" class="image-container mt-3">
-                <input type="file" name="imagens[]" id="upload-button" multiple accept="image/*" />
-                <div for="upload-button" class="dropzone">
+            <label for="file-input-1" class="image-preview-container">
+                <img src="#" alt="Image Preview" class="image-preview" id="image-preview-1">
+                <div class="center-text" id="text-1">
                     <i class='bx bx-image fs-1'></i>
-                    <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
+                    <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                    <small id="dimensions">Dimensões: 310 x 310px</small>
                 </div>
-                <div id="error"></div>
             </label>
-            <div class="sortable-container mt-3">
-                <div id="image-display"></div>
-            </div>
-        </div>
-        <div class="card-footer fw-semibold px-4 py-3 bg-transparent">
-            <div class="d-flex justify-content-between">
-                <label for="exampleInputEmail" class="form-label small">Vídeo do produto</label>
-                <p class="form-text text-muted fw-normal small">Aceitamos apenas vídeos do YouTube</p>
-            </div>
-            <div class="position-relative">
-                <i class='bx bxl-youtube input-icon' ></i>
-                <input type="text" class="form-control icon-padding" name="video" id="video-url" placeholder="https://www.youtube.com/watch?v=000" aria-label="https://www.youtube.com/watch?v=000">
-            </div>
-            <div id="video-display" class="d-flex justify-content-center"></div>
+            <input type="file" name="card_image" accept="image/*" class="file-input" id="file-input-1">
+            <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
         </div>
     </div>
+
+    <input type="radio" class="d-none" name="select" id="selectImage" value="image">
+    <input type="radio" class="d-none" name="select" id="selectVideo" value="video">
+
+    <div class="card mb-3 p-0" id="select">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Selecionar</div>
+        <div class="card-body px-5 py-3">
+            <div class="select-container">
+                <label for="selectImage" class="select" id="select-image-button">
+                    <i class='bx bx-image fs-1 mb-2'></i>
+                    <p class="fw-semibold">Upload da imagem</p>
+                </label>
+                <label for="selectVideo" class="select" id="select-video-button">
+                    <i class='bx bxl-youtube fs-1 mb-2'></i>
+                    <p class="fw-semibold">Adicionar vídeo</p>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0 d-none" id="select-image">
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Upload da imagem
+            <label for="selectVideo" id="back-video" class="small" style="cursor: pointer;">Selecionar vídeo</label>
+        </div>
+        <div class="card-body px-5 py-3">
+            <div class="mb-1">
+                <label for="file-input-2" class="image-preview-container">
+                    <img src="#" alt="Image Preview" class="image-preview" id="image-preview-2">
+                    <div class="center-text" id="text-2">
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                        <small id="dimensions">Dimensões: 1920 x 535px</small>
+                    </div>
+                </label>
+                <input type="file" name="image" accept="image/*" class="file-input" id="file-input-2">
+                <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0 d-none" id="select-video">
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Adicionar vídeo
+            <label for="selectImage" id="back-image" class="small" style="cursor: pointer;">Selecionar imagem</label>
+        </div>
+        <div class="card-body px-5 py-3">
+            <div class="mb-1">
+                <div class="d-flex justify-content-between">
+                    <label for="exampleInputEmail" class="form-label small">Vídeo do produto</label>
+                    <p class="form-text text-muted fw-normal small">Aceitamos apenas vídeos do YouTube</p>
+                </div>
+                <div class="position-relative">
+                    <i class='bx bxl-youtube input-icon' ></i>
+                    <input type="text" class="form-control icon-padding" name="video" id="video-url" placeholder="https://www.youtube.com/watch?v=000" aria-label="https://www.youtube.com/watch?v=000">
+                </div>
+                <div id="video-display" class="d-flex justify-content-center"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#select-image-button, #back-image').on('click', function() {
+                $('#select').addClass('d-none');
+                $('#select-image').removeClass('d-none');
+                $('#select-video').addClass('d-none');
+            });
+
+            $('#select-video-button, #back-video').on('click', function() {
+                $('#select').addClass('d-none');
+                $('#select-video').removeClass('d-none');
+                $('#select-image').addClass('d-none');
+            });
+        });
+    </script>
 
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
@@ -1512,6 +1637,39 @@
     };
 </script>
 
+<!-- Imagem -->
+<script>
+    function imagePreview(fileInputId, imagePreviewId, textId) {
+        const imagePreview = document.getElementById(imagePreviewId);
+        const fileInput = document.getElementById(fileInputId);
+        const text = document.getElementById(textId);
+        let previousImageSrc = "";
+
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previousImageSrc = imagePreview.src; // Armazenar imagem anterior
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    text.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reverter para a imagem anterior
+                imagePreview.src = previousImageSrc;
+                imagePreview.style.display = "none"; // Exibir a imagem anterior
+                text.style.display = "none";
+            }
+        });
+    }
+
+    // Inicialize para os três pares de botão de upload e visualização de imagem
+    imagePreview("file-input-1", "image-preview-1", "text-1");
+    imagePreview("file-input-2", "image-preview-2", "text-2");
+</script>
+
 <!-- Video Preview -->
 <script>
     const videoForm = document.getElementById("video-url");
@@ -1737,5 +1895,40 @@
         // Faça algo com o valor (por exemplo, exiba-o em um alerta)
         alert("Você inseriu: " + valorInserido);
 
+    });
+</script>
+
+<script>
+    function checkUrlAvailability(url) {
+        const urlField = $('#url');
+
+        if (url !== '') {
+            $.ajax({
+                url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/check_url.php', // Arquivo PHP para verificar o url
+                method: 'POST',
+                data: { url: url },
+                success: function(response) {
+                    $('#url-error').html(response);
+
+                    if (response.includes('URL já cadastrada!')) {
+                        urlField.addClass('input-error'); // Adiciona classe em caso de erro
+                    } else {
+                        urlField.removeClass('input-error'); // Remove classe em caso de sucesso
+                    }
+                }
+            });
+        }
+    }
+
+    $(document).ready(function() {
+        $('#url').on('blur', function() {
+            const url = $(this).val();
+            checkUrlAvailability(url);
+        });
+
+        $('#name').on('blur', function() {
+            const url = $('#url').val();
+            checkUrlAvailability(url);
+        });
     });
 </script>

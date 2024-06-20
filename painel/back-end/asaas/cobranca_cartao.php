@@ -65,32 +65,40 @@ function asaas_CriarCobrancaCartao($customer_id, $dataForm, $config) {
 	curl_close($curl);
 	
 	$retorno = json_decode($response, true);
-	
-	if($retorno['object'] == 'payment') {
-        $tabela = 'tb_payments';
 
-        $stmt = $conn->prepare("INSERT INTO $tabela (shop_id, order_id, customer_id, payment_id, value, billing_type, status, start_date, due_date, credit_card_number, credit_card_flag) VALUES (
-            :shop_id, :order_id, :customer_id, :payment_id, :value, :billing_type, :status, :start_date, :due_date, :credit_card_number, :credit_card_flag)");
-        
-        // Bind dos parâmetros
-        $stmt->bindParam(':shop_id', $dataForm["shop_id"], PDO::PARAM_INT);
-        $stmt->bindParam(':order_id', $dataForm["order_id"], PDO::PARAM_INT);
-        $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_STR);
-        $stmt->bindParam(':payment_id', $retorno['id'], PDO::PARAM_STR);
-        $stmt->bindParam(':value', $retorno['value'], PDO::PARAM_STR);
-        $stmt->bindParam(':billing_type', $retorno['billingType'], PDO::PARAM_STR);
-        $stmt->bindParam(':status', $retorno['status'], PDO::PARAM_STR);
-        $stmt->bindParam(':start_date', $retorno['dateCreated'], PDO::PARAM_STR);
-        $stmt->bindParam(':due_date', $retorno['nextDueDate'], PDO::PARAM_STR);
-        $stmt->bindParam(':credit_card_number', $retorno['creditCard']['creditCardNumber'], PDO::PARAM_STR);
-    	$stmt->bindParam(':credit_card_flag', $retorno['creditCard']['creditCardBrand'], PDO::PARAM_STR);
-    
-        // Executando o update
-        $stmt->execute();
+	// Verifica se a resposta foi decodificada corretamente e se a chave 'payment' existe
+    if (json_last_error() === JSON_ERROR_NONE) {
+		if($retorno['object'] == 'payment') {
+			$tabela = 'tb_payments';
 
-		return $retorno['id'];
+			$stmt = $conn->prepare("INSERT INTO $tabela (shop_id, order_id, customer_id, payment_id, value, billing_type, status, start_date, due_date, credit_card_number, credit_card_flag) VALUES (
+				:shop_id, :order_id, :customer_id, :payment_id, :value, :billing_type, :status, :start_date, :due_date, :credit_card_number, :credit_card_flag)");
+			
+			// Bind dos parâmetros
+			$stmt->bindParam(':shop_id', $dataForm["shop_id"], PDO::PARAM_INT);
+			$stmt->bindParam(':order_id', $dataForm["order_id"], PDO::PARAM_INT);
+			$stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_STR);
+			$stmt->bindParam(':payment_id', $retorno['id'], PDO::PARAM_STR);
+			$stmt->bindParam(':value', $retorno['value'], PDO::PARAM_STR);
+			$stmt->bindParam(':billing_type', $retorno['billingType'], PDO::PARAM_STR);
+			$stmt->bindParam(':status', $retorno['status'], PDO::PARAM_STR);
+			$stmt->bindParam(':start_date', $retorno['dateCreated'], PDO::PARAM_STR);
+			$stmt->bindParam(':due_date', $retorno['nextDueDate'], PDO::PARAM_STR);
+			$stmt->bindParam(':credit_card_number', $retorno['creditCard']['creditCardNumber'], PDO::PARAM_STR);
+			$stmt->bindParam(':credit_card_flag', $retorno['creditCard']['creditCardBrand'], PDO::PARAM_STR);
+		
+			// Executando o update
+			$stmt->execute();
+
+			return $retorno['id'];
+		} else {
+			// Se a chave 'object' não existir ou não for 'subscription', exibe a resposta
+			echo json_encode($retorno, true);
+			exit();
+		}
 	} else {
-		echo $response;
+		// Se houver um erro na decodificação do JSON, exibe a resposta bruta
+		echo json_encode($response, true);
 		exit();
 	}
 }

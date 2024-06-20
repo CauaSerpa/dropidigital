@@ -79,20 +79,7 @@
 <?php
     // Loop através dos resultados e exibir todas as colunas
     foreach ($sites as $site) {
-        // Nome da tabela para a busca
-        $tabela = 'tb_ready_site_img';
-
-        $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY id DESC LIMIT 1";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':ready_site_id', $site['id']);
-        $stmt->execute();
-
-        // Recuperar os resultados
-        $image = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $image['ready_site_id'] . "/" . $image['image'];
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $site['id'] . "/card-image/" . $site['card_image'];
 
         // Shop
         // Nome da tabela para a busca
@@ -157,11 +144,12 @@
         // Nome da tabela para a busca
         $tabela = 'tb_domains';
 
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT 1";
-
+        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain ORDER BY id DESC LIMIT 1";
+    
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindParam(':shop_id', $site['shop_id']);
+        $stmt->bindValue(':domain', 'dropidigital.com.br');
         $stmt->execute();
 
         // Recuperar os resultados
@@ -255,20 +243,7 @@
 <?php
     // Loop através dos resultados e exibir todas as colunas
     foreach ($sites as $site) {
-        // Nome da tabela para a busca
-        $tabela = 'tb_ready_site_img';
-
-        $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY id DESC LIMIT 1";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':ready_site_id', $site['id']);
-        $stmt->execute();
-
-        // Recuperar os resultados
-        $image = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $image['ready_site_id'] . "/" . $image['image'];
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $site['id'] . "/card-image/" . $site['card_image'];
 
         // Shop
         // Nome da tabela para a busca

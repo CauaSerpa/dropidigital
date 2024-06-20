@@ -37,21 +37,6 @@ $site = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Verificar se o resultado foi encontrado
 if ($site) {
-    // Nome da tabela para a busca
-    $tabela = 'tb_ready_site_img';
-
-    $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY id DESC LIMIT 1";
-
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':ready_site_id', $site['id']);
-    $stmt->execute();
-
-    // Recuperar os resultados
-    $image = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $image['ready_site_id'] . "/" . $image['image'];
-
     // Shop
     // Nome da tabela para a busca
     $tabela = 'tb_shop';
@@ -119,11 +104,12 @@ if ($site) {
     // Nome da tabela para a busca
     $tabela = 'tb_domains';
 
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT 1";
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain ORDER BY id DESC LIMIT 1";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':shop_id', $site['shop_id']);
+    $stmt->bindValue(':domain', 'dropidigital.com.br');
     $stmt->execute();
 
     // Recuperar os resultados
@@ -201,7 +187,14 @@ if ($site) {
                 </div>
                 <hr>
                 <div class="description mt-3">
-                    <div id="video-display" class="d-flex justify-content-center mb-3 <?php echo ($site['video'] == "") ? "d-none" : ""; ?>">
+                    <?php
+                        if (isset($site['image'])) {
+                            $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $site['id'] . "/image/" . $site['image'];
+
+                            echo "<img src='$image' alt='Ready Site Image' class='mb-3'>";
+                        } elseif (isset($site['video'])) {
+                    ?>
+                    <div id="video-display" class="d-flex justify-content-center mb-3">
                         <div class="video-wrapper d-flex justify-content-center">
                             <?php
                                 // Função para extrair o código do vídeo do URL do YouTube
@@ -230,6 +223,9 @@ if ($site) {
                             ?>
                         </div>
                     </div>
+                    <?php
+                        }
+                    ?>
                     <?= $site['description']; ?>
                 </div>
             </div>
@@ -335,16 +331,17 @@ if ($site) {
                                                 $billing_interval = "(mensal)";
                                                 $price = $plan_interval['price'];
                                             } else {
-                                                $billing_interval = "(anual)";
+                                                $totalPrice = $plan_interval['price'];
+                                                $billing_interval = "($totalPrice/anual)";
                                                 $price = $plan_interval['price'] / 12;
                                             }
 
-                                            if ($plan_id <= $plan['id'] || $plan['id'] <= 1) {
+                                            if ($plan_id >= $plan['id'] || $plan['id'] <= 1) {
                             ?>
 
                             <li class="d-flex align-items-center justify-content-between mb-1">
                                 <div class="d-flex align-items-center">
-                                    <input type="checkbox" class="form-check-input me-2" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>">
+                                    <input type="checkbox" class="form-check-input me-2" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" checked>
                                     <p>
                                         Plano <?= $plan['name']; ?>
                                         <i class="bx bx-help-circle edited" data-toggle="tooltip" data-placement="top" data-bs-html="true" aria-label="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto." data-bs-original-title="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto."></i>
@@ -489,27 +486,34 @@ if ($site) {
 
 <!-- Ofertas -->
 <script>
+    function atualizarTotal() {
+        var total = <?= $priceNoFormat; ?>;
+
+        // Iterar sobre os checkboxes selecionados
+        $('.form-check-input:checked').each(function() {
+            var value = parseFloat($(this).data('value'));
+            total += value;
+        });
+
+        // Converter para número
+        var numero = parseFloat(total);
+
+        // Formatar com separador de milhares e decimal
+        var valorFormatado = numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+        // Atualizar o valor total na página
+        $('#total').text("R$ " + valorFormatado);
+        $('#price').val(numero);
+    }
+
     $(document).ready(function() {
         // Adicionar evento de mudança para os checkboxes
         $('.form-check-input').change(function() {
-            var total = <?= $priceNoFormat; ?>;
-
-            // Iterar sobre os checkboxes selecionados
-            $('.form-check-input:checked').each(function() {
-                var value = parseFloat($(this).data('value'));
-                total += value;
-            });
-
-            // Converter para número
-            var numero = parseFloat(total);
-
-            // Formatar com separador de milhares e decimal
-            var valorFormatado = numero.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-
-            // Atualizar o valor total na página
-            $('#total').text("R$ " + valorFormatado);
-            $('#price').val(numero);
+            atualizarTotal();
         });
+
+        // Chamar a função quando a página recarregar
+        atualizarTotal();
     });
 </script>
 
@@ -524,7 +528,7 @@ if ($site) {
             // Adicionar informações do ready-site
             selectedServices.push({
                 type: "ready-site",
-                id: <?= $id; ?>,
+                id: <?= $site['id']; ?>,
                 value: <?= $priceNoFormat; ?>
             });
 

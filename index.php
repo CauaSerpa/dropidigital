@@ -64,8 +64,6 @@
     <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/slick.min.css">
     <!-- Main Style -->
     <link rel="stylesheet" href="<?= INCLUDE_PATH; ?>assets/css/style.css">
-    <!--Font Awesome-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
 </head>
 <body>
@@ -83,7 +81,7 @@
 
                     <div class="header-inner rel d-flex align-items-center">
                         <div class="logo-outer">
-                            <div class="logo"><a href="index.html"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo"></a></div>
+                            <div class="logo"><a href="<?php echo INCLUDE_PATH; ?>"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo"></a></div>
                         </div>
 
                         <div class="nav-outer mx-auto clearfix">
@@ -91,7 +89,7 @@
                             <nav class="main-menu navbar-expand-lg">
                                 <div class="navbar-header">
                                    <div class="mobile-logo">
-                                       <a href="index.html">
+                                       <a href="<?php echo INCLUDE_PATH; ?>">
                                             <img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo">
                                        </a>
                                    </div>
@@ -116,7 +114,7 @@
 
                                     <ul class="navigation clearfix">
                                         <li><i class="far fa-envelope"></i> <a href="mailto:<?= $home['email']; ?>"><?= $home['email']; ?></a></li>
-                                        <li><i class="fa-brands fa-whatsapp"></i><a href="<?= $whatsapp_link; ?>" target="_blank"><?= $home['whatsapp']; ?></a></li>
+                                        <li><i class="fab fa-whatsapp"></i><a href="<?= $whatsapp_link; ?>" target="_blank"><?= $home['whatsapp']; ?></a></li>
                                         <li class="for-none"><i class="far fa-clock"></i><?= $home['location']; ?></li>
                                         <li>
                                             <div class="social-style-one">
@@ -304,7 +302,7 @@
                             <div class="about-btns mb-45">
                                 <a href="about.html" class="theme-btn mt-15">Cadastrar<i class="fas fa-long-arrow-right"></i></a>
                                 <div class="hotline mt-15">
-                                    <i class="fa-brands fa-whatsapp fs-4"></i>
+                                    <i class="fab fa-whatsapp fs-4"></i>
                                     <div class="content">
                                         <span>Contato</span><br>
                                         <a href="<?= $whatsapp_link; ?>"><?= $home['whatsapp']; ?></a>
@@ -658,184 +656,76 @@
                         </li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane fade show active" id="plans-tap1">
-                            <div class="row no-gap row-cols-xl-5 row-cols-md-3 row-cols-sm-2 row-cols-1 for-active justify-content-center">
-                                <?php
-                                    // Consulta SQL para obter todos os planos
-                                    $query = "SELECT * FROM tb_plans";
-                                    $stmt = $conn_pdo->query($query);
-                                    $plans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        <?php
+                        // Consulta SQL
+                        $sql = "SELECT t2.id, t2.plan_id, t1.name, t1.sub_name, t2.price, t2.billing_interval, t1.resources
+                                FROM tb_plans t1
+                                JOIN tb_plans_interval t2 ON t1.id = t2.plan_id";
+                        $stmt = $conn_pdo->query($sql);
+                        $planos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                    // Loop através dos resultados e exibir cada plano
-                                    foreach ($plans as $plan) {
-                                ?>
-                                <div class="col">
-                                    <div class="pricing service-item h-100 d-flex flex-column justify-content-between">
-                                        <div class="content">
-                                            <div class="title text-center">
-                                                <h3 class="lh-1 mb-0"><?php echo $plan['name']; ?></h3>
-                                                <p class="sub-title fs-5"><?php echo $plan['sub_name']; ?></p>
-                                                <div class="pricing-content monthly text-center theme-btn d-block mb-3">
-                                                    <h3 class="lh-1 text-nowrap mb-0">R$ <?php echo $plan['price']; ?></h3>
-                                                    <p class="sub-title lh-1 fw-normal  mb-0 fs-6">Por mês</p>
-                                                </div>
-                                            </div>
-                                            <?php
-                                                // Exiba os recursos na página
-                                                $resources = json_decode($plan['resources']);
+                        // Separe os planos mensais e anuais
+                        $monthlyPlans = [];
+                        $annualPlans = [];
 
-                                                if (!empty($resources)) {
-                                                    echo "<ul class='list-style-one pt-5'>";
-                                                    foreach ($resources as $recurso) {
-                                                        echo "<li>$recurso</li>";
-                                                    }
-                                                    echo "</ul>";
-                                                }
-                                            ?>
-                                        </div>
-                                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>login" class="theme-btn style-two mt-15" tabindex="0">Assinar<i class="fas fa-long-arrow-right"></i></a>
-                                    </div>
-                                </div>
-                                <?php
-                                    }
-                                ?>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="plans-tap2">
-                            <div class="row no-gap row-cols-xl-5 row-cols-md-3 row-cols-sm-2 row-cols-1 for-active justify-content-center">
-                                <div class="col">
-                                    <div class="pricing service-item h-100 d-flex flex-column justify-content-between active">
-                                        <div class="content">
-                                            <div class="title text-center">
-                                                <h3 class="lh-1 mb-0">Básico</h3>
-                                                <p class="sub-title fs-5">Conhecendo</p>
-                                                <div class="pricing-content yearly free text-center theme-btn d-block mb-3">
-                                                    <h3 class="lh-1 text-nowrap mb-0">R$ 0</h3>
-                                                    <p class="sub-title lh-1 fw-normal  mb-0 fs-6">Por mês</p>
-                                                </div>
+                        foreach ($planos as $plano) {
+                            if ($plano['billing_interval'] == 'monthly') {
+                                $monthlyPlans[] = $plano;
+                            } elseif ($plano['billing_interval'] == 'yearly') {
+                                $annualPlans[] = $plano;
+                            }
+                        }
+
+                        // Função para exibir os detalhes do plano
+                        function displayPlanDetails($id, $plan_id, $name, $sub_name, $price, $billing_interval, $resources) {
+                            ?>
+                            <div class="col">
+                                <div class="pricing service-item h-100 d-flex flex-column justify-content-between">
+                                    <div class="content">
+                                        <div class="title text-center">
+                                            <h3 class="lh-1 mb-0"><?php echo $name; ?></h3>
+                                            <p class="sub-title fs-5"><?php echo $sub_name; ?></p>
+                                            <div class="pricing-content <?php echo $billing_interval; ?> text-center theme-btn d-block mb-3">
+                                                <h3 class="lh-1 text-nowrap mb-0">R$ <?php echo $price; ?></h3>
+                                                <p class="sub-title lh-1 fw-normal mb-0 fs-6">Por <?php echo ($billing_interval == "monthly") ? "mês" : "ano"; ?></p>
                                             </div>
-                                            <ul class="list-style-one pt-5">
-                                                <li>10 produtos</li>
-                                                <li>5.000 visitas/mês</li>
-                                                <li>Sem limite de pedidos ou orçamentos</li>
-                                                <li>Sem comissão sobre vendas</li>
-                                                <li>Conta protegida</li>
-                                                <li>Botão WhatsApp</li>
-                                            </ul>
                                         </div>
-                                        <a href="#" class="theme-btn style-two mt-15" tabindex="0">Assinar<i class="fas fa-long-arrow-right"></i></a>
+                                        <?php
+                                        // Exiba os recursos na página
+                                        $decoded_resources = json_decode($resources);
+                                        if (!empty($decoded_resources)) {
+                                            echo "<ul class='list-style-one pt-5'>";
+                                            foreach ($decoded_resources as $recurso) {
+                                                echo "<li>$recurso</li>";
+                                            }
+                                            echo "</ul>";
+                                        }
+                                        ?>
                                     </div>
-                                </div>
-                                <div class="col">
-                                    <div class="pricing service-item h-100 d-flex flex-column justify-content-between">
-                                        <div class="content">
-                                            <div class="title text-center">
-                                                <h3 class="lh-1 mb-0">Iniciante</h3>
-                                                <p class="sub-title fs-5">Já faço vendas</p>
-                                                <div class="pricing-content yearly text-center theme-btn d-block mb-3">
-                                                    <p class="fs-5 fw-normal text-decoration-line-through lh-1 text-nowrap mb-0">R$ 47</p>
-                                                    <h3 class="lh-1 text-nowrap mb-0">R$ 39</h3>
-                                                    <p class="sub-title lh-1 fw-normal mb-0 fs-6">Por mês</p>
-                                                </div>
-                                            </div>
-                                            <ul class="list-style-one pt-5">
-                                                <li>250 produtos</li>
-                                                <li>50.000 visitas/mês</li>
-                                                <li>Sem limite de pedidos</li>
-                                                <li>Sem comissão sobre vendas</li>
-                                                <li>Conta protegida</li>
-                                                <li>Botão WhatsApp</li>
-                                                <li>Suporte humanizado</li>
-                                                <li>Palavras chave do seu nicho</li>
-                                            </ul>
-                                        </div>
-                                        <a href="#" class="theme-btn style-two mt-15" tabindex="0">Assinar<i class="fas fa-long-arrow-right"></i></a>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="pricing service-item h-100 d-flex flex-column justify-content-between">
-                                        <div class="content">
-                                            <div class="title text-center">
-                                                <h3 class="fs-3 lh-1 mb-0">Intermeriário</h3>
-                                                <p class="sub-title fs-5">Pedidos diários</p>
-                                                <div class="pricing-content yearly text-center theme-btn d-block mb-3">
-                                                    <p class="fs-5 fw-normal text-decoration-line-through lh-1 text-nowrap mb-0">R$ 79</p>
-                                                    <h3 class="lh-1 text-nowrap mb-0">R$ 59</h3>
-                                                    <p class="sub-title lh-1 fw-normal  mb-0 fs-6">Por mês</p>
-                                                </div>
-                                            </div>
-                                            <ul class="list-style-one pt-5">
-                                                <li>250 produtos</li>
-                                                <li>50.000 visitas/mês</li>
-                                                <li>Sem limite de pedidos</li>
-                                                <li>Sem comissão sobre vendas</li>
-                                                <li>Conta protegida</li>
-                                                <li>Botão WhatsApp</li>
-                                                <li>Suporte humanizado</li>
-                                                <li>Palavras chave do seu nicho</li>
-                                            </ul>
-                                        </div>
-                                        <a href="#" class="theme-btn style-two mt-15" tabindex="0">Assinar<i class="fas fa-long-arrow-right"></i></a>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="pricing service-item h-100 d-flex flex-column justify-content-between">
-                                        <div class="content">
-                                            <div class="title text-center">
-                                                <h3 class="lh-1 mb-0">Avançado</h3>
-                                                <p class="sub-title fs-5">Muitas vendas</p>
-                                                <div class="pricing-content yearly text-center theme-btn d-block mb-3">
-                                                    <p class="fs-5 fw-normal text-decoration-line-through lh-1 text-nowrap mb-0">R$ 127</p>
-                                                    <h3 class="lh-1 text-nowrap mb-0">R$ 119</h3>
-                                                    <p class="sub-title lh-1 fw-normal  mb-0 fs-6">Por mês</p>
-                                                </div>
-                                            </div>
-                                            <ul class="list-style-one pt-5">
-                                                <li>750 produtos</li>
-                                                <li>100.000 visitas/mês</li>
-                                                <li>Sem limite de pedidos</li>
-                                                <li>Sem comissão sobre vendas</li>
-                                                <li>Conta protegida</li>
-                                                <li>Botão WhatsApp</li>
-                                                <li>Suporte humanizado</li>
-                                                <li>Palavras chave do seu nicho</li>
-                                                <li>Atendimento prioritário</li>
-                                            </ul>
-                                        </div>
-                                        <a href="#" class="theme-btn style-two mt-15" tabindex="0">Assinar<i class="fas fa-long-arrow-right"></i></a>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="pricing service-item h-100 d-flex flex-column justify-content-between">
-                                        <div class="content">
-                                            <div class="title text-center">
-                                                <h3 class="lh-1 mb-0">Expert</h3>
-                                                <p class="sub-title fs-5">Voando alto</p>
-                                                <div class="pricing-content yearly text-center theme-btn d-block mb-3">
-                                                    <p class="fs-5 fw-normal text-decoration-line-through lh-1 text-nowrap mb-0">R$ 191</p>
-                                                    <h3 class="lh-1 text-nowrap mb-0">R$ 179</h3>
-                                                    <p class="sub-title lh-1 fw-normal  mb-0 fs-6">Por mês</p>
-                                                </div>
-                                            </div>
-                                            <ul class="list-style-one pt-5">
-                                                <li>Produtos ilimitados</li>
-                                                <li>300.000 visitas/mês</li>
-                                                <li>Sem limite de pedidos</li>
-                                                <li>Sem comissão sobre vendas</li>
-                                                <li>Conta protegida</li>
-                                                <li>Botão WhatsApp</li>
-                                                <li>Suporte humanizado</li>
-                                                <li>Palavras chave do seu nicho</li>
-                                                <li>Atendimento prioritário</li>
-                                                <li>Mentoria inicial do projeto</li>
-                                                <li>Serviço de SEO incluso</li>
-                                            </ul>
-                                        </div>
-                                        <a href="#" class="theme-btn style-two mt-15" tabindex="0">Assinar<i class="fas fa-long-arrow-right"></i></a>
-                                    </div>
+                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar" class="theme-btn style-two mt-15" tabindex="0">Assinar<i class="fas fa-long-arrow-right"></i></a>
                                 </div>
                             </div>
-                        </div>
+                            <?php
+                        }
+
+                        // Exibir planos mensais
+                        if (!empty($monthlyPlans)) {
+                            echo '<div class="tab-pane fade show active" id="plans-tap1"><div class="row no-gap row-cols-xl-5 row-cols-md-3 row-cols-sm-2 row-cols-1 for-active justify-content-center">';
+                            foreach ($monthlyPlans as $monthlyPlan) {
+                                displayPlanDetails($monthlyPlan['id'], $monthlyPlan['plan_id'], $monthlyPlan['name'], $monthlyPlan['sub_name'], $monthlyPlan['price'], 'monthly', $monthlyPlan['resources']);
+                            }
+                            echo '</div></div>';
+                        }
+
+                        // Exibir planos anuais
+                        if (!empty($annualPlans)) {
+                            echo '<div class="tab-pane fade" id="plans-tap2"><div class="row no-gap row-cols-xl-5 row-cols-md-3 row-cols-sm-2 row-cols-1 for-active justify-content-center">';
+                            foreach ($annualPlans as $annualPlan) {
+                                displayPlanDetails($annualPlan['id'], $annualPlan['plan_id'], $annualPlan['name'], $annualPlan['sub_name'], $annualPlan['price'], 'yearly', $annualPlan['resources']);
+                            }
+                            echo '</div></div>';
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
@@ -1322,7 +1212,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                     </div>
                     <div class="col-lg-6">
                         <div class="faq-images wow fadeInRight delay-0-2s">
-                            <div class="logo"><a href="index.html"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo"></a></div>
+                            <div class="logo"><a href="<?php echo INCLUDE_PATH; ?>"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo" title="Logo"></a></div>
                             <img src="<?= INCLUDE_PATH; ?>assets/images/about/<?= $home['image-9']; ?>" alt="FAQs">
                         </div>
                     </div>
@@ -1401,7 +1291,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                                 </div>
                                 <div class="contact-info-item">
                                     <div class="icon">
-                                        <i class="fa-brands fa-whatsapp"></i>
+                                        <i class="fab fa-whatsapp"></i>
                                     </div>
                                     <div class="content">
                                         <span>Contato</span>
@@ -1434,7 +1324,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
                     <div class="col-xl-3 col-sm-6">
                         <div class="footer-widget widget_about wow fadeInUp delay-0-2s">
                             <div class="footer-logo mb-30">
-                                <a href="index.html"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo"></a>
+                                <a href="<?php echo INCLUDE_PATH; ?>"><img src="<?= INCLUDE_PATH; ?>assets/images/logos/<?= $home['logo']; ?>" alt="Logo"></a>
                             </div>
                             <p>Somos uma empresa de desenvolvimento de software com uma equipe altamente capacitada e dedicada. Acreditamos que as soluções de tecnologia devem ser acessíveis a todos e oferecer resultados concretos.</p>
                         </div>
@@ -1517,7 +1407,7 @@ Portanto, para uma empresa, outsourcing de desenvolvimento significa obter de um
         
         <!-- WhatsApp Button -->
         <a href="<?= $whatsapp_link; ?>" target="_blank" class="home-page whatsapp-button">
-            <i class="fa-brands fa-whatsapp"></i>
+            <i class="fab fa-whatsapp"></i>
         </a>
         
         <!-- Scroll Top Button -->

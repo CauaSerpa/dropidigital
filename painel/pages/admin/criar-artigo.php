@@ -55,6 +55,21 @@
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Artigo</div>
         <div class="card-body px-5 py-3">
             <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="name" class="form-label small">Nome do artigo *</label>
+                        <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" required>
+                        <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/blog/<span class="fw-semibold" id="linkPreview">...</span></p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tag" class="form-label small">Tag do artigo *</label>
+                        <input type="text" class="form-control" name="tag" id="tag" aria-describedby="tagHelp" required>
+                    </div>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label for="description" class="form-label small">Descrição do artigo</label>
+                    <textarea class="form-control" name="description" id="description" rows="4" required></textarea>
+                </div>
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
                         <label for="activeArticle" class="form-label small">Artigo ativo?</label>
@@ -71,15 +86,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="mb-3">
-                <label for="name" class="form-label small">Nome do artigo *</label>
-                <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require>
-                <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/blog/<span class="fw-semibold" id="linkPreview">...</span></p>
-            </div>
-            <div class="mb-3">
-                <label for="editor" class="form-label small">Conteúdo do artigo</label>
-                <textarea name="content" id="editor"></textarea>
             </div>
         </div>
     </div>
@@ -99,6 +105,14 @@
             </label>
             <input type="file" name="image" accept="image/*" class="file-input" id="file-input">
             <p class="small text-end mt-3">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Conteúdo do artigo</div>
+        <div class="card-body px-5 py-3">
+            <label for="editor" class="form-label small">Conteúdo do artigo</label>
+            <textarea name="content" id="editor"></textarea>
         </div>
     </div>
     
@@ -139,6 +153,7 @@
     </div>
 
     <input type="hidden" name="id" value="<?php echo $id; ?>">
+    <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
     <input type="hidden" name="image_id" value="<?php echo $image_id; ?>">
 
     <!-- Botao salvar -->

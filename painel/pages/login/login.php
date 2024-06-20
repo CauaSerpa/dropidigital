@@ -60,7 +60,7 @@
     </form>
     <div class="bottom__text signup">
         <p>Ainda não possui um Site na DropiDigital?</p>
-        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar">Crie sua loja virtual grátis agora.</a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar">Crie seu site grátis agora.</a>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

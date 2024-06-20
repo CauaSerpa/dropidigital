@@ -207,6 +207,49 @@
                 if (response.status == 'pago') {
                     var redirect = <?= (isset($_GET['r']) == 1) ? 1 : 0; ?>;
 
+                    
+
+
+                    var params = {
+                        shop_id: <?php echo $shop_id; ?>,
+                        ready_site_id: <?php echo $_GET['site']; ?>
+                    };
+
+                    // Enviar uma solicitação AJAX para verificar o pagamento
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/copy_site_shop.php', // Crie um arquivo PHP para lidar com a verificação
+                        data: params,
+                        dataType: 'JSON',
+                        success: function(response) {
+                            if (response.status == 'pago') {
+                                var redirect = <?= (isset($_GET['r']) == 1) ? 1 : 0; ?>;
+
+                                
+
+                                if (redirect == 1) {
+                                    // Se o pagamento foi aprovado, redirecione para a página desejada
+                                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano-asaas?p=<?php echo $plan_id; ?>&r=1';
+                                } else {
+                                    // Se o pagamento foi aprovado, redirecione para a página desejada
+                                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?<?php echo (isset($payment_id)) ? "p=$payment_id" : "s=$subscription_id"; ?>';
+                                }
+                            } else {
+                                // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
+                                console.log('O pagamento ainda não foi aprovado.');
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Erro ao verificar o pagamento:', error);
+                        }
+                    });
+
+
+
+
+
+
+
                     if (redirect == 1) {
                         // Se o pagamento foi aprovado, redirecione para a página desejada
                         window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano-asaas?p=<?php echo $plan_id; ?>&r=1';

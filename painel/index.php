@@ -84,29 +84,54 @@
         $last_shop_login = $resultado['last_shop_login'];
     }
 
-    // Pesquisar Loja
+    // Usuario Loja
 
     // Verifica se há um shop_id definido na sessão
     @$shop_id = isset($_SESSION['shop_id']) ? $_SESSION['shop_id'] : $last_shop_login;
 
-    // Tabela que será feita a consulta
-    $tabela = "tb_shop";
+    // Tabela que sera feita a consulta
+    $tabela = "tb_shop_users";
 
     // Ajusta a consulta SQL para dar prioridade ao shop_id se ele existir
     if ($shop_id) {
-        $sql = "SELECT * FROM $tabela WHERE user_id = :id ORDER BY id = :shop_id DESC, id DESC LIMIT 1";
+        $sql = "SELECT * FROM $tabela WHERE user_id = :user_id AND shop_id = :shop_id LIMIT 1";
     } else {
-        $sql = "SELECT * FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
+        $sql = "SELECT * FROM $tabela WHERE user_id = :user_id ORDER BY id DESC LIMIT 1";
     }
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
 
     // Vincular o valor do parâmetro
-    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id', $id, PDO::PARAM_INT);
     if ($shop_id) {
         $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
     }
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificar se o resultado foi encontrado
+    if ($resultado) {
+        $shop_id = $resultado['shop_id'];
+    }
+
+    // Pesquisar Loja
+
+    // Tabela que será feita a consulta
+    $tabela = "tb_shop";
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id LIMIT 1";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $shop_id, PDO::PARAM_INT);
 
     // Executar a consulta
     $stmt->execute();
@@ -155,7 +180,7 @@
     }
     else
     {
-        $limitProducts = "ilimitado";
+        $limitProducts = 5000;
     }
 
     // Nome da tabela para a busca
@@ -195,6 +220,10 @@
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
+    <!-- Inclua as folhas de estilo do Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+
     <!-- Mercado pago -->
     <?php
         if ($url == 'assinar-plano')
@@ -209,7 +238,6 @@
     <?php
         if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404')
         {
-            echo "";
     ?>
     <header class="l-header login">
         <nav class="nav bd-grid">
@@ -250,17 +278,15 @@
                 </div>
             </div>
     <?php
-            echo "";
         }
-        elseif ($permissions == 1)
+        elseif ($permissions == 1 || $permissions == 2)
         {
-            echo "";
     ?>
     <div class="tutorial__bg__"></div>
     <header class="l-header painel">
         <nav class="nav bd-grid">
             <div class="left">
-                <div class="toggle" onclick="toggle()">
+                <div class="toggle">
                     <i class='bx bx-menu' id="mobileBtn"></i>
                 </div>
                 <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo">
@@ -382,7 +408,7 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">Dashboard</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('personalizar'); ?>">
+            <li class="<?php activeSidebarLink('personalizar'); ?>" <?php verificaPermissaoMenu($permissions); ?>>
                 <div class="iocn-link">
                     <p>
                         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>personalizar">
@@ -395,7 +421,7 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>personalizar">Personalizar</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('lojas'); ?> <?php activeSidebarLink('ver-loja'); ?>">
+            <li class="<?php activeSidebarLink('lojas'); ?> <?php activeSidebarLink('ver-loja'); ?>" <?php verificaPermissaoMenu($permissions); ?>>
                 <div class="iocn-link">
                     <p>
                         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lojas">
@@ -408,7 +434,7 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lojas">Lojas</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('dominios'); ?> <?php activeSidebarLink('dominios-proprios'); ?> <?php showSidebarLinks('dominios'); ?> <?php showSidebarLinks('dominios-proprios'); ?>">
+            <li class="<?php activeSidebarLink('dominios'); ?> <?php activeSidebarLink('dominios-proprios'); ?> <?php showSidebarLinks('dominios'); ?> <?php showSidebarLinks('dominios-proprios'); ?>" <?php verificaPermissaoMenu($permissions); ?>>
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios" class="sidebar_link">
@@ -516,17 +542,15 @@
 		</ul>
     </nav>
     <?php
-            echo "";
         }
         else
         {
-            echo "";
     ?>
     <div class="tutorial__bg__"></div>
     <header class="l-header painel">
         <nav class="nav bd-grid">
             <div class="left">
-                <div class="toggle" onclick="toggle()">
+                <div class="toggle">
                     <i class='bx bx-menu' id="mobileBtn"></i>
                 </div>
                 <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo">
@@ -570,8 +594,8 @@
                         $domain_url = "https://" . $subdomain . $domain['domain'];
                     ?>
                     <a href="<?php echo $domain_url; ?>" target="_blank" class="text-dark text-decoration-none fs-6 fw-semibold">
-                        Ver o site
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="ms-1" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
+                        <span class="me-1">Ver o site</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
                     </a>
                 </div>
                 <div class="header__icon help">
@@ -745,9 +769,9 @@
                     if(isset($_SESSION['admin_id'])){
                 ?>
                     <div class="back">
-                        <a class="btn btn-success rounded-1 fw-semibold px-4 py-2 small d-flex align-items-center" href="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/admin/return.php" ?>">
-                            Voltar
-                            <i class='bx bx-log-in fs-5 ms-1' ></i>
+                        <a class="back-link btn btn-success rounded-1 fw-semibold px-4 py-2 small d-flex align-items-center" href="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/admin/return.php" ?>">
+                            <span class="me-1">Voltar</span>
+                            <i class='bx bx-log-in fs-5' ></i>
                         </a>
                     </div>
                 <?php
@@ -1045,8 +1069,64 @@
 			</div>
 		</ul>
     </nav>
-    <?php 
-            echo ""; 
+
+    <style>
+        @media screen and (max-width: 768px) {
+            .mobile-nav
+            {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                height: 3.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                border: 1px solid var(--border-color);
+                background: var(--card-color);
+                z-index: 9;
+            }
+            .mobile-nav .mobile-itens
+            {
+                font-size: 1.5rem;
+                color: black;
+                text-decoration: none;
+            }
+            .mobile-nav .create-shop
+            {
+                width: 45px;
+                height: 45px;
+                color: white;
+                background: var(--green-color);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                bottom: 25px;
+            }
+        }
+    </style>
+
+    <div class="mobile-nav">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="mobile-itens">
+            <i class='bx bx-grid-alt' ></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="mobile-itens">
+            <i class='bx bx-package' ></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto" class="mobile-itens create-shop">
+            <i class='bx bx-plus'></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda" class="mobile-itens">
+            <i class='bx bx-help-circle' ></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="mobile-itens">
+            <i class='bx bx-cog' ></i>
+        </a>
+    </div>
+
+    <?php
         }
     ?>
 
@@ -1287,7 +1367,7 @@
                 list($url, $tab) = explode('/', $url, 2);
             }
 
-            if ($permissions == 1) {
+            if ($permissions == 1 || $permissions == 2) {
                 // Administrador
                 $permission = 'admin';
             } elseif ($permissions == 0) {
@@ -1332,6 +1412,9 @@
             ?>
         </div>
     </div>
+
+    <div class="backdrop"></div>
+
     <?php
         if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404') {
             echo '
@@ -1449,10 +1532,18 @@
                 arrowParent.classList.toggle("showMenu");
             });
         }
+        let body = document.querySelector("body");
+        let backdrop = document.querySelector(".backdrop");
         let sidebar = document.querySelector(".sidebar");
-        let sidebarBtn = document.querySelector(".bx-menu");
+        let sidebarBtn = document.querySelector("#mobileBtn");
         sidebarBtn.addEventListener("click", ()=>{
             sidebar.classList.toggle("close");
+
+            sidebarBtn.classList.toggle("bx-menu");
+            sidebarBtn.classList.toggle("bx-x");
+
+            body.classList.toggle("overflow-hidden");
+            backdrop.classList.toggle("show");
         });
     </script>
 

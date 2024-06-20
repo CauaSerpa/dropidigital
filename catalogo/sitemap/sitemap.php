@@ -1,23 +1,6 @@
 <?php
 // Pesquisar dominio
-// Tabela que sera feita a consulta
-$tabela = "tb_domains";
-
-// Consulta SQL
-$sql = "SELECT shop_id FROM $tabela WHERE subdomain = :subdomain AND domain = :domain";
-
-// Preparar a consulta
-$stmt = $conn_pdo->prepare($sql);
-
-// Vincular o valor do parâmetro
-$stmt->bindParam(':subdomain', $subdomain, PDO::PARAM_STR);
-$stmt->bindParam(':domain', $domain, PDO::PARAM_STR);
-
-// Executar a consulta
-$stmt->execute();
-
-// Obter o resultado como um array associativo
-$shop_id = $stmt->fetch(PDO::FETCH_ASSOC)['shop_id'];
+$shop_id = 2;
 
 // Nome da tabela para a busca
 $tabela = 'tb_shop';

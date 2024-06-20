@@ -1,6 +1,6 @@
 <?php
 function copyReadySiteToShop($dataForm) {
-    include('asaas/config.php');
+    include('../asaas/config.php');
 
     function copiarPastaImg($src, $dst) {
         // Cria o diretório de destino se ele não existir
@@ -27,9 +27,7 @@ function copyReadySiteToShop($dataForm) {
         closedir($dir);
     }
 
-    $ready_site_id = $dataForm['ready_site_id'];
-    $site_id = $dataForm['shop_id'];
-
+    $ready_site_id = 25;
     $tabela = 'tb_shop';
     $query = "SELECT * FROM $tabela WHERE id = :id";
     $stmt = $conn->prepare($query);
@@ -40,28 +38,12 @@ function copyReadySiteToShop($dataForm) {
 
     if ($stmt->rowCount() > 0) {
         $tabela = 'tb_shop';
-        $sql = "UPDATE $tabela SET
-                    title = :title,
-                    description = :description,
-                    logo = :logo,
-                    logo_mobile = :logo_mobile,
-                    favicon = :favicon,
-                    segment = :segment,
-                    newsletter_modal = :newsletter_modal,
-                    newsletter_modal_title = :newsletter_modal_title,
-                    newsletter_modal_text = :newsletter_modal_text,
-                    newsletter_modal_success_text = :newsletter_modal_success_text,
-                    newsletter_modal_time = :newsletter_modal_time,
-                    newsletter_modal_time_seconds = :newsletter_modal_time_seconds,
-                    newsletter_modal_location = :newsletter_modal_location,
-                    newsletter_footer = :newsletter_footer,
-                    newsletter_footer_text = :newsletter_footer_text,
-                    top_highlight_bar = :top_highlight_bar,
-                    top_highlight_bar_location = :top_highlight_bar_location,
-                    top_highlight_bar_text = :top_highlight_bar_text,
-                    center_highlight_images = :center_highlight_images
-                WHERE id = :id";
+        $sql = "INSERT INTO $tabela
+                    (name, title, description, logo, logo_mobile, favicon, segment, newsletter_modal, newsletter_modal_title, newsletter_modal_text, newsletter_modal_success_text, newsletter_modal_time, newsletter_modal_time_seconds, newsletter_modal_location, newsletter_footer, newsletter_footer_text, top_highlight_bar, top_highlight_bar_location, top_highlight_bar_text, center_highlight_images)
+                VALUES
+                    (:name, :title, :description, :logo, :logo_mobile, :favicon, :segment, :newsletter_modal, :newsletter_modal_title, :newsletter_modal_text, :newsletter_modal_success_text, :newsletter_modal_time, :newsletter_modal_time_seconds, :newsletter_modal_location, :newsletter_footer, :newsletter_footer_text, :top_highlight_bar, :top_highlight_bar_location, :top_highlight_bar_text, :center_highlight_images)";
         $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':name', $ready_site['name']);
         $stmt->bindValue(':title', $ready_site['title']);
         $stmt->bindValue(':description', $ready_site['description']);
         $stmt->bindValue(':logo', $ready_site['logo']);
@@ -82,25 +64,22 @@ function copyReadySiteToShop($dataForm) {
         $stmt->bindValue(':top_highlight_bar_text', $ready_site['top_highlight_bar_text']);
         $stmt->bindValue(':center_highlight_images', $ready_site['center_highlight_images']);
 
-        $stmt->bindValue(':id', $site_id);
-
         if ($stmt->execute()) {
+            $site_id = $conn->lastInsertId();
+
             // Copiar Logo
-            // Definindo os caminhos de origem e destino
             $origem = "../logos/$ready_site_id";
             $destino = "../logos/$site_id";
-
-            // Chamando a função para copiar a pasta
             copiarPastaImg($origem, $destino);
 
+            // Copiar Produtos
             $tabela = 'tb_products';
             $query = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
             $stmt = $conn->prepare($query);
             $stmt->bindParam(':shop_id', $ready_site_id);
             $stmt->execute();
-    
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
             foreach ($products as $product) {
                 $tabela = 'tb_products';
                 $query = "INSERT INTO $tabela
@@ -127,21 +106,15 @@ function copyReadySiteToShop($dataForm) {
 
                 $product_id = $conn->lastInsertId();
 
+                // Copiar imagens do produto
                 $tabela = 'imagens';
                 $query = "SELECT * FROM $tabela WHERE usuario_id = :usuario_id";
                 $stmt = $conn->prepare($query);
-                $stmt->bindParam(':usuario_id', $product_id);
+                $stmt->bindParam(':usuario_id', $product['id']);
                 $stmt->execute();
-
                 $product_imgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($product_imgs as $product_img) {
-                    // Copiar Imagem do produto
-                    // Definindo os caminhos de origem e destino
-                    $origem = "../imagens/" . $product['id'];
-                    $destino = "../imagens/$product_id";
-
-                    $tabela = 'imagens';
                     $query = "INSERT INTO $tabela
                                 (usuario_id, nome_imagem)
                             VALUES
@@ -150,18 +123,20 @@ function copyReadySiteToShop($dataForm) {
                     $stmt->bindParam(':usuario_id', $product_id);
                     $stmt->bindParam(':nome_imagem', $product_img['nome_imagem']);
                     $stmt->execute();
-        
-                    // Chamando a função para copiar a pasta
+
+                    // Definindo os caminhos de origem e destino
+                    $origem = "../imagens/" . $product['id'];
+                    $destino = "../imagens/$product_id";
                     copiarPastaImg($origem, $destino);
                 }
             }
 
+            // Copiar Banners
             $tabela = 'tb_banner_info';
             $query = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
             $stmt = $conn->prepare($query);
             $stmt->bindParam(':shop_id', $ready_site_id);
             $stmt->execute();
-
             $banners = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($banners as $banner) {
@@ -183,21 +158,19 @@ function copyReadySiteToShop($dataForm) {
 
                 $banner_id = $conn->lastInsertId();
 
-                // Copiar Imagem do produto
-                // Definindo os caminhos de origem e destino
+                // Copiar imagens do banner
                 $origem = "../banners/" . $banner['id'];
                 $destino = "../banners/$banner_id";
+                copiarPastaImg($origem, $destino);
 
                 $tabela = 'tb_banner_img';
                 $query = "SELECT * FROM $tabela WHERE banner_id = :banner_id";
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':banner_id', $banner['id']);
                 $stmt->execute();
-
                 $banner_imgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($banner_imgs as $banner_img) {
-                    $tabela = 'tb_banner_img';
                     $query = "INSERT INTO $tabela
                                 (banner_id, image_name, mobile_banner)
                             VALUES
@@ -207,22 +180,18 @@ function copyReadySiteToShop($dataForm) {
                     $stmt->bindParam(':image_name', $banner_img['image_name']);
                     $stmt->bindParam(':mobile_banner', $banner_img['mobile_banner']);
                     $stmt->execute();
-
-                    // Chamando a função para copiar a pasta
-                    copiarPastaImg($origem, $destino);
                 }
             }
 
+            // Copiar Categorias
             $tabela = 'tb_categories';
             $query = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
             $stmt = $conn->prepare($query);
             $stmt->bindParam(':shop_id', $ready_site_id);
             $stmt->execute();
-
             $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($categories as $category) {
-                $tabela = 'tb_categories';
                 $query = "INSERT INTO $tabela
                             (shop_id, name, icon, image, description, link, parent_category, status, emphasis, seo_name, seo_link, seo_description)
                         VALUES
@@ -244,25 +213,21 @@ function copyReadySiteToShop($dataForm) {
 
                 $category_id = $conn->lastInsertId();
 
-                // Copiar Imagem do produto
-                // Definindo os caminhos de origem e destino
+                // Copiar imagens da categoria
                 $origem = "../category/" . $category['id'];
                 $destino = "../category/$category_id";
-
-                // Chamando a função para copiar a pasta
                 copiarPastaImg($origem, $destino);
             }
-            
+
+            // Copiar categorias de produtos
             $tabela = 'tb_product_categories';
             $query = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
             $stmt = $conn->prepare($query);
             $stmt->bindParam(':shop_id', $ready_site_id);
             $stmt->execute();
-
             $productsCategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($productsCategories as $productCategory) {
-                $tabela = 'tb_product_categories';
                 $query = "INSERT INTO $tabela
                             (shop_id, product_id, category_id, main)
                         VALUES
@@ -274,10 +239,15 @@ function copyReadySiteToShop($dataForm) {
                 $stmt->bindParam(':main', $productCategory['main']);
                 $stmt->execute();
             }
+
+            echo "Site copiado com sucesso!";
         } else {
-            echo "Não foi possivel copiar o site!";
+            echo "Não foi possível copiar o site!";
         }
     } else {
         echo "Site Pronto não encontrado!";
     }
 }
+
+copyReadySiteToShop($_POST);
+?>

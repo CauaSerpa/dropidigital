@@ -243,6 +243,54 @@ if(!empty($id)){
     }
 </style>
 
+<style>
+    .image-preview-container {
+        position: relative;
+        text-align: center;
+
+        background-color: #f9f9f9;
+        width: 100%;
+        padding: 3.12em 1.87em;
+        border: 2px dashed #c4c4c4;
+        border-radius: 0.5em;
+        cursor: pointer;
+    }
+
+    .image-preview {
+        max-width: 100%;
+        max-height: 400px;
+        margin: 0 auto;
+        display: none; /* A imagem está oculta inicialmente */
+    }
+
+    .file-input {
+        display: none; /* Ocultar o input de arquivo original */
+    }
+</style>
+
+<style>
+    .select-container
+    {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .select
+    {
+        padding: 3rem 2rem;
+        margin: 0 2rem;
+        border: 1px solid var(--border-color);
+        border-radius: .3rem;
+        background-color: #f9f9f9;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+</style>
+
 <!-- Modal de Servicos -->
 <div class="modal fade" id="categoriasModal" tabindex="-1" role="dialog" aria-labelledby="categoriasModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -341,55 +389,99 @@ if(!empty($id)){
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
             Imagens
-            <label for="upload-button" class="small" style="cursor: pointer;">Selecionar imagem</label>
+            <label for="file-input-1" class="small" style="cursor: pointer;">Selecionar imagem</label>
         </div>
         <div class="card-body px-5 py-3">
-            <label for="upload-button" class="image-container mt-3">
-                <input type="file" name="imagens[]" id="upload-button" multiple accept="image/*" />
-                <div for="upload-button" class="dropzone">
+            <label for="file-input-1" class="image-preview-container">
+                <img src="<?= INCLUDE_PATH_DASHBOARD . 'back-end/admin/service/' . $service['id'] . '/card-image/' . $service['card_image']; ?>" alt="Image Preview" class="image-preview <?= (isset($service['card_image'])) ? "d-block" : ""; ?>" id="image-preview-1">
+                <div class="center-text <?= (isset($service['card_image'])) ? "d-none" : ""; ?>" id="text-1">
                     <i class='bx bx-image fs-1'></i>
-                    <p class="fs-5 fw-semibold">Arraste e solte as imagens aqui</p>
+                    <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                    <small id="dimensions">Dimensões: 310 x 310px</small>
                 </div>
-                <div id="error"></div>
             </label>
-            <div class="sortable-container mt-3">
-                <div id="image-display">
-                    <?php
-                        // Consulta SQL para selecionar todas as colunas com base no ID
-                        $sql = "SELECT * FROM tb_service_img WHERE service_id = :service_id ORDER BY id ASC";
-
-                        // Preparar e executar a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':service_id', $service['id']);
-                        $stmt->execute();
-
-                        // Recuperar os resultados
-                        $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        // Loop através dos resultados e exibir todas as colunas
-                        foreach ($images as $image) {
-                            echo '
-                                <figure class="sortable-image">
-                                    <img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/admin/service/' . $image['service_id'] . '/' . $image['image'] . '">
-                                    <button class="remove-image" data-image-id="' . $image['id'] . '"></button>
-                                </figure>';
-                        }
-                    ?>
-                </div>
-            </div>
-        </div>
-        <div class="card-footer fw-semibold px-4 py-3 bg-transparent">
-            <div class="d-flex justify-content-between">
-                <label for="exampleInputEmail" class="form-label small">Vídeo do produto</label>
-                <p class="form-text text-muted fw-normal small">Aceitamos apenas vídeos do YouTube</p>
-            </div>
-            <div class="position-relative">
-                <i class='bx bxl-youtube input-icon' ></i>
-                <input type="text" class="form-control icon-padding" name="video" id="video-url" placeholder="https://www.youtube.com/watch?v=000" aria-label="https://www.youtube.com/watch?v=000" value="<?php echo $service['video']; ?>">
-            </div>
-            <div id="video-display" class="d-flex justify-content-center"></div>
+            <input type="file" name="card_image" accept="image/*" class="file-input" id="file-input-1">
+            <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
         </div>
     </div>
+
+    <input type="radio" class="d-none" name="select" id="selectImage" value="image" <?= (isset($service['image'])) ? "checked" : ""; ?>>
+    <input type="radio" class="d-none" name="select" id="selectVideo" value="video" <?= (isset($service['video'])) ? "checked" : ""; ?>>
+
+    <div class="card mb-3 p-0 <?= (isset($service['image']) || isset($service['video'])) ? "d-none" : ""; ?>" id="select">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Selecionar</div>
+        <div class="card-body px-5 py-3">
+            <div class="select-container">
+                <label for="selectImage" class="select" id="select-image-button">
+                    <i class='bx bx-image fs-1 mb-2'></i>
+                    <p class="fw-semibold">Upload da imagem</p>
+                </label>
+                <label for="selectVideo" class="select" id="select-video-button">
+                    <i class='bx bxl-youtube fs-1 mb-2'></i>
+                    <p class="fw-semibold">Adicionar vídeo</p>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0 <?= (!isset($service['image'])) ? "d-none" : ""; ?>" id="select-image">
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Upload da imagem
+            <label for="selectVideo" id="back-video" class="small" style="cursor: pointer;">Selecionar vídeo</label>
+        </div>
+        <div class="card-body px-5 py-3">
+            <div class="mb-1">
+                <label for="file-input-2" class="image-preview-container">
+                    <img src="<?= INCLUDE_PATH_DASHBOARD . 'back-end/admin/service/' . $service['id'] . '/image/' . $service['image']; ?>" alt="Image Preview" class="image-preview <?= (isset($service['image'])) ? "d-block" : ""; ?>" id="image-preview-2">
+                    <div class="center-text <?= (isset($service['image'])) ? "d-none" : ""; ?>" id="text-2">
+                        <i class='bx bx-image fs-1'></i>
+                        <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                        <small id="dimensions">Dimensões: 1920 x 535px</small>
+                    </div>
+                </label>
+                <input type="file" name="image" accept="image/*" class="file-input" id="file-input-2">
+                <p class="small text-end">Máximo de 1 imagem. Tamanho máximo 500KB. Para maior qualidade envie a imagem no formato JPG ou PNG.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0 <?= (!isset($service['video'])) ? "d-none" : ""; ?>" id="select-video">
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Adicionar vídeo
+            <label for="selectImage" id="back-image" class="small" style="cursor: pointer;">Selecionar imagem</label>
+        </div>
+        <div class="card-body px-5 py-3">
+            <div class="mb-1">
+                <div class="d-flex justify-content-between">
+                    <label for="exampleInputEmail" class="form-label small">Vídeo do produto</label>
+                    <p class="form-text text-muted fw-normal small">Aceitamos apenas vídeos do YouTube</p>
+                </div>
+                <div class="position-relative">
+                    <i class='bx bxl-youtube input-icon' ></i>
+                    <input type="text" class="form-control icon-padding" name="video" id="video-url" placeholder="https://www.youtube.com/watch?v=000" aria-label="https://www.youtube.com/watch?v=000" value="<?php echo $service['video']; ?>">
+                </div>
+                <div id="video-display" class="d-flex justify-content-center"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#select-image-button, #back-image').on('click', function() {
+                $('#select').addClass('d-none');
+                $('#select-image').removeClass('d-none');
+                $('#select-video').addClass('d-none');
+            });
+
+            $('#select-video-button, #back-video').on('click', function() {
+                $('#select').addClass('d-none');
+                $('#select-video').removeClass('d-none');
+                $('#select-image').addClass('d-none');
+            });
+        });
+    </script>
 
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
@@ -630,29 +722,29 @@ if(!empty($id)){
     <!-- Adicione esses campos ocultos no seu formulário -->
     <input type="hidden" name="categoriasSelecionadas[]" id="categoriasSelecionadasInput" value="<?php
         // Nome da tabela para a busca
-        $tabela = 'tb_ready_site_services';
+        $tabela = 'tb_service_services';
 
-        $sql = "SELECT * FROM $tabela WHERE ready_site_id = :ready_site_id ORDER BY (main = 1) DESC";
+        $sql = "SELECT * FROM $tabela WHERE service_id = :service_id ORDER BY (main = 1) DESC";
 
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':ready_site_id', $service['id']);
+        $stmt->bindParam(':service_id', $service['id']);
         $stmt->execute();
 
         // Recuperar os resultados
-        $readySitesServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $serviceServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $primeiroElemento = false;
         $main = 0;
 
-        if ($readySitesServices) {
+        if ($serviceServices) {
             // Loop através dos resultados e exibir todas as colunas
-            foreach ($readySitesServices as $readySiteService) {
-                $main = ($readySiteService['main'] == "1") ? $readySiteService['service_id'] : "";
+            foreach ($serviceServices as $serviceService) {
+                $main = ($serviceService['main'] == "1") ? $serviceService['associated_service_id'] : "";
 
                 echo ($primeiroElemento) ? "," : "";
 
-                echo $readySiteService['service_id'];
+                echo $serviceService['associated_service_id'];
 
                 $primeiroElemento = true;
             }
@@ -661,22 +753,22 @@ if(!empty($id)){
 
     <?php
         // Nome da tabela para a busca
-        $tabela = 'tb_ready_site_services';
+        $tabela = 'tb_service_services';
 
-        $sql = "SELECT service_id FROM $tabela WHERE ready_site_id = :ready_site_id AND main = :main ORDER BY id DESC LIMIT 1";
+        $sql = "SELECT associated_service_id FROM $tabela WHERE service_id = :service_id AND main = :main ORDER BY id DESC LIMIT 1";
 
         // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':ready_site_id', $service['id']);
+        $stmt->bindParam(':service_id', $service['id']);
         $stmt->bindValue(':main', 1);
         $stmt->execute();
 
         // Recuperar os resultados
-        $service = $stmt->fetch(PDO::FETCH_ASSOC);
+        $serviceServices = $stmt->fetch(PDO::FETCH_ASSOC);
     ?>
 
     <!-- Categoria principal -->
-    <input type="hidden" name="inputMainCategory" id="inputMainCategory" value="<?php echo @$service['service_id']; ?>">
+    <input type="hidden" name="inputMainCategory" id="inputMainCategory" value="<?php echo @$serviceServices['associated_service_id']; ?>">
 
     <!-- Botao salvar -->
     <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
@@ -761,26 +853,26 @@ if(!empty($id)){
     $stmtProductCategories->execute();
 
     // Recuperar os resultados
-    $readySitesServices = $stmtProductCategories->fetchAll(PDO::FETCH_ASSOC);
+    $serviceServices = $stmtProductCategories->fetchAll(PDO::FETCH_ASSOC);
 
     $resultArray = [];
 
-    if ($readySitesServices) {
+    if ($serviceServices) {
         // Loop através dos resultados de tb_product_categories
-        foreach ($readySitesServices as $readySiteService) {
+        foreach ($serviceServices as $serviceService) {
             // Consultar tb_categories para obter o nome da categoria
             $sqlCategories = "SELECT * FROM $tabelaCategories WHERE id = :id ORDER BY id DESC";
 
             // Preparar e executar a consulta
             $stmtCategories = $conn_pdo->prepare($sqlCategories);
-            $stmtCategories->bindParam(':id', $readySiteService['service_id']);
+            $stmtCategories->bindParam(':id', $serviceService['associated_service_id']);
             $stmtCategories->execute();
 
             // Recuperar os resultados
             $services = $stmtCategories->fetch(PDO::FETCH_ASSOC);
 
             // Convertendo o id para formato numérico
-            $serviceId = (int)$readySiteService['service_id'];
+            $serviceId = (int)$serviceService['associated_service_id'];
 
             // Adicionar ao array de resultados
             $resultArray[] = [
@@ -973,7 +1065,7 @@ if(!empty($id)){
             var tabelaCategorias = $("#categoriesTable");
             var categoriasSelecionadasDiv = $("#categoriasSelecionadas");
 
-            var mainCategoryId = <?php echo (isset($service['service_id'])) ? $service['service_id'] : 0; ?>;
+            var mainCategoryId = <?php echo (isset($serviceServices['service_id'])) ? $serviceServices['service_id'] : 0; ?>;
 
             categoriasSelecionadasDiv.empty();
 
@@ -1714,17 +1806,49 @@ imageDisplay.addEventListener("click", (event) => {
 });
 </script>
 
+<!-- Imagem -->
+<script>
+    function imagePreview(fileInputId, imagePreviewId, textId) {
+        const imagePreview = document.getElementById(imagePreviewId);
+        const fileInput = document.getElementById(fileInputId);
+        const text = document.getElementById(textId);
+        let previousImageSrc = "";
+
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previousImageSrc = imagePreview.src; // Armazenar imagem anterior
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    text.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reverter para a imagem anterior
+                imagePreview.src = previousImageSrc;
+                imagePreview.style.display = "none"; // Exibir a imagem anterior
+                text.style.display = "none";
+            }
+        });
+    }
+
+    // Inicialize para os três pares de botão de upload e visualização de imagem
+    imagePreview("file-input-1", "image-preview-1", "text-1");
+    imagePreview("file-input-2", "image-preview-2", "text-2");
+</script>
+
 <!-- Video Preview -->
 <script>
-    const videoForm = document.getElementById("video-url");
-    const videoDisplay = document.getElementById("video-display");
+    // Função para processar a URL
+    function processarURL() {
+        const videoForm = document.getElementById("video-url");
+        const videoDisplay = document.getElementById("video-display");
 
-    videoForm.addEventListener("input", function(event) {
-        event.preventDefault();
-
-        const videoUrl = document.getElementById("video-url").value.trim(); // Remove espaços em branco no início e fim
+        const videoUrl = videoForm.value.trim();
         if (videoUrl === "") {
-            videoDisplay.innerHTML = ""; // Não mostrar nada se o input estiver vazio
+            videoDisplay.innerHTML = "";
             return;
         }
 
@@ -1736,13 +1860,17 @@ imageDisplay.addEventListener("click", (event) => {
         } else {
             videoDisplay.innerHTML = "<p class='fw-normal small mt-3'>URL de vídeo inválida.</p>";
         }
-    });
+    }
 
+    // Função para obter o ID do vídeo do YouTube
     function getYouTubeVideoId(url) {
         const regex = /(?:\?v=|\/embed\/|\.be\/)([a-zA-Z0-9_-]+)/;
         const matches = url.match(regex);
         return matches ? matches[1] : null;
     }
+
+    // Chame a função processarURL quando a página for carregada
+    document.addEventListener("DOMContentLoaded", processarURL);
 </script>
 
 <!-- Editor de texto -->

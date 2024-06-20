@@ -181,22 +181,8 @@
                                     <td title="' . $site['name'] . '">
                         ';
 
-                        // Consulta SQL para selecionar todas as colunas com base no ID
-                        $sql = "SELECT * FROM tb_ready_site_img WHERE ready_site_id = :ready_site_id ORDER BY id ASC LIMIT 1";
-
-                        // Preparar e executar a consulta
-                        $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':ready_site_id', $site['id']);
-                        $stmt->execute();
-
-                        // Recuperar os resultados
-                        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        if ($imagens) {
-                            // Loop através dos resultados e exibir todas as colunas
-                            foreach ($imagens as $imagem) {
-                                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/admin/ready-website/' . $site['id'] . '/' . $imagem['image'] . '" alt="Capa do Site Pronto" style="width: 38px; height: 38px; object-fit: cover;">';
-                            }
+                        if (!empty($site['card_image'])) {
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $site['id'] . "/card-image/" . $site['card_image'] . '" alt="Capa do Site Pronto" style="width: 38px; height: 38px; object-fit: cover;">';
                         } else {
                             echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" alt="Capa do Site Pronto" style="width: 38px; height: 38px; object-fit: cover;">';
                         }

@@ -27,7 +27,7 @@ $sql = "SELECT * FROM $tabela WHERE link = :link";
 $stmt = $conn_pdo->prepare($sql);
 
 // Vincular o valor do parâmetro
-$stmt->bindParam(':link', $link, PDO::PARAM_INT);
+$stmt->bindParam(':link', $link, PDO::PARAM_STR);
 
 // Executar a consulta
 $stmt->execute();
@@ -37,20 +37,7 @@ $service = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Verificar se o resultado foi encontrado
 if ($service) {
-    // Nome da tabela para a busca
-    $tabela = 'tb_service_img';
-
-    $sql = "SELECT * FROM $tabela WHERE service_id = :service_id ORDER BY id DESC LIMIT 1";
-
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':service_id', $service['id']);
-    $stmt->execute();
-
-    // Recuperar os resultados
-    $image = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $image['service_id'] . "/" . $image['image'];
+    $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $service['id'] . "/card-image/" . $service['card_image'];
 
     // Preco
     // Transforma o número no formato "R$ 149,90"
@@ -96,7 +83,7 @@ if ($service) {
     <div class="header__title">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb align-items-center mb-3">
-                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>sites-prontos" class="fs-5 text-decoration-none text-reset">Serviços</a></li>
+                <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>servicos" class="fs-5 text-decoration-none text-reset">Serviços</a></li>
                 <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page"><?= $service['name']; ?></li>
             </ol>
         </nav>
@@ -208,7 +195,7 @@ if ($service) {
                     </div>
                 </div>
                 <?php
-                    // Sua consulta SQL com JOIN para obter os serviços associados a um site
+                    // Sua consulta SQL com JOIN para obter os serviços associados a um service
                     $sql = "SELECT ss.*, s.* FROM tb_service_services ss JOIN tb_services s ON ss.associated_service_id = s.id WHERE ss.service_id = :service_id";
 
                     // Prepara a consulta
@@ -301,15 +288,15 @@ if ($service) {
                     <p class="fs-5 fw-semibold">Total:</p>
                     <div class="d-flex flex-column align-items-end">
                         <div class="d-flex align-items-end">
-                            <p class="text-secondary fw-semibold text-decoration-line-through me-2 mb-0"><?= $discount; ?></p>
+                            <p class="text-secondary fw-semibold text-decoration-line-through me-2 mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></p>
                             <p class="fs-5 fw-semibold mb-0" id="total"><?= $priceAfterDiscount; ?></p>
                         </div>
                         <p class="text-secondary fw-semibold mb-0">12x de R$ 50,57 com juros</p>
                     </div>
                 </div>
 
-                <input type="hidden" name="ready_site_id" id="ready_site_id" value="<?= $id; ?>">
-                <input type="hidden" name="ready_site_price" id="ready_site_price" value="<?= $priceNoFormat; ?>">
+                <input type="hidden" name="service_id" id="service_id" value="<?= $id; ?>">
+                <input type="hidden" name="service_price" id="service_price" value="<?= $priceNoFormat; ?>">
                 <input type="hidden" name="price" id="price" value="<?= $priceNoFormat; ?>">
                 <input type="hidden" id="selectedServices" name="selectedServices" value="">
 
@@ -388,10 +375,10 @@ if ($service) {
         function updateSelectedServices() {
             selectedServices = []; // Resetar o array
 
-            // Adicionar informações do ready-site
+            // Adicionar informações do service
             selectedServices.push({
                 type: "service",
-                id: <?= $id; ?>,
+                id: <?= $service['id']; ?>,
                 value: <?= $priceNoFormat; ?>
             });
 
@@ -417,7 +404,7 @@ if ($service) {
             $('#servicesForm').submit();
         });
 
-        // Chame updateSelectedServices() para incluir as informações do ready-site
+        // Chame updateSelectedServices() para incluir as informações do service
         updateSelectedServices();
     });
 </script>

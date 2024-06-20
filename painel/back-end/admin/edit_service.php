@@ -32,6 +32,12 @@
             $without_price = 0;
         }
 
+        // Radio select
+        if ($_POST['select'] == 'video') {
+            $video = $_POST['video'];
+            $image = null;
+        }
+
         $video = $_POST['video'];
         $description = $_POST['description'];
         $tooltip_content = $_POST['tooltip_content'];
@@ -68,76 +74,75 @@
         $stmt->bindValue(':id', $id);
         $stmt->execute();
 
-        // Imagens
-        // Deletar imagens
-        if (isset($_POST['delete_images'])) {
-            $postString = $_POST['delete_images']; // Sua string post com valores separados por vírgula
-            $array = explode(", ", $postString); // Divida a string em um array
+        $service_id = $_POST['id'];
 
-            // Loop através dos IDs selecionados e exclua as linhas correspondentes
-            foreach ($array as $selectedId) {
-                // Consulta para obter o diretório da imagem
-                $query = "SELECT id, image, service_id FROM tb_service_img WHERE id = :id";
-                $stmt = $conn_pdo->prepare($query);
-                $stmt->bindParam(':id', $selectedId);
-                $stmt->execute();
+        // Diretório para salvar a imagem de 'card_image'
+        $diretorioImage = "./service/$service_id/card-image/";
 
-                if ($stmt->rowCount() > 0) {
-                    // Obtenha o ID do usuário
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Certifique-se de que os diretórios de destino existam
+        if (!is_dir($diretorioImage)) {
+            mkdir($diretorioImage, 0755, true);
+        }
 
-                    $image = $row['image'];
-                    $service_id = $row['service_id'];
-
-                    // Diretório das imagens
-                    $diretorio = "./service/$service_id/";
-
-                    // Consulta para excluir as imagens do banco de dados
-                    $query = "DELETE FROM tb_service_img WHERE id = :id";
-                    $stmt = $conn_pdo->prepare($query);
-                    $stmt->bindParam(':id', $selectedId);
-                    $stmt->execute();
-
-                    // Agora, exclua as imagens no diretório
-                    $files = glob($diretorio . $image);
-                    foreach ($files as $file) {
-                        unlink($file);
-                    }
+        // Verifique se o campo de upload de imagens não está vazio para 'image'
+        if ($_FILES['card_image']['error'] !== 4) {
+            // Deletar todas as imagens existentes na pasta
+            $files = glob($diretorioImage . '*'); // Obtém todos os arquivos na pasta
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file); // Exclui o arquivo
                 }
+            }
+
+            // Cadastra nova imagem para 'image'
+            $fileName = time() . '.jpg';
+            $uploadFile = $diretorioImage . basename($fileName);
+
+            if (move_uploaded_file($_FILES['card_image']['tmp_name'], $uploadFile)) {
+                $tabela = "tb_services";
+                $sql = "UPDATE $tabela SET card_image = :card_image WHERE id = :id";
+                $stmt = $conn_pdo->prepare($sql);
+
+                $stmt->bindValue(':card_image', $fileName);
+                $stmt->bindValue(':id', $service_id);
+
+                $stmt->execute();
             }
         }
 
-        // Recupere o ID do último registro inserido
-        $service_id = $_POST['id'];
+        // Imagem
+        if ($_POST['select'] == 'image') {
+            // Diretório para salvar as imagens de 'image'
+            $diretorioImage = "./service/$service_id/image/";
 
-        if (isset($_FILES['imagens'])) {
-            // Diretório para salvar as imagens (substitua pelo caminho real)
-            $diretorio = "./service/$service_id/";
-
-            // Certifique-se de que o diretório de destino exista
-            if (!is_dir($diretorio)) {
-                mkdir($diretorio, 0755, true);
+            // Certifique-se de que os diretórios de destino existam
+            if (!is_dir($diretorioImage)) {
+                mkdir($diretorioImage, 0755, true);
             }
 
-            // Verifique se o campo de upload de imagens não está vazio
-            if (!empty($_FILES['imagens'])) {
-                $total = count($_FILES['imagens']['name']);
-                
-                // Loop através de cada arquivo
-                for ($i = 0; $i < $total; $i++) {
-                    $fileName = $_FILES['imagens']['name'][$i];
-                    $tmp_name = $_FILES['imagens']['tmp_name'][$i];
-                    $uploadFile = $diretorio . basename($fileName);
-
-                    if (move_uploaded_file($tmp_name, $uploadFile)) {
-                        // Inserir informações da imagem no banco de dados, associando-a ao registro principal
-                        $sqlInsertImagem = "INSERT INTO tb_service_img (service_id, image) VALUES (:service_id, :image)";
-                        $stmtInsertImagem = $conn_pdo->prepare($sqlInsertImagem);
-                        $stmtInsertImagem->bindParam(':service_id', $service_id);
-                        $stmtInsertImagem->bindParam(':image', $fileName);
-
-                        $stmtInsertImagem->execute();
+            // Verifique se o campo de upload de imagens não está vazio para 'image'
+            if ($_FILES['image']['error'] !== 4) {
+                // Deletar todas as imagens existentes na pasta
+                $files = glob($diretorioImage . '*'); // Obtém todos os arquivos na pasta
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file); // Exclui o arquivo
                     }
+                }
+
+                // Cadastra nova imagem para 'image'
+                $fileName = time() . '.jpg';
+                $uploadFile = $diretorioImage . basename($fileName);
+
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+                    $tabela = "tb_services";
+                    $sql = "UPDATE $tabela SET image = :image WHERE id = :id";
+                    $stmt = $conn_pdo->prepare($sql);
+    
+                    $stmt->bindValue(':image', $fileName);
+                    $stmt->bindValue(':id', $service_id);
+    
+                    $stmt->execute();
                 }
             }
         }

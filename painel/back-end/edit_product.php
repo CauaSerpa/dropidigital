@@ -35,6 +35,7 @@
         2 => 50,
         3 => 250,
         4 => 750,
+        5 => 5000,
     ];
 
     $limitProducts = $limitProductsMap[$shop['plan_id']] ?? "ilimitado";
@@ -73,6 +74,9 @@
 
     // Cria um objeto DateTime com a data e hora atual
     $datetime = new DateTime();
+    
+    // Formata o objeto DateTime como uma string
+    $datetimeFormatted = $datetime->format('Y-m-d H:i:s');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
@@ -97,7 +101,7 @@
         $stmt->bindParam(':seo_name', $dados['seo_name']);
         $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
-        $stmt->bindParam(':last_modification', $datetime);
+        $stmt->bindParam(':last_modification', $datetimeFormatted);
 
         // Id que sera editado
         $stmt->bindParam(':id', $dados['id']);

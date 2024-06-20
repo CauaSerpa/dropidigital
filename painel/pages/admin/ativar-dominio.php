@@ -1,4 +1,7 @@
 <?php
+    echo verificaPermissaoPagina($permissions);
+?>
+<?php
 
     //Apagar Card
     $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);

@@ -7315,6 +7315,10 @@ h6, .h6 {
       align-items: center; } }
   .blog-standard-item .image {
     margin-bottom: 30px; }
+  .blog-standard-item .image img {
+    width: 410px;
+    height: 375px;
+    object-fit: cover; }
     @media only screen and (min-width: 1200px) {
       .blog-standard-item .image {
         width: 48%;
@@ -8383,6 +8387,10 @@ blockquote {
     flex: none;
     max-width: 90px;
     margin-right: 30px; }
+  .widget-recent-news ul li .image img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover; }
     @media only screen and (max-width: 375px) {
       .widget-recent-news ul li .image {
         max-width: 70px;
