@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17/05/2024 às 03:34
+-- Tempo de geração: 10/07/2024 às 05:06
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -49,6 +49,34 @@ CREATE TABLE `tb_address` (
   `bairro` varchar(255) NOT NULL,
   `cidade` varchar(255) NOT NULL,
   `estado` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_ai_historic`
+--
+
+CREATE TABLE `tb_ai_historic` (
+  `id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_ai_request`
+--
+
+CREATE TABLE `tb_ai_request` (
+  `id` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `request` varchar(255) NOT NULL,
+  `number_keywords` int(11) NOT NULL,
+  `response` text NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -115,8 +143,11 @@ CREATE TABLE `tb_blog` (
   `status` tinyint(1) NOT NULL,
   `emphasis` tinyint(1) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `author` int(11) NOT NULL,
   `image` varchar(255) NOT NULL,
   `content` text NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `tag` varchar(255) NOT NULL,
   `seo_name` varchar(255) NOT NULL,
   `link` varchar(255) NOT NULL,
   `seo_description` varchar(255) NOT NULL,
@@ -420,7 +451,6 @@ CREATE TABLE `tb_plans` (
 
 CREATE TABLE `tb_plans_interval` (
   `id` int(11) NOT NULL,
-  `mpago_id` varchar(255) NOT NULL,
   `plan_id` int(11) NOT NULL,
   `billing_interval` varchar(255) NOT NULL,
   `price` decimal(10,0) NOT NULL
@@ -487,7 +517,9 @@ CREATE TABLE `tb_ready_sites` (
   `price` decimal(10,2) NOT NULL,
   `without_price` tinyint(1) NOT NULL,
   `discount` decimal(10,2) NOT NULL,
-  `video` varchar(255) NOT NULL,
+  `card_image` varchar(255) NOT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `video` varchar(255) DEFAULT NULL,
   `description` text NOT NULL,
   `items_included` text DEFAULT NULL,
   `sku` varchar(255) NOT NULL,
@@ -552,7 +584,9 @@ CREATE TABLE `tb_services` (
   `price` decimal(10,2) NOT NULL,
   `without_price` tinyint(1) NOT NULL,
   `discount` decimal(10,2) NOT NULL,
-  `video` varchar(255) NOT NULL,
+  `card_image` varchar(255) NOT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `video` varchar(255) DEFAULT NULL,
   `description` text NOT NULL,
   `tooltip_content` varchar(160) DEFAULT NULL,
   `items_included` text DEFAULT NULL,
@@ -562,6 +596,14 @@ CREATE TABLE `tb_services` (
   `seo_description` varchar(255) NOT NULL,
   `date_create` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tb_services`
+--
+
+INSERT INTO `tb_services` (`id`, `status`, `emphasis`, `name`, `price`, `without_price`, `discount`, `card_image`, `image`, `video`, `description`, `tooltip_content`, `items_included`, `sku`, `seo_name`, `link`, `seo_description`, `date_create`) VALUES
+(1, 1, 0, 'Criação de Logo', 199.00, 0, 0.00, 'foto_teste.png', '1717110078.jpg', '', '<h3>Cria&ccedil;&atilde;o de Logo</h3>', 'Teste para tooltip', '', 'D6A8KMOBNX', 'Criação de Logo', 'criacao-de-logo', 'Criação de Logo', '2024-04-20 01:15:18'),
+(2, 1, 0, 'Teste 1', 99.00, 0, 0.00, '1717110662.jpg', '1717110662.jpg', '', '<p>Teste 1</p>', 'Esse servico faz tal coisa', '[\"Teste 1\"]', 'FR4NWX9OHO', 'Teste 1', 'teste-1', 'Teste 1', '2024-05-30 23:11:02');
 
 -- --------------------------------------------------------
 
@@ -615,6 +657,7 @@ CREATE TABLE `tb_shop` (
   `video` varchar(255) DEFAULT NULL,
   `token_instagram` varchar(255) DEFAULT NULL,
   `segment` varchar(255) NOT NULL,
+  `detailed_segment` varchar(255) DEFAULT NULL,
   `cpf_cnpj` varchar(255) NOT NULL,
   `razao_social` varchar(255) DEFAULT NULL,
   `phone` varchar(15) DEFAULT NULL,
@@ -635,6 +678,19 @@ CREATE TABLE `tb_shop` (
   `top_highlight_bar_text` varchar(255) DEFAULT 'Toda a loja com descontos de até 50%',
   `center_highlight_images` varchar(255) DEFAULT NULL,
   `last_modification` datetime DEFAULT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_shop_users`
+--
+
+CREATE TABLE `tb_shop_users` (
+  `id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `date_create` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -734,6 +790,18 @@ ALTER TABLE `imagens`
 -- Índices de tabela `tb_address`
 --
 ALTER TABLE `tb_address`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_ai_historic`
+--
+ALTER TABLE `tb_ai_historic`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_ai_request`
+--
+ALTER TABLE `tb_ai_request`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -905,6 +973,12 @@ ALTER TABLE `tb_shop`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tb_shop_users`
+--
+ALTER TABLE `tb_shop_users`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `tb_subscriptions`
 --
 ALTER TABLE `tb_subscriptions`
@@ -942,6 +1016,18 @@ ALTER TABLE `imagens`
 -- AUTO_INCREMENT de tabela `tb_address`
 --
 ALTER TABLE `tb_address`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_ai_historic`
+--
+ALTER TABLE `tb_ai_historic`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_ai_request`
+--
+ALTER TABLE `tb_ai_request`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -1092,7 +1178,7 @@ ALTER TABLE `tb_scripts`
 -- AUTO_INCREMENT de tabela `tb_services`
 --
 ALTER TABLE `tb_services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `tb_service_img`
@@ -1110,6 +1196,12 @@ ALTER TABLE `tb_service_services`
 -- AUTO_INCREMENT de tabela `tb_shop`
 --
 ALTER TABLE `tb_shop`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_shop_users`
+--
+ALTER TABLE `tb_shop_users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

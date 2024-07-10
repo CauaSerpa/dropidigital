@@ -959,8 +959,12 @@ if(!empty($id)){
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>
@@ -1692,13 +1696,11 @@ if(!empty($id)){
         input.on("input", function() {
             var value = input.val();
 
-            // Remover acentos e substituir espaços por traço
+            // Remover acentos, espaços e barras
             value = removerAcentosEespacos(value);
             
             span.text(value);
-
             url.val(value);
-
             inputText2.val(value);
             textPreview2.text(value);
 
@@ -1709,8 +1711,12 @@ if(!empty($id)){
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>
@@ -1770,8 +1776,12 @@ if(!empty($id)){
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>
@@ -2106,8 +2116,12 @@ imageDisplay.addEventListener("click", (event) => {
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>

@@ -89,6 +89,46 @@
 </div>
 
 
+<style>
+    .loader {
+        width: 32px;
+        height: 32px;
+        border: 2.5px solid var(--green-color);
+        border-bottom-color: transparent;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+</style>
+<!-- Modal -->
+<div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 pb-3 pt-4 border-0">
+                <h6 class="modal-title fs-6" id="exampleModalLabel">Aviso!</h6>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center justify-content-center px-4 pb-3 pt-0">
+                <div class="loader"></div>
+                <p class="fs-5 fw-semibold mt-2">Seu tema está sendo instalado!</p>
+                <p>Por favor não saia desta página ou feche o navegador.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     $(document).ready(function() {
@@ -205,9 +245,15 @@
             dataType: 'JSON',
             success: function(response) {
                 if (response.status == 'pago') {
+                    clearInterval(intervalId);  // Parar o intervalo
+                    
+                    $('#warningModal').modal('show');
+                    
                     var redirect = <?= (isset($_GET['r']) == 1) ? 1 : 0; ?>;
 
-                    
+                    <?php
+                        if (!isset($_GET['s'])) {
+                    ?>
 
 
                     var params = {
@@ -222,11 +268,7 @@
                         data: params,
                         dataType: 'JSON',
                         success: function(response) {
-                            if (response.status == 'pago') {
-                                var redirect = <?= (isset($_GET['r']) == 1) ? 1 : 0; ?>;
-
-                                
-
+                            if (response.status == 'sucesso') {
                                 if (redirect == 1) {
                                     // Se o pagamento foi aprovado, redirecione para a página desejada
                                     window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano-asaas?p=<?php echo $plan_id; ?>&r=1';
@@ -247,6 +289,9 @@
 
 
 
+                    <?php
+                        } else {
+                    ?>
 
 
 
@@ -257,6 +302,13 @@
                         // Se o pagamento foi aprovado, redirecione para a página desejada
                         window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?<?php echo (isset($payment_id)) ? "p=$payment_id" : "s=$subscription_id"; ?>';
                     }
+
+
+
+
+                    <?php
+                        }
+                    ?>
                 } else {
                     // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
                     console.log('O pagamento ainda não foi aprovado.');
@@ -268,6 +320,6 @@
         });
     }
 
-    // Executar a função de consulta a cada 10 segundos
-    setInterval(realizarConsulta, 10000);
+    // Guardar o ID do intervalo para poder pará-lo posteriormente
+    var intervalId = setInterval(realizarConsulta, 10000);
 </script>

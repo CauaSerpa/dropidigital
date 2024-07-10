@@ -145,6 +145,8 @@
                     // Obtém a string do agente do usuário
                     $browser = $_SERVER['HTTP_USER_AGENT'];
 
+                    $two_factors = $resultado['two_factors'];
+
                     // Verificar se o IP já foi usado
                     $sql = "SELECT * FROM tb_login WHERE user_id = :user_id AND ip_address = :ip_address";
                     $stmt = $conn_pdo->prepare($sql);
@@ -154,7 +156,7 @@
 
                     // Se o IP não foi encontrado, salvar no banco de dados
                     if ($stmt->rowCount() == 0) {
-                        noticeLogin($name, $email, $datetime, $ip, $browser);
+                        noticeLogin($name, $email, $datetime, $ip, $browser, $two_factors);
                     }
 
                     $sql = "INSERT INTO tb_login (user_id, ip_address, first_used_at) VALUES (:user_id, :ip_address, :first_used_at)";

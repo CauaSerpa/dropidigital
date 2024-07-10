@@ -6,7 +6,7 @@ $shop_id = $id;
 $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 // Consulta SQL para contar os produtos na tabela
-$sql = "SELECT COUNT(*) AS total_produtos FROM tb_products";
+$sql = "SELECT COUNT(*) AS total_produtos FROM tb_products WHERE status = 1";
 $stmt = $conn_pdo->query($sql);
 
 // Recupere o resultado da consulta
@@ -425,18 +425,19 @@ if(!empty($id)){
                     <small id="textCounter" class="form-text text-muted">0 de 120 caracteres</small>
                 </div>
                 <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require value="<?php echo $product['name']; ?>">
-                <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/produto/<span class="fw-semibold" id="linkPreview">...</span></p>
+                <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
             <?php
                 if ($product['status'] == 1)
                 {
                     $statusActive = "checked";
-                }
-                else if($limitProducts <= $totalProdutos)
-                {
+                    $activeCheckbox = "Sim";
+                } else if ($limitProducts <= $totalProdutos) {
                     $statusActive = "disabled";
+                    $activeCheckbox = "Não";
                 } else {
-                    $statusActive = "checked";
+                    $statusActive = "";
+                    $activeCheckbox = "Não";
                 }
             ?>
             <div class="row">
@@ -448,7 +449,7 @@ if(!empty($id)){
                         </label>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" value="1" <?php echo $statusActive; ?>>
-                            <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($statusActive == "disabled") ? "Não" : "Sim"; ?></label>
+                            <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo $activeCheckbox; ?></label>
                         </div>
                     </div>
                     <div id="containerEmphasis">
@@ -540,8 +541,38 @@ if(!empty($id)){
         </div>
     </div>
 
+    <style>
+        #loaderButton {
+            display: flex;
+            justify-content: center;
+        }
+
+        .loader {
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid var(--green-color);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Descrição do produto</div>
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Descrição do produto
+            <label id="generate-description" class="d-flex align-items-center small" style="color: var(--green-color); cursor: pointer;"><i class='bx bxs-magic-wand me-1'></i> Gerar com IA <div class="loader ms-1 d-none"></div></label>
+        </div>
         <div class="card-body px-5 py-3">
             <label for="editor" class="form-label small">Descrição do produto</label>
             <textarea name="description" id="editor"><?php echo $product['description']; ?></textarea>
@@ -804,6 +835,54 @@ if(!empty($id)){
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <!-- Mask -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+
+<!-- Gerador de descricao com ia -->
+<script>
+    $(document).ready(function () {
+        $("#generate-description").click(function () {
+            var type = "description";
+            var productName = $('#name').val();
+            if (productName !== "") {
+                generateProductDescription(type, productName);
+            } else {
+                alert("Por favor, insira um nome para o produto antes de gerar a descrição com IA.");
+            }
+        });
+
+        function generateProductDescription(type, keyword) {
+            $('#generate-description .loader').removeClass('d-none');
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/chat-gpt-api.php",
+                method: "POST",
+                dataType: "json",
+                data: {
+                    action: type,
+                    shop_id: <?php echo $id; ?>,
+                    type: type,
+                    keyword: keyword,
+                    plan: <?php echo $plan_id; ?>
+                },
+                success: function (response) {
+                    $('#generate-description .loader').addClass('d-none');
+
+                    if (response.error) {
+                        alert("Erro ao processar a requisição: " + response.error);
+                        return;
+                    }
+
+                    tinymce.get('editor').setContent(response.description);
+                },
+                error: function (xhr, status, error) {
+                    $('#generate-description .loader').addClass('d-none');
+
+                    console.error("Erro na requisição AJAX:", error);
+                    alert("Erro ao processar a requisição. Por favor, tente novamente mais tarde.");
+                }
+            });
+        }
+    });
+</script>
 
 <!-- Link para criar category -->
 <script>
@@ -2105,6 +2184,31 @@ imageDisplay.addEventListener("click", (event) => {
         });
     });
 </script>
+
+<script>
+    let formModified = false;
+
+    // Marca o formulário como modificado quando o usuário faz uma alteração
+    $('#myForm').on('input', 'input', function() {
+        formModified = true;
+    });
+
+    // Adiciona o evento beforeunload para avisar o usuário sobre alterações não salvas
+    $(window).on('beforeunload', function(e) {
+        if (formModified) {
+            // Define a mensagem de aviso
+            const message = 'Você tem alterações não salvas. Tem certeza de que deseja sair desta página?';
+
+            // Para navegadores que suportam a especificação mais recente
+            e.preventDefault();
+            e.returnValue = message;
+
+            // Para navegadores mais antigos
+            return message;
+        }
+    });
+</script>
+
 <?php
 
     } else {

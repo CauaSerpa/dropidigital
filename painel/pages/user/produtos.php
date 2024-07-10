@@ -372,10 +372,34 @@
                             $totalPaginas = ceil($totalProdutos / $limite);
 
                             $search = isset($_GET['search']) ? "&search=" . $_GET['search'] : "";
-
-                            for ($i = 1; $i <= $totalPaginas; $i++) {
-                                $classeAtiva = ($i == $paginaAtual) ? "active" : "";
-                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . $search . '" class="analog pag-link ' . $classeAtiva . '">' . $i . '</a>';
+                    
+                            // Mostra o primeiro link
+                            if ($totalPaginas > 1) {
+                                echo '<a href="?limite=' . $limite . '&pagina=1' . $search . '" class="analog pag-link ' . ($paginaAtual == 1 ? "active" : "") . '">1</a>';
+                            }
+                    
+                            // Determina o intervalo de páginas a serem exibidas
+                            $inicio = max(2, $paginaAtual - 2); // começa no 2 para evitar duplicação do link 1
+                            $fim = min($totalPaginas - 1, $paginaAtual + 2); // termina no totalPaginas - 1 para evitar duplicação do link final
+                    
+                            // Adiciona "..." se necessário
+                            if ($inicio > 2) {
+                                echo '<span class="pag-link">...</span>';
+                            }
+                    
+                            // Mostra os links do intervalo calculado
+                            for ($i = $inicio; $i <= $fim; $i++) {
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . $search . '" class="analog pag-link ' . ($i == $paginaAtual ? "active" : "") . '">' . $i . '</a>';
+                            }
+                    
+                            // Adiciona "..." se necessário
+                            if ($fim < $totalPaginas - 1) {
+                                echo '<span class="pag-link">...</span>';
+                            }
+                    
+                            // Mostra o último link
+                            if ($totalPaginas > 1) {
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $totalPaginas . $search . '" class="analog pag-link ' . ($paginaAtual == $totalPaginas ? "active" : "") . '">' . $totalPaginas . '</a>';
                             }
                         ?>
                     </div>

@@ -192,10 +192,29 @@ if ($site) {
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="planModal" tabindex="-1" role="dialog" aria-labelledby="planModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 pb-3 pt-4 border-0">
+                <h6 class="modal-title fs-6" id="exampleModalLabel">Informações da fatura</h6>
+            </div>
+            <div class="modal-body px-4 pb-3 pt-0">
+                Seu plano atual é menor do que o plano necessário para o Site Pronto, o que pode causar problemas no seu site e não será otimizado para SEO. 
+                <a href="ajuda.dropidigital.com.br/" class="link" target="_blank">Saiba mais aqui!</a>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" id="modalExitButton">Sair</button>
+                <button type="button" class="btn btn-danger fw-semibold px-4 py-2 small" id="modalContinueButton">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex justify-content-center">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD . $path . $site['link']; ?>" class="title text-reset text-decoration-none">Escolher Site Pronto</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD . $path . $site['link']; ?>" class="title text-reset text-decoration-none">Escolher <?php echo ($type == "ready-site") ? "Site Pronto" : "Serviço"; ?></a></li>
             <li class="breadcrumb-item fw-semibold text-body-secondary active" aria-current="page">Informações de pagamento</li>
         </ol>
     </nav>
@@ -349,7 +368,7 @@ if ($site) {
                                 <div class="card mb-3">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="d-flex align-items-center">
-                                            <input type="checkbox" class="form-check-input me-2 mt-0" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" <?= $checkedAttribute ?>>
+                                            <input type="checkbox" id="planCheckbox" class="form-check-input me-2 mt-0" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" <?= $checkedAttribute ?>>
                                             <p class="d-flex align-items-center fw-semibold">
                                                 Plano <?= $plan['name']; ?>
                                                 <i class="bx bx-help-circle edited ms-1" data-toggle="tooltip" data-placement="top" data-bs-html="true" aria-label="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto." data-bs-original-title="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto."></i>
@@ -536,7 +555,10 @@ if ($site) {
                     </div>
 
 					<input type="hidden" name="value" id="value" value="<?php echo $_POST['price']; ?>">
-					<input type="hidden" name="ready_site_price" id="ready_site_price" value="<?php echo $_POST['ready_site_price']; ?>">
+                    <?php if (!empty($_POST['ready_site_id'])) { ?>
+                        <input type="hidden" name="ready_site_id" id="ready_site_id" value="<?php echo $site['shop_id']; ?>">
+                        <input type="hidden" name="ready_site_price" id="ready_site_price" value="<?php echo $_POST['ready_site_price']; ?>">
+                    <?php } ?>
 					<input type="hidden" name="selectedServices" id="selectedServices" value='<?php echo $_POST['selectedServices']; ?>'>
                     <?php if (isset($plan_interval)) { ?>
                         <input type="hidden" name="plan_price" id="plan_price" value="<?php echo $plan_interval['price']; ?>">
@@ -605,6 +627,186 @@ if ($site) {
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    $(document).ready(function() {
+        let prevCheckedState;
+
+        // Função para atualizar o array de serviços selecionados no input hidden
+        function updateSelectedServices() {
+            var selectedServices = [];
+
+            // Adicionar informações do ready-site
+            selectedServices.push({
+                type: "<?= $type; ?>",
+                id: <?= $site['id']; ?>,
+                value: <?= $_POST['ready_site_price']; ?>
+            });
+
+            $('.form-check-input:checked').each(function() {
+                var type = $(this).data('type');
+                var id = $(this).data('service-id');
+                var value = $(this).data('value');
+                selectedServices.push({ type: type, id: id, value: value });
+            });
+            $('#selectedServices').val(JSON.stringify(selectedServices));
+        }
+
+        // Inicializa ou atualiza o texto do botão baseado nas seleções
+        function updateButtonAndInstallments() {
+            var basePrice = parseFloat(<?= $_POST['ready_site_price']; ?>); // Preço base sem os adicionais
+
+            // Soma os valores dos checkboxes selecionados ao total
+            var total = basePrice;
+            $('.form-check-input:checked').each(function() {
+                var value = parseFloat($(this).data('value'));
+                total += value;
+            });
+
+            // Atualiza o valor e o texto das opções do select de parcelamento
+            $('#installment option').each(function(index) {
+                var optionValue = $(this).val().split('|');
+                var numberOfInstallments = parseInt(optionValue[0]);
+                var installmentValue = total / numberOfInstallments;
+
+                // Formatação do valor total
+                var formattedInstallmentValue = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(installmentValue);
+
+                if (index === 0) {
+                    $(this).text('À Vista');
+                } else {
+                    $(this).text(`${numberOfInstallments}x de R$ ${formattedInstallmentValue} sem juros`);
+                }
+
+                $(this).val(`${numberOfInstallments}|${installmentValue.toFixed(2)}`); // Atualiza o valor da opção
+            });
+
+            if ($('input[type="radio"][name="type"]:checked').val() === "creditCard") {
+                // Obtém a quantidade de parcelas selecionada
+                var totalInstallment = $('#installment').val().split('|')[1];
+                
+                // Formatação do valor total
+                var formattedTotalInstallment = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalInstallment);
+                
+                // Obtém a quantidade de parcelas selecionada
+                var selectedInstallments = $('#installment').val().split('|')[0];
+
+                $('#value').val(total);
+                
+                // Atualização do texto do botão com o valor total e a quantidade de parcelas
+                $('#submitButton').text(`Pagar ${selectedInstallments}x de ${formattedTotalInstallment}`);
+            } else {
+                // Formatação do valor total
+                var formattedTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total);
+
+                $('#value').val(total);
+
+                // Atualização do texto do botão com o valor total e a quantidade de parcelas
+                $('#submitButton').text(`Pagar ${formattedTotal}`);
+            }
+
+            // Chama a função para atualizar os serviços selecionados
+            updateSelectedServices();
+        }
+
+        // Evento de mudança nos checkboxes
+        $('.form-check-input, #installment, input[type="radio"][name="type"]').change(updateButtonAndInstallments);
+
+        // Alerta desativar checkbox plan
+        $('input[type="checkbox"]#planCheckbox').change(function() {
+            if (!this.checked) {
+                $('#planModal').modal('show');
+            }
+        });
+
+        $('#modalExitButton').click(function() {
+            // Fecha o modal e mantém o checkbox marcado
+            $('input[type="checkbox"]#planCheckbox').prop('checked', true);
+            $('#planModal').modal('hide');
+            updateButtonAndInstallments();
+        });
+
+        $('#modalContinueButton').click(function() {
+            // Fecha o modal e desmarca o checkbox
+            $('input[type="checkbox"]#planCheckbox').prop('checked', false);
+            $('#planModal').modal('hide');
+            updateButtonAndInstallments();
+        });
+
+        // Esconde o modal quando o botão de fechar (x) é clicado
+        $('.close').click(function() {
+            $('input[type="checkbox"]#planCheckbox').prop('checked', true);
+            $('#planModal').modal('hide');
+            updateButtonAndInstallments();
+        });
+
+        // Chame updateSelectedServices() para incluir as informações do ready-site
+        updateSelectedServices();
+
+        // Chama a função inicialmente para definir o valor
+        updateButtonAndInstallments();
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Alerta desativar checkbox -->
+<script>
+    $(document).ready(function() {
+        $('input[type="checkbox"]#planCheckbox').change(function() {
+            if (!this.checked) {
+                $('#planModal').modal('show');
+            }
+        });
+
+        $('#modalExitButton').click(function() {
+            // Fecha o modal e mantém o checkbox marcado
+            $('input[type="checkbox"]#planCheckbox').prop('checked', true);
+            $('#planModal').modal('hide');
+        });
+
+        $('#modalContinueButton').click(function() {
+            // Fecha o modal e desmarca o checkbox
+            $('input[type="checkbox"]#planCheckbox').prop('checked', false);
+            $('#planModal').modal('hide');
+        });
+
+        // Esconde o modal quando o botão de fechar (x) é clicado
+        $('.close').click(function() {
+            $('input[type="checkbox"]#planCheckbox').prop('checked', true);
+            $('#planModal').modal('hide');
+        });
+    });
+</script>
 
 <!-- Adicione este script JavaScript -->
 <script>
@@ -1038,12 +1240,18 @@ if ($site) {
                 //     }
                 // })
 
+                if ($('input[type="checkbox"]#planCheckbox').is(':checked')) {
+                    var redirect = "&r=1";
+                } else {
+                    var redirect = "";
+                }
+
                 if (selectedPaymentType === "creditCard") {
                     // Redirecionar para página de pagamento
                     window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento-confirmado?p=" + encodedCode;
                 } else if (selectedPaymentType === "pix") {
                     // Redirecionar para página de pagamento
-                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?p=" + encodedCode + "&r=1&id=<?= $site['plan_id']; ?>&site=<?= $site['id']; ?>";
+                    window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?p=" + encodedCode + redirect + "&id=<?= $site['plan_id']; ?>&site=<?= $site['shop_id']; ?>";
                 }
             } else {
                 // Exibir mensagem de erro ao usuário

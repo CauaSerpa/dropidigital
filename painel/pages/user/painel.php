@@ -273,6 +273,21 @@
     $tabela = 'tb_products';
 
     // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela WHERE shop_id = :shop_id";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // O resultado contém o total de produtos na chave 'total_produtos'
+    $totalProdutos = $resultado['total_produtos'];
+    
+    // Nome da tabela para a busca
+    $tabela = 'tb_products';
+
+    // Consulta SQL para contar os produtos na tabela
     $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela WHERE shop_id = :shop_id AND status = :status";
     $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
     $stmt->bindParam(':shop_id', $id);
@@ -283,13 +298,13 @@
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // O resultado contém o total de produtos na chave 'total_produtos'
-    $totalProdutos = $resultado['total_produtos'];
+    $totalProdutosAtivos = $resultado['total_produtos'];
 
     // Calcule a porcentagem
     if ($limitProducts === "ilimitado") {
         $porcentagemProdutos = 0; // Se for ilimitado, a porcentagem é 0
     } else {
-        $porcentagemProdutos = ($totalProdutos / $limitProducts) * 100;
+        $porcentagemProdutos = ($totalProdutosAtivos / $limitProducts) * 100;
         $porcentagemProdutos = min($porcentagemProdutos, 100); // Garanta que a porcentagem não ultrapasse 100%
     }
 
@@ -396,16 +411,17 @@
                     </div>
                 </div>
                 <div class="text line-height align-self-end">
-                    <div class="d-flex align-items-baseline mb-3">
-                        <h1 class="fw-semibold mb-0 mx-2"><?php echo $totalProdutos; ?></h1>
+                    <div class="d-flex align-items-baseline">
+                        <h1 class="fw-semibold mb-0 mx-2"><?php echo $totalProdutosAtivos; ?></h1>
                         <p class="fs-5">de <?php echo $limitProducts; ?></p>
                     </div>
+                    <p><?php echo $totalProdutos; ?> produtos cadastrados.</p>
                     <?php
                         if ($limitProducts == "ilimitado")
                         {
                             echo '<span class="warning">Sua loja não possui limite de produtos</span>';
                         } else {
-                            echo '<span class="warning">Sua loja consumiu ' . $porcentagemProdutos . '% do limite.</span>';
+                            echo '<span class="warning">Sua loja consumiu ' . $porcentagemProdutos . '% do limite de produtos ativos.</span>';
                         }
                     ?>
                 </div>
@@ -477,7 +493,9 @@
     $diferencaEmSegundos = $timestampDataFinal - $timestampDataAtual;
 
     // Calcula a diferença em dias
-    $diferencaEmDias = floor($diferencaEmSegundos / (60 * 60 * 24));
+    $calcDiferencaEmDias = floor($diferencaEmSegundos / (60 * 60 * 24));
+
+    $diferencaEmDias = ($calcDiferencaEmDias < 0) ? 0 : $calcDiferencaEmDias;
 
     // Defina o número total de dias
     $diasTotais = 30;
@@ -487,9 +505,22 @@
 
     // Verifica se undefined é igual a 1
     $mensagemDiasRestantes = ($subs['undefined'] == 1 || @$_SESSION['ready_site'] == 1) ? "Indefinido" : $diferencaEmDias . " dias";
+
+    // Cores com base na porcentagem de dias restantes
+    if ($percentDays > 80) {
+        $circleColor = "rgb(1, 200, 155)"; // Verde
+    } elseif ($percentDays > 60) {
+        $circleColor = "rgb(251, 188, 5)"; // Amarelo
+    } else {
+        $circleColor = "rgb(229, 15, 56)"; // Vermelho
+    }
 ?>
 
-
+    <style>
+        #cardCycle .skill svg circle {
+            stroke: <?php echo $circleColor; ?>;
+        }
+    </style>
 
 
 
@@ -499,7 +530,7 @@
                 <h3 class="title">Ciclo do Cartão</h3>
                 <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="link">Alterar Plano</a>
             </div>
-            <div class="plan__metrics">
+            <div class="plan__metrics" id="cardCycle">
                 <div class="chart-js">
                     <div class="skill">
                         <div class="outer">
@@ -1285,6 +1316,586 @@
         ?>
     </div>
 </div>
+
+<?php
+    if ($plan_id == 1 || $plan_id == 2) {
+        $numberKeyworks = 50;
+        $numberDescriptions = 10;
+        $numberProducts = 10;
+        $remainingKeywords = 40;
+    } else {
+        $numberKeyworks = 250;
+        $numberDescriptions = 50;
+        $numberProducts = 50;
+    }
+?>
+
+<!-- Modal de Categorias -->
+<div class="modal fade" id="criarCategoriasModal" tabindex="-1" role="dialog" aria-labelledby="categoriasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/create_category-in-product.php" method="post" id="createCategory">
+                <div class="modal-header px-4 py-3 bg-transparent">
+                    <div class="fw-semibold py-2">
+                        Histórico de consultas
+                    </div>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <div>
+                        <label for="request" class="form-label small">Pesquisar...</label>
+                        <input type="text" class="form-control" name="request" id="request" aria-describedby="requestHelp" required>
+                    </div>
+                </div>
+                <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
+                <div class="modal-footer fw-semibold px-4">
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .ia-dropi-digital button {
+        text-align: inherit;
+    }
+    #ia-content  .more-info span.placeholder {
+        cursor: not-allowed !important;
+    }
+</style>
+
+<style>
+    #loaderButton {
+        display: flex;
+        justify-content: center;
+    }
+
+    .loader {
+        width: 24px;
+        height: 24px;
+        border: 2.5px solid #FFF;
+        border-bottom-color: transparent !important;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+
+    .restore .loader {
+        width: 16px;
+        height: 16px;
+    }
+
+    .removeHistory .loader {
+        width: 16px;
+        height: 16px;
+        border-color: rgb(108, 117, 125);
+    }
+
+    #cleanHistory .loader {
+        width: 20px;
+        height: 20px;
+        border-color: rgb(108, 117, 125);
+    }
+
+    @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+
+
+<!-- Modal de Histórico de Consultas -->
+<div class="modal fade" id="historicoModal" tabindex="-1" role="dialog" aria-labelledby="historicoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Histórico de consultas
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="historicoTable">
+                        <thead>
+                            <tr>
+                                <th>Consulta</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Linhas do histórico serão adicionadas aqui pelo jQuery -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer d-flex align-items-center justify-content-between fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold d-flex align-items-center px-4 py-2 small" id="cleanHistory"><div class="loader me-2 d-none"></div>Limpar Histórico</button>
+                <button type="button" class="btn btn-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<h3 class="title h5 fw-semibold mt-2 mb-2">IA Dropi Digital</h3>
+
+<div class="card p-3 mb-3">
+    <div class="ia-dropi-digital">
+        <form class="form-ia" id="form-ia">
+            <div class="d-flex">
+                <input type="text" class="form-control w-100 me-2" name="keyword" id="keyword" maxlength="120" aria-describedby="keywordHelp" placeholder="Insira o segmento do qual deseja receber palavras-chave" required>
+                <button type="button" class="btn btn-secondary d-flex align-items-center justify-content-center me-2" style="width: 40px;" data-bs-toggle="modal" data-bs-target="#historicoModal" data-toggle="tooltip" data-placement="top" title="Histórico"><i class='bx bx-history'></i></button>
+                <button type="button" class="btn btn-success fw-semibold text-center px-4 py-2 small" id="ia-button" style="width: 200px;">Enviar</button>
+                <button type="button" class="btn btn-success fw-semibold px-4 py-2 small d-none align-items-center justify-content-center" id="ia-button-loader" style="width: 200px;">
+                    <div class="loader"></div>
+                </button>
+            </div>
+        </form>
+        <?php if (isset($detailed_segment)) { ?>
+        <div class="row mb-3 px-4 mt-2" id="ia-suggestions">
+            <div class="col-md-4 d-grid">
+                <button type="button" id="button-1" class="card">
+                    <i class='bx bx-bulb fs-4 mb-2' style='color: #5ce1e7;' ></i>
+                    <p>Me dê <span class="fw-semibold"><?= $numberKeyworks; ?></span> palavras chaves para meu negócio de <span class="fw-semibold"><?= $detailed_segment; ?></span></p>
+                </button>
+            </div>
+            <div class="col-md-4 d-grid">
+                <button type="button" id="button-3" class="card">
+                    <i class='bx bx-package fs-4 mb-2' style='color: #ffde59;' ></i>
+                    <p>Me dê <span class="fw-semibold"><?= $numberProducts; ?></span> produtos para meu negócio de <span class="fw-semibold"><?= $detailed_segment; ?></span></p>
+                </button>
+            </div>
+            <div class="col-md-4 d-grid">
+                <button type="button" id="button-2" class="card">
+                    <i class='bx bx-file fs-4 mb-2' style='color: #ff8bd2;' ></i>
+                    <p>Me de <span class="fw-semibold"><?= $numberDescriptions; ?></span> descrições para meu serviço de <span class="fw-semibold"><?= $detailed_segment; ?></span></p>
+                </button>
+            </div>
+        </div>
+        <?php } ?>
+    </div>
+
+    <table id="ia-content" class="d-none">
+        <thead>
+            <tr>
+                <th class="small">Palavra-chave</th>
+                <th class="small">Volume</th>
+                <th class="small">Ações</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div id="moreAvailable" class="d-none mt-2">
+        <p>Para ver mais <?php echo $remainingKeywords; ?> palavras-chave, <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="link">clique aqui para alterar o plano</a>.</p>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#ia-button").click(function () {
+            var type = "keywords";
+            var keyword = $("#keyword").val().trim();
+            if (keyword !== "") {
+                fetchKeywords(type, keyword);
+            }
+        });
+
+        <?php if (isset($detailed_segment)) { ?>
+
+        $("#button-1").click(function () {
+            var type = "keywords";
+            var keyword = "<?= $detailed_segment; ?>";
+            if (keyword !== "") {
+                fetchKeywords(type, keyword);
+            }
+        });
+
+        $("#button-2, #button-3").click(function () {
+            var type = "products";
+            var keyword = "<?= $detailed_segment; ?>";
+            if (keyword !== "") {
+                fetchKeywords(type, keyword);
+            }
+        });
+
+        <?php } ?>
+
+        function fetchKeywords(type, keyword) {
+            $("#ia-button").addClass("d-none");
+            $("#ia-button-loader").removeClass("d-none").addClass("d-flex");
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/chat-gpt-api.php",
+                method: "POST",
+                dataType: "json",
+                data: {
+                    action: type,
+                    shop_id: <?php echo $id; ?>,
+                    type: type,
+                    keyword: keyword,
+                    plan: <?php echo $plan_id; ?>
+                },
+                success: function (response) {
+                    $("#ia-button").removeClass("d-none");
+                    $("#ia-button-loader").removeClass("d-flex").addClass("d-none");
+                    
+                    $("#ia-content tbody").removeClass('d-none');
+
+                    // Limpa a tabela antes de inserir novos dados
+                    $("#ia-content tbody").empty();
+
+                    if (response.error) {
+                        alert("Erro ao processar a requisição: " + response.error);
+                        return;
+                    }
+
+                    // Insere os dados na tabela
+                    $.each(response.keywords, function (index, keyword) {
+                        var row = "<tr>" +
+                            "<td class='w-100'>" + keyword.keyword + "</td>" +
+                            "<td>" + keyword.volume + "</td>" +
+                            "<td>" +
+                            "<button type='button' class='btn btn-secondary copy-btn me-2' data-toggle='tooltip' data-placement='top' title='Copiar palavra-chave'>" +
+                            "<i class='bx bxs-copy'></i>" +
+                            "</button>" +
+                            "<a href='<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto?name=" + encodeURIComponent(keyword.keyword) + "' target='_blank' class='btn btn-success' data-toggle='tooltip' data-placement='top' title='Criar produto com palavra-chave'>" +
+                            "<i class='bx bx-folder-plus'></i>" +
+                            "</a>" +
+                            "</td>" +
+                            "</tr>";
+                        $("#ia-content tbody").append(row);
+                    });
+
+                    // Mostra a tabela de resultados
+                    $("#ia-suggestions").addClass("d-none");
+                    $("#ia-content").removeClass("d-none");
+
+                    // Mostra a mensagem de ver mais disponíveis, se aplicável
+                    if (response.moreAvailable) {
+                        $("#moreAvailable").removeClass('d-none');
+                    } else {
+                        $("#moreAvailable").addClass('d-none');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Erro na requisição AJAX:", error);
+                    $("#ia-button").removeClass("d-none");
+                    $("#ia-button-loader").removeClass("d-flex").addClass("d-none");
+                    alert("Erro ao processar a requisição. Por favor, tente novamente mais tarde.");
+                }
+            });
+        }
+
+        // Copia a palavra-chave para a área de transferência
+        $(document).on('click', '.copy-btn', function () {
+            var keyword = $(this).closest('tr').find('td:first').text();
+
+            navigator.clipboard.writeText(keyword).then(function () {
+                $(this).tooltip('hide')
+                    .attr('data-bs-original-title', 'Palavra-chave copiada!')
+                    .tooltip('show');
+
+                setTimeout(() => {
+                    $(this).tooltip('hide')
+                        .attr('data-bs-original-title', 'Copiar palavra-chave');
+                }, 2000);
+            }.bind(this)).catch(function (error) {
+                console.error('Erro ao copiar a palavra-chave: ', error);
+            });
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_ai_historic';
+
+    $sql = "SELECT shop_id, request_id, date_create FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->execute();
+
+    // Fetch all retorna um array contendo todas as linhas do conjunto de resultados
+    $historics = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $resultArray = [];
+
+    if ($historics) {
+        foreach ($historics as $historic) {
+            // Nome da tabela para a busca
+            $tabela = 'tb_ai_request';
+
+            $sql = "SELECT id, type, request, number_keywords FROM $tabela WHERE id = :id ORDER BY id DESC";
+
+            // Preparar e executar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':id', $historic['request_id']);
+            $stmt->execute();
+
+            // Fetch all retorna um array contendo todas as linhas do conjunto de resultados
+            $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($request['type'] != 'description') {
+                // Convertendo o id para formato numérico
+                $requestId = (int)$request['id'];
+    
+                // Formatando a data
+                $formattedDateCreate = DateTime::createFromFormat('Y-m-d H:i:s', $historic['date_create']);
+                $dateCreate = $formattedDateCreate->format('d/m/Y H:i');
+    
+                // Adicionar ao array de resultados
+                $resultArray[] = [
+                    'id' => $requestId,
+                    'type' => $request['type'],
+                    'request' => $request['request'],
+                    'numberKeywords' => $request['number_keywords'],
+                    'dateCreate' => $dateCreate,
+                ];
+            }
+        }
+    }
+?>
+
+<script>
+    $(document).ready(function () {
+        // Array de requests históricos (substitua com a lógica do seu banco de dados)
+        var historicoRequests = <?php echo json_encode($resultArray); ?>;
+
+        // Função para exibir o histórico de requests no modal
+        function exibirHistorico() {
+            var historicoTableBody = $("#historicoTable tbody");
+            historicoTableBody.empty();
+
+            if (!Array.isArray(historicoRequests) || historicoRequests.length === 0) {
+                historicoTableBody.append('<tr><td colspan="4" class="text-center">Nenhum histórico encontrado.</td></tr>');
+            } else {
+                historicoRequests.forEach(function (request) {
+                    if (request.type === "keywords") {
+                        var requestKeyword = "Gere <span class='fw-semibold'>" + request.numberKeywords + "</span> palavras-chaves para meu segmento <span class='fw-semibold'>" + request.request + "</span>.";
+                        var requestKeywordNoHtml = "Gere " + request.numberKeywords + " palavras-chaves para meu segmento " + request.request + ".";
+                    } else if (request.type === "products") {
+                        var requestKeyword = "Gere <span class='fw-semibold'>" + request.numberKeywords + "</span> produtos para meu segmento <span class='fw-semibold'>" + request.request + "</span>.";
+                        var requestKeywordNoHtml = "Gere " + request.numberKeywords + " produtos para meu segmento " + request.request + ".";
+                    }
+
+                    historicoTableBody.append('<tr><td class="w-100" title="' + requestKeywordNoHtml + '">' + requestKeyword +
+                        '</td><td>' + request.dateCreate +
+                        '</td><td class="d-flex"><button type="button" class="restore btn btn-secondary d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; padding: 0;" data-id="' + request.id + '" title="Restaurar"><i class="bx bx-history"></i><div class="loader d-none"></div></button>' +
+                        '<button type="button" class="removeHistory btn btn-outline-light border border-secondary-subtle text-secondary d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; padding: 0;" data-id="' + request.id + '" title="Remover do Histórico"><i class="bx bx-x"></i><div class="loader d-none"></div></button>' +
+                        '</td></tr>');
+                });
+            }
+        }
+
+        function restore(id, type) {
+            // Encontra o loader dentro do botão clicado e remove a classe d-none para mostrá-lo
+            var loader = $(document).find('button.restore[data-id="' + id + '"] .loader');
+            var icon = $(document).find('button.restore[data-id="' + id + '"] i');
+            loader.removeClass('d-none');
+            icon.addClass('d-none');
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/chat-gpt-api.php",
+                method: "POST",
+                dataType: "json",
+                data: {
+                    action: type,
+                    shop_id: <?php echo $id; ?>,
+                    id: id,
+                    type: type
+                },
+                success: function (response) {
+                    // Após o AJAX responder com sucesso, adiciona a classe d-none de volta ao loader para ocultá-lo
+                    loader.addClass('d-none');
+                    icon.removeClass('d-none');
+                    
+                    $('#historicoModal').modal('hide');
+
+                    $("#ia-content tbody").removeClass('d-none');
+                    $("#ia-content tbody").empty();
+
+                    if (response.error) {
+                        alert("Erro ao processar a requisição: " + response.error);
+                        return;
+                    }
+
+                    $.each(response.keywords, function (index, keyword) {
+                        var row = "<tr>" +
+                            "<td class='w-100'>" + keyword.keyword + "</td>" +
+                            "<td>" + keyword.volume + "</td>" +
+                            "<td>" +
+                            "<button type='button' class='btn btn-secondary copy-btn me-2' data-toggle='tooltip' data-placement='top' title='Copiar palavra-chave'>" +
+                            "<i class='bx bxs-copy'></i>" +
+                            "</button>" +
+                            "<a href='<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto?name=" + encodeURIComponent(keyword.keyword) + "' target='_blank' class='btn btn-success' data-toggle='tooltip' data-placement='top' title='Criar produto com palavra-chave'>" +
+                            "<i class='bx bx-folder-plus'></i>" +
+                            "</a>" +
+                            "</td>" +
+                            "</tr>";
+                        $("#ia-content tbody").append(row);
+                    });
+
+                    $("#ia-suggestions").addClass("d-none");
+                    $("#ia-content").removeClass("d-none");
+                },
+                error: function (xhr, status, error) {
+                    console.error("Erro na requisição AJAX:", error);
+                    loader.addClass('d-none'); // Em caso de erro, também oculta o loader
+                    icon.removeClass('d-none');
+                    alert("Erro ao processar a requisição. Por favor, tente novamente mais tarde.");
+                }
+            });
+        }
+
+        function removeHistory(id, type) {
+            // Encontra o loader dentro do botão clicado e remove a classe d-none para mostrá-lo
+            var loader = $(document).find('button.removeHistory[data-id="' + id + '"] .loader');
+            var icon = $(document).find('button.removeHistory[data-id="' + id + '"] i');
+            loader.removeClass('d-none');
+            icon.addClass('d-none');
+            // Encontra o botão clicado com o data-id correspondente
+            var button = $(document).find('button.removeHistory[data-id="' + id + '"]');
+            // Encontra a linha (tr) correspondente ao botão
+            var row = button.closest('tr');
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/chat-gpt-api.php",
+                method: "POST",
+                dataType: "json",
+                data: {
+                    action: type,
+                    shop_id: <?php echo $id; ?>,
+                    id: id,
+                    type: type
+                },
+                success: function (response) {
+                    if (response.error) {
+                        alert("Erro ao processar a requisição: " + response.error);
+                        return;
+                    }
+
+                    if (response.status === 200) {
+                        // Após o AJAX responder com sucesso, adiciona a classe d-none de volta ao loader para ocultá-lo
+                        loader.addClass('d-none');
+                        icon.removeClass('d-none');
+                
+                        // Remove a linha do histórico
+                        row.remove();
+                    } else {
+                        alert("Erro ao processar a requisição");
+                        return;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Erro na requisição AJAX:", error);
+                    loader.addClass('d-none'); // Em caso de erro, também oculta o loader
+                    icon.removeClass('d-none');
+                    alert("Erro ao processar a requisição. Por favor, tente novamente mais tarde.");
+                }
+            });
+        }
+
+        function cleanHistory(type) {
+            // Encontra o loader dentro do botão clicado e remove a classe d-none para mostrá-lo
+            var loader = $(document).find('button#cleanHistory .loader');
+            loader.removeClass('d-none');
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/chat-gpt-api.php",
+                method: "POST",
+                dataType: "json",
+                data: {
+                    action: type,
+                    shop_id: <?php echo $id; ?>,
+                    type: type
+                },
+                success: function (response) {
+                    if (response.error) {
+                        alert("Erro ao processar a requisição: " + response.error);
+                        return;
+                    }
+
+                    if (response.status === 200) {
+                        // Após o AJAX responder com sucesso, adiciona a classe d-none de volta ao loader para ocultá-lo
+                        loader.addClass('d-none');
+                
+                        var historicoTableBody = $("#historicoTable tbody");
+                        historicoTableBody.empty();
+
+                        historicoTableBody.append('<tr><td colspan="4" class="text-center">Nenhum histórico encontrado.</td></tr>');
+                    } else {
+                        alert("Erro ao processar a requisição");
+                        return;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Erro na requisição AJAX:", error);
+                    loader.addClass('d-none'); // Em caso de erro, também oculta o loader
+                    alert("Erro ao processar a requisição. Por favor, tente novamente mais tarde.");
+                }
+            });
+        }
+
+        // Abrir o modal e exibir o histórico
+        $('#historicoModal').on('show.bs.modal', function () {
+            exibirHistorico();
+        });
+
+        // Manipulador de eventos para o clique no botão Restaurar dentro do modal de histórico
+        $(document).on('click', 'button.restore', function () {
+            var id = $(this).data('id'); // Obtém o ID do histórico a ser restaurado
+            var type = 'restore'; // Tipo de operação de restauração (pode ser útil para o PHP)
+
+            // Chama a função para restaurar os dados
+            restore(id, type);
+        });
+
+        // Manipulador de eventos para o clique no botão Restaurar dentro do modal de histórico
+        $(document).on('click', 'button.removeHistory', function () {
+            var id = $(this).data('id'); // Obtém o ID do histórico a ser restaurado
+            var type = 'remove-history'; // Tipo de operação de restauração (pode ser útil para o PHP)
+
+            // Chama a função para restaurar os dados
+            removeHistory(id, type);
+        });
+
+        // Manipulador de eventos para o clique no botão Restaurar dentro do modal de histórico
+        $(document).on('click', 'button#cleanHistory', function () {
+            var type = 'clean-history'; // Tipo de operação de restauração (pode ser útil para o PHP)
+
+            // Chama a função para restaurar os dados
+            cleanHistory(type);
+        });
+    });
+</script>
+
+
+
 
 <script>
     // Seus dados de exemplo (substitua pelos seus próprios dados)

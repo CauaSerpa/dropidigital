@@ -130,6 +130,25 @@ if ($site) {
     }
 </style>
 
+<!-- Modal -->
+<div class="modal fade" id="planModal" tabindex="-1" role="dialog" aria-labelledby="planModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 pb-3 pt-4 border-0">
+                <h6 class="modal-title fs-6" id="exampleModalLabel">Informações da fatura</h6>
+            </div>
+            <div class="modal-body px-4 pb-3 pt-0">
+                Seu plano atual é menor do que o plano necessário para o Site Pronto, o que pode causar problemas no seu site e não será otimizado para SEO. 
+                <a href="ajuda.dropidigital.com.br/" class="link" target="_blank">Saiba mais aqui!</a>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" id="modalExitButton">Sair</button>
+                <button type="button" class="btn btn-danger fw-semibold px-4 py-2 small" id="modalContinueButton">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="page__header center">
     <div class="header__title">
         <nav aria-label="breadcrumb">
@@ -237,7 +256,7 @@ if ($site) {
                 }
             </style>
             <div class="col-md-4">
-                <a href="<?= $url; ?>" class="btn btn-outline-success fw-semibold px-4 py-2 small w-100 mb-3">Ver Site Pronto</a>
+                <a href="<?= $url; ?>" class="btn btn-outline-success fw-semibold px-4 py-2 small w-100 mb-3" target="_blank">Ver Site Pronto</a>
                 <div class="card p-0 mb-3 <?php echo ($site['items_included'] == "") ? "d-none" : ""; ?>">
                     <div class="card-header fw-semibold px-4 py-3 bg-transparent">Benefícios</div>
                     <div class="card-body row px-4 py-3">
@@ -281,13 +300,13 @@ if ($site) {
                     // Obtém o numero de resultados
                     $countSiteServices = $stmt->rowCount();
                 ?>
-                <div class="card p-0 mb-3 <?php echo ($site['plan_id'] == 1 && $countSiteServices == 0) ? "d-none" : ""; ?>">
+                <div class="card p-0 mb-3 <?php echo ($site['plan_id'] == 1 && $site['plan_id'] == 2 && $site['plan_id'] >= $plan['plan_id'] && $countSiteServices == 0) ? "d-none" : ""; ?>">
                     <div class="card-header fw-semibold px-4 py-3 bg-transparent">Ofertas</div>
                     <div class="card-body row px-4 py-3">
                         <ul class="mb-0">
                             <?php
-                                if ($site['plan_id'] != 1) {
-                                    // Tabela que sera feita a consulta
+                                if ($site['plan_id'] != 1 && $site['plan_id'] != 2 && $site['plan_id'] >= $plan['plan_id']) {
+                                    // Tabela que será feita a consulta
                                     $tabela = "tb_plans_interval";
 
                                     // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
@@ -307,7 +326,7 @@ if ($site) {
 
                                     // Verificar se o resultado foi encontrado
                                     if ($plan_interval) {
-                                        // Tabela que sera feita a consulta
+                                        // Tabela que será feita a consulta
                                         $tabela = "tb_plans";
 
                                         // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
@@ -317,7 +336,7 @@ if ($site) {
                                         $stmt = $conn_pdo->prepare($sql);
 
                                         // Binde o parâmetro
-                                        $stmt->bindParam(':id', $plan_interval['plan_id'], PDO::PARAM_INT);
+                                        $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
 
                                         // Executa a consulta
                                         $stmt->execute();
@@ -341,7 +360,7 @@ if ($site) {
 
                             <li class="d-flex align-items-center justify-content-between mb-1">
                                 <div class="d-flex align-items-center">
-                                    <input type="checkbox" class="form-check-input me-2" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" checked>
+                                    <input type="checkbox" id="planCheckbox" class="form-check-input me-2" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" checked>
                                     <p>
                                         Plano <?= $plan['name']; ?>
                                         <i class="bx bx-help-circle edited" data-toggle="tooltip" data-placement="top" data-bs-html="true" aria-label="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto." data-bs-original-title="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto."></i>
@@ -556,6 +575,35 @@ if ($site) {
 
         // Chame updateSelectedServices() para incluir as informações do ready-site
         updateSelectedServices();
+    });
+</script>
+
+<!-- Alerta desativar checkbox -->
+<script>
+    $(document).ready(function() {
+        $('input[type="checkbox"]').change(function() {
+            if (!this.checked) {
+                $('#planModal').modal('show');
+            }
+        });
+
+        $('#modalExitButton').click(function() {
+            // Fecha o modal e mantém o checkbox marcado
+            $('input[type="checkbox"]#planCheckbox').prop('checked', true);
+            $('#planModal').modal('hide');
+        });
+
+        $('#modalContinueButton').click(function() {
+            // Fecha o modal e desmarca o checkbox
+            $('input[type="checkbox"]#planCheckbox').prop('checked', false);
+            $('#planModal').modal('hide');
+        });
+
+        // Esconde o modal quando o botão de fechar (x) é clicado
+        $('.close').click(function() {
+            $('input[type="checkbox"]#planCheckbox').prop('checked', true);
+            $('#planModal').modal('hide');
+        });
     });
 </script>
 

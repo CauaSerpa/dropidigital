@@ -148,6 +148,7 @@
         $loja = $resultado['name'];
         $phone = $resultado['phone'];
         $whatsapp = $resultado['whatsapp'];
+        $detailed_segment = $resultado['detailed_segment'];
     }
 
     // Nome da tabela para a busca
@@ -1195,6 +1196,58 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Chamada Para atualizar o perfil -->
+<div class="modal fade" id="callToUpdProfileModal" tabindex="-1" role="dialog" aria-labelledby="callToUpdProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 pb-3 pt-4 border-0">
+                <div class="fw-semibold py-2">Atualização de Perfil Necessária</div>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center justify-content-center px-4 py-3">
+                <div><i class='bx bx-error fs-1'></i></div>
+                <p class="fw-semibold">Você tem campos em branco.</p>
+                <p class="small">Clique no botão abaixo para inserir os campos vazios.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" id="closeCallToUpdProfileModal" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="btn btn-secondary fw-semibold px-4 py-2 small">Ir para Configurações</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+    if (isset($id) && $permissions == 0) {
+        if (empty($_SESSION['close_upd_modal'])) {
+            if (!isset($detailed_segment)) {
+                echo "
+                    <script>
+                        $(document).ready(function() {
+                            $('#callToUpdProfileModal').modal('show');
+                        });
+                    </script>
+                ";
+            }
+        }
+    }
+?>
+
+<script>
+    $(document).ready(function () {
+        function closeCallToUpdProfileModal() {
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/close_upd_modal.php",
+                method: "POST",
+                dataType: "json"
+            });
+        }
+        
+        $("#closeCallToUpdProfileModal").click(function () {
+            closeCallToUpdProfileModal();
+        });
+    });
+</script>
 
     <?php
         if (isset($_SESSION['admin_id'])) {

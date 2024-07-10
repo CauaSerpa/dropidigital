@@ -78,6 +78,11 @@
                 </select>
                 <span id="segment-error" class="error-message"></span>
             </div>
+            <div class="inputBox select">
+                <label for="detailedSegment" class="labelInput">Segmento Detalhado <span class="danger">*</span></label>
+                <input type="text" name="detailed_segment" id="detailedSegment" class="inputUser">
+                <span id="detailed-segment-error" class="error-message"></span>
+            </div>
             <div class="container__button">
                 <button type="button" name="next" class="button button--flex next" onclick="validarEtapa(1)">Continuar</button>
             </div>
@@ -347,14 +352,17 @@
                 const nameInput = document.getElementById('name');
                 const urlInput = document.getElementById('url');
                 const segmentInput = document.getElementById('segment');
+                const detailedSegmentInput = document.getElementById('detailedSegment');
 
                 const nameError = document.getElementById('name-error');
                 const urlError = document.getElementById('url-error');
                 const segmentError = document.getElementById('segment-error');
+                const detailedSegmentError = document.getElementById('detailed-segment-error');
 
                 const nameField = $(nameInput);
                 const urlField = $(urlInput);
                 const segmentField = $(segmentInput);
+                const detailedSegmentField = $(detailedSegmentInput);
 
                 nameError.textContent = '';
 
@@ -379,6 +387,14 @@
                 if (!validateSegment(segmentInput.value)) {
                     segmentError.textContent = 'Selecione um segmento!';
                     segmentField.addClass('input-error');
+                    return false;
+                }
+
+                detailedSegmentError.textContent = '';
+
+                if (!validateName(detailedSegmentInput.value)) {
+                    detailedSegmentError.textContent = 'Preencha o campo segmento detalhado!';
+                    detailedSegmentField.addClass('input-error');
                     return false;
                 }
             }
@@ -457,6 +473,7 @@
     const urlField = $('#urlForm');
     const urlInput = $('#url');
     const segmentInput = document.getElementById('segment');
+    const detailedSegmentInput = document.getElementById('detailedSegment');
     const cpfInput = document.getElementById('cpf');
     const cnpjInput = document.getElementById('cnpj');
     const razaoSocialInput = document.getElementById('razao_social');
@@ -464,6 +481,7 @@
     const nameError = document.getElementById('name-error');
     const urlError = document.getElementById('url-error');
     const segmentError = document.getElementById('segment-error');
+    const detailedSegmentError = document.getElementById('detailed-segment-error');
     const cpfError = document.getElementById('cpf-error');
     const cnpjError = document.getElementById('cnpj-error');
     const razaoSocialError = document.getElementById('razao_social-error');
@@ -478,6 +496,10 @@
 
     segmentInput.addEventListener('change', function () {
         validateSegment();
+    });
+
+    detailedSegmentInput.addEventListener('change', function () {
+        validateDetailedSegment();
     });
 
     cpfInput.addEventListener('input', function () {
@@ -533,6 +555,18 @@
             segmentField.addClass('input-error');
         } else {
             segmentField.removeClass('input-error');
+        }
+    }
+
+    function validateDetailedSegment() {
+        const detailedSegmentField = $(detailedSegmentInput);
+        detailedSegmentError.textContent = '';
+
+        if (!validateField(detailedSegmentInput.value)) {
+            detailedSegmentError.textContent = 'Preencha o campo segmento detalhado.';
+            detailedSegmentField.addClass('input-error');
+        } else {
+            detailedSegmentField.removeClass('input-error');
         }
     }
 

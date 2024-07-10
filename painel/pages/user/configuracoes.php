@@ -191,6 +191,10 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
+                    <label for="detailed_segment" class="form-label small">Segmento Detalhado</label>
+                    <input type="text" class="form-control" name="detailed_segment" id="detailed_segment" aria-describedby="detailedSegmentHelp" placeholder="Ex.: Marketing Digital" value="<?php echo $shop['detailed_segment']; ?>">
+                </div>
+                <div class="col-md-6">
                     <label for="segment" class="form-label small">Segmento *</label>
                     <div class="input-group">
                         <select name="segment" id="segment" class="form-select">

@@ -13,19 +13,57 @@
     // Recuperar os resultados
     $productCategory = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Nome da tabela para a busca
-    $tabela = 'tb_categories';
+    // Verifica se encontrou a categoria
+    if ($productCategory) {
+        // Nova consulta para buscar produtos na mesma categoria
+        $sql = "SELECT p.* FROM tb_products p
+                INNER JOIN tb_product_categories pc ON p.id = pc.product_id
+                WHERE pc.category_id = :category_id AND p.shop_id = :shop_id AND p.status = :status AND p.id != :current_product
+                GROUP BY p.id
+                ORDER BY p.id ASC
+                LIMIT 4";
 
-    $sql = "SELECT * FROM $tabela WHERE id = :id AND shop_id = :shop_id ORDER BY id DESC";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':category_id', $productCategory['category_id']);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':status', 1);
+        $stmt->bindParam(':current_product', $product['id']);
+        $stmt->execute();
 
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':id', $productCategory['category_id']);
-    $stmt->bindParam(':shop_id', $shop_id);
-    $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Recuperar os resultados
-    $category = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Nome da tabela para a busca
+        $tabela = 'tb_categories';
+    
+        $sql = "SELECT name, link FROM $tabela WHERE id = :id";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':id', $productCategory['category_id']);
+        $stmt->execute();
+
+        // Recuperar o nome
+        $related_categories = $stmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        // Se não houver resultados na categoria, buscar produtos em destaque
+        // Consulta para buscar produtos em destaque
+        $sql = "SELECT * FROM tb_products 
+                WHERE shop_id = :shop_id AND status = :status AND emphasis = 1 AND id != :current_product
+                ORDER BY id ASC
+                LIMIT 4";
+
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $shop_id);
+        $stmt->bindValue(':status', 1);
+        $stmt->bindParam(':current_product', $product['id']);
+        $stmt->execute();
+
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Inicialize uma variável de controle e um contador
+    $primeiroElemento = true;
+    $contador = 0;
 ?>
 <?php
     // Função para adicionar um registro na tabela tb_visits
@@ -216,37 +254,28 @@
 </style>
 <div class="container">
     <div class="row p-4">
-        <?php if ($category) { ?>
         <nav class="mb-2" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <?php
-                    // Nome da tabela para a busca
-                    $tabela = 'tb_categories';
-
-                    $sql = "SELECT name, link FROM $tabela WHERE id = :id";
-
-                    // Preparar e executar a consulta
-                    $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':id', $category['parent_category']);
-                    $stmt->execute();
-
-                    // Recuperar o nome
-                    $parent_category = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    if ($category['parent_category'] == 1)
-                    {
-                        echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
-                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
+                    if ($related_categories) {    
+                        if ($related_categories['parent_category'] == 1)
+                        {
+                            echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
+                            echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . "categoria/" . $related_categories['link'] . '" class="text-decoration-none">' . $related_categories['name'] . '</a></li>';
+                        } elseif ($related_categories['parent_category'] !== 1) {
+                            echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
+                            echo '<li class="breadcrumb-item small ms-2"><a href="' . INCLUDE_PATH_LOJA . $parent_category['link'] . '" class="text-decoration-none">' . $parent_category['name'] . '</a></li>';
+                            echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . "categoria/" . $related_categories['link'] . '" class="text-decoration-none">' . $related_categories['name'] . '</a></li>';
+                        } else {
+                            echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
+                        }
                     } else {
                         echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
-                        echo '<li class="breadcrumb-item small ms-2"><a href="' . INCLUDE_PATH_LOJA . $parent_category['link'] . '" class="text-decoration-none">' . $parent_category['name'] . '</a></li>';
-                        echo '<li class="breadcrumb-item small ms-2" aria-current="page"><a href="' . INCLUDE_PATH_LOJA . "categoria/" . $category['link'] . '" class="text-decoration-none">' . $category['name'] . '</a></li>';
                     }
                 ?>
                 <li class="breadcrumb-item small fw-semibold text-body-secondary text-decoration-none ms-2 active" aria-current="page"><?php echo $product['name']; ?></li>
             </ol>
         </nav>
-        <?php } ?>
 
         <div class="col-md-6 container-images">
             <div class="product-images">
@@ -444,10 +473,25 @@
             $stmt->execute();
 
             $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            // Consulta para buscar produtos em destaque
+            $sql = "SELECT * FROM tb_products 
+                    WHERE shop_id = :shop_id AND status = :status AND id != :current_product
+                    ORDER BY (emphasis = 1) DESC
+                    LIMIT 4";
 
-            // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
-            $contador = 0;
+            $stmt = $conn_pdo->prepare($sql);
+            $stmt->bindParam(':shop_id', $shop_id);
+            $stmt->bindValue(':status', 1);
+            $stmt->bindParam(':current_product', $product['id']);
+            $stmt->execute();
+
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        // Inicialize uma variável de controle e um contador
+        $primeiroElemento = true;
+        $contador = 0;
 
         if ($resultados) {
     ?>
@@ -558,7 +602,6 @@
     </div>
     <?php
         }
-    }
     ?>
 </div>
 <script>

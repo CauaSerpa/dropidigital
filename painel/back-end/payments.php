@@ -55,6 +55,7 @@ function makeDonation($dataForm, $config){
         include_once('./asaas/cobranca_pix.php');
         include_once('./asaas/qr_code.php');
         include_once('./asaas/cancelar_antigas_cobrancas.php');
+        include_once('./copy_site_shop.php');
 
         switch($_POST["method"]) {
             case 'creditCard':
@@ -72,7 +73,7 @@ function makeDonation($dataForm, $config){
                     $subs_payment_id = asaas_CriarAssinaturaCartao($customer_id, $dataForm, $config);
                     asaas_CancelarAntigasAssinaturas($dataForm, $subs_payment_id, $config);
                 }
-                copyReadySiteToShop($dataForm, $config);
+                copyReadySiteToShop($dataForm);
                 echo json_encode(["status"=>200, "code"=>$payment_id, "id"=>$customer_id]);
                 break;
             case 'pix':

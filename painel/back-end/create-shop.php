@@ -55,6 +55,7 @@
         }
         
         $segment = $_POST['segment'];
+        $detailed_segment = $_POST['detailed_segment'];
         
         $person = $_POST['person'];
         // Verifica se e pessoa fisica ou pessoa juridica
@@ -85,12 +86,13 @@
         $tabela = 'tb_shop';
         
         // Insere o usuário no banco de dados
-        $sql = "INSERT INTO $tabela (user_id, name, segment, cpf_cnpj, razao_social, phone) VALUES 
-                                    (:user_id, :name, :segment, :cpf_cnpj, :razao_social, :phone)";
+        $sql = "INSERT INTO $tabela (user_id, name, segment, detailed_segment, cpf_cnpj, razao_social, phone) VALUES 
+                                    (:user_id, :name, :segment, :detailed_segment, :cpf_cnpj, :razao_social, :phone)";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':user_id', $user_id);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':segment', $segment);
+        $stmt->bindValue(':detailed_segment', $detailed_segment);
         $stmt->bindValue(':cpf_cnpj', $cpf_cnpj);
         $stmt->bindValue(':razao_social', $razao_social);
         $stmt->bindValue(':phone', $phone);

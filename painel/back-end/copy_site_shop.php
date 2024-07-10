@@ -1,34 +1,55 @@
 <?php
 function copyReadySiteToShop($dataForm) {
-    include('asaas/config.php');
+    include('./asaas/config.php');
 
     function copiarPastaImg($src, $dst) {
+        // Verifica se o diretório de origem existe
+        if (!file_exists($src) || !is_dir($src)) {
+            error_log("Erro: O diretório de origem $src não existe ou não é um diretório.");
+            return;
+        }
+    
         // Cria o diretório de destino se ele não existir
         if (!file_exists($dst)) {
             mkdir($dst, 0777, true);
         }
-
+    
         // Abre o diretório e lê seu conteúdo
         $dir = opendir($src);
-
+        if ($dir === false) {
+            error_log("Erro: Não foi possível abrir o diretório $src.");
+            return;
+        }
+    
         while (($file = readdir($dir)) !== false) {
             if ($file != '.' && $file != '..') {
+                $srcFile = $src . '/' . $file;
+                $dstFile = $dst . '/' . $file;
                 // Se for um diretório, recursivamente copia seu conteúdo
-                if (is_dir($src . '/' . $file)) {
-                    copiarPastaImg($src . '/' . $file, $dst . '/' . $file);
-                }
-                // Se for um arquivo, copia-o para o novo destino
-                else {
-                    copy($src . '/' . $file, $dst . '/' . $file);
+                if (is_dir($srcFile)) {
+                    copiarPastaImg($srcFile, $dstFile);
+                } else {
+                    // Se for um arquivo, copia-o para o novo destino
+                    if (!copy($srcFile, $dstFile)) {
+                        error_log("Erro: Não foi possível copiar o arquivo $srcFile para $dstFile.");
+                    }
                 }
             }
         }
-
+    
         closedir($dir);
     }
 
     $ready_site_id = $dataForm['ready_site_id'];
     $site_id = $dataForm['shop_id'];
+
+    $tabela = 'tb_shop';
+    $query = "SELECT * FROM $tabela WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':id', $site_id);
+    $stmt->execute();
+
+    $site = $stmt->fetch(PDO::FETCH_ASSOC);
 
     $tabela = 'tb_shop';
     $query = "SELECT * FROM $tabela WHERE id = :id";
@@ -87,28 +108,77 @@ function copyReadySiteToShop($dataForm) {
         if ($stmt->execute()) {
             // Copiar Logo
             // Definindo os caminhos de origem e destino
-            $origem = "../logos/$ready_site_id";
-            $destino = "../logos/$site_id";
+            $origem = "./logos/$ready_site_id";
+            $destino = "./logos/$site_id";
 
             // Chamando a função para copiar a pasta
             copiarPastaImg($origem, $destino);
 
+            // Nome da tabela para a busca
             $tabela = 'tb_products';
             $query = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
             $stmt = $conn->prepare($query);
             $stmt->bindParam(':shop_id', $ready_site_id);
             $stmt->execute();
-    
+
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
             foreach ($products as $product) {
+                // Nome da tabela para a busca
                 $tabela = 'tb_products';
+                
+                // Consulta SQL para contar os produtos na tabela
+                $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela WHERE shop_id = :shop_id AND status = :status";
+                $stmt = $conn->prepare($sql);  // Use prepare para consultas preparadas
+                $stmt->execute([':shop_id' => $site_id, ':status' => 1]);
+                
+                // Recupere o resultado da consulta
+                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // O resultado contém o total de produtos na chave 'total_produtos'
+                $totalProdutos = $resultado['total_produtos'];
+                
+                // Definir o limite de produtos baseado no plano
+                $planLimits = [
+                    1 => 10,
+                    2 => 50,
+                    3 => 250,
+                    4 => 750,
+                    5 => 5000,
+                ];
+                
+                $limitProducts = $planLimits[$site['plan_id']] ?? 10;
+                
+                // Definir o status baseado no total de produtos
+                $status = ($limitProducts <= $totalProdutos) ? 0 : 1;
+
+                // Verificar duplicidade de link e adicionar valor adicional se necessário
+                $link = $product['link'];
+                $originalLink = $link;
+                $counter = 1;
+
+                $sql = "SELECT COUNT(*) AS count FROM $tabela WHERE link = :link AND shop_id = :shop_id";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':link', $link);
+                $stmt->bindParam(':shop_id', $site_id);
+                $stmt->execute();
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                while ($result['count'] > 0) {
+                    $link = $originalLink . '-' . $counter;
+                    $stmt->bindParam(':link', $link);
+                    $stmt->execute();
+                    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $counter++;
+                }
+
                 $query = "INSERT INTO $tabela
-                            (shop_id, emphasis, name, price, without_price, discount, video, description, sku, checkout, button_type, redirect_link, seo_name, link, seo_description)
+                            (shop_id, status, emphasis, name, price, without_price, discount, video, description, sku, checkout, button_type, redirect_link, seo_name, link, seo_description)
                         VALUES
-                            (:shop_id, :emphasis, :name, :price, :without_price, :discount, :video, :description, :sku, :checkout, :button_type, :redirect_link, :seo_name, :link, :seo_description)";
+                            (:shop_id, :status, :emphasis, :name, :price, :without_price, :discount, :video, :description, :sku, :checkout, :button_type, :redirect_link, :seo_name, :link, :seo_description)";
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':shop_id', $site_id);
+                $stmt->bindParam(':status', $status);
                 $stmt->bindParam(':emphasis', $product['emphasis']);
                 $stmt->bindParam(':name', $product['name']);
                 $stmt->bindParam(':price', $product['price']);
@@ -121,7 +191,7 @@ function copyReadySiteToShop($dataForm) {
                 $stmt->bindParam(':button_type', $product['button_type']);
                 $stmt->bindParam(':redirect_link', $product['redirect_link']);
                 $stmt->bindParam(':seo_name', $product['seo_name']);
-                $stmt->bindParam(':link', $product['link']);
+                $stmt->bindParam(':link', $link);
                 $stmt->bindParam(':seo_description', $product['seo_description']);
                 $stmt->execute();
 
@@ -130,7 +200,7 @@ function copyReadySiteToShop($dataForm) {
                 $tabela = 'imagens';
                 $query = "SELECT * FROM $tabela WHERE usuario_id = :usuario_id";
                 $stmt = $conn->prepare($query);
-                $stmt->bindParam(':usuario_id', $product_id);
+                $stmt->bindParam(':usuario_id', $product['id']);
                 $stmt->execute();
 
                 $product_imgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -138,8 +208,8 @@ function copyReadySiteToShop($dataForm) {
                 foreach ($product_imgs as $product_img) {
                     // Copiar Imagem do produto
                     // Definindo os caminhos de origem e destino
-                    $origem = "../imagens/" . $product['id'];
-                    $destino = "../imagens/$product_id";
+                    $origem = "./imagens/" . $product['id'];
+                    $destino = "./imagens/$product_id";
 
                     $tabela = 'imagens';
                     $query = "INSERT INTO $tabela
@@ -185,8 +255,8 @@ function copyReadySiteToShop($dataForm) {
 
                 // Copiar Imagem do produto
                 // Definindo os caminhos de origem e destino
-                $origem = "../banners/" . $banner['id'];
-                $destino = "../banners/$banner_id";
+                $origem = "./banners/" . $banner['id'];
+                $destino = "./banners/$banner_id";
 
                 $tabela = 'tb_banner_img';
                 $query = "SELECT * FROM $tabela WHERE banner_id = :banner_id";
@@ -244,13 +314,24 @@ function copyReadySiteToShop($dataForm) {
 
                 $category_id = $conn->lastInsertId();
 
-                // Copiar Imagem do produto
-                // Definindo os caminhos de origem e destino
-                $origem = "../category/" . $category['id'];
-                $destino = "../category/$category_id";
+                if (empty($category['image'])) {
+                    // Copiar Imagem da categoria
+                    // Definindo os caminhos de origem e destino
+                    $origem = "./category/" . $category['id'] . "/image/";
+                    $destino = "./category/$category_id/image/";
+    
+                    // Chamando a função para copiar a pasta
+                    copiarPastaImg($origem, $destino);
+                }
 
-                // Chamando a função para copiar a pasta
-                copiarPastaImg($origem, $destino);
+                if (empty($category['icon'])) {
+                    // Definindo os caminhos de origem e destino
+                    $origem = "./category/" . $category['id'] . "/icon/";
+                    $destino = "./category/$category_id/icon/";
+
+                    // Chamando a função para copiar a pasta
+                    copiarPastaImg($origem, $destino);
+                }
             }
             
             $tabela = 'tb_product_categories';
@@ -280,4 +361,13 @@ function copyReadySiteToShop($dataForm) {
     } else {
         echo "Site Pronto não encontrado!";
     }
+}
+
+// Verifique se a função foi chamada via AJAX
+if (isset($_POST['shop_id']) && isset($_POST['ready_site_id'])) {
+    $dataForm['shop_id'] = $_POST['shop_id'];
+    $dataForm['ready_site_id'] = $_POST['ready_site_id'];
+    copyReadySiteToShop($dataForm);
+    echo json_encode(['status' => 'sucesso']);
+    exit();
 }

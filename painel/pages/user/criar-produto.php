@@ -402,7 +402,7 @@
                     <label for="name" class="form-label small">Nome do produto *</label>
                     <small id="nameCounter" class="form-text text-muted">0 de 120 caracteres</small>
                 </div>
-                <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require>
+                <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" value="<?php echo @$_GET['name']; ?>" require>
                 <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/produto/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
             <div class="row">
@@ -413,7 +413,7 @@
                             <i class="bx bx-help-circle <?php echo ($limitProducts <= $totalProdutos) ? "" : "d-none"; ?>" data-toggle="tooltip" data-placement="top" aria-label="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!" data-bs-original-title="Você ultrapassou o limite de produtos ativos. Para habilitar novos produtos, considere a contratação de um plano com maior capacidade!"></i>
                         </label>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" <?php echo ($limitProducts <= $totalProdutos) ? "value='1' disabled" : "value='1' checked"; ?>>
+                            <input class="form-check-input" type="checkbox" name="status" role="switch" id="activeProduct" <?php echo ($limitProducts <= $totalProdutos) ? "value='0' disabled" : "value='1' checked"; ?>>
                             <label class="form-check-label" id="activeCheckbox" for="activeProduct"><?php echo ($limitProducts <= $totalProdutos) ? "Não" : "Sim"; ?></label>
                         </div>
                     </div>
@@ -484,8 +484,38 @@
         </div>
     </div>
 
+    <style>
+        #loaderButton {
+            display: flex;
+            justify-content: center;
+        }
+
+        .loader {
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid var(--green-color);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Descrição do produto</div>
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Descrição do produto
+            <label id="generate-description" class="d-flex align-items-center small" style="color: var(--green-color); cursor: pointer;"><i class='bx bxs-magic-wand me-1'></i> Gerar com IA <div class="loader ms-1 d-none"></div></label>
+        </div>
         <div class="card-body px-5 py-3">
             <label for="editor" class="form-label small">Descrição do produto</label>
             <textarea name="description" id="editor"></textarea>
@@ -694,6 +724,54 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- Gerador de descricao com ia -->
+<script>
+    $(document).ready(function () {
+        $("#generate-description").click(function () {
+            var type = "description";
+            var productName = $('#name').val();
+            if (productName !== "") {
+                generateProductDescription(type, productName);
+            } else {
+                alert("Por favor, insira um nome para o produto antes de gerar a descrição com IA.");
+            }
+        });
+
+        function generateProductDescription(type, keyword) {
+            $('#generate-description .loader').removeClass('d-none');
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/chat-gpt-api.php",
+                method: "POST",
+                dataType: "json",
+                data: {
+                    action: type,
+                    shop_id: <?php echo $id; ?>,
+                    type: type,
+                    keyword: keyword,
+                    plan: <?php echo $plan_id; ?>
+                },
+                success: function (response) {
+                    $('#generate-description .loader').addClass('d-none');
+
+                    if (response.error) {
+                        alert("Erro ao processar a requisição: " + response.error);
+                        return;
+                    }
+
+                    tinymce.get('editor').setContent(response.description);
+                },
+                error: function (xhr, status, error) {
+                    $('#generate-description .loader').addClass('d-none');
+
+                    console.error("Erro na requisição AJAX:", error);
+                    alert("Erro ao processar a requisição. Por favor, tente novamente mais tarde.");
+                }
+            });
+        }
+    });
+</script>
 
 <!-- Link para criar category -->
 <script>
@@ -1725,5 +1803,40 @@
         // Faça algo com o valor (por exemplo, exiba-o em um alerta)
         alert("Você inseriu: " + valorInserido);
 
+    });
+</script>
+
+<script>
+    let formModified = false;
+
+    // Verifica se há algum valor modificado nos inputs ao carregar a página
+    $(document).ready(function() {
+        // Percorre todos os inputs do formulário com id 'myForm'
+        $('#myForm input').each(function() {
+            if ($(this).val() !== '') {
+                formModified = true;
+                return false; // Interrompe o loop assim que encontrar um input modificado
+            }
+        });
+    });
+
+    // Marca o formulário como modificado quando o usuário faz uma alteração
+    $('#myForm').on('input', 'input', function() {
+        formModified = true;
+    });
+
+    // Adiciona o evento beforeunload para avisar o usuário sobre alterações não salvas
+    $(window).on('beforeunload', function(e) {
+        if (formModified) {
+            // Define a mensagem de aviso
+            const message = 'Você tem alterações não salvas. Tem certeza de que deseja sair desta página?';
+
+            // Para navegadores que suportam a especificação mais recente
+            e.preventDefault();
+            e.returnValue = message;
+
+            // Para navegadores mais antigos
+            return message;
+        }
     });
 </script>

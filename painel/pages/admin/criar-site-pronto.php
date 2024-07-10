@@ -825,8 +825,12 @@
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>
@@ -1465,8 +1469,12 @@
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>
@@ -1526,8 +1534,12 @@
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>
@@ -1811,8 +1823,12 @@
         });
 
         function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+            // Remove acentos usando normalize, substitui espaços por traço e remove barras
+            return texto.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')  // Remove acentos
+                        .replace(/\s+/g, "-")            // Substitui espaços por traço
+                        .replace(/\//g, "")              // Remove barras
+                        .toLowerCase();
         }
     });
 </script>

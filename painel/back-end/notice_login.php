@@ -2,7 +2,7 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-function noticeLogin($name, $email, $datetime, $ip, $browser) {
+function noticeLogin($name, $email, $datetime, $ip, $browser, $two_factors) {
     // Caminho para o diretório pai
     $parentDir = dirname(dirname(__DIR__));
 
@@ -58,9 +58,11 @@ function noticeLogin($name, $email, $datetime, $ip, $browser) {
 
         // Enviar o e-mail
         if ($mail->send()) {
-            // Redirecionar após sucesso
-            header("Location: " . INCLUDE_PATH_DASHBOARD . "dois-fatores");
-            exit();
+            if ($two_factors == 1) {
+                // Redirecionar após sucesso
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "dois-fatores");
+                exit();
+            }
         } else {
             $_SESSION['msgcad'] = 'Erro ao enviar o e-mail: ' . $mail->ErrorInfo;
             header("Location: " . INCLUDE_PATH_DASHBOARD . "login");
