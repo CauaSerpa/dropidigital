@@ -144,12 +144,28 @@
         // Atribuir o valor da coluna "name" à variável $name
         $user_id = $id;
         $id = $resultado['id'];
-        $plan_id = $resultado['plan_id'];
+        // $plan_id = $resultado['plan_id'];
         $loja = $resultado['name'];
         $phone = $resultado['phone'];
         $whatsapp = $resultado['whatsapp'];
         $detailed_segment = $resultado['detailed_segment'];
     }
+
+    // Nome da tabela para a busca
+    $tabela = 'tb_subscriptions';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT plan_id FROM $tabela WHERE (status = :status OR status = :status1) AND shop_id = :shop_id ORDER BY id DESC LIMIT 1";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindValue(':status', 'ACTIVE');
+    $stmt->bindValue(':status1', 'RECEIVED');
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $plan_id = (isset($plan['plan_id'])) ? $plan['plan_id'] : 1;
 
     // Nome da tabela para a busca
     $tabela = 'tb_plans_interval';
@@ -163,26 +179,16 @@
     // Recupere o resultado da consulta
     $plan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (@$plan['plan_id'] == 1)
-    {
-        $limitProducts = 10;
-    }
-    else if (@$plan['plan_id'] == 2)
-    {
-        $limitProducts = 50;
-    }
-    else if (@$plan['plan_id'] == 3)
-    {
-        $limitProducts = 250;
-    }
-    else if (@$plan['plan_id'] == 4)
-    {
-        $limitProducts = 750;
-    }
-    else
-    {
-        $limitProducts = 5000;
-    }
+    // Definir o limite de produtos baseado no plano
+    $planLimits = [
+        1 => 10,
+        2 => 50,
+        3 => 250,
+        4 => 900,
+        5 => 5000,
+    ];
+    
+    $limitProducts = $planLimits[$plan['plan_id']] ?? 10;
 
     // Nome da tabela para a busca
     $tabela = 'tb_plans';
@@ -196,7 +202,7 @@
     // Recupere o resultado da consulta
     $plan_info = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $plan_name = @$plan_info['name'];
+    $plan_name = $plan_info['name'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -462,6 +468,32 @@
                 </div>
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>site-catalogo">Site Catálogo</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('sugestoes-melhorias'); ?> <?php activeSidebarLink('ver-sugestao-melhoria'); ?> <?php activeSidebarLink('sugestoes-melhorias'); ?> <?php activeSidebarLink('ver-sugestao-melhoria'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sugestoes-melhorias">
+                            <i class='bx bx-message-square-add' ></i>
+                        </a>
+                        <span class="link_name">Melhorias</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sugestoes-melhorias">Melhorias</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('novidades'); ?> <?php activeSidebarLink('novidades'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>novidades">
+                            <i class='bx bx-bulb' ></i>
+                        </a>
+                        <span class="link_name">Novidades</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>novidades">Novidades</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('criar-site-pronto'); ?> <?php activeSidebarLink('editar-site-pronto'); ?> <?php activeSidebarLink('relatorio-sites-prontos'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('editar-site-pronto'); ?> <?php showSidebarLinks('criar-site-pronto'); ?> <?php showSidebarLinks('relatorio-sites-prontos'); ?>">
@@ -733,6 +765,10 @@
                                 <?php endforeach; ?>
                             </ul>
                         </div>
+                        <div class="improvement small" data-bs-toggle="offcanvas" data-bs-target="#improvementOffcanvas" aria-controls="improvementOffcanvasExample">
+                            <i class='bx bx-bulb'></i>
+                            <p>Enviar uma Melhoria</p>
+                        </div>
                         <div class="account">
                             <h5 class="fs-5 mb-1">Minha Conta</h5>
                             <ul class="mb-0">
@@ -895,7 +931,7 @@
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="sidebar_link">
-                                <i class='bx bx-dollar-circle' ></i>
+                                <i class='bx bx-wallet' ></i>
                             </a>
                             <span class="link_name">Financeiro</span>
                         </p>
@@ -953,6 +989,19 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento">Atendimento</a></li>
                 </ul>
             </li>
+            <li class="<?php activeSidebarLink('indique-e-ganhe'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>indique-e-ganhe">
+                            <i class='bx bx-dollar-circle' ></i>
+                        </a>
+                        <span class="link_name">Indique e Ganhe</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>indique-e-ganhe">Indique e Ganhe</a></li>
+                </ul>
+            </li>
             <li class="<?php activeSidebarLink('redes-sociais'); ?>">
                 <div class="iocn-link">
                     <p>
@@ -998,19 +1047,18 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">+ Criar Artigo</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('newsletter'); ?> <?php showSidebarLinks('newsletter'); ?>">
+            <li class="<?php activeSidebarLink('grupo-whatsapp'); ?> <?php showSidebarLinks('grupo-whatsapp'); ?>">
                 <div class="iocn-link">
                         <p>
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter" class="sidebar_link">
-                                <i class='bx bx-envelope-open' ></i>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>grupo-whatsapp" class="sidebar_link">
+                                <i class='bx bxl-whatsapp' ></i>
                             </a>
-                            <span class="link_name">Newsletter</span>
+                            <span class="link_name">Grupo WhatsApp</span>
                         </p>
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
-                <ul class="sub-menu">
-                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter">Newsletter</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter" class="<?php activeSidebarLink('newsletter'); ?>">E-mails Cadastrados</a></li>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>grupo-whatsapp">Grupo WhatsApp</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('influenciadores'); ?>">
@@ -1162,6 +1210,735 @@
                 </div>
             </div>
         </div>
+
+<!-- Modal de Histórico de Melhorias Enviadas -->
+<div class="modal fade" id="improvementHistoryModal" tabindex="-1" role="dialog" aria-labelledby="improvementHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Histórico de melhorias
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="improvementHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Melhoria</th>
+                                <th>Situação</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                // Nome da tabela para a busca
+                                $tabela = 'tb_improvement';
+
+                                // Preparar a consulta com base na pesquisa (se houver)
+                                $sql = "SELECT * FROM $tabela WHERE author = :author";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindParam(':author', $user_id);
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                // Loop através dos resultados e exibir todas as colunas
+                                if ($resultados) {
+                                    foreach ($resultados as $improvement) {
+                                        if ($improvement['status'] == 2) {
+                                            $improvement['status'] = "Finalizado";
+                                        } elseif ($improvement['status'] == 1) {
+                                            $improvement['status'] = "Em desenvolvimento";
+                                        } elseif ($improvement['status'] == 0) {
+                                            $improvement['status'] = "Em análise";
+                                        } else {
+                                            $improvement['status'] = "Recusado";
+                                        }
+
+                                        $formattedDateCreate = DateTime::createFromFormat('Y-m-d H:i:s', $improvement['date_create']);
+                                        $improvement['date_create'] = $formattedDateCreate->format('d/m/Y H:i');
+                            ?>
+                                <tr>
+                                    <td class='w-100'><?= $improvement['title']; ?></td>
+                                    <td><?= $improvement['status']; ?></td>
+                                    <td><?= $improvement['date_create']; ?></td>
+                                </tr>
+                            <?php
+                                    }
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer d-flex align-items-center justify-content-end fw-semibold px-4">
+                <button type="button" class="btn btn-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Denunciar melhoria -->
+<div class="modal fade" id="reportImprovement" tabindex="-1" aria-labelledby="reportImprovementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="reportImprovementForm" method="post">
+                <div class="modal-header px-4 pb-3 pt-4 border-0">
+                    <h6 class="modal-title fs-6" id="reportImprovementModalLabel">Denunciar Melhoria</h6>
+                </div>
+                <div class="modal-body px-4 pb-3 pt-0">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="already_solved" id="already_solved">
+                        <label class="form-check-label" for="already_solved">
+                            Já Resolvido
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="inappropriate_content" id="inappropriate_content">
+                        <label class="form-check-label" for="inappropriate_content">
+                            Conteúdo Impróprio
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="spam" id="spam">
+                        <label class="form-check-label" for="spam">
+                            Spam
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="incorrect_information" id="incorrect_information">
+                        <label class="form-check-label" for="incorrect_information">
+                            Informação Incorreta
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="other" id="other">
+                        <label class="form-check-label" for="other">
+                            Outro
+                        </label>
+                    </div>
+                    <div class="form-group mt-2" id="other_description_div" style="display: none;">
+                        <input type="text" class="form-control" name="other_description" id="other_description" maxlength="150" placeholder="Descreva a denúncia">
+                    </div>
+                </div>
+                <input type="hidden" name="improvement_id" id="improvement_id">
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Enviar Denúncia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    #preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .preview-image {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-image button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        border: 1px solid #c4c4c4;
+        border-radius: 0.3rem;
+        background: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: .3s;
+    }
+
+    .preview-image button::before {
+        -webkit-text-stroke: 2px #f4f6f8;
+        align-items: center;
+        border-radius: 8px;
+        color: #666;
+        content: "\f00d";
+        display: flex;
+        font-family: Font Awesome\ 5 Free;
+        font-size: 22px;
+        font-weight: 700;
+        height: 32px;
+        justify-content: center;
+    }
+</style>
+
+<!-- Enviar melhoria -->
+<div class="modal fade" id="sendImprovement" tabindex="-1" aria-labelledby="sendImprovementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="improvementForm" method="post" enctype="multipart/form-data">
+                <div class="modal-header px-4 pb-3 pt-4 border-0">
+                    <h6 class="modal-title fs-6" id="sendImprovementModalLabel">Enviar Melhoria</h6>
+                </div>
+                <div class="modal-body px-4 pb-3 pt-0">
+                    <div class="alert-container" id="error-improvement"></div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label small">Título *</label>
+                        <input type="text" class="form-control" name="title" id="title" aria-describedby="titleHelp" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <label for="description" class="form-label small">Descrição da melhoria *</label>
+                            <small id="descriptionCounter" class="form-text text-muted">0 de 1000 caracteres</small>
+                        </div>
+                        <textarea class="form-control mb-2" name="description" id="description" maxlength="1000" rows="3" required></textarea>
+                        <div class="row">
+                            <div class="col-md-2 mb-3">
+                                <label for="images" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold d-flex align-items-center justify-content-center px-3 py-1 small">
+                                    <i class='bx bx-paperclip me-2' ></i>
+                                    Anexar
+                                </label>
+                                <input type="file" class="d-none" id="images" name="images[]" multiple accept="image/*">
+                            </div>
+                            <div class="col-md-10 d-flex justify-content-end">
+                                <div id="preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label small">Tags <span class="text-secondary small">(Máx. 3)</span></label>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="suggestion" id="suggestion">
+                                <label class="form-check-label" for="suggestion">Sugestão</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="development" id="development">
+                                <label class="form-check-label" for="development">Desenvolvimento</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="error" id="error">
+                                <label class="form-check-label" for="error">Erro</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="404" id="404">
+                                <label class="form-check-label" for="404">404</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="modify" id="modify">
+                                <label class="form-check-label" for="modify">Modificar</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="integration" id="integration">
+                                <label class="form-check-label" for="integration">Integração</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Enviar Melhoria</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Description Counter -->
+<script>
+    $(document).ready(function() {
+        $('#description').on('input', function() {
+            var currentText = $(this).val();
+            var currentLength = currentText.length;
+            var maxLength = parseInt($(this).attr('maxlength'));
+            $('#descriptionCounter').text(currentLength + ' de ' + maxLength + ' caracteres');
+        });
+    });
+</script>
+
+<!-- Image Preview -->
+<script>
+    $(document).ready(function() {
+        const dataTransfer = new DataTransfer();
+        
+        $('#images').on('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            
+            // Verifica se o total de arquivos é maior que 5
+            if (dataTransfer.files.length + files.length > 5) {
+                alert('Você pode enviar no máximo 5 imagens.');
+                $(event.target).val(''); // Reseta o input de arquivos
+                return;
+            }
+
+            Array.from(files).forEach((file) => {
+                dataTransfer.items.add(file);
+            });
+
+            updatePreview();
+            updateInputFiles();
+        }
+
+        function updatePreview() {
+            const $previewContainer = $('#preview');
+            $previewContainer.empty(); // Limpa o preview antes de adicionar novos arquivos
+
+            Array.from(dataTransfer.files).forEach((file) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const $previewImage = $('<div class="preview-image"></div>');
+                    const $img = $('<img>').attr('src', e.target.result);
+                    const $removeBtn = $('<button class="remove-btn"></button>');
+
+                    $removeBtn.on('click', function() {
+                        removeFile(file);
+                    });
+
+                    $previewImage.append($img).append($removeBtn);
+                    $previewContainer.append($previewImage);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateInputFiles() {
+            const $input = $('#images');
+            $input[0].files = dataTransfer.files;
+        }
+
+        function removeFile(fileToRemove) {
+            const items = Array.from(dataTransfer.items);
+            dataTransfer.items.clear();
+            
+            items.forEach((item) => {
+                if (item.getAsFile() !== fileToRemove) {
+                    dataTransfer.items.add(item.getAsFile());
+                }
+            });
+
+            updatePreview();
+            updateInputFiles();
+        }
+    });
+</script>
+
+<!-- Checkbox max. 3 itens -->
+<script>
+    $('input.checkbox-limit').on('change', function(evt) {
+        if ($('input.checkbox-limit:checked').length > 3) {
+            this.checked = false;
+        }
+    });
+</script>
+
+<!-- Form Ajax -->
+<script>
+    $(document).ready(function() {
+        // AJAX form submission
+        $('#improvementForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            let formData = new FormData(this);
+            
+            $.ajax({
+                url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/add_improvement.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    let res = JSON.parse(response);
+                    if (res.status === 'success') {
+                        location.reload();
+                    } else {
+                        // Exibir a mensagem de erro
+                        var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                            + res.message +
+                                            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                            '</div>';
+                        $('#error-improvement').html(errorMessage);
+                    }
+                },
+                error: function() {
+                    // Exibir a mensagem de erro
+                    var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                        + res.message +
+                                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                        '</div>';
+                    $('#error-improvement').html(errorMessage);
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    #improvementOffcanvas .dropdown-toggle::after
+    {
+        display: none;
+    }
+
+    #improvementOffcanvas .dropdown-item.active,
+    #improvementOffcanvas .dropdown-item:active
+    {
+        color: #212529 !important;
+        background-color: #f8f9fa !important;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button
+    {
+        border: none;
+        color: #6c757d !important;
+        background-color: transparent;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button:hover,
+    #improvementOffcanvas .nav.nav-tabs button.active
+    {
+        color: inherit !important;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button.active
+    {
+        position: relative;
+        font-weight: 500;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button.active::before
+    {
+        content: "";
+        width: 100%;
+        height: 2px;
+        background: #000;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+    }
+</style>
+
+<!-- Offcanvas enviar melhorias -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="improvementOffcanvas" aria-labelledby="improvementOffcanvasLabel">
+    <div class="offcanvas-header bg-success-subtle p-4">
+        <h5 class="offcanvas-title" id="improvementOffcanvasLabel">Dropi Digital</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <nav class="bg-success-subtle border-bottom border-success-subtle px-4">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="improvement-tab" data-bs-toggle="tab" data-bs-target="#improvement" type="button" role="tab" aria-controls="improvement" aria-selected="true">Sugestões de Melhorias</button>
+            <button class="nav-link" id="news-tab" data-bs-toggle="tab" data-bs-target="#news" type="button" role="tab" aria-controls="news" aria-selected="false" disabled>Novidades</button>
+        </div>
+    </nav>
+    <div class="offcanvas-body p-0">
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="improvement" role="tabpanel" aria-labelledby="improvement-tab" tabindex="0">
+                <div class="d-flex justify-content-end px-3 py-2">
+                    <button type="button" class="btn btn-secondary d-flex align-items-center justify-content-center me-2" style="width: 34px;" data-bs-toggle="modal" data-bs-target="#improvementHistoryModal" data-toggle="tooltip" data-placement="top" title="Minhas Sugestões"><i class='bx bx-history'></i></button>
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-3 py-1 small" data-bs-toggle="modal" data-bs-target="#sendImprovement">+ Adicionar Melhoria</button>
+                </div>
+                <?php
+                    // Formatar nome
+                    function formatName($fullName) {
+                        // Divide o nome completo em partes
+                        $nameParts = explode(' ', $fullName);
+
+                        // Se houver mais de um nome (nome e sobrenome)
+                        if (count($nameParts) > 1) {
+                            // Obter o primeiro nome
+                            $firstName = $nameParts[0];
+                            
+                            // Obter o primeiro sobrenome
+                            $lastName = $nameParts[1];
+
+                            // Formatar o nome
+                            return $firstName . ' ' . strtoupper($lastName[0]) . '.';
+                        }
+
+                        // Se não houver sobrenome, apenas retorne o nome
+                        return $fullName;
+                    }
+
+                    // Limit text
+                    function limitarPalavras($texto, $limite) {
+                        // Quebrar o texto em palavras
+                        $palavras = explode(' ', $texto);
+                    
+                        // Contar o número de palavras
+                        $numPalavras = count($palavras);
+                    
+                        // Se o número de palavras for maior que o limite, cortar o texto
+                        if ($numPalavras > $limite) {
+                            // Pegar apenas as palavras até o limite
+                            $palavras = array_slice($palavras, 0, $limite);
+                    
+                            // Juntar as palavras de volta em um texto
+                            $texto = implode(' ', $palavras) . '...'; // Adicionar reticências ou outro indicativo de truncamento
+                        }
+                    
+                        return $texto;
+                    }
+
+                    // Nome da tabela para a busca
+                    $tabelaImprovement = 'tb_improvement';
+                    $tabelaLikes = 'tb_improvement_likes';
+
+                    // Preparar a consulta com base na pesquisa (se houver)
+                    $sql = "SELECT i.*, COUNT(l.improvement_id) AS total_likes
+                            FROM $tabelaImprovement i
+                            LEFT JOIN $tabelaLikes l ON i.id = l.improvement_id
+                            WHERE i.status = 1
+                            GROUP BY i.id
+                            ORDER BY total_likes DESC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Loop através dos resultados e exibir todas as colunas
+                    if ($resultados) {
+                        foreach ($resultados as $improvement) {
+                            // Recuperar nome do autor
+                            $sql_author = "SELECT name FROM tb_users WHERE id = :id";
+                            $stmt_author = $conn_pdo->prepare($sql_author);
+                            $stmt_author->bindParam(':id', $improvement['author']);
+                            $stmt_author->execute();
+                            $improvement['author'] = formatName($stmt_author->fetch(PDO::FETCH_ASSOC)['name']);
+
+                            // Formatação da data
+                            $meses = [
+                                1 => 'janeiro', 2 => 'fevereiro', 3 => 'março', 4 => 'abril',
+                                5 => 'maio', 6 => 'junho', 7 => 'julho', 8 => 'agosto',
+                                9 => 'setembro', 10 => 'outubro', 11 => 'novembro', 12 => 'dezembro'
+                            ];
+                            $data = new DateTime($improvement['date_create']);
+                            $dia = $data->format('d');
+                            $mes = (int)$data->format('m');
+                            $ano = $data->format('Y');
+                            $mesPortugues = $meses[$mes];
+                            $improvement['date_create'] = sprintf('%d de %s de %d', $dia, $mesPortugues, $ano);
+
+                            // Tags
+                            // Array com os textos das tags em português
+                            $tagTranslations = array(
+                                'suggestion' => 'Sugestão',
+                                'development' => 'Desenvolvimento',
+                                'error' => 'Erro',
+                                '404' => '404',
+                                'modify' => 'Modificar',
+                                'integration' => 'Integração'
+                            );
+
+                            // Array com os dados do CSS para cada tipo de tag
+                            $tagColors = array(
+                                'suggestion' => 'text-warning-emphasis bg-warning-subtle border border-warning-subtle',
+                                'development' => 'text-danger-emphasis bg-danger-subtle border border-danger-subtle',
+                                'error' => 'text-primary-emphasis bg-primary-subtle border border-primary-subtle',
+                                '404' => 'text-success-emphasis bg-success-subtle border border-success-subtle',
+                                'modify' => 'text-secondary-emphasis bg-secondary-subtle border border-secondary-subtle',
+                                'integration' => 'text-info-emphasis bg-info-subtle border border-info-subtle'
+                            );
+
+                            // Decodificar o JSON para obter um array de tags
+                            $tagsArray = json_decode($improvement['tags']);
+
+                            // Limit text
+                            $improvement['description'] = strlen($improvement['description']) > 125 ? substr($improvement['description'], 0, 125) . '...' : $improvement['description'];
+                ?>
+                    <div class="improvement border-bottom px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5>#<?= $improvement['id']; ?> <?= $improvement['title']; ?></h5>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-light border border-secondary-subtle text-secondary d-flex align-items-center justify-content-center dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 30px;">
+                                    <i class='bx bx-dots-vertical-rounded'></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#reportImprovement" data-improvement="<?= $improvement['id']; ?>">
+                                            <i class='bx bx-flag'></i>
+                                            Denunciar
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="tags d-table mb-2">
+                            <?php
+                                if ($tagsArray) {
+                                    // Exibir as tags com seus textos em português
+                                    foreach ($tagsArray as $tag) {
+                                        if (isset($tagTranslations[$tag])) {
+                                            $tagName = $tagTranslations[$tag];
+                                            $tagClass = isset($tagColors[$tag]) ? $tagColors[$tag] : '';
+
+                                            // Exibir a tag usando as classes CSS correspondentes
+                                            echo '<small class="d-inline-flex me-1 px-2 py-0 fw-semibold ' . $tagClass . ' rounded-1">' . $tagName . '</small>';
+                                        }
+                                    }
+                                }
+                            ?>
+                        </div>
+                        <p class="text-secondary mb-2"><?= $improvement['description']; ?></p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <p class="small"><span class="fw-semibold">Por <?= $improvement['author']; ?></span> • <?= $improvement['date_create']; ?></p>
+                            <button type="button" class="like-btn btn btn-outline-light border border-secondary-subtle text-secondary d-flex align-items-center justify-content-center px-2 py-0" data-id="<?= $improvement['id']; ?>" data-value="<?= $improvement['total_likes']; ?>">
+                                <i class='bx <?= ($improvement['total_likes'] > 0) ? "bxs-like" : "bx-like"; ?> me-2'></i>
+                                <p class="number-likes small fw-semibold"><?= $improvement['total_likes']; ?></p>
+                            </button>
+                        </div>
+                    </div>
+                <?php
+                        }
+                    } else {
+                ?>
+                    <div class="px-4 py-3">
+                        <p class="text-center mb-2">Nenhuma melhoria cadastrada até agora, seja o primeiro!</p>
+                    </div>
+                <?php
+                    }
+                ?>
+            </div>
+            <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab" tabindex="0">
+                Novidades
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(".like-btn").click(function() {
+            var improvementId = $(this).data("id");
+            var improvementValue = $(this).data("value");
+            var shopId = <?php echo $shop_id; ?>;
+
+            // Armazenar a referência do elemento em uma variável para uso dentro do AJAX
+            var button = $(this);
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/improvement_like.php",
+                method: "POST",
+                data: {
+                    improvement_id: improvementId,
+                    shop_id: shopId
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === "success") {
+                        // Alternar entre os ícones de like e atualizar o contador de likes
+                        button.find("i").toggleClass("bx-like bxs-like");
+                        var totalLikes = improvementValue + 1;
+                        button.data("value", totalLikes);
+                        button.find(".number-likes").text(totalLikes);
+                    } else if (response.status === "removed") {
+                        // Alternar entre os ícones de like e atualizar o contador de likes
+                        button.find("i").toggleClass("bx-like bxs-like");
+                        var totalLikes = improvementValue - 1;
+                        button.data("value", totalLikes);
+                        button.find(".number-likes").text(totalLikes);
+                    } else {
+                        alert("Erro ao curtir a melhoria.");
+                    }
+                },
+                error: function() {
+                    alert("Erro na solicitação AJAX.");
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    // Script para capturar o ID da melhoria e passá-lo para o campo oculto no modal
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#reportImprovement').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Botão que acionou o modal
+            var improvementId = button.data('improvement'); // Extrair o valor do atributo data-improvement
+            var modal = $(this);
+            modal.find('#improvement_id').val(improvementId); // Definir o valor do campo oculto no modal
+
+            // Verificar o estado do radio "other" ao abrir o modal
+            var otherRadio = modal.find('#other');
+            var otherDescriptionDiv = modal.find('#other_description_div');
+            otherDescriptionDiv.hide().removeAttr('required');
+
+            // Adicionar evento de clique nos rádios para mostrar/esconder o campo de descrição
+            modal.find('input[name="report"]').on('change', function() {
+                if (otherRadio.is(':checked')) {
+                    otherDescriptionDiv.show().attr('required', true);
+                } else {
+                    otherDescriptionDiv.hide().removeAttr('required');
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        // AJAX form submission
+        $('#reportImprovementForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            let formData = new FormData(this);
+            
+            $.ajax({
+                url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/report_improvement.php',
+                type: 'POST',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.status === "success") {
+                        location.reload();
+                    } else {
+                        // Exibir a mensagem de erro
+                        var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                            + response.message +
+                                            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                            '</div>';
+                        $('#error-improvement').html("errorMessage");
+                    }
+                },
+                error: function() {
+                    // Exibir a mensagem de erro
+                    var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                        + response.message +
+                                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                        '</div>';
+                    $('#error-improvement').html("errorMessage");
+                }
+            });
+        });
+    });
+</script>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -1467,6 +2244,27 @@
     </div>
 
     <div class="backdrop"></div>
+
+    <style>
+        .fixed-whatsapp-button
+        {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 9999999999999;
+            border: none;
+        }
+        .fixed-whatsapp-button .whatsapp-button svg {
+            width: 80px;
+            height: 80px;
+        }
+    </style>
+
+    <div class="fixed-whatsapp-button <?= (!isset($shop_id)) ? "d-none" : ""; ?>">
+        <a class="whatsapp-button" href="https://wa.me/11940496818" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="800" width="1200" viewBox="-93.2412 -156.2325 808.0904 937.395"><defs><linearGradient x1=".5" y1="0" x2=".5" y2="1" id="a"><stop stop-color="#20B038" offset="0%"/><stop stop-color="#60D66A" offset="100%"/></linearGradient><linearGradient x1=".5" y1="0" x2=".5" y2="1" id="b"><stop stop-color="#F9F9F9" offset="0%"/><stop stop-color="#FFF" offset="100%"/></linearGradient><linearGradient xlink:href="#a" id="f" x1="270.265" y1="1.184" x2="270.265" y2="541.56" gradientTransform="scale(.99775 1.00225)" gradientUnits="userSpaceOnUse"/><linearGradient xlink:href="#b" id="g" x1="279.952" y1=".811" x2="279.952" y2="560.571" gradientTransform="scale(.99777 1.00224)" gradientUnits="userSpaceOnUse"/><filter x="-.056" y="-.062" width="1.112" height="1.11" filterUnits="objectBoundingBox" id="c"><feGaussianBlur stdDeviation="2" in="SourceGraphic"/></filter><filter x="-.082" y="-.088" width="1.164" height="1.162" filterUnits="objectBoundingBox" id="d"><feOffset dy="-4" in="SourceAlpha" result="shadowOffsetOuter1"/><feGaussianBlur stdDeviation="12.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"/><feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.21 0" in="shadowBlurOuter1"/></filter><path d="M576.337 707.516c-.018-49.17 12.795-97.167 37.15-139.475L574 423.48l147.548 38.792c40.652-22.23 86.423-33.944 133.002-33.962h.12c153.395 0 278.265 125.166 278.33 278.98.025 74.548-28.9 144.642-81.446 197.373C999 957.393 929.12 986.447 854.67 986.48c-153.42 0-278.272-125.146-278.333-278.964z" id="e"/></defs><g fill="none" fill-rule="evenodd"><g transform="matrix(1 0 0 -1 -542.696 1013.504)" fill="#000" fill-rule="nonzero" filter="url(#c)"><use filter="url(#d)" xlink:href="#e" width="100%" height="100%"/><use fill-opacity=".2" xlink:href="#e" width="100%" height="100%"/></g><path transform="matrix(1 0 0 -1 41.304 577.504)" fill-rule="nonzero" fill="url(#f)" d="M2.325 274.421c-.014-47.29 12.342-93.466 35.839-134.166L.077 1.187l142.314 37.316C181.6 17.133 225.745 5.856 270.673 5.84h.12c147.95 0 268.386 120.396 268.447 268.372.03 71.707-27.87 139.132-78.559 189.858-50.68 50.726-118.084 78.676-189.898 78.708-147.968 0-268.398-120.386-268.458-268.358"/><path transform="matrix(1 0 0 -1 31.637 586.837)" fill-rule="nonzero" fill="url(#g)" d="M2.407 283.847c-.018-48.996 12.784-96.824 37.117-138.983L.072.814l147.419 38.654c40.616-22.15 86.346-33.824 132.885-33.841h.12c153.26 0 278.02 124.724 278.085 277.994.026 74.286-28.874 144.132-81.374 196.678-52.507 52.544-122.326 81.494-196.711 81.528-153.285 0-278.028-124.704-278.09-277.98zm87.789-131.724l-5.503 8.74C61.555 197.653 49.34 240.17 49.36 283.828c.049 127.399 103.73 231.044 231.224 231.044 61.74-.025 119.765-24.09 163.409-67.763 43.639-43.67 67.653-101.726 67.635-163.469-.054-127.403-103.739-231.063-231.131-231.063h-.09c-41.482.022-82.162 11.159-117.642 32.214l-8.444 5.004L66.84 66.86z"/><path d="M242.63 186.78c-5.205-11.57-10.684-11.803-15.636-12.006-4.05-.173-8.687-.162-13.316-.162-4.632 0-12.161 1.74-18.527 8.693-6.37 6.953-24.322 23.761-24.322 57.947 0 34.19 24.901 67.222 28.372 71.862 3.474 4.634 48.07 77.028 118.694 104.88 58.696 23.146 70.64 18.542 83.38 17.384 12.74-1.158 41.11-16.805 46.9-33.03 5.791-16.223 5.791-30.128 4.054-33.035-1.738-2.896-6.37-4.633-13.319-8.108-6.95-3.475-41.11-20.287-47.48-22.603-6.37-2.316-11.003-3.474-15.635 3.482-4.633 6.95-17.94 22.596-21.996 27.23-4.053 4.643-8.106 5.222-15.056 1.747-6.949-3.485-29.328-10.815-55.876-34.485-20.656-18.416-34.6-41.16-38.656-48.116-4.053-6.95-.433-10.714 3.052-14.178 3.12-3.113 6.95-8.11 10.424-12.168 3.467-4.057 4.626-6.953 6.942-11.586 2.316-4.64 1.158-8.698-.579-12.172-1.737-3.475-15.241-37.838-21.42-51.576" fill="#FFF"/></g></svg>
+        </a>
+    </div>
 
     <?php
         if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404') {

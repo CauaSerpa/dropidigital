@@ -42,6 +42,10 @@ function copyReadySiteToShop($dataForm) {
 
     $ready_site_id = $dataForm['ready_site_id'];
     $site_id = $dataForm['shop_id'];
+    
+    // Array associativo para mapear os produtos e categorias
+    $product_map = [];
+    $category_map = [];
 
     $tabela = 'tb_shop';
     $query = "SELECT * FROM $tabela WHERE id = :id";
@@ -68,15 +72,6 @@ function copyReadySiteToShop($dataForm) {
                     logo_mobile = :logo_mobile,
                     favicon = :favicon,
                     segment = :segment,
-                    newsletter_modal = :newsletter_modal,
-                    newsletter_modal_title = :newsletter_modal_title,
-                    newsletter_modal_text = :newsletter_modal_text,
-                    newsletter_modal_success_text = :newsletter_modal_success_text,
-                    newsletter_modal_time = :newsletter_modal_time,
-                    newsletter_modal_time_seconds = :newsletter_modal_time_seconds,
-                    newsletter_modal_location = :newsletter_modal_location,
-                    newsletter_footer = :newsletter_footer,
-                    newsletter_footer_text = :newsletter_footer_text,
                     top_highlight_bar = :top_highlight_bar,
                     top_highlight_bar_location = :top_highlight_bar_location,
                     top_highlight_bar_text = :top_highlight_bar_text,
@@ -89,15 +84,6 @@ function copyReadySiteToShop($dataForm) {
         $stmt->bindValue(':logo_mobile', $ready_site['logo_mobile']);
         $stmt->bindValue(':favicon', $ready_site['favicon']);
         $stmt->bindValue(':segment', $ready_site['segment']);
-        $stmt->bindValue(':newsletter_modal', $ready_site['newsletter_modal']);
-        $stmt->bindValue(':newsletter_modal_title', $ready_site['newsletter_modal_title']);
-        $stmt->bindValue(':newsletter_modal_text', $ready_site['newsletter_modal_text']);
-        $stmt->bindValue(':newsletter_modal_success_text', $ready_site['newsletter_modal_success_text']);
-        $stmt->bindValue(':newsletter_modal_time', $ready_site['newsletter_modal_time']);
-        $stmt->bindValue(':newsletter_modal_time_seconds', $ready_site['newsletter_modal_time_seconds']);
-        $stmt->bindValue(':newsletter_modal_location', $ready_site['newsletter_modal_location']);
-        $stmt->bindValue(':newsletter_footer', $ready_site['newsletter_footer']);
-        $stmt->bindValue(':newsletter_footer_text', $ready_site['newsletter_footer_text']);
         $stmt->bindValue(':top_highlight_bar', $ready_site['top_highlight_bar']);
         $stmt->bindValue(':top_highlight_bar_location', $ready_site['top_highlight_bar_location']);
         $stmt->bindValue(':top_highlight_bar_text', $ready_site['top_highlight_bar_text']);
@@ -125,32 +111,56 @@ function copyReadySiteToShop($dataForm) {
 
             foreach ($products as $product) {
                 // Nome da tabela para a busca
-                $tabela = 'tb_products';
-                
+                $tabela = 'tb_subscriptions';
+
                 // Consulta SQL para contar os produtos na tabela
-                $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela WHERE shop_id = :shop_id AND status = :status";
+                $sql = "SELECT plan_id FROM $tabela WHERE (status = :status OR status = :status1) AND shop_id = :shop_id ORDER BY id DESC LIMIT 1";
                 $stmt = $conn->prepare($sql);  // Use prepare para consultas preparadas
-                $stmt->execute([':shop_id' => $site_id, ':status' => 1]);
-                
+                $stmt->bindValue(':status', 'ACTIVE');
+                $stmt->bindValue(':status1', 'RECEIVED');
+                $stmt->bindParam(':shop_id', $site_id);
+                $stmt->execute();
+
                 // Recupere o resultado da consulta
-                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                // O resultado contém o total de produtos na chave 'total_produtos'
-                $totalProdutos = $resultado['total_produtos'];
-                
-                // Definir o limite de produtos baseado no plano
-                $planLimits = [
+                $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $plan_id = (isset($plan['plan_id'])) ? $plan['plan_id'] : 1;
+
+                // Pesquisar plano da Loja
+                $tabela = "tb_plans_interval";
+
+                // Consulta SQL para obter o plano da loja
+                $sql = "SELECT plan_id FROM $tabela WHERE id = :id";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':id', $plan_id, PDO::PARAM_INT);
+                $stmt->execute();
+                $shop = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                // Pesquisar produtos
+                $tabela = "tb_products";
+
+                // Conta o número de produtos ativos
+                $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela
+                                WHERE shop_id = :shop_id AND status = :status";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':shop_id', $site_id);
+                $stmt->bindValue(':status', 1);
+                $stmt->execute();
+                $totalProdutos = $stmt->fetch(PDO::FETCH_ASSOC)['total_produtos'];
+
+                // Define os limites de produtos com base no plano
+                $limitProductsMap = [
                     1 => 10,
                     2 => 50,
                     3 => 250,
-                    4 => 750,
+                    4 => 900,
                     5 => 5000,
                 ];
-                
-                $limitProducts = $planLimits[$site['plan_id']] ?? 10;
-                
+
+                $limitProducts = $limitProductsMap[$shop['plan_id']] ?? 10;
+
                 // Definir o status baseado no total de produtos
-                $status = ($limitProducts <= $totalProdutos) ? 0 : 1;
+                $status = 0;
 
                 // Verificar duplicidade de link e adicionar valor adicional se necessário
                 $link = $product['link'];
@@ -196,6 +206,7 @@ function copyReadySiteToShop($dataForm) {
                 $stmt->execute();
 
                 $product_id = $conn->lastInsertId();
+                $product_map[$product['id']] = $product_id; // Mapeia o ID original para o novo ID
 
                 $tabela = 'imagens';
                 $query = "SELECT * FROM $tabela WHERE usuario_id = :usuario_id";
@@ -313,26 +324,23 @@ function copyReadySiteToShop($dataForm) {
                 $stmt->execute();
 
                 $category_id = $conn->lastInsertId();
-
-                if (empty($category['image'])) {
-                    // Copiar Imagem da categoria
-                    // Definindo os caminhos de origem e destino
-                    $origem = "./category/" . $category['id'] . "/image/";
-                    $destino = "./category/$category_id/image/";
-    
-                    // Chamando a função para copiar a pasta
-                    copiarPastaImg($origem, $destino);
-                }
-
-                if (empty($category['icon'])) {
-                    // Definindo os caminhos de origem e destino
-                    $origem = "./category/" . $category['id'] . "/icon/";
-                    $destino = "./category/$category_id/icon/";
-
-                    // Chamando a função para copiar a pasta
-                    copiarPastaImg($origem, $destino);
-                }
+                $category_map[$category['id']] = $category_id; // Mapeia o ID original para o novo ID
             }
+            
+            // Copiar Imagem da categoria
+            // Definindo os caminhos de origem e destino
+            $origem = "./category/$ready_site_id/image/";
+            $destino = "./category/$site_id/image/";
+
+            // Chamando a função para copiar a pasta
+            copiarPastaImg($origem, $destino);
+
+            // Definindo os caminhos de origem e destino
+            $origem = "./category/$ready_site_id/icon/";
+            $destino = "./category/$site_id/icon/";
+
+            // Chamando a função para copiar a pasta
+            copiarPastaImg($origem, $destino);
             
             $tabela = 'tb_product_categories';
             $query = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
@@ -342,18 +350,28 @@ function copyReadySiteToShop($dataForm) {
 
             $productsCategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($productsCategories as $productCategory) {
-                $tabela = 'tb_product_categories';
-                $query = "INSERT INTO $tabela
-                            (shop_id, product_id, category_id, main)
-                        VALUES
-                            (:shop_id, :product_id, :category_id, :main)";
-                $stmt = $conn->prepare($query);
-                $stmt->bindParam(':shop_id', $site_id);
-                $stmt->bindParam(':product_id', $productCategory['product_id']);
-                $stmt->bindParam(':category_id', $productCategory['category_id']);
-                $stmt->bindParam(':main', $productCategory['main']);
-                $stmt->execute();
+            if ($productsCategories) {
+                foreach ($productsCategories as $productCategory) {
+                    $product_id = $product_map[$productCategory['product_id']];
+                    $category_id = $category_map[$productCategory['category_id']];
+    
+                    // Validação para verificar se product_id ou category_id são iguais a 0
+                    if ($product_id == 0 || $category_id == 0) {
+                        continue; // Pula a inserção se qualquer um dos valores for igual a 0
+                    }
+    
+                    $tabela = 'tb_product_categories';
+                    $query = "INSERT INTO $tabela
+                                (shop_id, product_id, category_id, main)
+                            VALUES
+                                (:shop_id, :product_id, :category_id, :main)";
+                    $stmt = $conn->prepare($query);
+                    $stmt->bindParam(':shop_id', $site_id);
+                    $stmt->bindParam(':product_id', $product_id);
+                    $stmt->bindParam(':category_id', $category_id);
+                    $stmt->bindParam(':main', $productCategory['main']);
+                    $stmt->execute();
+                }
             }
         } else {
             echo "Não foi possivel copiar o site!";

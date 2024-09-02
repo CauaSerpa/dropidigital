@@ -465,54 +465,60 @@
 
 
 <?php
-    // Nome da tabela para a busca
+   // Nome da tabela para a busca
     $tabela = 'tb_subscriptions';
 
-    $sql = "SELECT * FROM $tabela WHERE status = :status OR status = :status1 AND shop_id = :shop_id ORDER BY id DESC LIMIT 1";
+    $sql = "SELECT * FROM $tabela WHERE (status = :status OR status = :status1) AND shop_id = :shop_id ORDER BY id DESC LIMIT 1";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindValue(':status', 'ACTIVE');
     $stmt->bindValue(':status1', 'RECEIVED');
-    $stmt->bindParam(':shop_id', $id);
+    $stmt->bindParam(':shop_id', $shop_id);
     $stmt->execute();
 
     // Recuperar os resultados
     $subs = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Data final do plano (substitua isso pela sua data)
-    $dataFinalDoPlano = $subs['due_date'];
+    if ($subs !== false) {
+        // Data final do plano (substitua isso pela sua data)
+        $dataFinalDoPlano = $subs['due_date'];
 
-    // Obtém o timestamp da data final do plano
-    $timestampDataFinal = strtotime($dataFinalDoPlano);
+        // Obtém o timestamp da data final do plano
+        $timestampDataFinal = strtotime($dataFinalDoPlano);
 
-    // Obtém o timestamp da data atual
-    $timestampDataAtual = time();
+        // Obtém o timestamp da data atual
+        $timestampDataAtual = time();
 
-    // Calcula a diferença em segundos
-    $diferencaEmSegundos = $timestampDataFinal - $timestampDataAtual;
+        // Calcula a diferença em segundos
+        $diferencaEmSegundos = $timestampDataFinal - $timestampDataAtual;
 
-    // Calcula a diferença em dias
-    $calcDiferencaEmDias = floor($diferencaEmSegundos / (60 * 60 * 24));
+        // Calcula a diferença em dias
+        $calcDiferencaEmDias = floor($diferencaEmSegundos / (60 * 60 * 24));
 
-    $diferencaEmDias = ($calcDiferencaEmDias < 0) ? 0 : $calcDiferencaEmDias;
+        $diferencaEmDias = ($calcDiferencaEmDias < 0) ? 0 : $calcDiferencaEmDias;
 
-    // Defina o número total de dias
-    $diasTotais = 30;
+        // Defina o número total de dias
+        $diasTotais = 30;
 
-    // Calcula a porcentagem de dias restantes
-    $percentDays = ($diferencaEmDias / $diasTotais) * 100;
+        // Calcula a porcentagem de dias restantes
+        $percentDays = ($diferencaEmDias / $diasTotais) * 100;
 
-    // Verifica se undefined é igual a 1
-    $mensagemDiasRestantes = ($subs['undefined'] == 1 || @$_SESSION['ready_site'] == 1) ? "Indefinido" : $diferencaEmDias . " dias";
+        // Verifica se undefined é igual a 1
+        $mensagemDiasRestantes = ($subs['undefined'] == 1 || @$_SESSION['ready_site'] == 1) ? "Indefinido" : $diferencaEmDias . " dias";
 
-    // Cores com base na porcentagem de dias restantes
-    if ($percentDays > 80) {
-        $circleColor = "rgb(1, 200, 155)"; // Verde
-    } elseif ($percentDays > 60) {
-        $circleColor = "rgb(251, 188, 5)"; // Amarelo
+        // Cores com base na porcentagem de dias restantes
+        if ($percentDays > 80) {
+            $circleColor = "rgb(1, 200, 155)"; // Verde
+        } elseif ($percentDays > 60) {
+            $circleColor = "rgb(251, 188, 5)"; // Amarelo
+        } else {
+            $circleColor = "rgb(229, 15, 56)"; // Vermelho
+        }
     } else {
-        $circleColor = "rgb(229, 15, 56)"; // Vermelho
+        // Tratamento quando não há resultados
+        $mensagemDiasRestantes = "Indefinido";
+        $circleColor = "rgb(1, 200, 155)"; // Verde
     }
 ?>
 
@@ -816,6 +822,10 @@
         color: #fff;
     }
 
+    #readySitesCarousel
+    {
+        z-index: 999;
+    }
     #readySitesCarousel .owl-stage
     {
         display: flex;
@@ -952,7 +962,7 @@
                 <p class="card-title mb-3"><?= $site['name']; ?></p>
                 <small class="fw-semibold text-body-secondary text-decoration-line-through mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></small>
                 <h5 class="card-text mb-0"><?= $priceAfterDiscount; ?></h5>
-                <small class="fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
+                <small class="<?= ($site['cycle'] == "recurrent") ? "d-none" : ""; ?> fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
                 <div class="buttons d-flex mt-4">
                     <a href="<?= $url; ?>" target="_blank" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-3 py-2 me-2 small">
                         <i class='bx bx-show-alt'></i>
@@ -1002,6 +1012,10 @@
         color: #fff;
     }
 
+    #servicesCarousel
+    {
+        z-index: 999;
+    }
     #servicesCarousel .owl-stage
     {
         display: flex;
@@ -1319,12 +1333,12 @@
 
 <?php
     if ($plan_id == 1 || $plan_id == 2) {
-        $numberKeyworks = 50;
+        $numberKeyworks = 10;
         $numberDescriptions = 10;
         $numberProducts = 10;
-        $remainingKeywords = 40;
+        $remainingKeywords = 70;
     } else {
-        $numberKeyworks = 250;
+        $numberKeyworks = 80;
         $numberDescriptions = 50;
         $numberProducts = 50;
     }
@@ -1585,11 +1599,11 @@
                     $("#ia-suggestions").addClass("d-none");
                     $("#ia-content").removeClass("d-none");
 
+                    var plan = <?= $plan_id; ?>;
+
                     // Mostra a mensagem de ver mais disponíveis, se aplicável
-                    if (response.moreAvailable) {
+                    if (plan == 1 || plan == 2) {
                         $("#moreAvailable").removeClass('d-none');
-                    } else {
-                        $("#moreAvailable").addClass('d-none');
                     }
                 },
                 error: function (xhr, status, error) {
@@ -1762,6 +1776,13 @@
 
                     $("#ia-suggestions").addClass("d-none");
                     $("#ia-content").removeClass("d-none");
+
+                    var plan = <?= $plan_id; ?>;
+
+                    // Mostra a mensagem de ver mais disponíveis, se aplicável
+                    if (plan == 1 || plan == 2) {
+                        $("#moreAvailable").removeClass('d-none');
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error("Erro na requisição AJAX:", error);
@@ -1808,6 +1829,8 @@
                         row.remove();
                     } else {
                         alert("Erro ao processar a requisição");
+                        loader.addClass('d-none'); // Em caso de erro, também oculta o loader
+                        icon.removeClass('d-none');
                         return;
                     }
                 },

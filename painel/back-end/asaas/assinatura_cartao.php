@@ -7,8 +7,6 @@ function asaas_CriarAssinaturaCartao($customer_id, $dataForm, $config) {
 	// Passando valor do cpfCnpj
 	$dataForm['cpfCnpj'] = $dataForm['docNumber'];
 
-	// print_r($dataForm);
-
 	$curl = curl_init();
 	
 	$fields = [

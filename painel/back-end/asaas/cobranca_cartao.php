@@ -8,9 +8,13 @@ function asaas_CriarCobrancaCartao($customer_id, $dataForm, $config) {
 	$dataForm['cpfCnpj'] = $dataForm['docNumber'];
 
     // Installments
-	$installment = explode("|", $dataForm["installment"]);
-    $installmentCount = trim($installment[0]);
-    $installmentValue = trim($installment[1]);
+	if (!empty($dataForm["installment"])) {
+		$installment = explode("|", $dataForm["installment"]);
+		$installmentCount = trim($installment[0]);
+		$installmentValue = trim($installment[1]);
+	} else {
+		$installmentCount = 1;
+	}
 
 	// print_r($dataForm);
 
@@ -22,6 +26,7 @@ function asaas_CriarCobrancaCartao($customer_id, $dataForm, $config) {
 		"dueDate" => date('Y-m-d'),
 		"value" => $dataForm["value"],
 		"description" => "Serviço",
+		"installmentCount" => $installmentCount,
 		"creditCard" => [
 			"holderName" => $dataForm["credit_card_owner"],
 			"number" => $dataForm["credit_card_number"],

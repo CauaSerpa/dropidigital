@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $docNumber = $_POST['docNumber'];
     $razaoSocial = $_POST['razaoSocial'];
     $phone = $_POST['phone'];
+    $cycle = $_POST['cycle'];
 
     // Checkbox sem preco
     if (isset($_POST['without_price'])) {
@@ -86,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tabela = 'tb_ready_sites';
 
     // Insere o usuário no banco de dados
-    $sql = "INSERT INTO $tabela (shop_id, plan_id, status, emphasis, name, version, support, price, without_price, discount, image, video, description, items_included, sku, seo_name, link, seo_description) VALUES 
-                                (:shop_id, :plan_id, :status, :emphasis, :name, :version, :support, :price, :without_price, :discount, :image, :video, :description, :items_included, :sku, :seo_name, :link, :seo_description)";
+    $sql = "INSERT INTO $tabela (shop_id, plan_id, status, emphasis, name, version, support, cycle, price, without_price, discount, image, video, description, items_included, sku, seo_name, link, seo_description) VALUES 
+                                (:shop_id, :plan_id, :status, :emphasis, :name, :version, :support, :cycle, :price, :without_price, :discount, :image, :video, :description, :items_included, :sku, :seo_name, :link, :seo_description)";
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindValue(':shop_id', $shop_id);
     $stmt->bindValue(':plan_id', $plan_id);
@@ -96,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bindValue(':name', $name);
     $stmt->bindValue(':version', $version);
     $stmt->bindValue(':support', $support);
+    $stmt->bindValue(':cycle', $cycle);
     $stmt->bindValue(':price', $price);
     $stmt->bindValue(':without_price', $without_price);
     $stmt->bindValue(':discount', $discount);

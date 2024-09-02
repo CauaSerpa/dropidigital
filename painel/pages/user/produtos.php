@@ -80,6 +80,19 @@
         border-radius: var(--border-radius);
         cursor: pointer;
     }
+
+    .bullet {
+        display: flex;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .bullet.bullet-success {
+        background: var(--green-color);
+    }
+    .bullet.bullet-danger {
+        background: red;
+    }
 </style>
 
 <div class="modal fade" id="import" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -187,6 +200,7 @@
                             <th class="small">Valor</th>
                             <th class="small">Categoria</th>
                             <th class="small">SKU</th>
+                            <th class="small">Status</th>
                             <th class="small">Data de Criação</th>
                             <th class="small">Eventos</th>
                         </tr>
@@ -238,6 +252,10 @@
 
                         //Formatacao para data
                         $date_create = date("d/m/Y", strtotime($usuario['date_create']));
+
+                        // Status
+                        $isActive = ($usuario['status'] == 1) ? "checked" : "";
+                        $status = '<div class="form-check form-switch"><input class="change-status-btn form-check-input" type="checkbox" name="status" role="switch" data-id="' . $usuario['id'] . '" ' . $isActive . '></div>';
 
                         echo '
                             <tbody>
@@ -325,6 +343,7 @@
 
                         echo '
                                     <td>' . $sku . '</td>
+                                    <td>' . $status . '</td>
                                     <td>' . $date_create . '</td>
                                     <td>
                                         <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-produto?id=' . $usuario['id'] . '" class="btn btn-primary">
@@ -447,6 +466,47 @@
                 $('#checkAll').prop('indeterminate', false);
                 $('#checkAll').prop('checked', false);
             }
+        });
+    });
+</script>
+
+<!-- Ativar produto -->
+<script>
+    $(document).ready(function() {
+        $(".change-status-btn").click(function() {
+            var productId = $(this).data("id");
+            var shopId = <?php echo $shop_id; ?>;
+
+            // Armazenar a referência do elemento em uma variável para uso dentro do AJAX
+            var button = $(this);
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/change_product_status.php",
+                method: "POST",
+                data: {
+                    product_id: productId,
+                    shop_id: shopId
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === "success") {
+                        if (response.action === "activated") {
+                            // Alternar entre os ícones de like e atualizar o contador de likes
+                            button.prop('checked', true);
+                        } else if (response.action === "disabled") {
+                            // Alternar entre os ícones de like e atualizar o contador de likes
+                            button.prop('checked', false);
+                        }
+                    } else {
+                        // Alternar entre os ícones de like e atualizar o contador de likes
+                        button.prop('checked', false);
+                        alert("Erro ao alterar o status do produto. " + response.message);
+                    }
+                },
+                error: function() {
+                    alert("Erro na solicitação AJAX.");
+                }
+            });
         });
     });
 </script>

@@ -105,6 +105,32 @@ if ($id > 0) {
 
     // Verificar se o resultado foi encontrado
     if ($plan) {
+        // Nome da tabela para a busca
+        $tabela = 'tb_rewards';
+
+        // Obter a data atual no formato YYYY-MM-DD
+        $dueDate = date('Y-m-d');
+
+        $sql = "SELECT COUNT(*) as total_purchases FROM $tabela WHERE indicator_id = :indicator_id AND due_date >= :due_date";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':indicator_id', $user_id);
+        $stmt->bindParam(':due_date', $dueDate);
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $indication['total_purchases'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_purchases'];
+
+        // Calcular o desconto total
+        $discount_percentage = 10; // 10% por compra
+        $total_purchases = $indication['total_purchases'];
+        $total_discount = $total_purchases * $discount_percentage;
+
+        // Limitar o desconto a no máximo 100%
+        if ($total_discount > 100) {
+            $total_discount = 100;
+        }
 ?>
 <style>
     .disabled
@@ -259,12 +285,19 @@ if ($id > 0) {
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
                                     $yearly_id = $price['id'];
-                                    $yearly_price = $price['price'];
+                                    $original_yearly_price = $price['price'];
+
+                                    // Calcular o preço final após o desconto
+                                    $yearly_discount_amount = ($total_discount / 100) * $original_yearly_price;
+                                    $finalYearlyPrice = $original_yearly_price - $yearly_discount_amount;
+
+                                    // Garante que o preço final não seja negativo
+                                    $yearly_price = max($finalYearlyPrice, 0);
                             ?>
 
                             <p class="d-flex align-items-center col-md-4">Assinatura anual</p>
                             <div class="pricing col-md-8">
-                                <h5 class="lh-1">R$ <?php echo number_format($yearly_price, 2, ',', ''); ?> à vista</h5>
+                                <h5 class="lh-1">R$ <?php echo number_format($original_yearly_price, 2, ',', ''); ?> à vista</h5>
                                 <p>ou em até 6x sem juros no cartão</p>
                             </div>
 
@@ -300,12 +333,19 @@ if ($id > 0) {
                                 // Verificar se o resultado foi encontrado
                                 if ($price) {
                                     $monthly_id = $price['id'];
-                                    $monthly_price = $price['price'];
+                                    $original_monthly_price = $price['price'];
+
+                                    // Calcular o preço final após o desconto
+                                    $monthly_discount_amount = ($total_discount / 100) * $original_monthly_price;
+                                    $finalMonthlyPrice = $original_monthly_price - $monthly_discount_amount;
+
+                                    // Garante que o preço final não seja negativo
+                                    $monthly_price = max($finalMonthlyPrice, 0);
                             ?>
 
                             <p class="d-flex align-items-center col-md-4">Assinatura mensal</p>
                             <div class="pricing d-flex align-items-center col-md-8">
-                                <h5 class="lh-1 mb-0">R$ <?php echo number_format($monthly_price, 2, ',', ''); ?> por mês</h5>
+                                <h5 class="lh-1 mb-0">R$ <?php echo number_format($original_monthly_price, 2, ',', ''); ?> por mês</h5>
                             </div>
 
                             <?php
@@ -402,6 +442,65 @@ if ($id > 0) {
                         </div>
                     </div>
 
+                    <?php
+                        $priceNoFormat = ($billing_interval == "monthly") ? $original_monthly_price : $original_yearly_price;
+
+                        // Nome da tabela para a busca
+                        $tabela = 'tb_rewards';
+
+                        // Obter a data atual no formato YYYY-MM-DD
+                        $dueDate = date('Y-m-d');
+
+                        $sql = "SELECT COUNT(*) as total_purchases FROM $tabela WHERE indicator_id = :indicator_id AND due_date >= :due_date";
+
+                        // Preparar e executar a consulta
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindParam(':indicator_id', $user_id);
+                        $stmt->bindParam(':due_date', $dueDate);
+                        $stmt->execute();
+
+                        // Recuperar os resultados
+                        $indication['total_purchases'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_purchases'];
+
+                        // Calcular o desconto total
+                        $discount_percentage = 10; // 10% por compra
+                        $total_purchases = $indication['total_purchases'];
+                        $total_discount = $total_purchases * $discount_percentage;
+
+                        // Limitar o desconto a no máximo 100%
+                        if ($total_discount > 100) {
+                            $total_discount = 100;
+                        }
+
+                        // Calcular o preço final após o desconto
+                        $original_price = $priceNoFormat;
+                        $discount_amount = ($total_discount / 100) * $original_price;
+                        $finalPrice = $original_price - $discount_amount;
+
+                        // Garante que o preço final não seja negativo
+                        $final_price = max($finalPrice, 0);
+                        
+                        $price = "R$ " . number_format($priceNoFormat, 2, ",", ".");
+                        $discountAmount = "R$ " . number_format($discount_amount, 2, ",", ".");
+                        $finalPrice = "R$ " . number_format($final_price, 2, ",", ".");
+                    ?>
+
+                    <p class="fw-semibold">Resumo da compra</p>
+                    <hr class="my-2">
+                    <div class="d-flex align-items-end justify-content-between mb-1">
+                        <p class="small">Valor:</p>
+                        <span class="small" id="valor"><?= $price; ?></span>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mb-1">
+                        <p class="small">Desconto por indicação:</p>
+                        <span class="text-success small" id="desconto">- <?= $discountAmount; ?></span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex align-items-end justify-content-between mb-3">
+                        <p class="fw-semibold">Total:</p>
+                        <p class="fw-semibold" id="total"><?= $finalPrice; ?><small>/mês</small></p>
+                    </div>
+
 					<input type="hidden" name="value" id="value" value="<?php echo ($billing_interval == 'monthly') ? $monthly_price : $yearly_price; ?>">
 
                     <div class="user-data">
@@ -490,70 +589,60 @@ if ($id > 0) {
 
 <!-- Adicione este script JavaScript -->
 <script>
-    // Função para atualizar o texto do botão com base na opção selecionada
-    function updateButtonText() {
-        var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
-        var selectedOption = document.querySelector('input[name="period"]:checked').value;
-
-        if (selectedOption === "anual") {
-            if (selectedPaymentType === "creditCard") {
-                // Se a opção selecionada for "anual", chame a função do installment
-                updateInstallmentText();
-            } else if (selectedPaymentType === "pix") {
-                // Lógica para a opção "PIX"
-                var yearlyPrice = <?php echo $yearly_price; ?>;
-                var formattedYearlyPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(yearlyPrice);
-                document.getElementById('submitButton').innerText = 'Pagar de ' + formattedYearlyPrice;
-            }
-        } else if (selectedOption === "mensal") {
-            // Lógica para a opção "mensal"
-            var monthlyPrice = <?php echo $monthly_price; ?>;
-            var formattedMonthlyPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthlyPrice);
-            document.getElementById('submitButton').innerText = 'Pagar ' + formattedMonthlyPrice;
-        }
-    }
-
-    // Função para atualizar o texto do botão com base no installment
-    function updateInstallmentText() {
-        var selectedOption = document.getElementById('installment').options[document.getElementById('installment').selectedIndex].value;
-        var optionParts = selectedOption.split('|');
-        var numberOfInstallments = optionParts[0];
-        var installmentValue = optionParts[1];
-        var formattedInstallmentValue = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(installmentValue);
-        document.getElementById('submitButton').innerText = 'Pagar ' + numberOfInstallments + 'x de ' + formattedInstallmentValue;
-    }
-
-    // Adiciona um ouvinte de evento para atualizar o texto do botão quando a opção é alterada
-    document.querySelectorAll('input[name="period"]').forEach(function (input) {
-        input.addEventListener('change', updateButtonText);
-    });
-
-    // Adiciona um ouvinte de evento para o select installment
-    document.getElementById('installment').addEventListener('change', updateInstallmentText);
-
-    // Função para atualizar o texto do botão com base na opção selecionada
-    function updateButtonTextPaymentType() {
-        var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
-        var selectedOption = document.querySelector('input[name="period"]:checked').value;
-
-        if (selectedPaymentType === "creditCard" && selectedOption === "anual") {
-            // Se a opção selecionada for "anual", chame a função do installment
-            updateInstallmentText();
-        } else if (selectedPaymentType === "pix" && selectedOption === "anual") {
-            // Lógica para a opção "PIX"
+    document.addEventListener('DOMContentLoaded', function() {
+        function updateButtonText() {
+            var selectedPaymentType = document.querySelector('input[name="type"]:checked').value;
+            var selectedOption = document.querySelector('input[name="period"]:checked').value;
+            var originalYearlyPrice = <?php echo $original_yearly_price; ?>;
             var yearlyPrice = <?php echo $yearly_price; ?>;
+            var originalMonthlyPrice = <?php echo $original_monthly_price; ?>;
+            var monthlyPrice = <?php echo $monthly_price; ?>;
             var formattedYearlyPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(yearlyPrice);
-            document.getElementById('submitButton').innerText = 'Pagar de ' + formattedYearlyPrice;
+            var formattedMonthlyPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthlyPrice);
+
+            if (selectedOption === "anual") {
+                if (selectedPaymentType === "creditCard") {
+                    updateInstallmentText();
+                } else if (selectedPaymentType === "pix") {
+                    document.getElementById('submitButton').innerText = 'Pagar de ' + formattedYearlyPrice;
+                }
+                updateResumoCompra(originalYearlyPrice);
+            } else if (selectedOption === "mensal") {
+                document.getElementById('submitButton').innerText = 'Pagar ' + formattedMonthlyPrice;
+                updateResumoCompra(originalMonthlyPrice);
+            }
         }
-    }
 
-    // Adiciona um ouvinte de evento para atualizar o texto do botão quando a opção de pagamento é alterada
-    document.querySelectorAll('input[name="type"]').forEach(function (input) {
-        input.addEventListener('change', updateButtonTextPaymentType);
+        function updateInstallmentText() {
+            var selectedOption = document.getElementById('installment').options[document.getElementById('installment').selectedIndex].value;
+            var optionParts = selectedOption.split('|');
+            var numberOfInstallments = optionParts[0];
+            var installmentValue = optionParts[1];
+            var formattedInstallmentValue = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(installmentValue);
+            document.getElementById('submitButton').innerText = 'Pagar ' + numberOfInstallments + 'x de ' + formattedInstallmentValue;
+        }
+
+        // Função para atualizar o texto do resumo da compra
+        function updateResumoCompra(price) {
+            var discountAmount = (<?php echo $total_discount; ?> / 100) * price;
+            var finalPrice = price - discountAmount;
+            document.getElementById('valor').innerText = price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('desconto').innerText = '- ' + discountAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('total').innerText = finalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) + '/mês';
+        }
+
+        document.querySelectorAll('input[name="period"]').forEach(function(input) {
+            input.addEventListener('change', updateButtonText);
+        });
+
+        document.getElementById('installment').addEventListener('change', updateInstallmentText);
+
+        document.querySelectorAll('input[name="type"]').forEach(function(input) {
+            input.addEventListener('change', updateButtonText);
+        });
+
+        updateButtonText();
     });
-
-    // Atualiza o texto do botão inicialmente
-    updateButtonText();
 </script>
 
 <!-- Adicione este script na parte inferior da sua página HTML -->

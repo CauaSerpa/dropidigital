@@ -169,16 +169,23 @@
 ?>
 
 <?php
+    // Número de produtos por página (200)
+    $limit = 200;
+    $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+    $offset = ($page - 1) * $limit;
+
     // Nome da tabela para a busca
     $tabela = 'tb_products';
 
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC";
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC LIMIT :limit OFFSET :offset";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':shop_id', $shop_id);
     $stmt->bindValue(':status', 1);
     $stmt->bindValue(':emphasis', 1);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
 
     // Recuperar os resultados
@@ -204,7 +211,7 @@
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
 
-    <div class="row g-3 p-4">
+    <div class="row g-3 p-4" id="product-list">
         <?php
             // Loop através dos resultados e exibir todas as colunas
             foreach ($resultados as $product) {
@@ -291,6 +298,40 @@
             }
         ?>
     </div>
+
+    <?php if (count($resultados) == $limit) : ?>
+        <div class="text-center">
+            <button id="load-more" class="btn btn-dark">Carregar Mais</button>
+        </div>
+    <?php endif; ?>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let page = <?php echo $page; ?>;
+            const loadMoreButton = document.getElementById('load-more');
+
+            if (loadMoreButton) {
+                loadMoreButton.addEventListener('click', function() {
+                    page++;
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', '<?php echo $_SERVER['PHP_SELF']; ?>?shop_id=<?php echo $shop_id; ?>&page=' + page, true);
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            const newProducts = xhr.responseText;
+                            const productList = document.getElementById('product-list');
+                            productList.insertAdjacentHTML('beforeend', newProducts);
+                            
+                            // Verifica se o número de produtos carregados é menor que o limite
+                            if (newProducts.trim().length < <?php echo $limit; ?> * 200) {
+                                loadMoreButton.style.display = 'none';
+                            }
+                        }
+                    };
+                    xhr.send();
+                });
+            }
+        });
+    </script>
 
 <?php
     }

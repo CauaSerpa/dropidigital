@@ -1,19 +1,10 @@
 <?php
-// Pesquisar dominio
+// Aumentar limite de memória e tempo de execução
+ini_set('memory_limit', '512M');
+ini_set('max_execution_time', 300); // 300 segundos = 5 minutos
+
+// Pesquisar domínio
 $shop_id = 2;
-
-// Nome da tabela para a busca
-$tabela = 'tb_shop';
-
-$sql = "SELECT * FROM $tabela WHERE id = :id";
-// Preparar e executar a consulta
-$stmt = $conn_pdo->prepare($sql);
-$stmt->bindParam(':id', $shop_id, PDO::PARAM_INT);
-
-$stmt->execute();
-
-// Recuperar os resultados
-$shop = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Define o tipo de conteúdo como XML
 header("Content-Type: application/xml; charset=utf-8");
@@ -22,54 +13,22 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <?php
+    // Preparar consultas SQL
+    $sqlShop = "SELECT last_modification, date_create FROM tb_shop WHERE id = :shop_id";
+    $sqlCategories = "SELECT link, last_modification, date_create FROM tb_categories WHERE shop_id = :shop_id AND status = 1";
+    $sqlProducts = "SELECT link, last_modification, date_create FROM tb_products WHERE shop_id = :shop_id AND status = 1";
+    $sqlArticlesRecent = "SELECT last_modification, date_create FROM tb_articles WHERE shop_id = :shop_id AND status = 1 ORDER BY last_modification DESC, date_create DESC LIMIT 1";
+    $sqlArticles = "SELECT link, last_modification, date_create FROM tb_articles WHERE shop_id = :shop_id AND status = 1";
+
+    // Preparar e executar a consulta para a loja
+    $stmt = $conn_pdo->prepare($sqlShop);
+    $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $shop = $stmt->fetch(PDO::FETCH_ASSOC);
+
     if ($shop) {
-        // Preparar a consulta SQL
-        $sql = "
-            SELECT 
-                GREATEST(
-                    IFNULL(MAX(shop.last_modification), '0000-00-00 00:00:00'),
-                    IFNULL(MAX(product.last_modification), '0000-00-00 00:00:00'),
-                    IFNULL(MAX(categories.last_modification), '0000-00-00 00:00:00'),
-                    IFNULL(MAX(articles.last_modification), '0000-00-00 00:00:00')
-                ) AS max_modification,
-                GREATEST(
-                    IFNULL(MAX(shop.date_create), '0000-00-00 00:00:00'),
-                    IFNULL(MAX(product.date_create), '0000-00-00 00:00:00'),
-                    IFNULL(MAX(categories.date_create), '0000-00-00 00:00:00'),
-                    IFNULL(MAX(articles.date_create), '0000-00-00 00:00:00')
-                ) AS max_create_item
-            FROM 
-                tb_shop AS shop
-            LEFT JOIN 
-                tb_products AS product ON shop.id = product.shop_id
-            LEFT JOIN 
-                tb_categories AS categories ON shop.id = categories.shop_id
-            LEFT JOIN 
-                tb_articles AS articles ON shop.id = articles.shop_id
-            WHERE
-                shop.id = :shop_id
-        ";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        // Recuperar os resultados
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Verifica se os resultados foram encontrados
-        if ($result) {
-            // Obtém a data de modificação e a data de criação mais recentes
-            $last_modification = $result['max_modification'];
-            $date_create_item = $result['max_create_item'];
-
-            // Verifica qual das datas é a mais recente
-            $recent_date = max($last_modification, $date_create_item);
-
-            // Formata a data no formato desejado (ISO 8601)
-            $last_modification = date_format(date_create($recent_date), 'Y-m-d\TH:i:sP');
-        }
+        $last_modification = max($shop['last_modification'], $shop['date_create']);
+        $last_modification = date_format(date_create($last_modification), 'Y-m-d\TH:i:sP');
     ?>
         <url>
             <loc><?= htmlspecialchars($urlCompleta); ?></loc>
@@ -77,120 +36,72 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
             <priority>1.00</priority>
         </url>
     <?php
-        // Nome da tabela para a busca
-        $tabela = 'tb_categories';
-
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status";
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
+        // Consultar e exibir categorias
+        $stmt = $conn_pdo->prepare($sqlCategories);
         $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
-        $stmt->bindValue(':status', 1, PDO::PARAM_INT);
-
         $stmt->execute();
-
-        // Recuperar os resultados
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($categories as $category) {
-            // Verifica se o campo last_modification está vazio
             $datetime = !empty($category['last_modification']) ? $category['last_modification'] : $category['date_create'];
-
-            // Formata a data no formato desejado (ISO 8601)
             $last_modification = date_format(date_create($datetime), 'Y-m-d\TH:i:sP');
     ?>
         <url>
-            <loc><?= $urlCompleta . $category['link']; ?></loc>
+            <loc><?= htmlspecialchars($urlCompleta . "categoria/" . $category['link']); ?></loc>
             <lastmod><?= $last_modification; ?></lastmod>
             <priority>0.80</priority>
         </url>
     <?php
         }
 
-        // Nome da tabela para a busca
-        $tabela = 'tb_products';
-
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status";
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
+        // Consultar e exibir produtos
+        $stmt = $conn_pdo->prepare($sqlProducts);
         $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
-        $stmt->bindValue(':status', 1, PDO::PARAM_INT);
-
         $stmt->execute();
-
-        // Recuperar os resultados
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($products as $product) {
-            // Verifica se o campo last_modification está vazio
             $datetime = !empty($product['last_modification']) ? $product['last_modification'] : $product['date_create'];
-
-            // Formata a data no formato desejado (ISO 8601)
             $last_modification = date_format(date_create($datetime), 'Y-m-d\TH:i:sP');
     ?>
         <url>
-            <loc><?= $urlCompleta . $product['link']; ?></loc>
+            <loc><?= htmlspecialchars($urlCompleta . $product['link']); ?></loc>
             <lastmod><?= $last_modification; ?></lastmod>
             <priority>0.80</priority>
         </url>
     <?php
         }
 
-        // Nome da tabela para a busca
-        $tabela = 'tb_articles';
-
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status ORDER BY last_modification DESC, date_create DESC LIMIT 1";
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
+        // Consultar o artigo mais recente
+        $stmt = $conn_pdo->prepare($sqlArticlesRecent);
         $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
-        $stmt->bindValue(':status', 1, PDO::PARAM_INT);
-
         $stmt->execute();
+        $articleRecent = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Recuperar o produto mais recente
-        $article = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Verifica se o produto foi encontrado
-        if ($article) {
-            // Obtém a data de modificação mais recente ou a data de criação do produto mais recente
-            $last_modification = $article['last_modification'];
-            $date_create = $article['date_create'];
-
-            // Verifica qual das datas é a mais recente
-            $recent_date = $last_modification > $date_create ? $last_modification : $date_create;
-
-            // Formata a data no formato desejado (ISO 8601)
-            $last_modification = date_format(date_create($recent_date), 'Y-m-d\TH:i:sP');
-        }
+        if ($articleRecent) {
+            $last_modification = max($articleRecent['last_modification'], $articleRecent['date_create']);
+            $last_modification = date_format(date_create($last_modification), 'Y-m-d\TH:i:sP');
     ?>
         <url>
-            <loc><?= $urlCompleta . "blog/"; ?></loc>
+            <loc><?= htmlspecialchars($urlCompleta . "blog/"); ?></loc>
             <lastmod><?= $last_modification; ?></lastmod>
             <priority>0.80</priority>
         </url>
     <?php
-        // Nome da tabela para a busca
-        $tabela = 'tb_articles';
+        }
 
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status";
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
+        // Consultar e exibir artigos
+        $stmt = $conn_pdo->prepare($sqlArticles);
         $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
-        $stmt->bindValue(':status', 1, PDO::PARAM_INT);
-
         $stmt->execute();
-
-        // Recuperar os resultados
         $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($articles as $article) {
-            // Verifica se o campo last_modification está vazio
             $datetime = !empty($article['last_modification']) ? $article['last_modification'] : $article['date_create'];
-
-            // Formata a data no formato desejado (ISO 8601)
             $last_modification = date_format(date_create($datetime), 'Y-m-d\TH:i:sP');
     ?>
         <url>
-            <loc><?= $urlCompleta . "blog/" . $article['link']; ?></loc>
+            <loc><?= htmlspecialchars($urlCompleta . "blog/" . $article['link']); ?></loc>
             <lastmod><?= $last_modification; ?></lastmod>
             <priority>0.64</priority>
         </url>

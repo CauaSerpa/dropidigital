@@ -99,7 +99,7 @@ $plan_id = $_POST['plan'];
 if ($plan_id <= 2) {
     $numberKeywords = 10;
 } else {
-    $numberKeywords = 250;
+    $numberKeywords = 20;
 }
 
 $tabela = 'tb_ai_request';

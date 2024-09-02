@@ -6,43 +6,57 @@
     // Receber os dados do formulário
     $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
+    // Nome da tabela para a busca
+    $tabela = 'tb_subscriptions';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT plan_id FROM $tabela WHERE (status = :status OR status = :status1) AND shop_id = :shop_id ORDER BY id DESC LIMIT 1";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindValue(':status', 'ACTIVE');
+    $stmt->bindValue(':status1', 'RECEIVED');
+    $stmt->bindParam(':shop_id', $dados['shop_id']);
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $plan_id = (isset($plan['plan_id'])) ? $plan['plan_id'] : 1;
+
     // Pesquisar plano da Loja
-    $tabelaShop = "tb_shop";
-    $tabelaPlans = "tb_plans_interval";
-    $tabelaProducts = "tb_products";
+    $tabela = "tb_plans_interval";
 
     // Consulta SQL para obter o plano da loja
-    $sqlShop = "SELECT s.plan_id, p.id AS plan_id FROM $tabelaShop s
-                JOIN $tabelaPlans p ON s.plan_id = p.id
-                WHERE s.user_id = :id";
-    $stmtShop = $conn_pdo->prepare($sqlShop);
-    $stmtShop->bindParam(':id', $dados['shop_id'], PDO::PARAM_INT);
-    $stmtShop->execute();
-    $shop = $stmtShop->fetch(PDO::FETCH_ASSOC);
+    $sql = "SELECT plan_id FROM $tabela WHERE id = :id";
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':id', $plan_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $shop = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Pesquisar produtos
+    $tabela = "tb_products";
 
     // Conta o número de produtos ativos
-    $sqlProducts = "SELECT COUNT(*) AS total_produtos FROM $tabelaProducts
+    $sql = "SELECT COUNT(*) AS total_produtos FROM $tabela
                     WHERE shop_id = :shop_id AND status = :status";
-    $stmtProducts = $conn_pdo->prepare($sqlProducts);
-    $stmtProducts->bindParam(':shop_id', $dados['shop_id']);
-    $stmtProducts->bindValue(':status', 1);
-    $stmtProducts->execute();
-    $product = $stmtProducts->fetch(PDO::FETCH_ASSOC);
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $dados['shop_id']);
+    $stmt->bindValue(':status', 1);
+    $stmt->execute();
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Define os limites de produtos com base no plano
     $limitProductsMap = [
         1 => 10,
         2 => 50,
         3 => 250,
-        4 => 750,
+        4 => 900,
         5 => 5000,
     ];
 
     $limitProducts = $limitProductsMap[$shop['plan_id']] ?? "ilimitado";
 
     // Define o status com base nos limites de produtos
-    $status = ($limitProducts < $product['total_produtos']) ? 0 : (isset($_POST['status']) && $_POST['status'] == '1' ? $_POST['status'] : 0);
-
+    $status = ($limitProducts <= $product['total_produtos']) ? 0 : (isset($_POST['status']) && $_POST['status'] == '1' ? $_POST['status'] : 0);
 
     if (isset($_POST['emphasis']) && $_POST['emphasis'] == '1') {
         $emphasis = $_POST['emphasis'];

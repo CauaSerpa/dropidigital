@@ -201,7 +201,7 @@
                 <p class="card-title mb-3"><?= $site['name']; ?></p>
                 <small class="fw-semibold text-body-secondary text-decoration-line-through mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></small>
                 <h5 class="card-text mb-0"><?= $priceAfterDiscount; ?></h5>
-                <small class="fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
+                <small class="<?= ($site['cycle'] == "recurrent") ? "d-none" : ""; ?> fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
                 <div class="buttons d-flex mt-4">
                     <a href="<?= $url; ?>" target="_blank" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-3 py-2 me-2 small">
                         <i class='bx bx-show-alt'></i>
@@ -364,7 +364,7 @@
                 <p class="card-title mb-3"><?= $site['name']; ?></p>
                 <small class="fw-semibold text-body-secondary text-decoration-line-through mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></small>
                 <h5 class="card-text mb-0"><?= $priceAfterDiscount; ?></h5>
-                <small class="fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
+                <small class="<?= ($site['cycle'] == "recurrent") ? "d-none" : ""; ?> fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
                 <div class="buttons d-flex mt-4">
                     <a href="<?= $url; ?>" target="_blank" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-3 py-2 me-2 small">
                         <i class='bx bx-show-alt'></i>

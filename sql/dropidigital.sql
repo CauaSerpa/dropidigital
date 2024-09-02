@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 10/07/2024 às 05:06
+-- Tempo de geração: 02/09/2024 às 05:43
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -294,6 +294,85 @@ INSERT INTO `tb_home_services` (`id`, `icon`, `title`, `description`, `date_crea
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tb_improvement`
+--
+
+CREATE TABLE `tb_improvement` (
+  `id` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 0,
+  `finished` tinyint(1) NOT NULL DEFAULT 0,
+  `author` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `tags` varchar(255) DEFAULT NULL,
+  `date_approved` datetime DEFAULT NULL,
+  `date_disapprove` datetime DEFAULT NULL,
+  `date_finished` datetime DEFAULT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_improvement_img`
+--
+
+CREATE TABLE `tb_improvement_img` (
+  `id` int(11) NOT NULL,
+  `improvement_id` int(11) NOT NULL,
+  `image_name` varchar(255) NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_improvement_likes`
+--
+
+CREATE TABLE `tb_improvement_likes` (
+  `id` int(11) NOT NULL,
+  `improvement_id` int(11) NOT NULL,
+  `shop_id` int(11) NOT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_improvement_report`
+--
+
+CREATE TABLE `tb_improvement_report` (
+  `id` int(11) NOT NULL,
+  `improvement_id` int(11) NOT NULL,
+  `author` int(11) NOT NULL,
+  `report` varchar(255) NOT NULL,
+  `other_description` varchar(255) DEFAULT NULL,
+  `date_create` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_indication`
+--
+
+CREATE TABLE `tb_indication` (
+  `id` int(11) NOT NULL,
+  `indicator_id` int(11) NOT NULL,
+  `guest_id` int(11) DEFAULT NULL,
+  `guest_email` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `number_purchases` int(11) DEFAULT 0,
+  `date_create` datetime NOT NULL DEFAULT current_timestamp(),
+  `date_created_account` datetime DEFAULT NULL,
+  `date_bought_something` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `tb_invoice_info`
 --
 
@@ -443,6 +522,17 @@ CREATE TABLE `tb_plans` (
   `link_checkout` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `tb_plans`
+--
+
+INSERT INTO `tb_plans` (`id`, `plan_id`, `name`, `sub_name`, `description`, `resources`, `link_checkout`) VALUES
+(1, '', 'Básico', 'Conhecendo', 'Descrição do plano básico', '[\"10 produtos\", \"5.000 visitas/mês\", \"Sem limite de pedidos ou orçamentos\", \"Sem comissão sobre vendas\", \"Conta protegida\", \"Botão WhatsApp\"]', 'https://link-checkout.com'),
+(2, '', 'Iniciante', 'Já faço vendas', 'Descrição do plano iniciante', '[\"50 produtos\", \"25.000 visitas/mês\", \"Sem limite de pedidos\", \"Sem comissão sobre vendas\", \"Conta protegida\", \"Botão WhatsApp\", \"Suporte humanizado\"]', 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848a039ec9018a04bd6bde010c'),
+(3, '', 'Intermeriário', 'Pedidos diários', 'Descrição do plano intermeriário', '[\"250 produtos\", \"50.000 visitas/mês\", \"Sem limite de pedidos\", \"Sem comissão sobre vendas\", \"Conta protegida\", \"Botão WhatsApp\", \"Suporte humanizado\", \"Palavras chave do seu nicho\"]', 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848a039ebe018a04c511fa0102'),
+(4, '', 'Avançado', 'Muitas vendas', 'Descrição do plano avançado', '[\"900 produtos\", \"100.000 visitas/mês\", \"Sem limite de pedidos\", \"Sem comissão sobre vendas\", \"Conta protegida\", \"Botão WhatsApp\", \"Suporte humanizado\", \"Palavras chave do seu nicho\", \"Atendimento prioritário\"]', 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848a039ec9018a04cfc5bd0120'),
+(5, '', 'Expert', 'Voando alto', 'Descrição do plano expert', '[\"5000 Produtos\", \"300.000 visitas/mês\", \"Sem limite de pedidos\", \"Sem comissão sobre vendas\", \"Conta protegida\", \"Botão WhatsApp\", \"Suporte humanizado\", \"Palavras chave do seu nicho\", \"Atendimento prioritário\", \"Mentoria inicial do projeto\", \"Serviço de SEO incluso\"]', 'https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2c9380848a039ec9018a04d7cac70128');
+
 -- --------------------------------------------------------
 
 --
@@ -455,6 +545,22 @@ CREATE TABLE `tb_plans_interval` (
   `billing_interval` varchar(255) NOT NULL,
   `price` decimal(10,0) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tb_plans_interval`
+--
+
+INSERT INTO `tb_plans_interval` (`id`, `plan_id`, `billing_interval`, `price`) VALUES
+(1, 1, 'monthly', 0),
+(2, 1, 'yearly', 0),
+(3, 2, 'monthly', 47),
+(4, 2, 'yearly', 470),
+(5, 3, 'monthly', 69),
+(6, 3, 'yearly', 690),
+(7, 4, 'monthly', 99),
+(8, 4, 'yearly', 990),
+(9, 5, 'monthly', 191),
+(10, 5, 'yearly', 1910);
 
 -- --------------------------------------------------------
 
@@ -514,6 +620,7 @@ CREATE TABLE `tb_ready_sites` (
   `name` varchar(255) NOT NULL,
   `version` varchar(255) NOT NULL,
   `support` varchar(255) NOT NULL,
+  `cycle` varchar(255) NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `without_price` tinyint(1) NOT NULL,
   `discount` decimal(10,2) NOT NULL,
@@ -553,6 +660,19 @@ CREATE TABLE `tb_ready_site_services` (
   `ready_site_id` int(11) NOT NULL,
   `service_id` int(11) NOT NULL,
   `main` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `tb_rewards`
+--
+
+CREATE TABLE `tb_rewards` (
+  `id` int(11) NOT NULL,
+  `indicator_id` int(11) NOT NULL,
+  `date_create` datetime NOT NULL DEFAULT current_timestamp(),
+  `due_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -618,6 +738,13 @@ CREATE TABLE `tb_service_img` (
   `date_create` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `tb_service_img`
+--
+
+INSERT INTO `tb_service_img` (`id`, `service_id`, `image`, `date_create`) VALUES
+(1, 1, 'foto_teste.png', '2024-04-19 22:15:18');
+
 -- --------------------------------------------------------
 
 --
@@ -630,6 +757,13 @@ CREATE TABLE `tb_service_services` (
   `associated_service_id` int(11) NOT NULL,
   `main` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tb_service_services`
+--
+
+INSERT INTO `tb_service_services` (`id`, `service_id`, `associated_service_id`, `main`) VALUES
+(3, 1, 2, 0);
 
 -- --------------------------------------------------------
 
@@ -664,15 +798,7 @@ CREATE TABLE `tb_shop` (
   `whatsapp` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `map` tinyint(1) NOT NULL DEFAULT 0,
-  `newsletter_modal` tinyint(1) DEFAULT 0,
-  `newsletter_modal_title` varchar(255) DEFAULT NULL,
-  `newsletter_modal_text` varchar(255) DEFAULT NULL,
-  `newsletter_modal_success_text` varchar(255) DEFAULT NULL,
-  `newsletter_modal_time` tinyint(1) DEFAULT NULL,
-  `newsletter_modal_time_seconds` varchar(255) DEFAULT NULL,
-  `newsletter_modal_location` varchar(255) DEFAULT NULL,
-  `newsletter_footer` tinyint(1) DEFAULT 1,
-  `newsletter_footer_text` varchar(255) DEFAULT 'Receba Ofertas e Novidades de nossa loja',
+  `whatsapp_group` varchar(255) DEFAULT NULL,
   `top_highlight_bar` tinyint(1) DEFAULT 1,
   `top_highlight_bar_location` varchar(255) DEFAULT NULL,
   `top_highlight_bar_text` varchar(255) DEFAULT 'Toda a loja com descontos de até 50%',
@@ -741,6 +867,8 @@ CREATE TABLE `tb_users` (
   `recup_password` varchar(255) DEFAULT NULL,
   `two_factors` tinyint(1) NOT NULL DEFAULT 0,
   `two_factors_token` varchar(255) DEFAULT NULL,
+  `referral_code` varchar(255) NOT NULL,
+  `referral_code_used` varchar(255) DEFAULT NULL,
   `date_create` datetime NOT NULL,
   `last_shop_login` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -859,6 +987,36 @@ ALTER TABLE `tb_home_services`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tb_improvement`
+--
+ALTER TABLE `tb_improvement`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_improvement_img`
+--
+ALTER TABLE `tb_improvement_img`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_improvement_likes`
+--
+ALTER TABLE `tb_improvement_likes`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_improvement_report`
+--
+ALTER TABLE `tb_improvement_report`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_indication`
+--
+ALTER TABLE `tb_indication`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `tb_invoice_info`
 --
 ALTER TABLE `tb_invoice_info`
@@ -940,6 +1098,12 @@ ALTER TABLE `tb_ready_site_img`
 -- Índices de tabela `tb_ready_site_services`
 --
 ALTER TABLE `tb_ready_site_services`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `tb_rewards`
+--
+ALTER TABLE `tb_rewards`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1085,6 +1249,36 @@ ALTER TABLE `tb_home_services`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de tabela `tb_improvement`
+--
+ALTER TABLE `tb_improvement`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_improvement_img`
+--
+ALTER TABLE `tb_improvement_img`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_improvement_likes`
+--
+ALTER TABLE `tb_improvement_likes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_improvement_report`
+--
+ALTER TABLE `tb_improvement_report`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tb_indication`
+--
+ALTER TABLE `tb_indication`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `tb_invoice_info`
 --
 ALTER TABLE `tb_invoice_info`
@@ -1130,13 +1324,13 @@ ALTER TABLE `tb_payments`
 -- AUTO_INCREMENT de tabela `tb_plans`
 --
 ALTER TABLE `tb_plans`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `tb_plans_interval`
 --
 ALTER TABLE `tb_plans_interval`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de tabela `tb_products`
@@ -1169,6 +1363,12 @@ ALTER TABLE `tb_ready_site_services`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `tb_rewards`
+--
+ALTER TABLE `tb_rewards`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `tb_scripts`
 --
 ALTER TABLE `tb_scripts`
@@ -1184,13 +1384,13 @@ ALTER TABLE `tb_services`
 -- AUTO_INCREMENT de tabela `tb_service_img`
 --
 ALTER TABLE `tb_service_img`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `tb_service_services`
 --
 ALTER TABLE `tb_service_services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `tb_shop`

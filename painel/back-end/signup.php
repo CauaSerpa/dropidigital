@@ -17,12 +17,35 @@
         return $codigoUnico;
     }
 
+    // Função para gerar um UUID
+    function generateUUID() {
+        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //Tabela que será solicitada
         $tabela = 'tb_users';
 
         // Gerando token para ativacao
         $token = gerarCodigoUnico();
+
+        // Gerando referral_code
+        $referral_code = generateUUID();
+
+        // Pega o token do usuario
+        if (isset($_SESSION['code'])) {
+            $referral_code_used = $_SESSION['code'];
+        } else if (isset($_GET['code'])) {
+            $referral_code_used = $_GET['code'];
+        } else {
+            $referral_code_used = NULL;
+        }
 
         // Recebe os dados do formulário
         $name = $_POST['name'];
@@ -58,11 +81,13 @@
         }
 
         // Insere o usuário no banco de dados
-        $sql = "INSERT INTO $tabela (name, email, password, date_create) VALUES (:name, :email, :password, :date_create)";
+        $sql = "INSERT INTO $tabela (name, email, password, referral_code, referral_code_used, date_create) VALUES (:name, :email, :password, :referral_code, :referral_code_used, :date_create)";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':email', $email);
         $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
+        $stmt->bindValue(':referral_code', $referral_code);
+        $stmt->bindValue(':referral_code_used', $referral_code_used);
         $stmt->bindValue(':date_create', $current_date);
 
         if ($stmt->execute()) {
@@ -123,6 +148,73 @@
                     $stmt->bindValue(':id', $user_id);
 
                     $stmt->execute();
+
+                    //Tabela que será solicitada
+                    $tabela = 'tb_users';
+
+                    // Verifica se o usuário já existe
+                    $sql = "SELECT id FROM $tabela WHERE referral_code = :referral_code";
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindValue(':referral_code', $referral_code_used);
+                    $stmt->execute();
+                    
+                    $indicator = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($indicator) {
+                        //Tabela que será solicitada
+                        $tabela = 'tb_indication';
+
+                        // Verifica se o usuário já existe
+                        $sql = "SELECT id FROM $tabela WHERE indicator_id = :indicator_id AND guest_email = :guest_email";
+                        $stmt = $conn_pdo->prepare($sql);
+                        $stmt->bindValue(':indicator_id', $indicator['id']);
+                        $stmt->bindValue(':guest_email', $email);
+                        $stmt->execute();
+                        
+                        $invitation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        if ($invitation) {
+                            // Convidou pelo email, apenas altera o status
+
+                            // Obtém a data atual no formato desejado
+                            $date_created_account = date('Y-m-d H:i:s');
+
+                            //Tabela que será solicitada
+                            $tabela = 'tb_indication';
+
+                            // Adiciona o referral_code a tabela
+                            $sql = "UPDATE $tabela SET guest_id = :guest_id, status = :status, date_created_account = :date_created_account WHERE id = :id AND indicator_id = :indicator_id AND guest_email = :guest_email";
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindValue(':guest_id', $user_id);
+                            $stmt->bindValue(':status', 'account-created');
+                            $stmt->bindValue(':date_created_account', $date_created_account);
+
+                            $stmt->bindValue(':id', $invitation['id']);
+                            $stmt->bindValue(':indicator_id', $indicator['id']);
+                            $stmt->bindValue(':guest_email', $email);
+                            
+                            $stmt->execute();
+                        } else {
+                            // Usou o codigo do usuario cria linha
+
+                            // Obtém a data atual no formato desejado
+                            $date_created_account = date('Y-m-d H:i:s');
+
+                            //Tabela que será solicitada
+                            $tabela = 'tb_indication';
+
+                            // Adiciona o referral_code a tabela
+                            $sql = "INSERT INTO $tabela (indicator_id, guest_id, guest_email, status, date_created_account) VALUES (:indicator_id, :guest_id, :guest_email, :status, :date_created_account)";
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindValue(':indicator_id', $indicator['id']);
+                            $stmt->bindValue(':guest_id', $user_id);
+                            $stmt->bindValue(':guest_email', $email);
+                            $stmt->bindValue(':status', 'account-created');
+                            $stmt->bindValue(':date_created_account', $date_created_account);
+
+                            $stmt->execute();
+                        }
+                    }
 
                     // Redireciona para a página de login ou exibe uma mensagem de sucesso
                     header("Location: ".INCLUDE_PATH_DASHBOARD."criar-loja");

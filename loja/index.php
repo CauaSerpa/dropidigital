@@ -163,6 +163,7 @@
 
         $email = $resultado['email'];
 
+        $whatsapp_group = $resultado['whatsapp_group'];
         $top_highlight_bar = $resultado['top_highlight_bar'];
         $top_highlight_bar_location = $resultado['top_highlight_bar_location'];
         $top_highlight_bar_text = $resultado['top_highlight_bar_text'];
@@ -509,12 +510,12 @@
     }
 
     /* Form */
-    #newsletterForm
+    #whatsappGroup
     {
         align-items: center;
     }
-    #newsletterForm input.form-control,
-    #newsletterForm .btn.btn-dark
+    #whatsappGroup input.form-control,
+    #whatsappGroup .btn.btn-dark
     {
         height: 48px;
     }
@@ -1111,6 +1112,14 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<!-- Tooltip -->
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
 <script>
 $(document).ready(function() {
     // Adiciona uma seta após as categorias que têm subcategorias
@@ -1493,70 +1502,21 @@ $(document).ready(function() {
         <!-- Div para mostrar as imagens do feed do Instagram -->
         <div id="instafeed" class="owl-carousel owl-theme owl-loaded owl-drag carousel-inner mb-4"></div>
     
+        <?php if (!empty($whatsapp_group)) { ?>
         <div class="container">
-            <div class="row p-4" id="newsletterContainer">
+            <div class="row p-4" id="whatsappGroupContainer">
                 <p class="col-md-6 d-flex align-items-center fs-4">
                     <i class='bx bxl-whatsapp fs-2 me-2'></i>
                     Quero participar do canal do WhatsApp ou grupo fechado e receber as promoções
                 </p>
-                <form class="col-md-6 d-flex" role="text" id="newsletterForm">
-                    <input class="form-control py-1 px-3 me-2" type="text" name="email" id="email" placeholder="E-mail" aria-label="E-mail">
-                    <button class="btn btn-dark" id="btn-newsletter" type="submit" style="width: 270px;">
-                        Quero receber!
-                    </button>
+                <form class="col-md-6 d-flex justify-content-end" role="text" id="whatsappGroup">
+                    <a href="<?php echo $whatsapp_group; ?>" target="_blank" class="btn btn-dark d-flex align-items-center justify-content-center" id="btn-whatsapp" type="submit" style="width: 270px;">
+                        Entrar no grupo
+                    </a>
                 </form>
             </div>
-            <p class="d-none fs-4 justify-content-center p-4" id="success">
-                <i class='bx bx-check fs-2 me-2' style="color: rgb(1, 200, 155);"></i>
-                Obrigado por se inscrever! Aguarde novidades da nossa loja em breve.
-            </p>
         </div>
-
-        <script>
-            $(document).ready(function() {
-                // Quando o formulário for enviado
-                $('#newsletterForm').submit(function(e) {
-                    e.preventDefault();
-
-                    // Coleta o email inserido pelo usuário
-                    var email = $('#email').val();
-                    var id = <?php echo $shop_id; ?>
-
-                    // Envia uma solicitação AJAX para o servidor
-                    $.ajax({
-                        url: './newsletter/subscribe/index.php', // Nome do arquivo PHP para processar a inscrição
-                        type: 'POST',
-                        data: { id: id, email: email },
-                        success: function(response) {
-                            // Trata a resposta do servidor
-                            if (response === 'success') {
-                                $('#newsletterContainer').removeClass('d-flex');
-                                $('#newsletterContainer').addClass('d-none');
-                                
-                                $('#success').removeClass('d-none');
-                                $('#success').addClass('d-flex');
-                            } else {
-                                $('#btn-newsletter').text('Erro!');
-                                $('#btn-newsletter').removeClass('btn-dark');
-                                $('#btn-newsletter').addClass('btn-danger');
-
-                                setTimeout(resetarBotao, 3000); // 3000 milissegundos = 3 segundos
-                            }
-                        }
-                    });
-                });
-            });
-
-            function resetarBotao() {
-                $("#btn-newsletter").removeClass("btn-danger");
-
-                $('#btn-newsletter').addClass('btn-dark');
-                $('#btn-newsletter').text('Quero receber!');
-
-                // Define o valor do campo como uma string vazia
-                $("#email").val("");
-            }
-        </script>
+        <?php } ?>
 
         <a href="#" class="to-top btn btn-dark p-2 rounded-1">
             <i class='bx bx-chevron-up fs-2' ></i>

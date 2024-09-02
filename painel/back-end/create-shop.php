@@ -102,6 +102,16 @@
         $shop_id = $conn_pdo->lastInsertId();
 
         //Tabela que será solicitada
+        $tabela = 'tb_shop_users';
+        
+        // Insere o usuário no banco de dados
+        $sql = "INSERT INTO $tabela (user_id, shop_id) VALUES (:user_id, :shop_id)";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindValue(':user_id', $user_id);
+        $stmt->bindValue(':shop_id', $shop_id);
+        $stmt->execute();
+
+        //Tabela que será solicitada
         $tabela = 'tb_domains';
 
         $domain = "dropidigital.com.br";
@@ -137,11 +147,17 @@
         $stmt->bindValue(':estado', $estado);
         $stmt->execute();
 
-        //Tabela que será solicitada
-        $tabela = 'tb_invoice_info';
+        // Nome da tabela para a busca
+        $tabela = 'tb_users';
 
-        // Passando valores
-        $email = $_POST['email'];
+        // Consulta SQL para contar os produtos na tabela
+        $sql = "SELECT name FROM $tabela WHERE id = :id LIMIT 1";
+        $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+        $stmt->bindParam(':id', $user_id);
+        $stmt->execute();
+
+        // Recupere o resultado da consulta
+        $name = $stmt->fetch(PDO::FETCH_ASSOC)['name'];
 
         if ($person == 'pj')
         {
@@ -153,6 +169,12 @@
             $docType = "cpf";
             $docNumber = $cpf_cnpj;
         }
+
+        //Tabela que será solicitada
+        $tabela = 'tb_invoice_info';
+
+        // Passando valores
+        $email = $_POST['email'];
 
         // Inserindo informações da fatura no banco de dados
         $sql = "INSERT INTO $tabela (shop_id, name, email, phone, docType, docNumber, cep, endereco, numero, complemento, bairro, cidade, estado) VALUES 

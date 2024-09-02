@@ -62,15 +62,18 @@
                 // Deletar logos
                 // Diretório das imagens
                 $diretorio = "../logos/$shop[id]/";
-
+    
                 // Agora, exclua as imagens no diretório
-                $files = glob($diretorio . "*");
-                foreach ($files as $file) {
-                    unlink($file);
-                }
+                if (is_dir($diretorio)) {
+                    // Agora, exclua as imagens no diretório
+                    $files = glob($diretorio . "*");
+                    foreach ($files as $file) {
+                        unlink($file);
+                    }
 
-                // Exclua o diretório do usuário
-                rmdir($diretorio);
+                    // Exclua o diretório do usuário
+                    rmdir($diretorio);
+                }
 
                 $tabela = 'tb_products';
                 $sql = "SELECT id FROM $tabela WHERE shop_id = :shop_id";
@@ -88,15 +91,41 @@
                     $stmt = $conn_pdo->prepare($query);
                     $stmt->bindParam(':usuario_id', $productId);
                     $stmt->execute();
-
+    
                     // Agora, exclua as imagens no diretório
-                    $files = glob($diretorio . "*");
-                    foreach ($files as $file) {
-                        unlink($file);
-                    }
+                    if (is_dir($diretorio)) {
+                        // Agora, exclua as imagens no diretório
+                        $files = glob($diretorio . "*");
+                        foreach ($files as $file) {
+                            unlink($file);
+                        }
 
-                    // Exclua o diretório do usuário
-                    rmdir($diretorio);
+                        // Exclua o diretório do usuário
+                        rmdir($diretorio);
+                    }
+                }
+
+                $tabela = 'tb_categories';
+                $sql = "SELECT id FROM $tabela WHERE shop_id = :shop_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindValue(':shop_id', $shop['id']);
+                $stmt->execute();
+                $categoriesIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                foreach ($categoriesIds as $categoryId) {
+                    // Diretório das imagens
+                    $diretorio = "../category/$categoryId/";
+    
+                    // Agora, exclua as imagens no diretório
+                    if (is_dir($diretorio)) {
+                        $files = glob($diretorio . "*");
+                        foreach ($files as $file) {
+                            unlink($file);
+                        }
+    
+                        // Exclua o diretório do usuário
+                        rmdir($diretorio);
+                    }
                 }
 
                 $tabela = 'tb_banner_info';
@@ -115,15 +144,42 @@
                     $stmt = $conn_pdo->prepare($query);
                     $stmt->bindParam(':banner_id', $bannerId);
                     $stmt->execute();
-
+    
                     // Agora, exclua as imagens no diretório
-                    $files = glob($diretorio . "*");
-                    foreach ($files as $file) {
-                        unlink($file);
-                    }
+                    if (is_dir($diretorio)) {
+                        // Agora, exclua as imagens no diretório
+                        $files = glob($diretorio . "*");
+                        foreach ($files as $file) {
+                            unlink($file);
+                        }
 
-                    // Exclua o diretório do usuário
-                    rmdir($diretorio);
+                        // Exclua o diretório do usuário
+                        rmdir($diretorio);
+                    }
+                }
+
+                $tabela = 'tb_articles';
+                $sql = "SELECT id FROM $tabela WHERE shop_id = :shop_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindValue(':shop_id', $shop['id']);
+                $stmt->execute();
+                $articlesIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                foreach ($articlesIds as $articleId) {
+                    // Diretório das imagens
+                    $diretorio = "../articles/$articleId/";
+    
+                    // Agora, exclua as imagens no diretório
+                    if (is_dir($diretorio)) {
+                        // Agora, exclua as imagens no diretório
+                        $files = glob($diretorio . "*");
+                        foreach ($files as $file) {
+                            unlink($file);
+                        }
+
+                        // Exclua o diretório do usuário
+                        rmdir($diretorio);
+                    }
                 }
 
                 // Deletar registros
@@ -158,7 +214,7 @@
                 }
 
                 $_SESSION['msg'] = "<p class='green'>Loja deletada com sucesso!</p>";
-                // header("Location: " . INCLUDE_PATH_DASHBOARD . "lojas");
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "lojas");
             } else {
                 $_SESSION['msg'] = "<p class='red'>Credenciais inválidas.</p>";
                 header("Location: " . INCLUDE_PATH_DASHBOARD . "ver-loja?id=" . $_POST['shop_id']);

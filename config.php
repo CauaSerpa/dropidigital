@@ -30,6 +30,9 @@
     define('INCLUDE_PATH', $_ENV['URL']);
     define('INCLUDE_PATH_DASHBOARD',INCLUDE_PATH.'painel/');
 
+    // Tiny key
+    $tinyKey = $_ENV['TINY_API_KEY'];
+
     // Asaas
 	$asaas_url = $_ENV['ASAAS_API_URL'];
 	$asaas_key = $_ENV['ASAAS_API_KEY'];

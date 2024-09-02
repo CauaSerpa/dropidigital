@@ -15,13 +15,6 @@ $stmt->execute();
 // Obter o resultado como um array associativo
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-
-
-
-
-
-
 $selectedServices = $_POST['selectedServices'];
 
 // Decodificar os dados JSON para um array PHP
@@ -83,6 +76,64 @@ if ($site) {
     } elseif ($type == "service") {
         $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $site['id'] . "/card-image/" . $site['card_image'];
     }
+
+
+
+
+
+
+    if ($site['cycle'] == "recurrent") {
+        $priceNoFormat = ($site['discount'] == "0.00") ? $site['price'] : $site['discount'];
+    
+        $amountDiscount = $site['price'] - $site['discount'];
+        
+        $discount = "R$ " . number_format($site['price'], 2, ",", ".");
+        
+        $amountDiscountValue = "R$ " . number_format($amountDiscount, 2, ",", ".");
+        
+        // Nome da tabela para a busca
+        $tabela = 'tb_rewards';
+        
+        // Obter a data atual no formato YYYY-MM-DD
+        $dueDate = date('Y-m-d');
+        
+        $sql = "SELECT COUNT(*) as total_purchases FROM $tabela WHERE indicator_id = :indicator_id AND due_date >= :due_date";
+        
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':indicator_id', $user_id);
+        $stmt->bindParam(':due_date', $dueDate);
+        $stmt->execute();
+        
+        // Recuperar os resultados
+        $indication['total_purchases'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_purchases'];
+        
+        // Calcular o desconto total
+        $discount_percentage = 10; // 10% por compra
+        $total_purchases = $indication['total_purchases'];
+        $total_discount = $total_purchases * $discount_percentage;
+        
+        // Limitar o desconto a no máximo 100%
+        if ($total_discount > 100) {
+            $total_discount = 100;
+        }
+        
+        // Calcular o preço final após o desconto
+        $original_price = $priceNoFormat;
+        $discount_amount = ($total_discount / 100) * $original_price;
+        $finalPrice = $original_price - $discount_amount;
+        
+        // Garante que o preço final não seja negativo
+        $final_price = max($finalPrice, 0);
+        
+        $original_price = $_POST['ready_site_price'];
+        $_POST['ready_site_price'] = $final_price;
+    }
+
+
+
+
+
 ?>
 <style>
     .disabled
@@ -200,12 +251,50 @@ if ($site) {
                 <h6 class="modal-title fs-6" id="exampleModalLabel">Informações da fatura</h6>
             </div>
             <div class="modal-body px-4 pb-3 pt-0">
-                Seu plano atual é menor do que o plano necessário para o Site Pronto, o que pode causar problemas no seu site e não será otimizado para SEO. 
-                <a href="ajuda.dropidigital.com.br/" class="link" target="_blank">Saiba mais aqui!</a>
+                Para a compra do Site Afiliado Hotmart, rever contratação do plano Avançado Dropi Digital.
+                <!-- <a href="ajuda.dropidigital.com.br/" class="link" target="_blank">Saiba mais aqui!</a> -->
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" id="modalExitButton">Sair</button>
                 <button type="button" class="btn btn-danger fw-semibold px-4 py-2 small" id="modalContinueButton">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #warningModal .loader {
+        width: 32px;
+        height: 32px;
+        border: 2.5px solid var(--green-color) !important;
+        border-bottom-color: transparent !important;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+</style>
+<!-- Modal -->
+<div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 pb-3 pt-4 border-0">
+                <h6 class="modal-title fs-6" id="exampleModalLabel">Aviso!</h6>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center justify-content-center px-4 pb-3 pt-0">
+                <div class="loader"></div>
+                <p class="fs-5 fw-semibold mt-2">Seu tema está sendo instalado!</p>
+                <p>Por favor não saia desta página ou feche o navegador.</p>
             </div>
         </div>
     </div>
@@ -233,13 +322,155 @@ if ($site) {
     } else {
         $description = $description_transformed;
     }
+
+    $price = (isset($_POST['ready_site_price'])) ? $_POST['ready_site_price'] : $_POST['service_price'];
 ?>
+
+<style>
+    .disabled
+    {
+        color: #a0a8b6;
+        background: #f8f8f9;
+        pointer-events: none;
+    }
+
+    .frequency,
+    .type
+    {
+        cursor: pointer;
+    }
+    .frequency.active,
+    .type.active
+    {
+        fill: white;
+        color: white;
+        border-color: var(--dark-green-color);
+        background: var(--green-color);
+        cursor: default;
+    }
+
+    .btn.btn-success
+    {
+        background: var(--green-color);
+        border: none;
+    }
+    .btn.btn-success:hover {
+        background: var(--dark-green-color);
+    }
+</style>
 
 <form id="myForm" class="position-relative" action="submit">
     <div class="row">
         <div class="col-md-6">
+            <?php
+                if ($site['cycle'] == "recurrent" && $type == "ready-site") {
+                    // Tabela que sera feita a consulta
+                    $tabela = "tb_plans_interval";
+
+                    // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
+                    $sql = "SELECT id, plan_id, billing_interval FROM $tabela WHERE id = :id";
+
+                    // Prepara a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+
+                    // Binde o parâmetro
+                    $stmt->bindParam(':id', $site['plan_id'], PDO::PARAM_INT);
+
+                    // Executa a consulta
+                    $stmt->execute();
+
+                    // Obtém os resultados
+                    $planData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    // Verificar se o resultado foi encontrado
+                    if ($planData) {
+                        $id = $planData['plan_id'];
+                        $billing_interval = $planData['billing_interval'];
+                    }
+
+                    // Tabela que sera feita a consulta
+                    $tabela = "tb_plans";
+
+                    // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
+                    $sql = "SELECT id, name, sub_name, resources FROM $tabela WHERE id = :id";
+
+                    // Prepara a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+
+                    // Binde o parâmetro
+                    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+                    // Executa a consulta
+                    $stmt->execute();
+
+                    // Obtém os resultados
+                    $planData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    // Verificar se o resultado foi encontrado
+                    if ($planData) {
+            ?>
             <div class="card mb-4 p-0">
-                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Site Pronto</div>
+                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Plano contratado</div>
+                <div class="card-body px-4 py-3">
+                    <label class="card frequency active">
+                        <div class="row" style="height: 52px;">
+
+                            <?php
+                                // Tabela que sera feita a consulta
+                                $tabela = "tb_plans_interval";
+
+                                // Consulta SQL
+                                $sql = "SELECT id, price FROM $tabela WHERE plan_id = :id AND billing_interval = :billing_interval";
+
+                                // Preparar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+
+                                // Vincular o valor do parâmetro
+                                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                                $stmt->bindValue(':billing_interval', 'monthly', PDO::PARAM_STR);
+
+                                // Executar a consulta
+                                $stmt->execute();
+
+                                // Obter o resultado como um array associativo
+                                $planPrice = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                // Verificar se o resultado foi encontrado
+                                if ($planPrice) {
+                                    $monthly_id = $planPrice['id'];
+                                    $monthly_price = $planPrice['price'];
+                            ?>
+
+                            <p class="d-flex align-items-center col-md-4">Assinatura mensal</p>
+                            <div class="pricing d-flex flex-column justify-content-center col-md-8">
+                                <div class="d-flex mb-1">
+                                    <p class="fw-semibold text-decoration-line-through lh-1">
+                                        R$ <?= number_format($monthly_price, 2, ",", "."); ?> por mês
+                                    </p>
+                                </div>
+                                <div class="d-flex align-items-baseline">
+                                    <span class="fw-semibold small me-1">R$</span>
+                                    <h5 class="lh-1 mb-0">
+                                        <?= number_format($original_price, 2, ",", "."); ?> por mês
+                                    </h5>
+                                    <i class="bx bx-help-circle edited ms-1" data-toggle="tooltip" data-placement="top" title="O valor de <?= number_format($price, 2, ",", "."); ?> é valido apenas para primeira cobrança, nas próximas será cobrado o valor de <?= number_format($site['price'], 2, ",", "."); ?>."></i>
+                                </div>
+                            </div>
+
+                            <?php
+                                }
+                            ?>
+
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <?php
+                    }
+                }
+            ?>
+            <div class="card mb-4 p-0">
+                <div class="card-header fw-semibold px-4 py-3 bg-transparent"><?= ($site['cycle'] == "recurrent") ? "Site Pronto Bônus" : "Site Pronto"; ?></div>
                 <div class="card-body px-4 py-3">
                     <div class="card mb-3">
                         <div class="d-flex align-items-center justify-content-between">
@@ -250,10 +481,20 @@ if ($site) {
                                     <p class="small" title="<?= $description_formated; ?>"><?= $description; ?></p>
                                 </div>
                             </div>
-                            <div>
-                                <span class="fw-semibold small">R$</span>
-                                <span class="fw-semibold fs-5"> <?= number_format($_POST['ready_site_price'], 2, ",", "."); ?></span>
-                            </div>
+                            <?php
+                                if ($site['cycle'] == "recurrent") {
+                            ?>
+                                <p class="fw-semibold fs-5">Grátis</p>
+                            <?php
+                                } else {
+                            ?>
+                                <div>
+                                    <span class="fw-semibold small">R$</span>
+                                    <span class="fw-semibold fs-5"> <?= number_format($price, 2, ",", "."); ?></span>
+                                </div>
+                            <?php
+                                }
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -285,7 +526,7 @@ if ($site) {
                 $isActive = false;
 
                 if ($countSiteServices == 0) {
-                    if (!isset($site['plan_id']) || $site['plan_id'] == 1) {
+                    if ($site['cycle'] == "recurrent" || !isset($site['plan_id']) || $site['plan_id'] == 1) {
                         $isActive = " d-none";
                     }
                 }
@@ -316,8 +557,8 @@ if ($site) {
                             }
                         }
 
-                        if (isset($site['plan_id'])) {
-                            if ($site['plan_id'] != 1 && $site['plan_id'] >= $plan['plan_id']) {
+                        if (isset($site['plan_id']) && $site['cycle'] !== "recurrent") {
+                            if ($site['plan_id'] != 1 || $site['plan_id'] != 2) {
                                 // Tabela que será feita a consulta
                                 $tabela = "tb_plans_interval";
 
@@ -338,37 +579,41 @@ if ($site) {
 
                                 // Verificar se o resultado foi encontrado
                                 if ($plan_interval) {
-                                    // Tabela que será feita a consulta
-                                    $tabela = "tb_plans";
+                                    if ($site['plan_id'] > $plan_interval['id']) {
+                                        // Tabela que será feita a consulta
+                                        $tabela = "tb_plans";
 
-                                    // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
-                                    $sql = "SELECT id, name, sub_name, resources FROM $tabela WHERE id = :id";
+                                        // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
+                                        $sql = "SELECT id, name, sub_name, resources FROM $tabela WHERE id = :id";
 
-                                    // Prepara a consulta
-                                    $stmt = $conn_pdo->prepare($sql);
+                                        // Prepara a consulta
+                                        $stmt = $conn_pdo->prepare($sql);
 
-                                    // Binde o parâmetro
-                                    $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
+                                        // Binde o parâmetro
+                                        $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
 
-                                    // Executa a consulta
-                                    $stmt->execute();
+                                        // Executa a consulta
+                                        $stmt->execute();
 
-                                    // Obtém os resultados
-                                    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+                                        // Obtém os resultados
+                                        $plan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                                    // Verificar se o resultado foi encontrado
-                                    if ($plan) {
-                                        // Verificar se o ID está presente nos itens selecionados
-                                        $isChecked = (!isset($selectedPlanId));
-
-                                        // Adiciona o atributo "checked" se estiver presente nos itens selecionados
-                                        $checkedAttribute = $isChecked ? 'checked' : '';
+                                        // Verificar se o resultado foi encontrado
+                                        if ($plan) {
+                                            if ($plan_interval['billing_interval'] == "monthly") {
+                                                $billing_interval = "(mensal)";
+                                                $price = $plan_interval['price'];
+                                            } else {
+                                                $totalPrice = $plan_interval['price'];
+                                                $billing_interval = "($totalPrice/anual)";
+                                                $price = $plan_interval['price'] / 12;
+                                            }
                     ?>
 
                                 <div class="card mb-3">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="d-flex align-items-center">
-                                            <input type="checkbox" id="planCheckbox" class="form-check-input me-2 mt-0" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" <?= $checkedAttribute ?>>
+                                            <input type="checkbox" id="planCheckbox" class="form-check-input me-2 mt-0" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" checked disabled>
                                             <p class="d-flex align-items-center fw-semibold">
                                                 Plano <?= $plan['name']; ?>
                                                 <i class="bx bx-help-circle edited ms-1" data-toggle="tooltip" data-placement="top" data-bs-html="true" aria-label="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto." data-bs-original-title="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto."></i>
@@ -376,8 +621,8 @@ if ($site) {
                                         </div>
                                         <p class="fw-semibold">
                                             R$ 
-                                            <?= number_format($plan_interval['price'], 2, ",", "."); ?> 
-                                            <small>(mensal)</small>
+                                            <?= number_format($price, 2, ",", "."); ?> 
+                                            <small><?= $billing_interval; ?></small>
                                         </p>
                                     </div>
                                 </div>
@@ -386,6 +631,7 @@ if ($site) {
             					<input type="hidden" name="plan_period" id="plan_period" value="<?php echo $plan_interval['billing_interval']; ?>">
 
                     <?php
+                                        }
                                     }
                                 }
                             }
@@ -500,20 +746,29 @@ if ($site) {
                 </div>
             </div>
         </div>
+        <?php
+            if ($site['cycle'] == "recurrent") {
+                $enabledPix = "d-none";
+                $enabled = "col-md-12";
+            } else {
+                $enabledPix = "";
+                $enabled = "col-md-8";
+            }
+        ?>
         <div class="col-md-6">
             <div class="card mb-4 p-0">
-                <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">Como deseja pagar a assinatura do seu plano?</div>
+                <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">Informações de pagamento</div>
                 <div class="card-body px-4 py-3">
                     <div class="row mb-3 g-3">
                         <input type="radio" name="type" id="creditCard" value="creditCard" class="d-none" checked>
                         <input type="radio" name="type" id="pix" value="pix" class="d-none">
-                        <div class="col-md-8">
+                        <div class="<?= $enabled; ?>">
                             <label for="creditCard" class="card type d-flex align-items-center justify-content-center active">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 0 576 512" id="creditCard"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M512 80c8.8 0 16 7.2 16 16v32H48V96c0-8.8 7.2-16 16-16H512zm16 144V416c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V224H528zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm56 304c-13.3 0-24 10.7-24 24s10.7 24 24 24h48c13.3 0 24-10.7 24-24s-10.7-24-24-24H120zm128 0c-13.3 0-24 10.7-24 24s10.7 24 24 24H360c13.3 0 24-10.7 24-24s-10.7-24-24-24H248z"/></svg>
                                 Cartão de crédito
                             </label>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 <?= $enabledPix; ?>">
                             <label for="pix" class="card type d-flex align-items-center justify-content-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 0 512 512" id="pix"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M242.4 292.5C247.8 287.1 257.1 287.1 262.5 292.5L339.5 369.5C353.7 383.7 372.6 391.5 392.6 391.5H407.7L310.6 488.6C280.3 518.1 231.1 518.1 200.8 488.6L103.3 391.2H112.6C132.6 391.2 151.5 383.4 165.7 369.2L242.4 292.5zM262.5 218.9C256.1 224.4 247.9 224.5 242.4 218.9L165.7 142.2C151.5 127.1 132.6 120.2 112.6 120.2H103.3L200.7 22.76C231.1-7.586 280.3-7.586 310.6 22.76L407.8 119.9H392.6C372.6 119.9 353.7 127.7 339.5 141.9L262.5 218.9zM112.6 142.7C126.4 142.7 139.1 148.3 149.7 158.1L226.4 234.8C233.6 241.1 243 245.6 252.5 245.6C261.9 245.6 271.3 241.1 278.5 234.8L355.5 157.8C365.3 148.1 378.8 142.5 392.6 142.5H430.3L488.6 200.8C518.9 231.1 518.9 280.3 488.6 310.6L430.3 368.9H392.6C378.8 368.9 365.3 363.3 355.5 353.5L278.5 276.5C264.6 262.6 240.3 262.6 226.4 276.6L149.7 353.2C139.1 363 126.4 368.6 112.6 368.6H80.78L22.76 310.6C-7.586 280.3-7.586 231.1 22.76 200.8L80.78 142.7H112.6z"/></svg>
                                 Pix
@@ -540,7 +795,7 @@ if ($site) {
                                 <input type="text" class="form-control" name="credit_card_ccv" id="creditCardCCV" aria-describedby="creditCardCCVHelp" placeholder="CVV" required>
                             </div>
                         </div>
-                        <div class="mb-3" id="installmentContainer">
+                        <div class="mb-3 <?= ($site['cycle'] == "recurrent") ? "d-none" : ""; ?>" id="installmentContainer">
                             <label for="installment" class="form-label small">Parcelas</label>
                             <div class="input-group">
                                 <select class="form-select" name="installment" id="installment" aria-label="Default select example" required>
@@ -558,10 +813,15 @@ if ($site) {
                     <?php if (!empty($_POST['ready_site_id'])) { ?>
                         <input type="hidden" name="ready_site_id" id="ready_site_id" value="<?php echo $site['shop_id']; ?>">
                         <input type="hidden" name="ready_site_price" id="ready_site_price" value="<?php echo $_POST['ready_site_price']; ?>">
+                        <input type="hidden" name="cycle" id="cycle" value="<?php echo $site['cycle']; ?>">
+                        <?php if ($site['cycle'] == "recurrent") { ?>
+                            <input type="hidden" name="plan_id" id="plan_id" value="<?= $site['plan_id']; ?>">
+                            <input type="hidden" name="ready_site_original_price" id="ready_site_original_price" value="<?php echo $site['price']; ?>">
+                        <?php } ?>
                     <?php } ?>
 					<input type="hidden" name="selectedServices" id="selectedServices" value='<?php echo $_POST['selectedServices']; ?>'>
                     <?php if (isset($plan_interval)) { ?>
-                        <input type="hidden" name="plan_price" id="plan_price" value="<?php echo $plan_interval['price']; ?>">
+                        <input type="hidden" name="plan_price" id="after_plan_price" value="<?php echo $plan_interval['price']; ?>">
                     <?php } ?>
 
                     <div class="user-data">
@@ -582,9 +842,86 @@ if ($site) {
 
                     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
 
+                    <?php
+                        if ($site['cycle'] == "recurrent") {
+                            $priceNoFormat = ($site['discount'] == "0.00") ? $site['price'] : $site['discount'];
+
+                            $amountDiscount = $site['price'] - $site['discount'];
+
+                            $discount = "R$ " . number_format($site['price'], 2, ",", ".");
+
+                            $amountDiscountValue = "R$ " . number_format($amountDiscount, 2, ",", ".");
+
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_rewards';
+
+                            // Obter a data atual no formato YYYY-MM-DD
+                            $dueDate = date('Y-m-d');
+
+                            $sql = "SELECT COUNT(*) as total_purchases FROM $tabela WHERE indicator_id = :indicator_id AND due_date >= :due_date";
+
+                            // Preparar e executar a consulta
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':indicator_id', $user_id);
+                            $stmt->bindParam(':due_date', $dueDate);
+                            $stmt->execute();
+
+                            // Recuperar os resultados
+                            $indication['total_purchases'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_purchases'];
+
+                            // Calcular o desconto total
+                            $discount_percentage = 10; // 10% por compra
+                            $total_purchases = $indication['total_purchases'];
+                            $total_discount = $total_purchases * $discount_percentage;
+
+                            // Limitar o desconto a no máximo 100%
+                            if ($total_discount > 100) {
+                                $total_discount = 100;
+                            }
+
+                            // Calcular o preço final após o desconto
+                            $original_price = $priceNoFormat;
+                            $discount_amount = ($total_discount / 100) * $original_price;
+                            $finalPrice = $original_price - $discount_amount;
+
+                            // Garante que o preço final não seja negativo
+                            $final_price = max($finalPrice, 0);
+                            
+                            $discountAmount = "R$ " . number_format($discount_amount, 2, ",", ".");
+                            $finalPrice = "R$ " . number_format($final_price, 2, ",", ".");
+                    ?>
+
+                    <p class="fw-semibold">Resumo da compra</p>
+                    <hr class="my-2">
+                    <div class="d-flex align-items-end justify-content-between mb-1">
+                        <p class="small">Valor:</p>
+                        <span class="small"><?= $discount; ?></span>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mb-1">
+                        <p class="small">Site Pronto:</p>
+                        <span class="text-success small">Grátis</span>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mb-1">
+                        <p class="small">Desconto:</p>
+                        <span class="text-success small">- <?= $amountDiscountValue; ?></span>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between mb-1">
+                        <p class="small">Desconto por indicação:</p>
+                        <span class="text-success small">- <?= $discountAmount; ?></span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex align-items-end justify-content-between mb-3">
+                        <p class="fw-semibold">Total:</p>
+                        <p class="fw-semibold"><?= $finalPrice; ?><small>/mês</small></p>
+                    </div>
+
+                    <?php
+                        }
+                    ?>
+
                     <!-- Aqui está o seu botão. Eu adicionei um ID para poder referenciá-lo no script JavaScript -->
                     <button type="submit" class="btn btn-success fw-semibold w-100 px-4 py-2 small mb-3" id="submitButton">
-                        <?php echo "Pagar 1x de R$ " . number_format($_POST['price'], 2, ",", ".");; ?>
+                        <?php echo "Pagar R$ " . number_format($_POST['price'], 2, ",", ".");; ?>
                     </button>
 
                     <style>
@@ -620,6 +957,8 @@ if ($site) {
                     </button>
 
                     <small class="lh-1" id="pixText" style="display: none;">Pagamentos por Pix têm aprovação instantânea.</small>
+
+                    <small class="lh-1" class="<?= ($site['cycle'] == "recurrent") ? "d-none" : ""; ?>">Valor válido apenas para a primeira fatura.</small>
                 </div>
             </div>
         </div>
@@ -707,8 +1046,13 @@ if ($site) {
 
                 $('#value').val(total);
                 
-                // Atualização do texto do botão com o valor total e a quantidade de parcelas
-                $('#submitButton').text(`Pagar ${selectedInstallments}x de ${formattedTotalInstallment}`);
+                if ($('input[name="cycle"]').val() === "recurrent") {
+                    // Atualização do texto do botão com o valor total e a quantidade de parcelas
+                    $('#submitButton').text(`Pagar ${formattedTotalInstallment}`);
+                } else {
+                    // Atualização do texto do botão com o valor total e a quantidade de parcelas
+                    $('#submitButton').text(`Pagar ${selectedInstallments}x de ${formattedTotalInstallment}`);
+                }
             } else {
                 // Formatação do valor total
                 var formattedTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total);
@@ -870,8 +1214,13 @@ if ($site) {
                 // Obtém a quantidade de parcelas selecionada
                 var selectedInstallments = $('#installment').val().split('|')[0];
                 
-                // Atualização do texto do botão com o valor total e a quantidade de parcelas
-                $('#submitButton').text(`Pagar ${selectedInstallments}x de ${formattedTotalInstallment}`);
+                if ($('input[name="cycle"]').val() === "recurrent") {
+                    // Atualização do texto do botão com o valor total e a quantidade de parcelas
+                    $('#submitButton').text(`Pagar ${formattedTotalInstallment}`);
+                } else {
+                    // Atualização do texto do botão com o valor total e a quantidade de parcelas
+                    $('#submitButton').text(`Pagar ${selectedInstallments}x de ${formattedTotalInstallment}`);
+                }
             } else {
                 // Formatação do valor total
                 var formattedTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total);
@@ -1240,6 +1589,40 @@ if ($site) {
                 //     }
                 // })
 
+                <?php
+                    if ((!empty($_POST['ready_site_id']))) {
+                ?>
+
+                $('#warningModal').modal('show');
+
+                var params = {
+                    shop_id: <?php echo $shop_id; ?>,
+                    ready_site_id: <?php echo $site['shop_id']; ?>
+                };
+
+                // Enviar uma solicitação AJAX para verificar o pagamento
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/copy_site_shop.php', // Crie um arquivo PHP para lidar com a verificação
+                    data: params,
+                    dataType: 'JSON',
+                    success: function(response) {
+                        if (response.status == 'sucesso') {
+                            window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento-confirmado?p=" + encodedCode;
+                        } else {
+                            // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
+                            console.log('O pagamento ainda não foi aprovado.');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Erro ao verificar o pagamento:', error);
+                    }
+                });
+                
+                <?php
+                    } else {
+                ?>
+
                 if ($('input[type="checkbox"]#planCheckbox').is(':checked')) {
                     var redirect = "&r=1";
                 } else {
@@ -1253,6 +1636,10 @@ if ($site) {
                     // Redirecionar para página de pagamento
                     window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>pagamento?p=" + encodedCode + redirect + "&id=<?= $site['plan_id']; ?>&site=<?= $site['shop_id']; ?>";
                 }
+
+                <?php
+                    }
+                ?>
             } else {
                 // Exibir mensagem de erro ao usuário
                 if (response.errors && response.errors.length > 0) {

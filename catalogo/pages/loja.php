@@ -172,13 +172,17 @@
     // Nome da tabela para a busca
     $tabela = 'tb_products';
 
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC";
+    // Defina o número inicial de produtos a serem exibidos
+    $limit = 100;
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC LIMIT :limit";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':shop_id', $shop_id);
     $stmt->bindValue(':status', 1);
     $stmt->bindValue(':emphasis', 1);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
 
     // Recuperar os resultados
@@ -188,10 +192,34 @@
 ?>
 
 <style>
-    .listProducts .row
-    {
+    .listProducts .row {
         --bs-gutter-x: 1rem !important;
         --bs-gutter-y: 1rem !important;
+    }
+
+    #loaderButton {
+        display: flex;
+        justify-content: center;
+    }
+
+    .loader {
+        width: 16px;
+        height: 16px;
+        border: 2.5px solid #FFF;
+        border-bottom-color: transparent !important;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 
@@ -204,9 +232,9 @@
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
 
-    <div class="row g-3 p-4">
+    <div id="produtos-lista" class="row g-3 p-4">
         <?php
-            // Loop através dos resultados e exibir todas as colunas
+            // Loop através dos resultados e exibir todos os produtos
             foreach ($resultados as $product) {
                 // Consulta SQL para selecionar todas as colunas com base no ID
                 $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
@@ -221,34 +249,26 @@
 
                 // Formatação preço
                 $preco = $product['price'];
-
-                // Transforma o número no formato "R$ 149,90"
                 $price = "R$ " . number_format($preco, 2, ",", ".");
 
                 // Formatação preço com desconto
                 $desconto = $product['discount'];
-
-                // Transforma o número no formato "R$ 149,90"
                 $discount = "R$ " . number_format($desconto, 2, ",", ".");
 
                 // Calcula a porcentagem de desconto
                 if ($product['price'] != 0) {
                     $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
                 } else {
-                    // Lógica para lidar com o caso em que $product['price'] é zero
-                    $porcentagemDesconto = 0; // Ou outro valor padrão
+                    $porcentagemDesconto = 0;
                 }
 
-                // Arredonda o resultado para duas casas decimais
                 $porcentagemDesconto = round($porcentagemDesconto, 0);
 
                 if ($product['discount'] == "0.00") {
                     $activeDiscount = "d-none";
-
                     $priceAfterDiscount = $price;
                 } else {
                     $activeDiscount = "";
-
                     $priceAfterDiscount = $discount;
                     $discount = $price;
                 }
@@ -291,6 +311,51 @@
             }
         ?>
     </div>
+
+    <div class="d-flex justify-content-center">
+        <button id="carregarMais" class="btn btn-dark fw-semibold px-4 py-2 d-flex align-items-center"><div class="loader me-2 d-none"></div>Carregar mais</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    var offset = 100; // Começa após os 100 produtos iniciais
+
+    $('#carregarMais').on('click', function() {
+        // Encontra o loader dentro do botão clicado e remove a classe d-none para mostrá-lo
+        var loader = $(this).find('.loader');
+        loader.removeClass('d-none');
+
+        $.ajax({
+            type: "POST",
+            url: "./back-end/carregar_mais.php", // Substitua pelo caminho do arquivo PHP
+            data: {
+                carregarMais: true,
+                shop_id: "<?php echo $shop_id; ?>",
+                url: "<?php echo INCLUDE_PATH_LOJA; ?>",
+                offset: offset
+            },
+            success: function(response) {
+                // Após o AJAX responder com sucesso, adiciona a classe d-none de volta ao loader para ocultá-lo
+                loader.addClass('d-none');
+
+                $('#produtos-lista').append(response);
+                offset += 100;
+
+                // Verifica se não há mais produtos a serem carregados
+                if (response.trim() === '') {
+                    $('#carregarMais').addClass('d-none');
+                }
+            },
+            error: function (xhr, status, error) {
+                loader.addClass('d-none'); // Em caso de erro, também oculta o loader
+                alert("Erro ao carregar mais produtos. Por favor, tente novamente mais tarde.");
+            }
+        });
+    });
+});
+</script>
 
 <?php
     }

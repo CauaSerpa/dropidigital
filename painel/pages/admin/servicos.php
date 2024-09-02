@@ -220,7 +220,7 @@
                                 <div class="alterar-itens-por-pagina <?php echo ($limite == 50) ? "selected" : "" ; ?>" data-value="50">50</div>
                             </div>
                         </div>
-                        <label>Serviços Prontos por página</label>
+                        <label>Serviços por página</label>
                     </div>
                 </div>
                 <div class="right grid">
@@ -244,7 +244,7 @@
                     echo '
                             <div class="p-5 text-center">
                                 <i class="bx bx-wrench" style="font-size: 3.5rem;"></i>
-                                <p class="fw-semibold mb-4">Não existe nenhum serviço pronto cadastrado!</p>
+                                <p class="fw-semibold mb-4">Não existe nenhum serviço cadastrado!</p>
                             </div>
                         ';
                 }

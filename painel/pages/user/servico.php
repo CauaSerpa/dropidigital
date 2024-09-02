@@ -61,6 +61,8 @@ if ($service) {
         $priceAfterDiscount = $price;
 
         $priceNoFormat = $service['price'];
+
+        $installment = $service['price'] / 12;
     } else {
         $activeDiscount = "";
 
@@ -68,7 +70,11 @@ if ($service) {
         $discount = $price;
 
         $priceNoFormat = $service['discount'];
+
+        $installment = $service['discount'] / 12;
     }
+
+    $installmentValue = "R$ " . number_format($installment, 2, ",", ".");
 ?>
 
 <style>
@@ -130,7 +136,14 @@ if ($service) {
                 <h4 class="mb-3"><?= $service['name']; ?></h4>
                 <hr>
                 <div class="description mt-3">
-                    <div id="video-display" class="d-flex justify-content-center mb-3 <?php echo ($service['video'] == "") ? "d-none" : ""; ?>">
+                    <?php
+                        if (isset($service['image'])) {
+                            $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/service/" . $service['id'] . "/image/" . $service['image'];
+
+                            echo "<img src='$image' alt='Ready Site Image' class='mb-3'>";
+                        } elseif (isset($service['video'])) {
+                    ?>
+                    <div id="video-display" class="d-flex justify-content-center mb-3">
                         <div class="video-wrapper d-flex justify-content-center">
                             <?php
                                 // Função para extrair o código do vídeo do URL do YouTube
@@ -159,6 +172,9 @@ if ($service) {
                             ?>
                         </div>
                     </div>
+                    <?php
+                        }
+                    ?>
                     <?= $service['description']; ?>
                 </div>
             </div>
@@ -291,7 +307,7 @@ if ($service) {
                             <p class="text-secondary fw-semibold text-decoration-line-through me-2 mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></p>
                             <p class="fs-5 fw-semibold mb-0" id="total"><?= $priceAfterDiscount; ?></p>
                         </div>
-                        <p class="text-secondary fw-semibold mb-0">12x de R$ 50,57 com juros</p>
+                        <p class="text-secondary fw-semibold mb-0">12x de R$ <?= $installmentValue; ?> com juros</p>
                     </div>
                 </div>
 

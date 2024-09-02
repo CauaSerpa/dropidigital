@@ -634,8 +634,9 @@ if(!empty($id)){
                                 <option value="1" <?php echo ($product['button_type'] == 1) ? "selected" : ""; ?>>Comprar</option>
                                 <option value="2" <?php echo ($product['button_type'] == 2) ? "selected" : ""; ?>>Número de whatsapp - Mensagem Padrão</option>
                                 <option value="3" <?php echo ($product['button_type'] == 3) ? "selected" : ""; ?>>Número de whatsapp - Mensagem Personalizada</option>
-                                <option value="3" <?php echo ($product['button_type'] == 4) ? "selected" : ""; ?>>Saiba mais</option>
-                                <option value="4" <?php echo ($product['button_type'] == 5) ? "selected" : ""; ?>>Agenda</option>
+                                <option value="4" <?php echo ($product['button_type'] == 4) ? "selected" : ""; ?>>Saiba mais</option>
+                                <option value="5" <?php echo ($product['button_type'] == 5) ? "selected" : ""; ?>>Agenda</option>
+                                <option value="6" <?php echo ($product['button_type'] == 6) ? "selected" : ""; ?>>Cadastrar</option>
                             </select>
                         </div>
                     </div>
@@ -828,7 +829,7 @@ if(!empty($id)){
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
 
 <!-- Link para o TinyMCE CSS -->
-<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyKey; ?>/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <!-- jQuery and jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -1312,7 +1313,7 @@ if(!empty($id)){
 <script>
     $(document).ready(function() {
         $('#buttonType').change(function() {
-            if ($(this).val() === "1" || $(this).val() === "4"|| $(this).val() === "5") {
+            if ($(this).val() === "1" || $(this).val() === "4" || $(this).val() === "5" || $(this).val() === "6") {
                 //Se for comprar, saiba mais ou agenda
                 //Mostra container link
                 $('#container-redirect-link').removeClass("d-none");
@@ -2187,15 +2188,32 @@ imageDisplay.addEventListener("click", (event) => {
 
 <script>
     let formModified = false;
+    let formSubmitting = false;
+
+    // Verifica se há algum valor modificado nos inputs ao carregar a página
+    $(document).ready(function() {
+        // Percorre todos os inputs do formulário com id 'myForm'
+        $('#myForm input').each(function() {
+            if ($(this).val() !== '') {
+                formModified = true;
+                return false; // Interrompe o loop assim que encontrar um input modificado
+            }
+        });
+    });
 
     // Marca o formulário como modificado quando o usuário faz uma alteração
     $('#myForm').on('input', 'input', function() {
         formModified = true;
     });
 
+    // Marca o formulário como sendo submetido quando o usuário clica em enviar
+    $('#myForm').on('submit', function() {
+        formSubmitting = true;
+    });
+
     // Adiciona o evento beforeunload para avisar o usuário sobre alterações não salvas
     $(window).on('beforeunload', function(e) {
-        if (formModified) {
+        if (formModified && !formSubmitting) {
             // Define a mensagem de aviso
             const message = 'Você tem alterações não salvas. Tem certeza de que deseja sair desta página?';
 

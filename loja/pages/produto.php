@@ -345,7 +345,35 @@
             </div>
         </div>
         <div class="col-md-6 info-product">
-            <small><bold>SKU: </bold> <?php echo $product['sku']; ?></small>
+            <div class="d-flex align-items-center justify-content-between">
+                <small><bold>SKU: </bold> <?php echo $product['sku']; ?></small>
+                <div class="share d-flex align-items-center">
+                    <i class='bx bxs-share-alt fs-5 me-2' data-toggle="tooltip" data-placement="top" title="Compartilhar"></i>
+
+                    <ul class="social-medias d-flex">
+                        <li class="me-2">
+                            <a href="https://www.facebook.com/sharer.php?u=<?php echo INCLUDE_PATH_LOJA . $product['link']; ?>" class="btn btn-dark rounded-circle fs-6" target="_blank" aria-label="Compartilhar no Facebook">
+                                <i class='bx bxl-facebook'></i>
+                            </a>
+                        </li>
+                        <li class="me-2">
+                            <a href="mailto:?subject=Confira%20este%20produto&body=<?php echo INCLUDE_PATH_LOJA . $product['link']; ?>" class="btn btn-dark rounded-circle fs-6" target="_blank" aria-label="Compartilhar no E-mail">
+                                <i class='bx bx-envelope'></i>
+                            </a>
+                        </li>
+                        <li class="me-2">
+                            <a href="https://twitter.com/intent/tweet?text=Confira%20este%20produto:%20<?php echo INCLUDE_PATH_LOJA . $product['link']; ?>" class="btn btn-dark rounded-circle fs-6" target="_blank" aria-label="Compartilhar no Twitter">
+                                <i class="fa-brands fa-x-twitter" style="font-size: 14px;"></i>
+                            </a>
+                        </li>
+                        <li class="me-2">
+                            <a href="https://wa.me/?text=Confira%20este%20produto:%20<?php echo INCLUDE_PATH_LOJA . $product['link']; ?>" class="btn btn-dark rounded-circle fs-6" target="_blank" aria-label="Compartilhar no WhatsApp">
+                                <i class='bx bxl-whatsapp'></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <h3><?php echo $product['name']; ?></h3>
             <?php
                 // Formatação preço
@@ -394,18 +422,20 @@
                 echo '<h4 class="card-text mb-3">' . $priceAfterDiscount . '</h4>';
             ?>
             
-            <a href="<?php echo $product['redirect_link']; ?>" target="_blank" class="btn btn-dark d-inline-flex align-items-center px-3">
+            <a href="<?php echo $product['redirect_link']; ?>" target="_blank" class="btn btn-dark d-inline-flex align-items-center fs-5 py-2 px-4">
                 <?php
                     if ($product['button_type'] == 1) {
                         echo "Comprar";
-                    } elseif ($product['button_type'] == 2) {
+                    } elseif ($product['button_type'] == 2 || $product['button_type'] == 3) {
                         echo "<i class='bx bxl-whatsapp me-1'></i>";
                         echo "Chamar no WhatsApp";
-                    } elseif ($product['button_type'] == 3) {
+                    } elseif ($product['button_type'] == 4) {
                         echo "Saiba mais";
-                    } else {
+                    } elseif ($product['button_type'] == 5) {
                         echo "<i class='bx bx-calendar me-1'></i>";
                         echo "Agenda";
+                    } elseif ($product['button_type'] == 6) {
+                        echo "Cadastrar";
                     }
                 ?>
             </a>

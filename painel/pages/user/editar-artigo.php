@@ -64,7 +64,7 @@ if(!empty($id)){
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb align-items-center mb-3">
                 <li class="breadcrumb-item"><a href="<?php echo INCLUDE_PATH_DASHBOARD ?>artigos" class="fs-5 text-decoration-none text-reset">Artigos</a></li>
-                <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Criar Artigo</li>
+                <li class="breadcrumb-item fs-4 fw-semibold active" aria-current="page">Editar Artigo</li>
             </ol>
         </nav>
     </div>
@@ -184,7 +184,7 @@ if(!empty($id)){
 </form>
 
 <!-- Link para o TinyMCE CSS -->
-<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyKey; ?>/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <!-- jQuery and jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -303,8 +303,64 @@ if(!empty($id)){
         toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
         width: '100%',
         height: 300,
-        menubar: false
+        menubar: false,
+        images_upload_url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/upload_image.php',
+        images_upload_handler: function (blobInfo, success, failure) {
+            var xhr, formData;
+
+            xhr = new XMLHttpRequest();
+            xhr.withCredentials = false;
+            xhr.open('POST', '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/upload_image.php');
+
+            xhr.onload = function() {
+                var json;
+
+                if (xhr.status != 200) {
+                    failure('HTTP Error: ' + xhr.status);
+                    return;
+                }
+
+                json = JSON.parse(xhr.responseText);
+
+                if (!json || typeof json.location != 'string') {
+                    failure('Invalid JSON: ' + xhr.responseText);
+                    return;
+                }
+
+                success(json.location);
+            };
+
+            formData = new FormData();
+            formData.append('file', blobInfo.blob(), blobInfo.filename());
+            formData.append('shop_id', '<?php echo $shop_id; ?>'); // Passando o id da loja
+            xhr.send(formData);
+        },
+        setup: function (editor) {
+            editor.on('RemoveNode', function (e) {
+                if (e.node.nodeName === 'IMG') {
+                    var src = e.node.src;
+                    deleteImage(src);
+                }
+            });
+        }
     });
+
+    function deleteImage(src) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/delete_image.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.status === 'success') {
+                    console.log('Imagem deletada com sucesso');
+                } else {
+                    console.error('Erro ao deletar imagem: ' + response.message);
+                }
+            }
+        };
+        xhr.send('src=' + encodeURIComponent(src));
+    }
 </script>
 
 <!-- Tooltip -->

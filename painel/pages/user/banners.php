@@ -247,7 +247,7 @@
                     <div class="controller">
                         <?php
                             // Nome da tabela para a busca
-                            $tabela = 'tb_products';
+                            $tabela = 'tb_banner_info';
 
                             // Lógica para exibição dos links de páginação
                             $sql = "SELECT COUNT(*) as total FROM $tabela WHERE shop_id = :shop_id";

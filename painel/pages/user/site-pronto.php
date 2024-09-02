@@ -27,7 +27,7 @@ $sql = "SELECT * FROM $tabela WHERE link = :link";
 $stmt = $conn_pdo->prepare($sql);
 
 // Vincular o valor do parâmetro
-$stmt->bindParam(':link', $link, PDO::PARAM_INT);
+$stmt->bindParam(':link', $link, PDO::PARAM_STR);
 
 // Executar a consulta
 $stmt->execute();
@@ -138,8 +138,8 @@ if ($site) {
                 <h6 class="modal-title fs-6" id="exampleModalLabel">Informações da fatura</h6>
             </div>
             <div class="modal-body px-4 pb-3 pt-0">
-                Seu plano atual é menor do que o plano necessário para o Site Pronto, o que pode causar problemas no seu site e não será otimizado para SEO. 
-                <a href="ajuda.dropidigital.com.br/" class="link" target="_blank">Saiba mais aqui!</a>
+                Para a compra do Site Afiliado Hotmart, rever contratação do plano Avançado Dropi Digital.
+                <!-- <a href="ajuda.dropidigital.com.br/" class="link" target="_blank">Saiba mais aqui!</a> -->
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" id="modalExitButton">Sair</button>
@@ -300,67 +300,69 @@ if ($site) {
                     // Obtém o numero de resultados
                     $countSiteServices = $stmt->rowCount();
                 ?>
-                <div class="card p-0 mb-3 <?php echo ($site['plan_id'] == 1 && $site['plan_id'] == 2 && $site['plan_id'] >= $plan['plan_id'] && $countSiteServices == 0) ? "d-none" : ""; ?>">
+                    <div class="card p-0 mb-3 <?php echo ($site['cycle'] == "recurrent" || $site['plan_id'] == 1 || $site['plan_id'] == 2 || $site['plan_id'] <= $plan['plan_id'] && $countSiteServices == 0) ? "d-none" : ""; ?>">
                     <div class="card-header fw-semibold px-4 py-3 bg-transparent">Ofertas</div>
                     <div class="card-body row px-4 py-3">
                         <ul class="mb-0">
                             <?php
-                                if ($site['plan_id'] != 1 && $site['plan_id'] != 2 && $site['plan_id'] >= $plan['plan_id']) {
-                                    // Tabela que será feita a consulta
-                                    $tabela = "tb_plans_interval";
-
-                                    // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
-                                    $sql = "SELECT id, plan_id, billing_interval, price FROM $tabela WHERE id = :id";
-
-                                    // Prepara a consulta
-                                    $stmt = $conn_pdo->prepare($sql);
-
-                                    // Binde o parâmetro
-                                    $stmt->bindParam(':id', $site['plan_id'], PDO::PARAM_INT);
-
-                                    // Executa a consulta
-                                    $stmt->execute();
-
-                                    // Obtém os resultados
-                                    $plan_interval = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                                    // Verificar se o resultado foi encontrado
-                                    if ($plan_interval) {
+                                if ($site['cycle'] != "recurrent") {
+                                    if ($site['plan_id'] != 1 || $site['plan_id'] != 2 || $site['plan_id'] >= $plan['plan_id']) {
                                         // Tabela que será feita a consulta
-                                        $tabela = "tb_plans";
+                                        $tabela = "tb_plans_interval";
 
                                         // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
-                                        $sql = "SELECT id, name, sub_name, resources FROM $tabela WHERE id = :id";
+                                        $sql = "SELECT id, plan_id, billing_interval, price FROM $tabela WHERE id = :id";
 
                                         // Prepara a consulta
                                         $stmt = $conn_pdo->prepare($sql);
 
                                         // Binde o parâmetro
-                                        $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
+                                        $stmt->bindParam(':id', $site['plan_id'], PDO::PARAM_INT);
 
                                         // Executa a consulta
                                         $stmt->execute();
 
                                         // Obtém os resultados
-                                        $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+                                        $plan_interval = $stmt->fetch(PDO::FETCH_ASSOC);
 
                                         // Verificar se o resultado foi encontrado
-                                        if ($plan) {
-                                            if ($plan_interval['billing_interval'] == "monthly") {
-                                                $billing_interval = "(mensal)";
-                                                $price = $plan_interval['price'];
-                                            } else {
-                                                $totalPrice = $plan_interval['price'];
-                                                $billing_interval = "($totalPrice/anual)";
-                                                $price = $plan_interval['price'] / 12;
-                                            }
+                                        if ($plan_interval) {
+                                            if ($site['plan_id'] > $plan_interval['id']) {
+                                                // Tabela que será feita a consulta
+                                                $tabela = "tb_plans";
 
-                                            if ($plan_id >= $plan['id'] || $plan['id'] <= 1) {
+                                                // Sua consulta SQL com a cláusula WHERE para filtrar pelo ID
+                                                $sql = "SELECT id, name, sub_name, resources FROM $tabela WHERE id = :id";
+
+                                                // Prepara a consulta
+                                                $stmt = $conn_pdo->prepare($sql);
+
+                                                // Binde o parâmetro
+                                                $stmt->bindParam(':id', $plan['plan_id'], PDO::PARAM_INT);
+
+                                                // Executa a consulta
+                                                $stmt->execute();
+
+                                                // Obtém os resultados
+                                                $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                                // Verificar se o resultado foi encontrado
+                                                if ($plan) {
+                                                    if ($plan_interval['billing_interval'] == "monthly") {
+                                                        $billing_interval = "(mensal)";
+                                                        $price = $plan_interval['price'];
+                                                    } else {
+                                                        $totalPrice = $plan_interval['price'];
+                                                        $billing_interval = "($totalPrice/anual)";
+                                                        $price = $plan_interval['price'] / 12;
+                                                    }
+
+                                                    if ($plan_id >= $plan['id'] || $plan['id'] <= 1) {
                             ?>
 
                             <li class="d-flex align-items-center justify-content-between mb-1">
                                 <div class="d-flex align-items-center">
-                                    <input type="checkbox" id="planCheckbox" class="form-check-input me-2" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" checked>
+                                    <input type="checkbox" id="planCheckbox" class="form-check-input me-2" data-type="subscrition" data-plan-id="<?= $plan_interval['id']; ?>" data-value="<?= $plan_interval['price']; ?>" checked disabled>
                                     <p>
                                         Plano <?= $plan['name']; ?>
                                         <i class="bx bx-help-circle edited" data-toggle="tooltip" data-placement="top" data-bs-html="true" aria-label="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto." data-bs-original-title="Assinatura do Plano <?= $plan['name']; ?> com pagamento mensal para usufruir de todos os benefícios do Site Pronto."></i>
@@ -374,6 +376,8 @@ if ($site) {
                             </li>
 
                             <?php
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -451,9 +455,13 @@ if ($site) {
                     <div class="d-flex flex-column align-items-end">
                         <div class="d-flex align-items-end">
                             <p class="text-secondary fw-semibold text-decoration-line-through me-2 mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></p>
-                            <p class="fs-5 fw-semibold mb-0" id="total"><?= $priceAfterDiscount; ?></p>
+                            <p class="fs-5 fw-semibold mb-0 me-1" id="total"><?= $priceAfterDiscount; ?></p>
+                            <p class="<?= ($site['cycle'] == "only") ? "d-none" : ""; ?> mb-0">
+                                (mensal)
+                                <i class="bx bx-help-circle edited" data-toggle="tooltip" data-placement="top" title="O valor de <?= $priceAfterDiscount; ?> é valido apenas para primeira cobrança, nas próximas será cobrado o valor de <?= $discount; ?>."></i>
+                            </p>
                         </div>
-                        <p class="text-secondary fw-semibold mb-0">12x de <?= $installmentValue; ?> sem juros</p>
+                        <p class="<?= ($site['cycle'] == "only") ? "d-flex" : "d-none"; ?> text-secondary fw-semibold mb-0">12x de <?= $installmentValue; ?> sem juros</p>
                     </div>
                 </div>
 
@@ -463,9 +471,11 @@ if ($site) {
                 <input type="hidden" id="selectedServices" name="selectedServices" value="">
 
                 <!-- Aqui está o seu botão. Eu adicionei um ID para poder referenciá-lo no script JavaScript -->
-                <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small w-100 mb-3" id="submitButton">
+                <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small w-100 mb-1" id="submitButton">
                     Comprar/Instalar
                 </button>
+
+                <small class="lh-1" class="<?= ($site['cycle'] != "recurrent") ? "d-none" : ""; ?>">Valor válido apenas para a primeira fatura.</small>
 
                 <style>
                     #loaderButton {

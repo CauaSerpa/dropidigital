@@ -49,6 +49,7 @@
         $plan_id = $_POST['plan'];
         $version = $_POST['version'];
         $support = $_POST['support'];
+        $cycle = $_POST['cycle'];
 
         // Checkbox sem preco
         if (isset($_POST["without_price"]))
@@ -102,7 +103,7 @@
         $tabela = 'tb_ready_sites';
         
         // Insere o usuário no banco de dados
-        $sql = "UPDATE $tabela SET plan_id = :plan_id, status = :status, emphasis = :emphasis, name = :name, version = :version, support = :support, price = :price,
+        $sql = "UPDATE $tabela SET plan_id = :plan_id, status = :status, emphasis = :emphasis, name = :name, version = :version, support = :support, cycle = :cycle, price = :price,
                                     without_price = :without_price, discount = :discount, video = :video, description = :description, items_included = :items_included,
                                     sku = :sku, seo_name = :seo_name, link = :link, seo_description = :seo_description
                 WHERE id = :id";
@@ -113,6 +114,7 @@
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':version', $version);
         $stmt->bindParam(':support', $support);
+        $stmt->bindParam(':cycle', $cycle);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':without_price', $without_price);
         $stmt->bindParam(':discount', $discount);

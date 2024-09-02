@@ -518,27 +518,74 @@ if(!empty($id)){
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Preços</div>
-        <div class="card-body row px-4 py-3">
-            <div class="col-md-6">
-                <label for="moneyInput1" class="form-label small">Preço de Custo *</label>
-                <div class="input-group mb-2">
-                    <span class="input-group-text">R$</span>
-                    <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00" value="<?php echo $site['price']; ?>" <?php echo ($site['without_price'] == 1) ? "disabled" : ""; ?>>
-                </div>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" name="without_price" id="withoutPrice" <?php echo ($site['without_price'] == 1) ? "checked" : ""; ?>>
-                    <label class="form-check-label" for="withoutPrice">Sem preço</label>
+        <div class="card-body px-4 py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="cycle" class="form-label small">Ciclo *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="cycle" id="cycle" aria-label="Default select example" required>
+                                <option value="" disabled <?php echo (empty($site['cycle'])) ? "selected" : ""; ?>>-- Qual o ciclo de cobrança --</option>
+                                <option value="recurrent" <?php echo ($site['cycle'] == "recurrent") ? "selected" : ""; ?>>Recorrente (assinatura)</option>
+                                <option value="only" <?php echo ($site['cycle'] == "only") ? "selected" : ""; ?>>Única</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <label for="moneyInput2" class="form-label small">Preço promocional</label>
-                <div class="input-group">
-                    <span class="input-group-text">R$</span>
-                    <input type="number" step="0.01" class="form-control text-end" name="discount" id="moneyInput2" placeholder="0,00" value="<?php echo $site['discount']; ?>" <?php echo ($site['without_price'] == 1) ? "disabled" : ""; ?>>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="moneyInput1" class="form-label small" id="priceLabel">Preço de Custo *</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">R$</span>
+                        <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00" value="<?php echo $site['price']; ?>" <?php echo ($site['without_price'] == 1) ? "disabled" : ""; ?>>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="without_price" id="withoutPrice" <?php echo ($site['without_price'] == 1) ? "checked" : ""; ?>>
+                        <label class="form-check-label" for="withoutPrice">Sem preço</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="moneyInput2" class="form-label small">
+                        <span id="promoPriceLabel">Preço promocional</span>
+                        <i class='bx bx-help-circle d-none' id="recurrentPriceLabel" data-toggle="tooltip" data-placement="top" title='Esse será o preço da primeira cobrança, as próximas terão o preço do "Preço de Assinatura".'></i>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        <input type="number" step="0.01" class="form-control text-end" name="discount" id="moneyInput2" placeholder="0,00" value="<?php echo $site['discount']; ?>" <?php echo ($site['without_price'] == 1) ? "disabled" : ""; ?>>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            function updateLabels(cycleValue) {
+                if (cycleValue === 'recurrent') {
+                    $('#priceLabel').text('Preço de Assinatura *');
+                    $('#promoPriceLabel').text('Preço Promocional da Assinatura');
+                    $('#recurrentPriceLabel').removeClass('d-none');
+                } else if (cycleValue === 'only') {
+                    $('#priceLabel').text('Preço de Custo *');
+                    $('#promoPriceLabel').text('Preço Promocional');
+                    $('#recurrentPriceLabel').addClass('d-none');
+                }
+            }
+
+            // Chama a função ao carregar a página
+            var initialCycleValue = $('#cycle').val();
+            if (initialCycleValue) {
+                updateLabels(initialCycleValue);
+            }
+
+            // Chama a função ao alterar o valor do select
+            $('#cycle').on('change', function() {
+                var cycleValue = $(this).val();
+                updateLabels(cycleValue);
+            });
+        });
+    </script>
 
     <div class="card mb-3 p-0">
         <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
@@ -935,7 +982,7 @@ if(!empty($id)){
 </form>
 
 <!-- Link para o TinyMCE CSS -->
-<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyKey; ?>/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <!-- jQuery and jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">

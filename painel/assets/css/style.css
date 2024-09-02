@@ -205,6 +205,7 @@ a.link:hover
     100%
     {
         transform: translateY(0);
+        display: none;
     }
 }
 .card__info .info p
@@ -258,7 +259,7 @@ a.link:hover
     position: fixed;
     right: 20px;
     bottom: 20px;
-    z-index: var(--z-fixed);
+    z-index: 999999999;
     border: none;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, .15);
 }
@@ -282,6 +283,18 @@ a.link:hover
 }
 .card.info-card .button .btn.btn-success:hover {
     background: var(--dark-green-color);
+}
+.fixed-whatsapp-button
+{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999999999999;
+    border: none;
+}
+.fixed-whatsapp-button .whatsapp-button svg {
+    width: 80px;
+    height: 80px;
 }
 .table
 {
@@ -699,6 +712,7 @@ nav.sidebar ul li .tooltip .two .buttons .next:hover
 .sidebar.close .nav-links li a .link_name{
     opacity: 0;
     pointer-events: none;
+    text-wrap: nowrap;
 }
 .sidebar .nav-links li .sub-menu{
     padding: 6px 6px 14px 80px !important;
@@ -1145,6 +1159,12 @@ select {
     padding: .75rem 1rem;
     border-bottom: 1px solid var(--border-color);
 }
+.user .modal__user__info p.small
+{
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .user .theme__dark
 {
     position: relative;
@@ -1191,6 +1211,21 @@ select {
     width: 2px;
     height: 100%;
     background: black;
+}
+.user .improvement
+{
+    position: relative;
+    color: var(--text-color);
+    transition: .3s;
+    display: flex;
+    align-items: center;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+.user .improvement i
+{
+    margin-right: var(--mb-0-5);
 }
 .user .account
 {
@@ -2168,6 +2203,12 @@ select {
     top: var(--header-height) !important;
     left: 260px !important;
     z-index: 50 !important;
+}
+.offcanvas.offcanvas-end.show ~ .offcanvas-backdrop.fade.show
+{
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1000 !important;
 }
 .card__container .card__box .card .card__title .title__content .btn.delete
 {
