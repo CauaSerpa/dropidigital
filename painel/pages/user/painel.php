@@ -850,7 +850,7 @@
     }
 </style>
 
-<h3 class="title h5 fw-semibold mt-2 mb-2">Sites Prontos</h3>
+<!-- <h3 class="title h5 fw-semibold mt-2 mb-2">Sites Prontos</h3>
 <div class="owl-carousel d-grid" id="readySitesCarousel">
 <?php
     // Nome da tabela para a busca
@@ -977,8 +977,139 @@
 <?php
     }
 ?>
-</div>
+</div> -->
 
+<h3 class="title h5 fw-semibold mt-2 mb-2">Sites Prontos</h3>
+<div class="row">
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_ready_sites';
+
+    $sql = "SELECT * FROM $tabela WHERE status = :status ORDER BY (emphasis = :emphasis) DESC LIMIT 1";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindValue(':status', 1);
+    $stmt->bindValue(':emphasis', 1);
+    $stmt->execute();
+
+    // Recuperar os resultados
+    $sites = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Loop através dos resultados e exibir todas as colunas
+    foreach ($sites as $site) {
+        $image = INCLUDE_PATH_DASHBOARD . "back-end/admin/ready-website/" . $site['id'] . "/card-image/" . $site['card_image'];
+
+        // Shop
+        // Nome da tabela para a busca
+        $tabela = 'tb_shop';
+
+        $sql = "SELECT * FROM $tabela WHERE id = :id ORDER BY id DESC LIMIT 1";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':id', $site['shop_id']);
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $shop = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($shop['segment'] == 0) {
+            $segment = "Dropshipping Infoproduto";
+        } elseif ($shop['segment'] == 1) {
+            $segment = "Dropshipping produto físico";
+        } elseif ($shop['segment'] == 2) {
+            $segment = "Site divulgação de serviços";
+        } elseif ($shop['segment'] == 3) {
+            $segment = "Site comércio físico";
+        } else {
+            $segment = "Site para agendamento";
+        }
+
+        // Preco
+        // Transforma o número no formato "R$ 149,90"
+        $price = "R$ " . number_format($site['price'], 2, ",", ".");
+        $discount = "R$ " . number_format($site['discount'], 2, ",", ".");
+
+        // Calcula a porcentagem de desconto
+        if ($site['price'] != 0) {
+            $porcentagemDesconto = (($site['price'] - $site['discount']) / $site['price']) * 100;
+        } else {
+            // Lógica para lidar com o caso em que $site['price'] é zero
+            $porcentagemDesconto = 0; // Ou outro valor padrão
+        }
+
+        // Arredonda o resultado para duas casas decimais
+        $porcentagemDesconto = round($porcentagemDesconto, 0);
+
+        if ($site['discount'] == "0.00") {
+            $activeDiscount = "d-none";
+
+            $priceAfterDiscount = $price;
+
+            $installment = $site['price'] / 12;
+        } else {
+            $activeDiscount = "";
+
+            $priceAfterDiscount = $discount;
+            $discount = $price;
+
+            $installment = $site['discount'] / 12;
+        }
+
+        $installmentValue = "R$ " . number_format($installment, 2, ",", ".");
+
+        // Domain
+        // Nome da tabela para a busca
+        $tabela = 'tb_domains';
+
+        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain ORDER BY id DESC LIMIT 1";
+
+        // Preparar e executar a consulta
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindParam(':shop_id', $site['shop_id']);
+        $stmt->bindValue(':domain', 'dropidigital.com.br');
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // URL
+        $url = "https://" . $domain['subdomain'] . "." . $domain['domain'];
+
+        // Link
+        $link = INCLUDE_PATH_DASHBOARD . "site-pronto/" . $site['link'];
+?>
+    <div class="col-md-3">
+        <div class="card p-0">
+            <div class="product-image">
+                <span class="card-discount small <?= $activeDiscount; ?>"><?= $porcentagemDesconto; ?>% OFF</span>
+                <img src="<?= $image; ?>" class="card-img-top" alt="Imagem Site Pronto">
+            </div>
+            <div class="card-body">
+                <p class="card-subtitle segment bg-secondary-subtle border border-0 rounded-1 px-1 py-0"><i class='bx bx-purchase-tag-alt me-1' ></i><?= $segment; ?></p>
+                <p class="card-title mb-3"><?= $site['name']; ?></p>
+                <small class="fw-semibold text-body-secondary text-decoration-line-through mb-0 <?= $activeDiscount; ?>"><?= $discount; ?></small>
+                <h5 class="card-text mb-0"><?= $priceAfterDiscount; ?></h5>
+                <small class="<?= ($site['cycle'] == "recurrent") ? "d-none" : ""; ?> fw-semibold text-body-secondary">12x de <?= $installmentValue; ?> sem juros</small>
+                <div class="buttons d-flex mt-4">
+                    <a href="<?= $url; ?>" target="_blank" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-3 py-2 me-2 small">
+                        <i class='bx bx-show-alt'></i>
+                    </a>
+                    <a href="<?= $link; ?>" class="btn btn-success fw-semibold px-4 py-2 small w-100">
+                        Detalhes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9 text-center">
+        <img src="<?= INCLUDE_PATH_DASHBOARD . "back-end/dashboard/" . $ready_site_image; ?>" class="<?= (!isset($ready_site_image)) ? "d-none" : ""; ?>" alt="Imagem Site Pronto" style="max-height: 500px; object-fit: contain;">
+    </div>
+<?php
+    }
+?>
+</div>
 
 
 

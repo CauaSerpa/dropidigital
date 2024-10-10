@@ -152,7 +152,7 @@
                                 $sql .= " AND (name LIKE :searchTerm OR sku LIKE :searchTerm)"; // Substitua campo1 e campo2 pelos campos que deseja pesquisar
                             }
         
-                            $sql .= " ORDER BY id DESC LIMIT :inicioConsulta, :limite";
+                            $sql .= " ORDER BY position ASC LIMIT :inicioConsulta, :limite";
         
                             // Preparar e executar a consulta
                             $stmt = $conn_pdo->prepare($sql);
@@ -278,6 +278,9 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <!-- Ajax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+<!-- Sortable -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" defer></script>
 
 <script>
     // Adicionar um ouvinte de evento para a mudança de produtos por página
@@ -325,11 +328,11 @@
         }
 
         $(".sortable tbody").on("sortupdate", function(event, ui) {
-            var order = $(this).sortable("toArray", { attribute: "data-id" });
+            var categoryOrder = $(this).sortable("toArray", { attribute: "data-id" });
             $.ajax({
-                url: "update_order.php",
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/update_order.php",
                 method: "POST",
-                data: { order: order },
+                data: { category_order: categoryOrder },
                 success: function(response) {
                     console.log("Ordem atualizada no servidor.");
                 }

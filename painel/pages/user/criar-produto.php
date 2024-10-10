@@ -654,7 +654,7 @@
             <div class="mb-3 d-none" id="container-whatsapp-standard">
                 <p class="form-label small">Whatsapp - Mensagem padrão</p>
                 <a href="" class="fw-semibold text-decoration-none" id="linkWhatsappStandard" target="_black" style="color: #01C89B;"></a>
-                <input type="hidden" name="redirect_link_whatsapp" id="inputLinkWhatsappStandard">
+                <input type="hidden" name="redirect_link_whatsapp_standard" id="inputLinkWhatsappStandard">
             </div>
 
         </div>

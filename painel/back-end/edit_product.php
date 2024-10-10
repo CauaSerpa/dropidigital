@@ -64,8 +64,9 @@
         $emphasis = 0;
     }
 
-    if ($_POST['button_type'] == 2)
-    {
+    if ($_POST['button_type'] == 2) {
+        $redirect_link = $dados['redirect_link_whatsapp_standard'];
+    } else if ($_POST['button_type'] == 3) {
         $redirect_link = $dados['redirect_link_whatsapp'];
     } else {
         $redirect_link = $dados['redirect_link'];

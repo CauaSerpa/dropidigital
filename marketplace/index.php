@@ -899,7 +899,7 @@
                                     // Nome da tabela para a busca
                                     $tabela = 'tb_categories';
 
-                                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
+                                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY position ASC";
 
                                     // Preparar e executar a consulta
                                     $stmt = $conn_pdo->prepare($sql);
@@ -950,7 +950,7 @@
                             // Nome da tabela para a busca
                             $tabela = 'tb_categories';
 
-                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis AND parent_category = :parent_category ORDER BY id DESC";
+                            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis AND parent_category = :parent_category ORDER BY position ASC";
 
                             // Preparar e executar a consulta
                             $stmt = $conn_pdo->prepare($sql);

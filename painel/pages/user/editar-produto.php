@@ -709,7 +709,7 @@ if(!empty($id)){
             <div class="mb-3 <?php echo ($product['button_type'] !== 2) ? "d-none" : ""; ?>" id="container-whatsapp-standard">
                 <p class="form-label small">Whatsapp - Mensagem padrão</p>
                 <a href="<?php echo ($product['button_type'] == 2) ? $product['redirect_link'] : ""; ?>" class="fw-semibold text-decoration-none" id="linkWhatsappStandard" target="_black" style="color: #01C89B;"><?php echo ($product['button_type'] == 2) ? $product['redirect_link'] : ""; ?></a>
-                <input type="hidden" name="redirect_link_whatsapp" id="inputLinkWhatsappStandard">
+                <input type="hidden" name="redirect_link_whatsapp_standard" id="inputLinkWhatsappStandard">
             </div>
 
         </div>
@@ -1370,13 +1370,23 @@ if(!empty($id)){
     }
 
     $(document).ready(function() {
+        // Verifique se o <select> já tem a opção 3 selecionada quando a página carrega
+        var selectValue = $("#buttonType").val();
+        
+        if (selectValue === "3") {
+            generateWhatsAppLink();
+
+            // Adicione ouvintes de evento de entrada aos campos relevantes
+            $("#country-code, #phone-number, #message").on("input", generateWhatsAppLink);
+        }
+
         // Adicione um ouvinte de evento change ao campo <select>
         $("#buttonType").on("change", function() {
             // Verifique o novo valor do campo <select>
-            var selectValue = $(this).val(); // O valor do campo <select> alterado
+            var selectValue = $(this).val();
 
             if (selectValue === "3") {
-                // Chame a função se o novo valor do campo <select> for igual a 2
+                // Chame a função se o novo valor do campo <select> for igual a 3
                 generateWhatsAppLink();
 
                 // Adicione ouvintes de evento de entrada aos campos relevantes
@@ -1422,6 +1432,12 @@ if(!empty($id)){
     } else {
         // Se não houver correspondência na expressão regular, trate-o conforme necessário
         console.log("Link do WhatsApp inválido.");
+
+        whatsappLink = "https://wa.me/";
+
+        $('#linkWhatsapp').text(whatsappLink);
+        $('#linkWhatsapp').attr("href", whatsappLink);
+        $('#inputLinkWhatsapp').val(whatsappLink);
     }
 </script>
 

@@ -203,6 +203,19 @@
     $plan_info = $stmt->fetch(PDO::FETCH_ASSOC);
 
     $plan_name = $plan_info['name'];
+
+    // Nome da tabela para a busca
+    $tabela = 'tb_dashboard';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT * FROM $tabela LIMIT 1";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $dash = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    @$ready_site_image = $dash['ready_site_image'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -441,6 +454,19 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lojas">Lojas</a></li>
                 </ul>
             </li>
+            <li class="<?php activeSidebarLink('imagem-painel'); ?> <?php activeSidebarLink('imagem-painel'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>imagem-painel">
+                            <i class='bx bx-image'></i>
+                        </a>
+                        <span class="link_name">Imagem Painel</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>imagem-painel">Imagem Painel</a></li>
+                </ul>
+            </li>
             <li class="<?php activeSidebarLink('dominios'); ?> <?php activeSidebarLink('dominios-proprios'); ?> <?php showSidebarLinks('dominios'); ?> <?php showSidebarLinks('dominios-proprios'); ?>" <?php verificaPermissaoMenu($permissions); ?>>
                 <div class="iocn-link">
                         <p>
@@ -468,6 +494,19 @@
                 </div>
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>site-catalogo">Site Catálogo</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('paginas'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas">
+                            <i class='bx bx-file-blank'></i>
+                        </a>
+                        <span class="link_name">Páginas</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas">Páginas</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('sugestoes-melhorias'); ?> <?php activeSidebarLink('ver-sugestao-melhoria'); ?> <?php activeSidebarLink('sugestoes-melhorias'); ?> <?php activeSidebarLink('ver-sugestao-melhoria'); ?>">
@@ -2216,14 +2255,75 @@
                     header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
                 }
             } else {
-                if (file_exists('pages/' . $permission . '/' . $url . '.php')) {
-                    include('pages/' . $permission . '/' . $url . '.php');
+                // Se o permission for 'user', verificar na tabela tb_routes
+                if ($permission == 'user') {
+                    // Prepara a consulta para verificar se a rota existe
+                    $stmt = $conn_pdo->prepare("SELECT * FROM tb_routes WHERE page = :url LIMIT 1");
+                    $stmt->bindParam(':url', $url);
+                    $stmt->execute();
+
+                    // Verifica se a rota foi encontrada
+                    if ($stmt->rowCount() > 0) {
+                        // Obter o resultado como um array associativo
+                        $route = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                        // Se a rota existe, inclui a página normalmente
+                        if (file_exists('pages/user/' . $route['url'] . '.php')) {
+                            include('pages/user/' . $route['url'] . '.php');
+                        } else {
+                            // Se o arquivo físico não existir, redireciona para 404
+                            header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                        }
+                    } else {
+                        // Se a rota não for encontrada no banco de dados, redireciona para 404
+                        header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                    }
                 } else {
-                    // A página não existe
-                    header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                    if (file_exists('pages/' . $permission . '/' . $url . '.php')) {
+                        include('pages/' . $permission . '/' . $url . '.php');
+                    } else {
+                        // A página não existe
+                        header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                    }
                 }
             }
         ?>
+
+        <div class="container <?php echo (!$route['tutorial_video']) ? "d-none" : ""; ?>">
+            <div class="row p-4">
+                <div class="col-sm-12">
+                    <div id="video-display" class="d-flex justify-content-center">
+                        <div class="video-wrapper d-flex justify-content-center">
+                            <?php
+                                // Função para extrair o código do vídeo do URL do YouTube
+                                function getYoutubeEmbedCode($url) {
+                                    // Verifica se o URL é um link válido do YouTube
+                                    if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                                        $videoCode = $matches[1];
+
+                                        // Gera o código de incorporação
+                                        $embedCode = '<iframe src="https://www.youtube.com/embed/' . $videoCode . '" width="800px" height="450px" frameborder="0" allowfullscreen></iframe>';
+
+                                        return $embedCode;
+                                    } else {
+                                        // URL inválido do YouTube
+                                        return 'URL do YouTube inválido.';
+                                    }
+                                }
+
+                                // Exemplo de uso:
+                                $youtubeURL = $route['tutorial_video'];
+                                $embedCode = getYoutubeEmbedCode($youtubeURL);
+
+                                if ($embedCode !== 'URL do YouTube inválido.') {
+                                    echo $embedCode;
+                                }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         </div>
     </main>
