@@ -88,14 +88,15 @@
 
     // Acessa o IF quando o usuário clicar no botão
     if (empty($dados['SendAddProduct'])) {
-        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, name, price, without_price, discount, video, description, sku, button_type, redirect_link, seo_name, link, seo_description, product_id) VALUES 
-                                    (:shop_id, :status, :emphasis, :name, :price, :without_price, :discount, :video, :description, :sku, :button_type, :redirect_link, :seo_name, :link, :seo_description, :product_id)";
+        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, language, name, price, without_price, discount, video, description, sku, button_type, redirect_link, seo_name, link, seo_description, product_id) VALUES 
+                                    (:shop_id, :status, :emphasis, :language, :name, :price, :without_price, :discount, :video, :description, :sku, :button_type, :redirect_link, :seo_name, :link, :seo_description, :product_id)";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
         $stmt->bindParam(':shop_id', $dados['shop_id']);
         $stmt->bindValue(':status', $status);
         $stmt->bindValue(':emphasis', $emphasis);
+        $stmt->bindParam(':language', $dados['language']);
         $stmt->bindParam(':name', $dados['name']);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':without_price', $without_price);

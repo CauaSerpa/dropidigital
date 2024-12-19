@@ -247,13 +247,16 @@
                 // Recuperar os resultados
                 $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+                // Formatacao da moeda
+                $currencySymbol = ($product['language'] == 'pt') ? "R$ " : "$ ";
+
                 // Formatação preço
                 $preco = $product['price'];
-                $price = "R$ " . number_format($preco, 2, ",", ".");
+                $price = $currencySymbol . number_format($preco, 2, ",", ".");
 
                 // Formatação preço com desconto
                 $desconto = $product['discount'];
-                $discount = "R$ " . number_format($desconto, 2, ",", ".");
+                $discount = $currencySymbol . number_format($desconto, 2, ",", ".");
 
                 // Calcula a porcentagem de desconto
                 if ($product['price'] != 0) {

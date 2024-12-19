@@ -43,6 +43,7 @@
             $_GET['short_id'] = $product['id'];
             $_GET['name'] = $product['title'];
             $_GET['price'] = $product['price'];
+            $_GET['description'] = $product['description'];
         }
     }
 ?>
@@ -458,6 +459,15 @@
                 <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/produto/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
             <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="language" class="form-label small">Idioma</label>
+                    <select class="form-select" id="language" name="language">
+                        <option value="pt" selected>Português</option>
+                        <option value="en">Inglês</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-6 d-flex justify-content-between mb-3">
                     <div>
                         <label for="activeProduct" class="form-label small">
@@ -487,7 +497,7 @@
             <div class="col-md-6">
                 <label for="moneyInput1" class="form-label small">Preço de Custo *</label>
                 <div class="input-group mb-2">
-                    <span class="input-group-text">R$</span>
+                    <span class="input-group-text" id="currencySymbol">R$</span>
                     <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00" value="<?php echo @$_GET['price']; ?>">
                 </div>
                 <div class="form-check">
@@ -498,7 +508,7 @@
             <div class="col-md-6">
                 <label for="moneyInput2" class="form-label small">Preço promocional</label>
                 <div class="input-group">
-                    <span class="input-group-text">R$</span>
+                    <span class="input-group-text" id="currencySymbolPromo">R$</span>
                     <input type="number" step="0.01" class="form-control text-end" name="discount" id="moneyInput2" placeholder="0,00">
                 </div>
             </div>
@@ -579,7 +589,7 @@
         </div>
         <div class="card-body px-5 py-3">
             <label for="editor" class="form-label small">Descrição do produto</label>
-            <textarea name="description" id="editor"></textarea>
+            <textarea name="description" id="editor"><?php echo @$_GET['description']; ?></textarea>
         </div>
     </div>
 
@@ -637,7 +647,7 @@
                         <div class="input-group">
                             <select class="form-select" name="button_type" id="buttonType" aria-label="Default select example" required>
                                 <option value="" <?php echo (!isset($_GET['link'])) ? "selected" : ""; ?> disabled>-- Selecione uma opção --</option>
-                                <option value="1" <?php echo (isset($_GET['link'])) ? "selected" : ""; ?>>Comprar</option>
+                                <option value="1" id="buyText" <?php echo (isset($_GET['link'])) ? "selected" : ""; ?>>Comprar</option>
                                 <option value="2">Número de whatsapp - Mensagem Padrão</option>
                                 <option value="3">Número de whatsapp - Mensagem Personalizada</option>
                                 <option value="4">Saiba mais</option>
@@ -789,6 +799,25 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- Alterar idioma do produto -->
+<script>
+    $(document).ready(function () {
+        $('#language').on('change', function () {
+            const selectedLanguage = $(this).val();
+            const currencySymbol = $('#currencySymbol, #currencySymbolPromo');
+            const buyText = $('#buyText');
+
+            if (selectedLanguage === 'en') {
+                currencySymbol.text('$');
+                buyText.text('Buy (Comprar)');
+            } else {
+                currencySymbol.text('R$');
+                buyText.text('Comprar');
+            }
+        });
+    });
+</script>
 
 <!-- Remover imagem vinda do produto -->
 <script>

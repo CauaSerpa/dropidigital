@@ -427,6 +427,15 @@ if(!empty($id)){
                 <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require value="<?php echo $product['name']; ?>">
                 <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="language" class="form-label small">Idioma</label>
+                    <select class="form-select" id="language" name="language">
+                        <option value="pt" <?php echo ($product['language'] == 'pt') ? "selected" : ""; ?>>Português</option>
+                        <option value="en" <?php echo ($product['language'] == 'en') ? "selected" : ""; ?>>Inglês</option>
+                    </select>
+                </div>
+            </div>
             <?php
                 if ($product['status'] == 1)
                 {
@@ -470,7 +479,7 @@ if(!empty($id)){
             <div class="col-md-6">
                 <label for="moneyInput1" class="form-label small">Preço de Custo *</label>
                 <div class="input-group mb-2">
-                    <span class="input-group-text">R$</span>
+                    <span class="input-group-text" id="currencySymbol">R$</span>
                     <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00" value="<?php echo $product['price']; ?>" <?php echo ($product['without_price'] == 1) ? "disabled" : ""; ?>>
                 </div>
                 <div class="form-check">
@@ -481,7 +490,7 @@ if(!empty($id)){
             <div class="col-md-6">
                 <label for="moneyInput2" class="form-label small">Preço promocional</label>
                 <div class="input-group">
-                    <span class="input-group-text">R$</span>
+                    <span class="input-group-text" id="currencySymbolPromo">R$</span>
                     <input type="number" step="0.01" class="form-control text-end" name="discount" id="moneyInput2" placeholder="0,00" value="<?php echo $product['discount']; ?>" <?php echo ($product['without_price'] == 1) ? "disabled" : ""; ?>>
                 </div>
             </div>
@@ -631,7 +640,7 @@ if(!empty($id)){
                         <div class="input-group">
                             <select class="form-select" name="button_type" id="buttonType" aria-label="Default select example" required>
                                 <option value="" disabled>-- Selecione uma opção --</option>
-                                <option value="1" <?php echo ($product['button_type'] == 1) ? "selected" : ""; ?>>Comprar</option>
+                                <option value="1" id="buyText" <?php echo ($product['button_type'] == 1) ? "selected" : ""; ?>>Comprar</option>
                                 <option value="2" <?php echo ($product['button_type'] == 2) ? "selected" : ""; ?>>Número de whatsapp - Mensagem Padrão</option>
                                 <option value="3" <?php echo ($product['button_type'] == 3) ? "selected" : ""; ?>>Número de whatsapp - Mensagem Personalizada</option>
                                 <option value="4" <?php echo ($product['button_type'] == 4) ? "selected" : ""; ?>>Saiba mais</option>
@@ -836,6 +845,32 @@ if(!empty($id)){
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <!-- Mask -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+
+<!-- Alterar idioma do produto -->
+<script>
+    $(document).ready(function () {
+        const currencySymbol = $('#currencySymbol, #currencySymbolPromo');
+        const buyText = $('#buyText');
+
+        // Função para aplicar as alterações com base no idioma selecionado
+        function updateLanguage() {
+            const selectedLanguage = $('#language').val();
+            if (selectedLanguage === 'en') {
+                currencySymbol.text('$');
+                buyText.text('Buy (Comprar)');
+            } else {
+                currencySymbol.text('R$');
+                buyText.text('Comprar');
+            }
+        }
+
+        // Aplicar as alterações ao carregar a página
+        updateLanguage();
+
+        // Atualizar as alterações ao mudar o idioma
+        $('#language').on('change', updateLanguage);
+    });
+</script>
 
 <!-- Gerador de descricao com ia -->
 <script>

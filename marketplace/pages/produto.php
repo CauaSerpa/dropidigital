@@ -321,15 +321,16 @@
             <?php
                 // Formatação preço
                 $preco = $product['price'];
+                $currencySymbol = ($product['language'] == 'pt') ? "R$ " : "$ ";
 
                 // Transforma o número no formato "R$ 149,90"
-                $price = "R$ " . number_format($preco, 2, ",", ".");
+                $price = $currencySymbol . number_format($preco, 2, ",", ".");
 
                 // Formatação preço com desconto
                 $desconto = $product['discount'];
 
                 // Transforma o número no formato "R$ 149,90"
-                $discount = "R$ " . number_format($desconto, 2, ",", ".");
+                $discount = $currencySymbol . number_format($desconto, 2, ",", ".");
 
                 // Calcula a porcentagem de desconto
                 if ($product['price'] != 0) {
@@ -368,7 +369,7 @@
             <a href="<?php echo $product['redirect_link']; ?>" target="_blank" class="btn btn-dark d-inline-flex align-items-center px-3">
                 <?php
                     if ($product['button_type'] == 1) {
-                        echo "Comprar";
+                        echo ($product['language'] == 'pt') ? "Comprar" : "Buy";
                     } elseif ($product['button_type'] == 2) {
                         echo "<i class='bx bxl-whatsapp me-1'></i>";
                         echo "Chamar no WhatsApp";
@@ -485,15 +486,16 @@
 
                     // Formatação preço
                     $preco = $related_product['price'];
+                    $currencySymbol = ($related_product['language'] == 'pt') ? "R$ " : "$ ";
 
                     // Transforma o número no formato "R$ 149,90"
-                    $price = "R$ " . number_format($preco, 2, ",", ".");
+                    $price = $currencySymbol . number_format($preco, 2, ",", ".");
 
                     // Formatação preço com desconto
                     $desconto = $related_product['discount'];
 
                     // Transforma o número no formato "R$ 149,90"
-                    $discount = "R$ " . number_format($desconto, 2, ",", ".");
+                    $discount = $currencySymbol . number_format($desconto, 2, ",", ".");
 
                     // Calcula a porcentagem de desconto
                     if ($related_product['price'] != 0) {
