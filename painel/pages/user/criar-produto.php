@@ -1,4 +1,52 @@
 <?php
+    if (isset($_GET['product']) && $_GET['product'] == "kiwify") {
+        // Nome da tabela dos produtos Kiwify
+        $tabela = 'tb_kiwify_products';
+
+        // Verificar se há uma busca realizada
+        $product_id = isset($_GET['product_id']) ? $_GET['product_id'] : '';
+
+        $sql = "SELECT * FROM $tabela WHERE id = :product_id ORDER BY id ASC";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindValue(':product_id', $product_id);
+
+        // Executar a consulta
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($product) {
+            $_GET['short_id'] = $product['short_id'];
+            $_GET['name'] = $product['name'];
+            $_GET['price'] = $product['price'];
+            $_GET['product_img'] = $product['product_img'];
+        }
+    } else if (isset($_GET['product']) && $_GET['product'] == "clickbank") {
+        // Nome da tabela dos produtos Kiwify
+        $tabela = 'tb_clickbank_products';
+
+        // Verificar se há uma busca realizada
+        $product_id = isset($_GET['product_id']) ? $_GET['product_id'] : '';
+
+        $sql = "SELECT * FROM $tabela WHERE id = :product_id ORDER BY id ASC";
+        $stmt = $conn_pdo->prepare($sql);
+        $stmt->bindValue(':product_id', $product_id);
+
+        // Executar a consulta
+        $stmt->execute();
+
+        // Recuperar os resultados
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($product) {
+            $_GET['short_id'] = $product['id'];
+            $_GET['name'] = $product['title'];
+            $_GET['price'] = $product['price'];
+        }
+    }
+?>
+<?php
     // Consulta SQL para contar os produtos na tabela
     // Nome da tabela para a busca
     $tabela = 'tb_products';
@@ -115,6 +163,10 @@
         padding: 0 0.5rem;
         border: 1px solid #c4c4c4;
         border-radius: 0.3rem;
+    }
+    #affiliate-product-image.sortable-image::before {
+        content: 'Img Produto' !important;
+        font-size: .75rem !important;
     }
     .dropzone-active {
         border: 0.2em dashed #025bee;
@@ -436,7 +488,7 @@
                 <label for="moneyInput1" class="form-label small">Preço de Custo *</label>
                 <div class="input-group mb-2">
                     <span class="input-group-text">R$</span>
-                    <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00">
+                    <input type="number" step="0.01" class="form-control text-end" name="price" id="moneyInput1" placeholder="0,00" value="<?php echo @$_GET['price']; ?>">
                 </div>
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" name="without_price" id="withoutPrice">
@@ -468,8 +520,17 @@
                 <div id="error"></div>
             </label>
             <div class="sortable-container mt-3">
-                <div id="image-display"></div>
+                <div id="image-display">
+                    <?php if (isset($_GET) && !empty($_GET['product_img'])) { ?>
+                    <figure class="sortable-image" id="affiliate-product-image">
+                        <img src="<?php echo $_GET['product_img']; ?>" alt="Product Image">
+                        <button type="button" id="remove-affiliate-product-image" class="remove-image-btn"></button>
+                    </figure>
+                    <?php } ?>
+                </div>
             </div>
+            <!-- Link imagem do produto kiwify -->
+            <input type="hidden" name="product_img" id="product_img" value="<?php echo @$_GET['product_img']; ?>">
         </div>
         <div class="card-footer fw-semibold px-4 py-3 bg-transparent">
             <div class="d-flex justify-content-between">
@@ -575,8 +636,8 @@
                         <label for="button_type" class="form-label small">Tipo do botão *</label>
                         <div class="input-group">
                             <select class="form-select" name="button_type" id="buttonType" aria-label="Default select example" required>
-                                <option value="" selected disabled>-- Selecione uma opção --</option>
-                                <option value="1">Comprar</option>
+                                <option value="" <?php echo (!isset($_GET['link'])) ? "selected" : ""; ?> disabled>-- Selecione uma opção --</option>
+                                <option value="1" <?php echo (isset($_GET['link'])) ? "selected" : ""; ?>>Comprar</option>
                                 <option value="2">Número de whatsapp - Mensagem Padrão</option>
                                 <option value="3">Número de whatsapp - Mensagem Personalizada</option>
                                 <option value="4">Saiba mais</option>
@@ -643,10 +704,10 @@
                 </div>
             </div>
 
-            <div class="mb-3 d-none" id="container-redirect-link">
+            <div class="mb-3 <?php echo (!isset($_GET['link'])) ? "d-none" : ""; ?>" id="container-redirect-link">
                 <label for="redirectLink" class="form-label small">Link de redirecionamento *</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" name="redirect_link" id="redirectLink" aria-describedby="redirect-linkHelp">
+                    <input type="text" class="form-control" name="redirect_link" id="redirectLink" aria-describedby="redirect-linkHelp" value="<?php echo @$_GET['link']; ?>">
                     <button type="button" class="btn btn-secondary px-4" id="botaoColar">Colar Link</button>
                 </div>
             </div>
@@ -670,7 +731,7 @@
                             <label for="textInput1" class="form-label small">Nome do produto *</label>
                             <small id="textCounter1" class="form-text text-muted">0 de 70 caracteres</small>
                         </div>
-                        <input type="text" class="form-control" name="seo_name" id="textInput1" maxlength="70" aria-describedby="emailHelp">
+                        <input type="text" class="form-control" name="seo_name" id="textInput1" maxlength="70" aria-describedby="emailHelp" value="<?php echo @$_GET['name']; ?>">
                     </div>
                     <div class="mb-3">
                         <label for="textInput2" class="form-label small">Link da página</label>
@@ -704,6 +765,9 @@
     <!-- Categoria principal -->
     <input type="hidden" name="inputMainCategory" id="inputMainCategory">
 
+    <!-- Id do produto kiwify -->
+    <input type="hidden" name="product_id" value="<?php echo @$_GET['short_id']; ?>">
+
     <!-- Botao salvar -->
     <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="text-decoration-none text-reset">Cancelar</a>
@@ -725,6 +789,19 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- Remover imagem vinda do produto -->
+<script>
+    $(document).ready(function() {
+        // Função para remover a imagem e limpar o campo hidden
+        $('#remove-affiliate-product-image').on('click', function() {
+            // Remove a imagem do display
+            $('#affiliate-product-image').remove();
+            // Limpa o campo hidden de product_img
+            $('#product_img').val('');
+        });
+    });
+</script>
 
 <!-- Gerador de descricao com ia -->
 <script>
@@ -1403,36 +1480,44 @@
 
 <!-- Link -->
 <script>
-    // Aguarde o documento estar pronto
-    $(document).ready(function() {
-        // Selecione o campo de entrada e o span
-        var input = $("#name");
-        var span = $("#linkPreview");
+    // Função que faz a lógica de remover acentos e atualizar a pré-visualização
+    function atualizarPrevia() {
+        var input = $("#name"); // Selecione o campo de entrada
+        var span = $("#linkPreview"); // Selecione o span de pré-visualização
+        var inputText2 = $('#textInput2'); // Outro campo de entrada que também será atualizado
+        var textPreview2 = $('#textPreview2'); // Outro span de pré-visualização
 
-        var inputText2 = $('#textInput2');
-        var textPreview2 = $('#textPreview2');
+        var value = input.val(); // Pegue o valor do campo de entrada
 
-        input.on("input", function() {
-            var value = input.val();
+        // Remover acentos e substituir espaços por traço
+        value = removerAcentosEespacos(value);
 
-            // Remover acentos e substituir espaços por traço
-            value = removerAcentosEespacos(value);
-            
-            span.text(value);
+        // Atualiza o texto no span e no input extra
+        span.text(value);
+        inputText2.val(value);
+        textPreview2.text(value);
 
-            inputText2.val(value);
-            textPreview2.text(value);
-
-            if (value === '') {
-                span.text("...");
-                textPreview2.text("link-da-pagina");
-            }
-        });
-
-        function removerAcentosEespacos(texto) {
-            // Remove acentos usando normalize e substitui espaços por traço
-            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        // Se o valor estiver vazio, exibe valores padrão
+        if (value === '') {
+            span.text("...");
+            textPreview2.text("link-da-pagina");
         }
+    }
+
+    // Função para remover acentos e substituir espaços por traços
+    function removerAcentosEespacos(texto) {
+        return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+    }
+
+    // Quando o documento estiver pronto, execute a função
+    $(document).ready(function() {
+        // Executa no carregamento da página
+        atualizarPrevia();
+
+        // Atualiza sempre que houver uma interação no campo de entrada
+        $("#name").on("input", function() {
+            atualizarPrevia();
+        });
     });
 </script>
 

@@ -65,11 +65,17 @@ if(!empty($id)){
                     </div>
                 </div>
 
-                <!-- Campo para editar o link da página de ajuda -->
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="help_page" class="form-label small">Link da página de ajuda</label>
-                        <input type="url" class="form-control" name="help_page" id="help_page" value="<?php echo $route['help_page']; ?>">
+                        <label for="video_location" class="form-label small">Posição do vídeo *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="video_location" id="video_location" aria-label="Default select example" required>
+                                <option value="" disabled>-- Selecione uma opção --</option>
+                                <option value="disabled" <?php echo (!$route['video_location']) ? "selected" : ""; ?>>Desativado</option>
+                                <option value="0" <?php echo ($route['video_location'] == 0) ? "selected" : ""; ?>>Topo da página</option>
+                                <option value="1" <?php echo ($route['video_location'] == 1) ? "selected" : ""; ?>>Parte inferior da página</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -81,6 +87,13 @@ if(!empty($id)){
                     </div>
                 </div>
 
+                <!-- Campo para editar o link da página de ajuda -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="help_page" class="form-label small">Link da página de ajuda</label>
+                        <input type="url" class="form-control" name="help_page" id="help_page" value="<?php echo $route['help_page']; ?>">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,6 +122,32 @@ if(!empty($id)){
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Função para ativar/desativar o input baseado no select
+        function toggleTutorialVideo() {
+            var videoLocation = $('#video_location').val(); // Pega o valor do select
+            var tutorialVideoInput = $('#tutorial_video'); // Campo de input
+
+            if (videoLocation === "") {
+                // Se não houver valor selecionado, desativa o input
+                tutorialVideoInput.prop('disabled', true);
+            } else {
+                // Caso contrário, ativa o input
+                tutorialVideoInput.prop('disabled', false);
+            }
+        }
+
+        // Executa a função ao carregar a página
+        toggleTutorialVideo();
+
+        // Monitora as mudanças no select e aplica a lógica
+        $('#video_location').on('change', function() {
+            toggleTutorialVideo();
+        });
+    });
+</script>
 
 <!-- Link -->
 <script>

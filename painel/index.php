@@ -39,6 +39,17 @@
     ob_start();
     include('../config.php');
 
+    // Prepara a consulta para verificar se a rota existe
+    $routeStmt = $conn_pdo->prepare("SELECT * FROM tb_routes WHERE page = :url LIMIT 1");
+    $routeStmt->bindParam(':url', $url);
+    $routeStmt->execute();
+
+    // Verifica se a rota foi encontrada
+    if ($routeStmt->rowCount() > 0) {
+        // Obter o resultado como um array associativo
+        $route = $routeStmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     if ($url !== "login" && $url !== "dois-fatores" && $url !== "recuperar-senha" && $url !== "atualizar-senha" && $url !== "assinar" && $url !== "criar-loja" && $url !== "404") {
         // Verifica se esta logado
         if (!isset($_SESSION['user_id'])) {
@@ -636,6 +647,11 @@
                         </button>
                     </div>
                 </form>
+                <?php if (isset($route) && $route['url'] == $url) { ?>
+                <button type="button" class="border-0 bg-transparent ms-3 <?php echo ($route['video_location'] != 1) ? "d-none" : ""; ?>" data-bs-toggle="modal" data-bs-target="#tutorialVideoModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M21.593 7.203a2.506 2.506 0 0 0-1.762-1.766C18.265 5.007 12 5 12 5s-6.264-.007-7.831.404a2.56 2.56 0 0 0-1.766 1.778c-.413 1.566-.417 4.814-.417 4.814s-.004 3.264.406 4.814c.23.857.905 1.534 1.763 1.765 1.582.43 7.83.437 7.83.437s6.265.007 7.831-.403a2.515 2.515 0 0 0 1.767-1.763c.414-1.565.417-4.812.417-4.812s.02-3.265-.407-4.831zM9.996 15.005l.005-6 5.207 3.005-5.212 2.995z"></path></svg>
+                </button>
+                <?php } ?>
             </div>
             <div class="right">
                 <div class="header__icon shop-link">
@@ -1052,6 +1068,22 @@
                 </div>
                 <ul class="sub-menu blank">
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">Redes Sociais</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('integracoes'); ?> <?php activeSidebarLink('clickbank'); ?> <?php showSidebarLinks('integracoes'); ?> <?php showSidebarLinks('clickbank'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>integracoes" class="sidebar_link">
+                                <i class='bx bx-cube' ></i>
+                            </a>
+                            <span class="link_name">Integrações</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>integracoes">Integrações</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>integracoes" class="<?php activeSidebarLink('integracoes'); ?>">Kiwify</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>clickbank" class="<?php activeSidebarLink('clickbank'); ?>">ClickBank</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?> <?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('servico'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('site-pronto'); ?> <?php showSidebarLinks('servicos'); ?> <?php showSidebarLinks('servico'); ?>">
@@ -2257,16 +2289,8 @@
             } else {
                 // Se o permission for 'user', verificar na tabela tb_routes
                 if ($permission == 'user') {
-                    // Prepara a consulta para verificar se a rota existe
-                    $stmt = $conn_pdo->prepare("SELECT * FROM tb_routes WHERE page = :url LIMIT 1");
-                    $stmt->bindParam(':url', $url);
-                    $stmt->execute();
-
                     // Verifica se a rota foi encontrada
-                    if ($stmt->rowCount() > 0) {
-                        // Obter o resultado como um array associativo
-                        $route = $stmt->fetch(PDO::FETCH_ASSOC);
-                    
+                    if (isset($route)) {
                         // Se a rota existe, inclui a página normalmente
                         if (file_exists('pages/user/' . $route['url'] . '.php')) {
                             include('pages/user/' . $route['url'] . '.php');
@@ -2289,28 +2313,31 @@
             }
         ?>
 
-        <div class="container <?php echo (!$route['tutorial_video']) ? "d-none" : ""; ?>">
+        <?php
+            // Função para extrair o código do vídeo do URL do YouTube
+            function getYoutubeEmbedCode($url) {
+                // Verifica se o URL é um link válido do YouTube
+                if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                    $videoCode = $matches[1];
+
+                    // Gera o código de incorporação
+                    $embedCode = '<iframe src="https://www.youtube.com/embed/' . $videoCode . '" width="800px" height="450px" frameborder="0" allowfullscreen></iframe>';
+
+                    return $embedCode;
+                } else {
+                    // URL inválido do YouTube
+                    return 'URL do YouTube inválido.';
+                }
+            }
+        ?>
+
+        <?php if (isset($route) && $route['url'] == $url) { ?>
+        <div class="container <?php echo ($route['video_location'] != 0) ? "d-none" : ""; ?>">
             <div class="row p-4">
                 <div class="col-sm-12">
                     <div id="video-display" class="d-flex justify-content-center">
                         <div class="video-wrapper d-flex justify-content-center">
                             <?php
-                                // Função para extrair o código do vídeo do URL do YouTube
-                                function getYoutubeEmbedCode($url) {
-                                    // Verifica se o URL é um link válido do YouTube
-                                    if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
-                                        $videoCode = $matches[1];
-
-                                        // Gera o código de incorporação
-                                        $embedCode = '<iframe src="https://www.youtube.com/embed/' . $videoCode . '" width="800px" height="450px" frameborder="0" allowfullscreen></iframe>';
-
-                                        return $embedCode;
-                                    } else {
-                                        // URL inválido do YouTube
-                                        return 'URL do YouTube inválido.';
-                                    }
-                                }
-
                                 // Exemplo de uso:
                                 $youtubeURL = $route['tutorial_video'];
                                 $embedCode = getYoutubeEmbedCode($youtubeURL);
@@ -2324,9 +2351,43 @@
                 </div>
             </div>
         </div>
+        <?php } ?>
 
         </div>
     </main>
+
+    <?php if (isset($route) && $route['url'] == $url) { ?>
+        <?php if ($route['video_location'] == 1) { ?>
+            <!-- Modal Video Tutorial -->
+            <div class="modal fade" id="tutorialVideoModal" tabindex="-1" aria-labelledby="tutorialVideoModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="tutorialVideoModalLabel">Tutorial em Vídeo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Vídeo do YouTube -->
+                            <div class="ratio ratio-16x9">
+                                <?php
+                                    // Exemplo de uso:
+                                    $youtubeURL = $route['tutorial_video'];
+                                    $embedCode = getYoutubeEmbedCode($youtubeURL);
+
+                                    if ($embedCode !== 'URL do YouTube inválido.') {
+                                        echo $embedCode;
+                                    }
+                                ?>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+    <?php } ?>
 
     <div class='card__info'>
         <div class='info'>
