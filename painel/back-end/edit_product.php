@@ -98,7 +98,7 @@
         $tabela = 'tb_products';
 
         // Edita o produto no banco de dados da loja
-        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, language = :language, name = :name, price = :price, without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, seo_name = :seo_name, link = :link, seo_description = :seo_description, last_modification = :last_modification WHERE id = :id";
+        $sql = "UPDATE $tabela SET status = :status, emphasis = :emphasis, language = :language, name = :name, price = :price, without_price = :without_price, discount = :discount, video = :video, description = :description, sku = :sku, button_type = :button_type, redirect_link = :redirect_link, product_mode_related = :product_mode_related, seo_name = :seo_name, link = :link, seo_description = :seo_description, last_modification = :last_modification WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -114,6 +114,7 @@
         $stmt->bindParam(':sku', $dados['sku']);
         $stmt->bindParam(':button_type', $dados['button_type']);
         $stmt->bindParam(':redirect_link', $redirect_link);
+        $stmt->bindParam(':product_mode_related', $dados['selectMode']);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
         $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
@@ -149,36 +150,85 @@
         $existingCategoryIds = $stmtExistingCategories->fetchAll(PDO::FETCH_COLUMN);
 
         // Insere as categorias que não estão presentes no banco de dados
-        foreach ($categoriasIds as $categoriaId) {
-            // Certifique-se de validar e escapar os dados para evitar injeção de SQL
-            $categoriaId = (int)$categoriaId;
-
-            if (!in_array($categoriaId, $existingCategoryIds)) {
-                // Categoria não está presente no banco de dados, então insira
-                $main = ($dados['inputMainCategory'] == $categoriaId) ? 1 : 0;
-
-                $tabela = "tb_product_categories";
-                $sqlInsertCategory = "INSERT INTO $tabela (shop_id, product_id, category_id, main) VALUES (:shop_id, :product_id, :category_id, :main)";
-                $stmtInsertCategory = $conn_pdo->prepare($sqlInsertCategory);
-                $stmtInsertCategory->bindParam(':shop_id', $dados['shop_id']);
-                $stmtInsertCategory->bindParam(':product_id', $dados['id']);
-                $stmtInsertCategory->bindParam(':category_id', $categoriaId);
-                $stmtInsertCategory->bindParam(':main', $main);
-                $stmtInsertCategory->execute();
+        if (!empty($categoriasInputValue)) {
+            foreach ($categoriasIds as $categoriaId) {
+                // Certifique-se de validar e escapar os dados para evitar injeção de SQL
+                $categoriaId = (int)$categoriaId;
+    
+                if (!in_array($categoriaId, $existingCategoryIds)) {
+                    // Categoria não está presente no banco de dados, então insira
+                    $main = ($dados['inputMainCategory'] == $categoriaId) ? 1 : 0;
+    
+                    $tabela = "tb_product_categories";
+                    $sqlInsertCategory = "INSERT INTO $tabela (shop_id, product_id, category_id, main) VALUES (:shop_id, :product_id, :category_id, :main)";
+                    $stmtInsertCategory = $conn_pdo->prepare($sqlInsertCategory);
+                    $stmtInsertCategory->bindParam(':shop_id', $dados['shop_id']);
+                    $stmtInsertCategory->bindParam(':product_id', $dados['id']);
+                    $stmtInsertCategory->bindParam(':category_id', $categoriaId);
+                    $stmtInsertCategory->bindParam(':main', $main);
+                    $stmtInsertCategory->execute();
+                }
             }
         }
 
         // Deleta as categorias que não estão mais presentes no input
-        foreach ($existingCategoryIds as $existingCategoryId) {
-            if (!in_array($existingCategoryId, $categoriasIds)) {
-                // Categoria não está presente no input, então delete
-                $tabela = "tb_product_categories";
-                $sqlDeleteCategory = "DELETE FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id AND category_id = :category_id";
-                $stmtDeleteCategory = $conn_pdo->prepare($sqlDeleteCategory);
-                $stmtDeleteCategory->bindParam(':shop_id', $dados['shop_id']);
-                $stmtDeleteCategory->bindParam(':product_id', $dados['id']);
-                $stmtDeleteCategory->bindParam(':category_id', $existingCategoryId);
-                $stmtDeleteCategory->execute();
+        if (!empty($existingCategoryIds)) {
+            foreach ($existingCategoryIds as $existingCategoryId) {
+                if (!in_array($existingCategoryId, $categoriasIds)) {
+                    // Categoria não está presente no input, então delete
+                    $tabela = "tb_product_categories";
+                    $sqlDeleteCategory = "DELETE FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id AND category_id = :category_id";
+                    $stmtDeleteCategory = $conn_pdo->prepare($sqlDeleteCategory);
+                    $stmtDeleteCategory->bindParam(':shop_id', $dados['shop_id']);
+                    $stmtDeleteCategory->bindParam(':product_id', $dados['id']);
+                    $stmtDeleteCategory->bindParam(':category_id', $existingCategoryId);
+                    $stmtDeleteCategory->execute();
+                }
+            }
+        }
+
+        echo "sucesso";
+
+        // Receber os IDs dos produtos selecionados e removidos do formulário
+        $selectMode = $_POST['selectMode']; // "manual" ou "automatic"
+        $selectedProducts = isset($_POST['produtos_selecionados']) ? explode(',', $_POST['produtos_selecionados']) : [];
+        $removedProducts = isset($_POST['produtos_removidos']) ? explode(',', $_POST['produtos_removidos']) : [];
+
+        // Caso o modo de seleção seja "automatic", remover todos os produtos relacionados
+        if ($selectMode === 'automatic') {
+            $sqlDeleteAll = "DELETE FROM tb_product_related WHERE product_id = ? AND shop_id = ?";
+            $stmtDeleteAll = $conn_pdo->prepare($sqlDeleteAll);
+            $stmtDeleteAll->execute([$dados['id'], $dados['shop_id']]);
+        } else {
+            // Modo "manual": realizar alterações nos produtos selecionados/removidos
+
+            // Deletar produtos removidos
+            if (!empty($removedProducts)) {
+                $placeholders = implode(',', array_fill(0, count($removedProducts), '?'));
+                $sqlDelete = "DELETE FROM tb_product_related 
+                            WHERE product_id = ? AND shop_id = ? AND related_product_id IN ($placeholders)";
+                $stmtDelete = $conn_pdo->prepare($sqlDelete);
+                $stmtDelete->execute(array_merge([$dados['id'], $dados['shop_id']], $removedProducts));
+            }
+
+            // Adicionar novos produtos selecionados, verificando duplicação
+            if (!empty($selectedProducts)) {
+                foreach ($selectedProducts as $relatedProductId) {
+                    // Verificar se o produto já está relacionado
+                    $sqlCheck = "SELECT COUNT(*) FROM tb_product_related 
+                                WHERE product_id = ? AND shop_id = ? AND related_product_id = ?";
+                    $stmtCheck = $conn_pdo->prepare($sqlCheck);
+                    $stmtCheck->execute([$dados['id'], $dados['shop_id'], $relatedProductId]);
+                    $exists = $stmtCheck->fetchColumn();
+
+                    // Se não existir, inserir no banco de dados
+                    if (!$exists) {
+                        $sqlInsert = "INSERT INTO tb_product_related (product_id, shop_id, related_product_id) 
+                                    VALUES (?, ?, ?)";
+                        $stmtInsert = $conn_pdo->prepare($sqlInsert);
+                        $stmtInsert->execute([$dados['id'], $dados['shop_id'], $relatedProductId]);
+                    }
+                }
             }
         }
 

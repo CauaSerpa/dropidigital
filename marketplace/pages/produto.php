@@ -471,12 +471,106 @@
 
         <div class="row g-3 p-4">
             <?php
-                // Loop através dos resultados e exibir todas as colunas
-                foreach ($resultados as $related_product) {
-                    // Consulta SQL para selecionar todas as colunas com base no ID
-                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+            // Verifica o valor do "product_mode_related"
+            $product_mode_related = $product['product_mode_related']; // Substitua pelo valor real da variável
 
-                    // Preparar e executar a consulta
+            if ($product_mode_related == "manual") {
+                // Consulta na tabela tb_product_related para obter os produtos relacionados manualmente
+                $sql_related = "SELECT related_product_id FROM tb_product_related WHERE product_id = :product_id AND shop_id = :shop_id";
+                $stmt_related = $conn_pdo->prepare($sql_related);
+                $stmt_related->bindParam(':product_id', $product['id']);
+                $stmt_related->bindParam(':shop_id', $shop_id);
+                $stmt_related->execute();
+                $related_products = $stmt_related->fetchAll(PDO::FETCH_ASSOC);
+
+                // Debug: Imprimir os produtos relacionados
+                // print_r($related_products);
+
+                foreach ($related_products as $related) {
+                    // Consulta para buscar o produto relacionado
+                    $sql = "SELECT * FROM tb_products WHERE shop_id = :shop_id AND status = :status AND id = :related_product_id";
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':shop_id', $shop_id);
+                    $stmt->bindValue(':status', 1); // Status ativo
+                    $stmt->bindParam(':related_product_id', $related['related_product_id']);
+                    $stmt->execute();
+                    $related_product = $stmt->fetch(PDO::FETCH_ASSOC); // Modificado para usar fetch() em vez de fetchAll()
+
+                    // Debug: Imprimir o produto relacionado
+                    // print_r($related_product);
+
+                    // Consulta de imagens
+                    $sql_images = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
+                    $stmt_images = $conn_pdo->prepare($sql_images);
+                    $stmt_images->bindParam(':usuario_id', $related_product['id']);
+                    $stmt_images->execute();
+                    $images = $stmt_images->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Formatação de preço
+                    $preco = $related_product['price'];
+                    $currencySymbol = ($related_product['language'] == 'pt') ? "R$ " : "$ ";
+                    $price = $currencySymbol . number_format($preco, 2, ",", ".");
+                    $desconto = $related_product['discount'];
+                    $discount = $currencySymbol . number_format($desconto, 2, ",", ".");
+
+                    if ($related_product['price'] != 0) {
+                        $porcentagemDesconto = (($related_product['price'] - $related_product['discount']) / $related_product['price']) * 100;
+                    } else {
+                        $porcentagemDesconto = 0;
+                    }
+
+                    $porcentagemDesconto = round($porcentagemDesconto, 0);
+
+                    if ($related_product['discount'] == "0.00") {
+                        $activeDiscount = "d-none";
+                        $priceAfterDiscount = $price;
+                    } else {
+                        $activeDiscount = "";
+                        $priceAfterDiscount = $discount;
+                        $discount = $price;
+                    }
+
+                    $link = INCLUDE_PATH_LOJA . $related_product['link'];
+
+                    if ($related_product['without_price']) {
+                        $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
+                    }
+
+                    // Exibindo o produto relacionado
+                    echo '<div class="col-sm-3 numBanner d-grid">';
+                    echo '<a href="' . $link . '" class="product-link d-grid">';
+                    echo '<div class="card d-grid">';
+
+                    if ($images) {
+                        foreach ($images as $image) {
+                            echo '<div class="product-image">';
+                            echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                            echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $image['usuario_id'] . '/' . $image['nome_imagem'] . '" class="card-img-top" alt="' . $related_product['name'] . '">';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo '<div class="product-image">';
+                        echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
+                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" class="card-img-top" alt="' . $related_product['name'] . '">';
+                        echo '</div>';
+                    }
+
+                    echo '<div class="card-body">';
+                    echo '<p class="card-title mb-0">' . $related_product['name'] . '</p>';
+                    echo '<div class="d-flex mb-3">';
+                    echo '<small class="fw-semibold text-body-secondary text-decoration-line-through me-2 ' . $activeDiscount . '">' . $discount . '</small>';
+                    echo '<h4 class="card-text">' . $priceAfterDiscount . '</h4>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</a>';
+                    echo '</div>';
+                }
+            } else {
+                // Exibe os produtos automaticamente como está
+                foreach ($resultados as $related_product) {
+                    // A lógica que você já tem para exibir os produtos relacionados automaticamente
+                    $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
                     $stmt = $conn_pdo->prepare($sql);
                     $stmt->bindParam(':usuario_id', $related_product['id']);
                     $stmt->execute();
@@ -501,8 +595,7 @@
                     if ($related_product['price'] != 0) {
                         $porcentagemDesconto = (($related_product['price'] - $related_product['discount']) / $related_product['price']) * 100;
                     } else {
-                        // Lógica para lidar com o caso em que $product['price'] é zero
-                        $porcentagemDesconto = 0; // Ou outro valor padrão
+                        $porcentagemDesconto = 0;
                     }
 
                     // Arredonda o resultado para duas casas decimais
@@ -526,9 +619,9 @@
                         $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
                     }
 
-                    echo '<div class="col-sm-3 numBanner">';
-                    echo '<a href="' . $link . '" class="product-link">';
-                    echo '<div class="card">';
+                    echo '<div class="col-sm-3 numBanner d-grid">';
+                    echo '<a href="' . $link . '" class="product-link d-grid">';
+                    echo '<div class="card d-grid">';
 
                     if ($imagens) {
                         foreach ($imagens as $imagem) {
@@ -555,6 +648,7 @@
                     echo '</a>';
                     echo '</div>';
                 }
+            }
             ?>
         </div>
     </div>

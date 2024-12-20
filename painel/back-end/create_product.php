@@ -88,8 +88,8 @@
 
     // Acessa o IF quando o usuário clicar no botão
     if (empty($dados['SendAddProduct'])) {
-        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, language, name, price, without_price, discount, video, description, sku, button_type, redirect_link, seo_name, link, seo_description, product_id) VALUES 
-                                    (:shop_id, :status, :emphasis, :language, :name, :price, :without_price, :discount, :video, :description, :sku, :button_type, :redirect_link, :seo_name, :link, :seo_description, :product_id)";
+        $sql = "INSERT INTO tb_products (shop_id, status, emphasis, language, name, price, without_price, discount, video, description, sku, button_type, redirect_link, product_mode_related, seo_name, link, seo_description, product_id) VALUES 
+                                    (:shop_id, :status, :emphasis, :language, :name, :price, :without_price, :discount, :video, :description, :sku, :button_type, :redirect_link, :product_mode_related, :seo_name, :link, :seo_description, :product_id)";
         $stmt = $conn_pdo->prepare($sql);
 
         // Substituir os links pelos valores do formulário
@@ -106,6 +106,7 @@
         $stmt->bindParam(':sku', $dados['sku']);
         $stmt->bindParam(':button_type', $dados['button_type']);
         $stmt->bindParam(':redirect_link', $redirect_link);
+        $stmt->bindParam(':product_mode_related', $dados['selectMode']);
         $stmt->bindParam(':seo_name', $dados['seo_name']);
         $stmt->bindParam(':link', $dados['seo_link']);
         $stmt->bindParam(':seo_description', $dados['seo_description']);
@@ -130,26 +131,62 @@
         // Separa os IDs das categorias em um array
         $categoriasIds = explode(',', $categoriasInputValue);
 
-        // Loop para inserir categorias no banco de dados
-        foreach ($categoriasIds as $categoriaId) {
-            // Certifique-se de validar e escapar os dados para evitar injeção de SQL
-            $categoriaId = (int)$categoriaId;
+        if (!empty($categoriasInputValue)) {
+            // Loop para inserir categorias no banco de dados
+            foreach ($categoriasIds as $categoriaId) {
+                // Certifique-se de validar e escapar os dados para evitar injeção de SQL
+                $categoriaId = (int)$categoriaId;
+    
+                $main = ($dados['inputMainCategory'] == $categoriaId) ? 1 : 0;
+    
+                // Consulta SQL para inserir a associação entre produto e categoria
+                $tabela = "tb_product_categories";
+                $sql = "INSERT INTO $tabela (shop_id, product_id, category_id, main) VALUES (:shop_id, :product_id, :category_id, :main)";
+                $stmt = $conn_pdo->prepare($sql);
+    
+                $stmt->bindParam(':shop_id', $dados['shop_id']);
+                $stmt->bindParam(':product_id', $ultimo_id);
+                $stmt->bindParam(':category_id', $categoriaId);
+                $stmt->bindParam(':main', $main);
+    
+                $stmt->execute();
+    
+                echo "sucesso";
+            }
+        }
 
-            $main = ($dados['inputMainCategory'] == $categoriaId) ? 1 : 0;
+        // Produtos Relacionados
+        // Verifica se o modo de relacionamento foi selecionado como manual
+        if ($_POST['selectMode'] === 'manual') {
+            // Recupera o valor do input hidden com os IDs dos produtos selecionados
+            $produtosInputValue = $_POST['produtosSelecionados']; // Substitua 'produtosSelecionados' pelo nome do seu input
 
-            // Consulta SQL para inserir a associação entre produto e categoria
-            $tabela = "tb_product_categories";
-            $sql = "INSERT INTO $tabela (shop_id, product_id, category_id, main) VALUES (:shop_id, :product_id, :category_id, :main)";
-            $stmt = $conn_pdo->prepare($sql);
+            // Certifique-se de que $produtosInputValue é uma string
+            if (is_array($produtosInputValue)) {
+                // Converte o array em uma string separada por vírgulas
+                $produtosInputValue = implode(',', $produtosInputValue);
+            }
 
-            $stmt->bindParam(':shop_id', $dados['shop_id']);
-            $stmt->bindParam(':product_id', $ultimo_id);
-            $stmt->bindParam(':category_id', $categoriaId);
-            $stmt->bindParam(':main', $main);
+            // Separa os IDs dos produtos em um array
+            $produtosIds = explode(',', $produtosInputValue);
 
-            $stmt->execute();
+            // Loop para inserir os produtos relacionados no banco de dados
+            foreach ($produtosIds as $produtoIdRelacionado) {
+                // Valida e escapa os dados para evitar injeção de SQL
+                $produtoIdRelacionado = (int)$produtoIdRelacionado;
 
-            echo "sucesso";
+                // Consulta SQL para inserir a associação entre o produto atual e os produtos relacionados
+                $tabela = "tb_product_related";
+                $sql = "INSERT INTO $tabela (shop_id, product_id, related_product_id) VALUES (:shop_id, :product_id, :related_product_id)";
+                $stmt = $conn_pdo->prepare($sql);
+
+                $stmt->bindParam(':shop_id', $dados['shop_id']);
+                $stmt->bindParam(':product_id', $ultimo_id); // ID do produto atual
+                $stmt->bindParam(':related_product_id', $produtoIdRelacionado);
+
+                $stmt->execute();
+            }
+            echo "Produtos relacionados salvos com sucesso!";
         }
 
         // Verifique se a URL da imagem foi passada

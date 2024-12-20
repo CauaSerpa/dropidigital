@@ -422,13 +422,52 @@
                 <p class="fw-semibold d-none" id="noResultCategories">Nenhuma categoria encontrada</p>
                 <table class="table" id="resultCategories">
                     <tbody id="listaCategorias">
-                    <!-- Categorias serão exibidas aqui -->
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                            </tr>
+                        </thead>
+                        <!-- Categorias serão exibidas aqui -->
                     </tbody>
                 </table>
             </div>
             <div class="modal-footer fw-semibold px-4">
                 <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
                 <button type="button" class="btn btn-success fw-semibold px-4 py-2 small" onclick="adicionarCategorias()">Selecionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Produtos -->
+<div class="modal fade" id="produtosModal" tabindex="-1" role="dialog" aria-labelledby="produtosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Escolher produto
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <input type="text" id="searchProduto" class="form-control mb-3" placeholder="Pesquisar Produtos">
+                <p class="fw-semibold d-none" id="noResultProducts">Nenhum produto encontrado</p>
+                <table class="table" id="resultProducts">
+                    <tbody id="listaProdutos">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <!-- Produtos serão exibidos aqui -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" onclick="adicionarProdutos()">Adicionar</button>
             </div>
         </div>
     </div>
@@ -732,6 +771,47 @@
     </div>
 
     <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">
+            Produtos Relacionados
+        </div>
+        <div class="card-body px-4 py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="selectMode" class="form-label small">Modo de Relacionamento de Produtos</label>
+                        <select class="form-select mb-3" name="selectMode" id="selectMode">
+                            <option value="automatic" selected>Automático</option>
+                            <option value="manual">Manual</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campo de seleção de produtos -->
+            <div id="campoSelecaoProdutos" style="display: none;">
+                <label for="searchProductOutsideModal" class="form-label small">
+                    Produtos
+                    <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
+                </label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="searchProductOutsideModal" placeholder="Buscar produtos já cadastrados" aria-label="Buscar produtos já cadastrados">
+                    <button type="button" class="btn btn-outline-dark fw-semibold px-4" data-bs-toggle="modal" data-bs-target="#produtosModal">Ver Produtos</button>
+                </div>
+                <small class="d-flex mb-3 px-3 py-2" id="noProducts" style="color: #4A90E2; background: #ECF3FC;">Nenhum produto adicionado</small>
+                <table class="table table-hover d-none" id="productsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="small">Nome do Produto</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="produtosSelecionados"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">Google / SEO</div>
         <div class="card-body row px-4 py-3">
             <div class="row">
@@ -771,6 +851,9 @@
 
     <!-- Adicione esses campos ocultos no seu formulário -->
     <input type="hidden" name="categoriasSelecionadas[]" id="categoriasSelecionadasInput">
+
+    <!-- Adicione esses campos ocultos no seu formulário -->
+    <input type="hidden" name="produtosSelecionados[]" id="produtosSelecionadosInput">
 
     <!-- Categoria principal -->
     <input type="hidden" name="inputMainCategory" id="inputMainCategory">
@@ -1170,6 +1253,216 @@
             // Certificar-se de remover a classe d-none ao exibir todas as categorias
             $("#noResultCategories").addClass("d-none");
             $("#resultCategories").removeClass("d-none");
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Monitorar alterações no select
+        $("#selectMode").change(function() {
+            var selectedMode = $(this).val();
+            if (selectedMode === "manual") {
+                // Exibir campo de seleção de produtos
+                $("#campoSelecaoProdutos").show();
+            } else {
+                // Ocultar campo de seleção de produtos
+                $("#campoSelecaoProdutos").hide();
+            }
+        });
+
+        // Inicializar estado com base no valor selecionado
+        $("#selectMode").trigger("change");
+    });
+</script>
+
+<?php
+    $sql = "SELECT p.id, i.nome_imagem AS image, p.name, 
+                CASE 
+                    WHEN p.status = 1 THEN 'Ativo' 
+                    WHEN p.status = 0 THEN 'Inativo' 
+                END AS status 
+            FROM tb_products p 
+            LEFT JOIN imagens i ON p.id = i.usuario_id
+            WHERE p.shop_id = :shop_id ORDER BY id DESC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->execute();
+
+    // Fetch all retorna um array contendo todas as linhas do conjunto de resultados
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<script>
+    $(document).ready(function() {
+        var produtosDisponiveis = <?php echo json_encode($products); ?>;
+        var produtosSelecionados = [];
+
+        function exibirProdutos() {
+            var listaProdutos = $("#listaProdutos");
+            listaProdutos.empty();
+
+            if (produtosDisponiveis.length === 0) {
+                $("#noResultProducts").removeClass("d-none");
+                $("#resultProducts").addClass("d-none");
+            } else {
+                $("#noResultProducts").addClass("d-none");
+                $("#resultProducts").removeClass("d-none");
+
+                produtosDisponiveis.forEach(function(produto) {
+                    var isChecked = produtosSelecionados.some(ps => ps.id === produto.id);
+                    var imagem = produto.image 
+                        ? "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/" + produto.id + "/" + produto.image 
+                        : "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/no-image.jpg";
+
+                    listaProdutos.append(`
+                        <tr class="align-middle">
+                            <td class="checkbox" scope="row">
+                                <input class="form-check-input" type="checkbox" id="${produto.id}" value="${produto.id}" ${isChecked ? 'checked' : ''}>
+                            </td>
+                            <td>
+                                <label for="${produto.id}" class="form-check-label d-flex align-items-center">
+                                    <img src="${imagem}" class="me-3" alt="Imagem do produto ${produto.name}" style="width: 40px; height: 40px; object-fit: cover;">
+                                    ${produto.name}
+                                </label>
+                            </td>
+                            <td>
+                                <label for="${produto.id}" class="form-check-label">${produto.status}</label>
+                            </td>
+                        </tr>
+                    `);
+                });
+
+                // Limitar seleção a 8 produtos
+                $(".form-check-input").off("change").on("change", function() {
+                    var produtoId = parseInt($(this).val());
+                    var produto = produtosDisponiveis.find(p => p.id === produtoId);
+
+                    if ($(this).prop("checked")) {
+                        if (produtosSelecionados.length >= 8) {
+                            $(this).prop("checked", false);
+                            alert("Você pode selecionar no máximo 8 produtos.");
+                        } else if (produto && !produtosSelecionados.some(ps => ps.id === produto.id)) {
+                            produtosSelecionados.push(produto);
+                        }
+                    } else {
+                        removerProduto(produtoId);
+                    }
+
+                    atualizarCampoProdutos();
+                    exibirProdutosSelecionados();
+                });
+            }
+        }
+
+        // Adiciona um ouvinte de evento de entrada ao campo #searchOutsideModal
+        $('#searchProductOutsideModal').on('input', function() {
+            var valorPesquisa = $(this).val();
+
+            // Define o valor no campo #searchProduto
+            $('#searchProduto').val(valorPesquisa);
+
+            // Abre o modal e foca no campo #searchProduto
+            $('#produtosModal').modal('show').on('shown.bs.modal', function () {
+                $('#searchProduto').focus();
+            });
+        });
+
+        $('#produtosModal').on('show.bs.modal', function() {
+            exibirProdutos();
+        });
+
+        window.adicionarProdutos = function() {
+            $('#produtosModal').modal('hide');
+        };
+
+        function exibirProdutosSelecionados() {
+            var semProduto = $("#noProducts");
+            var tabelaProdutos = $("#productsTable");
+            var produtosSelecionadosDiv = $("#produtosSelecionados");
+            produtosSelecionadosDiv.empty();
+
+            if (produtosSelecionados.length === 0) {
+                tabelaProdutos.addClass('d-none');
+                semProduto.removeClass('d-none');
+            } else {
+                tabelaProdutos.removeClass('d-none');
+                semProduto.addClass('d-none');
+
+                produtosSelecionados.forEach(function(produto) {
+                    produtosSelecionadosDiv.append(`
+                        <tr>
+                            <td>${produto.name}</td>
+                            <td class="remove">
+                                <span class="remover-produto" data-produto="${produto.id}">
+                                    <i class="bx bx-x fs-5"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    `);
+                });
+
+                $(".remover-produto").click(function() {
+                    var produtoId = $(this).data("produto");
+                    removerProduto(produtoId);
+                });
+            }
+        }
+
+        window.removerProduto = function(produtoId) {
+            produtosSelecionados = produtosSelecionados.filter(ps => ps.id !== produtoId);
+            atualizarCampoProdutos();
+            exibirProdutosSelecionados();
+        };
+
+        function atualizarCampoProdutos() {
+            var produtosIds = produtosSelecionados.map(ps => ps.id);
+            $("#produtosSelecionadosInput").val(produtosIds.join(','));
+        }
+
+        $("#searchProduto").on("input", function() {
+            var termoPesquisa = $(this).val().toLowerCase();
+
+            if (termoPesquisa === "") {
+                exibirProdutos();
+            } else {
+                var produtosFiltrados = produtosDisponiveis.filter(function(produto) {
+                    return produto.name.toLowerCase().includes(termoPesquisa);
+                });
+
+                atualizarListaProdutos(produtosFiltrados);
+            }
+        });
+
+        function atualizarListaProdutos(lista) {
+            var listaProdutos = $("#listaProdutos");
+            listaProdutos.empty();
+
+            lista.forEach(function(produto) {
+                var isChecked = produtosSelecionados.some(ps => ps.id === produto.id);
+                var imagem = produto.image 
+                    ? "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/" + produto.id + "/" + produto.image 
+                    : "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/no-image.jpg";
+
+                listaProdutos.append(`
+                    <tr class="align-middle">
+                        <td class="checkbox" scope="row">
+                            <input class="form-check-input" type="checkbox" id="${produto.id}" value="${produto.id}" ${isChecked ? 'checked' : ''}>
+                        </td>
+                        <td>
+                            <label for="${produto.id}" class="form-check-label d-flex align-items-center">
+                                <img src="${imagem}" class="me-3" alt="Imagem do produto ${produto.name}" style="width: 40px; height: 40px; object-fit: cover;">
+                                ${produto.name}
+                            </label>
+                        </td>
+                        <td>
+                            <label for="${produto.id}" class="form-check-label">${produto.status}</label>
+                        </td>
+                    </tr>
+                `);
+            });
         }
     });
 </script>

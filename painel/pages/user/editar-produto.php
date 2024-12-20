@@ -403,6 +403,39 @@ if(!empty($id)){
     </div>
 </div>
 
+<!-- Modal de Produtos -->
+<div class="modal fade" id="produtosModal" tabindex="-1" role="dialog" aria-labelledby="produtosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Escolher produto
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <input type="text" id="searchProduto" class="form-control mb-3" placeholder="Pesquisar Produtos">
+                <p class="fw-semibold d-none" id="noResultProducts">Nenhum produto encontrado</p>
+                <table class="table" id="resultProducts">
+                    <tbody id="listaProdutos">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <!-- Produtos serão exibidos aqui -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" onclick="adicionarProdutos()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_product.php" method="post" enctype="multipart/form-data">
 
     <div class="page__header center">
@@ -725,6 +758,47 @@ if(!empty($id)){
     </div>
 
     <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">
+            Produtos Relacionados
+        </div>
+        <div class="card-body px-4 py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="selectMode" class="form-label small">Modo de Relacionamento de Produtos</label>
+                        <select class="form-select mb-3" name="selectMode" id="selectMode">
+                            <option value="automatic" <?php echo ($product['product_mode_related'] == "automatic") ? "selected" : ""; ?>>Automático</option>
+                            <option value="manual" <?php echo ($product['product_mode_related'] == "manual") ? "selected" : ""; ?>>Manual</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campo de seleção de produtos -->
+            <div id="campoSelecaoProdutos" <?php echo ($product['product_mode_related'] == "manual") ? 'style="display: none;"' : ''; ?>>
+                <label for="searchProductOutsideModal" class="form-label small">
+                    Produtos
+                    <i class='bx bx-help-circle' data-toggle="tooltip" data-placement="top" title="Texto do Tooltip"></i>
+                </label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="searchProductOutsideModal" placeholder="Buscar produtos já cadastrados" aria-label="Buscar produtos já cadastrados">
+                    <button type="button" class="btn btn-outline-dark fw-semibold px-4" data-bs-toggle="modal" data-bs-target="#produtosModal">Ver Produtos</button>
+                </div>
+                <small class="d-flex mb-3 px-3 py-2" id="noProducts" style="color: #4A90E2; background: #ECF3FC;">Nenhum produto adicionado</small>
+                <table class="table table-hover d-none" id="productsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="small">Nome do Produto</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="produtosSelecionados"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">Google / SEO</div>
         <div class="card-body row px-4 py-3">
             <div class="row">
@@ -763,6 +837,12 @@ if(!empty($id)){
     <input type="hidden" name="delete_images" id="delete-images-input">
     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
+
+    <!-- Campo para IDs de produtos selecionados -->
+    <input type="hidden" id="produtosSelecionadosInput" name="produtos_selecionados">
+
+    <!-- Campo para IDs de produtos removidos -->
+    <input type="hidden" id="produtosRemovidosInput" name="produtos_removidos">
 
     <!-- Adicione esses campos ocultos no seu formulário -->
     <input type="hidden" name="categoriasSelecionadas[]" id="categoriasSelecionadasInput" value="<?php
@@ -1324,6 +1404,179 @@ if(!empty($id)){
             $("#resultCategories").removeClass("d-none");
         }
     });
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Monitorar alterações no select
+        $("#selectMode").change(function() {
+            var selectedMode = $(this).val();
+            if (selectedMode === "manual") {
+                // Exibir campo de seleção de produtos
+                $("#campoSelecaoProdutos").show();
+            } else {
+                // Ocultar campo de seleção de produtos
+                $("#campoSelecaoProdutos").hide();
+            }
+        });
+
+        // Inicializar estado com base no valor selecionado
+        $("#selectMode").trigger("change");
+    });
+</script>
+
+<?php
+    $sql = "SELECT p.id, i.nome_imagem AS image, p.name, 
+                CASE 
+                    WHEN p.status = 1 THEN 'Ativo' 
+                    WHEN p.status = 0 THEN 'Inativo' 
+                END AS status 
+            FROM tb_products p 
+            LEFT JOIN imagens i ON p.id = i.usuario_id
+            WHERE p.shop_id = :shop_id AND p.id != :product_id ORDER BY id DESC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->bindParam(':product_id', $product['id']);
+    $stmt->execute();
+
+    // Fetch all retorna um array contendo todas as linhas do conjunto de resultados
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Consultar produtos previamente selecionados
+    $sqlSelected = "SELECT p.id, p.name 
+                    FROM tb_product_related pr
+                    INNER JOIN tb_products p ON pr.related_product_id = p.id
+                    WHERE pr.product_id = :product_id AND pr.shop_id = :shop_id";
+    $stmtSelected = $conn_pdo->prepare($sqlSelected);
+    $stmtSelected->bindParam(':product_id', $product['id']);
+    $stmtSelected->bindParam(':shop_id', $shop_id);
+    $stmtSelected->execute();
+    $selectedProducts = $stmtSelected->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<script>
+    $(document).ready(function() {
+        var produtosDisponiveis = <?php echo json_encode($products); ?>;
+        var produtosSelecionados = <?php echo json_encode($selectedProducts); ?>;
+        var produtosRemovidos = []; // Array para armazenar produtos removidos
+
+        function exibirProdutos() {
+            var listaProdutos = $("#listaProdutos");
+            listaProdutos.empty();
+
+            if (produtosDisponiveis.length === 0) {
+                $("#noResultProducts").removeClass("d-none");
+                $("#resultProducts").addClass("d-none");
+            } else {
+                $("#noResultProducts").addClass("d-none");
+                $("#resultProducts").removeClass("d-none");
+
+                produtosDisponiveis.forEach(function(produto) {
+                    var isChecked = produtosSelecionados.some(ps => ps.id === produto.id);
+                    var imagem = produto.image 
+                        ? "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/" + produto.id + "/" + produto.image 
+                        : "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/imagens/no-image.jpg";
+
+                    listaProdutos.append(` 
+                        <tr class="align-middle">
+                            <td class="checkbox" scope="row">
+                                <input class="form-check-input" type="checkbox" id="${produto.id}" value="${produto.id}" ${isChecked ? 'checked' : ''}>
+                            </td>
+                            <td>
+                                <label for="${produto.id}" class="form-check-label d-flex align-items-center">
+                                    <img src="${imagem}" class="me-3" alt="Imagem do produto ${produto.name}" style="width: 40px; height: 40px; object-fit: cover;">
+                                    ${produto.name}
+                                </label>
+                            </td>
+                            <td>
+                                <label for="${produto.id}" class="form-check-label">${produto.status}</label>
+                            </td>
+                        </tr>
+                    `);
+                });
+
+                $(".form-check-input").off("change").on("change", function() {
+                    var produtoId = parseInt($(this).val());
+                    var produto = produtosDisponiveis.find(p => p.id === produtoId);
+
+                    if ($(this).prop("checked")) {
+                        if (produtosSelecionados.length >= 8) {
+                            $(this).prop("checked", false);
+                            alert("Você pode selecionar no máximo 8 produtos.");
+                        } else if (produto && !produtosSelecionados.some(ps => ps.id === produto.id)) {
+                            produtosSelecionados.push(produto);
+                        }
+                    } else {
+                        removerProduto(produtoId);
+                    }
+
+                    atualizarCampoProdutos();
+                    exibirProdutosSelecionados();
+                });
+            }
+        }
+
+        function exibirProdutosSelecionados() {
+            var semProduto = $("#noProducts");
+            var tabelaProdutos = $("#productsTable");
+            var produtosSelecionadosDiv = $("#produtosSelecionados");
+            produtosSelecionadosDiv.empty();
+
+            if (produtosSelecionados.length === 0) {
+                tabelaProdutos.addClass('d-none');
+                semProduto.removeClass('d-none');
+            } else {
+                tabelaProdutos.removeClass('d-none');
+                semProduto.addClass('d-none');
+
+                produtosSelecionados.forEach(function(produto) {
+                    produtosSelecionadosDiv.append(` 
+                        <tr>
+                            <td>${produto.name}</td>
+                            <td class="remove">
+                                <span class="remover-produto" data-produto="${produto.id}">
+                                    <i class="bx bx-x fs-5"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    `);
+                });
+
+                $(".remover-produto").click(function() {
+                    var produtoId = $(this).data("produto");
+                    removerProduto(produtoId);
+                });
+            }
+        }
+
+        function removerProduto(produtoId) {
+            produtosSelecionados = produtosSelecionados.filter(ps => ps.id !== produtoId);
+
+            // Adicione o ID ao array de produtos removidos
+            if (!produtosRemovidos.includes(produtoId)) {
+                produtosRemovidos.push(produtoId);
+            }
+
+            atualizarCampoProdutos();
+            atualizarCampoProdutosRemovidos(); // Atualize o campo oculto
+            exibirProdutosSelecionados();
+        }
+
+        function atualizarCampoProdutos() {
+            var produtosIds = produtosSelecionados.map(ps => ps.id);
+            $("#produtosSelecionadosInput").val(produtosIds.join(','));
+        }
+
+        function atualizarCampoProdutosRemovidos() {
+            $("#produtosRemovidosInput").val(produtosRemovidos.join(','));
+        }
+
+        exibirProdutosSelecionados();
+        exibirProdutos();
+    });
+
 </script>
 
 <!-- Funcao sem preço -->
