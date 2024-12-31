@@ -430,7 +430,7 @@ if(!empty($id)){
             </div>
             <div class="modal-footer fw-semibold px-4">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary" onclick="adicionarProdutos()">Adicionar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Adicionar</button>
             </div>
         </div>
     </div>
