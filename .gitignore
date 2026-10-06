@@ -1,1 +1,162 @@
+# ==========================================
+# Sistema / Ambiente
+# ==========================================
+
 .env
+.env.*
+!.env.example
+
+# Configurações locais
+config.local.php
+config.local.*
+*.local.php
+
+# Logs
+*.log
+error_log
+logs/
+storage/logs/
+var/log/
+
+# Cache
+cache/
+tmp/
+temp/
+storage/cache/
+storage/framework/cache/
+
+# Locks
+*.lock
+*.pid
+
+# ==========================================
+# Dependências
+# ==========================================
+
+vendor/
+node_modules/
+
+# ==========================================
+# IDE / Editor
+# ==========================================
+
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+.DS_Store
+Thumbs.db
+
+.well-known
+cgi-bin
+
+# ==========================================
+# Sistema operacional
+# ==========================================
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# ==========================================
+# Arquivos de backup
+# ==========================================
+
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+
+# Dumps de banco
+*.sql
+*.sql.gz
+*.sql.zip
+
+# ==========================================
+# Arquivos temporários
+# ==========================================
+
+*.tmp
+*.temp
+*.cache
+
+# ==========================================
+# Uploads / arquivos gerados
+# ==========================================
+
+uploads/
+storage/uploads/
+public/uploads/
+
+articles/
+banners/
+category/
+depositions/
+improvement/
+logos/
+
+# ==========================================
+# Backups do sistema
+# ==========================================
+
+backups/
+backup/
+storage/backups/
+
+# ==========================================
+# Relatórios / exports
+# ==========================================
+
+exports/
+reports/
+*.csv
+*.xlsx
+
+# ==========================================
+# Testes locais
+# ==========================================
+
+coverage/
+.phpunit.result.cache
+
+# ==========================================
+# Docker
+# ==========================================
+
+docker-data/
+docker-volumes/
+
+# ==========================================
+# Credenciais / chaves
+# ==========================================
+
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials.json
+service-account.json
+
+# Google
+google-credentials.json
+google-token.json
+
+# ==========================================
+# Arquivos específicos locais
+# ==========================================
+
+.phpunit.cache/
+.php-cs-fixer.cache
+
+# ==========================================
+# Outros
+# ==========================================
+
+*.zip

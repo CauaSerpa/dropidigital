@@ -1,55 +1,85 @@
 <?php
-    // Apagar Card
-    $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+    require dirname(dirname(dirname(__DIR__))) . '/vendor/autoload.php';
 
-    if (!empty($id)) {
-        // Obtenha o ID do produto e o usuário associado a ele
-        $usuario_id = $id;
+    use Aws\S3\S3Client;
+    use Aws\Exception\AwsException;
 
-        // Consulta para obter o diretório da imagem
-        $query = "SELECT id FROM imagens WHERE usuario_id = :usuario_id";
-        $stmt = $conn_pdo->prepare($query);
-        $stmt->bindParam(':usuario_id', $usuario_id);
-        $stmt->execute();
+    $s3 = new S3Client([
+        'version' => 'latest',
+        'region'  => $_ENV['AWS_REGION'],
+        'credentials' => [
+            'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+            'secret' => $_ENV['AWS_SECRET_ACCESS_KEY'],
+        ],
+    ]);
 
-        // Consulta para excluir o produto do banco de dados
-        $query = "DELETE FROM tb_products WHERE id = :id";
-        $stmt = $conn_pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+    $bucket = $_ENV['AWS_BUCKET'];
 
-        $_SESSION['msg'] = "<p class='green'>Produto deletado com sucesso!</p>";
+    $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+    if (!$id) {
+        $_SESSION['msg'] = "<p class='red'>Produto inválido.</p>";
         header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
-
-        if ($stmt->rowCount() > 0) {
-            // Obtenha o ID do usuário
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            // Diretório das imagens
-            $diretorio = "./back-end/imagens/$usuario_id/";
-
-            // Consulta para excluir as imagens do banco de dados
-            $query = "DELETE FROM imagens WHERE usuario_id = :usuario_id";
-            $stmt = $conn_pdo->prepare($query);
-            $stmt->bindParam(':usuario_id', $usuario_id);
-            $stmt->execute();
-
-            // Agora, exclua as imagens no diretório
-            $files = glob($diretorio . "*");
-            foreach ($files as $file) {
-                unlink($file);
-            }
-
-            // Exclua o diretório do usuário
-            rmdir($diretorio);
-        } else {
-            $_SESSION['msg'] = "<p class='red'>Nenhum produto encontrado para exclusão.</p>";
-            header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
-            exit;
-        }
         exit;
-    } else {
-        // Mensagem de falha
-        $_SESSION['msgcad'] = 'É necessário selecionar um produto!';
-        header("Location: " . INCLUDE_PATH_ADMIN . "sobre");
     }
+
+    try {
+        // Inicia transação
+        $conn_pdo->beginTransaction();
+
+        // 1️⃣ Busca imagens do produto
+        $stmt = $conn_pdo->prepare("
+            SELECT id, s3_path
+            FROM imagens
+            WHERE usuario_id = :product_id
+        ");
+        $stmt->execute([':product_id' => $id]);
+        $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2️⃣ Remove imagens do S3
+        foreach ($imagens as $img) {
+            try {
+                $s3->deleteObject([
+                    'Bucket' => $bucket,
+                    'Key'    => $img['s3_path']
+                ]);
+            } catch (AwsException $e) {
+                // Log opcional — não quebra o fluxo
+            }
+        }
+
+        // 3️⃣ Remove imagens do banco
+        $stmt = $conn_pdo->prepare("
+            DELETE FROM imagens
+            WHERE usuario_id = :product_id
+        ");
+        $stmt->execute([':product_id' => $id]);
+
+        // 4️⃣ Remove produto
+        $stmt = $conn_pdo->prepare("
+            DELETE FROM tb_products
+            WHERE id = :id
+        ");
+        $stmt->execute([':id' => $id]);
+
+        if ($stmt->rowCount() === 0) {
+            throw new Exception('Produto não encontrado.');
+        }
+
+        // 5️⃣ Commit
+        $conn_pdo->commit();
+
+        $_SESSION['msg'] = "<p class='green'>Produto e imagens removidos com sucesso!</p>";
+
+    } catch (Exception $e) {
+
+        // Rollback se algo falhar
+        if ($conn_pdo->inTransaction()) {
+            $conn_pdo->rollBack();
+        }
+
+        $_SESSION['msg'] = "<p class='red'>Erro ao remover produto.</p>";
+    }
+
+    header("Location: " . INCLUDE_PATH_DASHBOARD . "produtos");
+    exit;

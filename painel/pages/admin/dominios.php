@@ -1,3 +1,6 @@
+<?php
+    echo verificaPermissaoPagina($permissions);
+?>
 
 <?php
         // Nome da tabela para a busca

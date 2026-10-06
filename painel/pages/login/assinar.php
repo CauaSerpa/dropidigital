@@ -24,7 +24,7 @@
     </nav>
     <form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/signup.php" method="POST" class="form business" id="form" name="form">
         <div class="container__title login">
-            <h3 class="title">Crie sua Loja Virtual Grátis</h3>
+            <h3 class="title">Crie seu Site Grátis</h3>
         </div>
         
         <p class="success-message">
@@ -84,7 +84,7 @@
         </div>
     </form>
     <div class="bottom__text signup">
-        <p>Já possui uma loja na DropiDigital?</p>
+        <p>Já possui um site na DropiDigital?</p>
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>login">Acesse sua conta agora.</a>
     </div>
 </div>

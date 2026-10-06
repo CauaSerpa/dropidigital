@@ -1,16 +1,14 @@
-
 <?php
         // Nome da tabela para a busca
         $tabela = 'tb_products';
 
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+        $sql = "SELECT COUNT(*) FROM $tabela WHERE shop_id = :shop_id";
 
-        // Preparar e executar a consulta
         $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $id);
+        $stmt->bindValue(':shop_id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        $countProduct = $stmt->rowCount();
+        $countProduct = (int) $stmt->fetchColumn();
 ?>
 <style>
     .card.table
@@ -65,6 +63,34 @@
     {
         background: var(--green-color);
         border-color: var(--green-color);
+    }
+
+    #searchButton
+    {
+        height: 30px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--card-color);
+        background: var(--border-color);
+        font-weight: 600;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+    }
+
+    .bullet {
+        display: flex;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .bullet.bullet-success {
+        background: var(--green-color);
+    }
+    .bullet.bullet-danger {
+        background: red;
     }
 </style>
 
@@ -144,8 +170,11 @@
         ?>
                 <div class="card__title">
                     <div class="title__content grid">
-                        <div class="search__container">
-                            <input type="text" name="searchUsers" id="searchUsers" class="search" placeholder="Pesquisar" title="Pesquisar">
+                        <div class="search__container d-flex">
+                            <input type="text" name="searchInput" id="searchInput" class="search" placeholder="Pesquisar" title="Pesquisar" value="<?= (!empty($_GET['search'])) ? $_GET['search'] : ""; ?>">
+                            <button type="button" id="searchButton" class="btn btn-secondary ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path></svg>
+                            </button>
                         </div>
                         <button type="button" class="filter" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvasExample">
                             Filtrar
@@ -170,6 +199,7 @@
                             <th class="small">Valor</th>
                             <th class="small">Categoria</th>
                             <th class="small">SKU</th>
+                            <th class="small">Status</th>
                             <th class="small">Data de Criação</th>
                             <th class="small">Eventos</th>
                         </tr>
@@ -178,18 +208,35 @@
                     // Nome da tabela para a busca
                     $tabela = 'tb_products';
 
-                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+                    // Configuração para paginação
+                    $limite = isset($_GET['limite']) ? intval($_GET['limite']) : 10;
+                    $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+                    $inicioConsulta = ($paginaAtual - 1) * $limite;
+
+                    // Preparar a consulta com base na pesquisa (se houver)
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id";
+                    if (!empty($_GET['search'])) {
+                        $searchTerm = '%' . $_GET['search'] . '%';
+                        $sql .= " AND (name LIKE :searchTerm OR sku LIKE :searchTerm)"; // Substitua campo1 e campo2 pelos campos que deseja pesquisar
+                    }
+
+                    $sql .= " ORDER BY id DESC LIMIT :inicioConsulta, :limite";
 
                     // Preparar e executar a consulta
                     $stmt = $conn_pdo->prepare($sql);
                     $stmt->bindParam(':shop_id', $id);
+                    if (!empty($_GET['search'])) {
+                        $stmt->bindParam(':searchTerm', $searchTerm);
+                    }
+                    $stmt->bindParam(':inicioConsulta', $inicioConsulta, PDO::PARAM_INT);
+                    $stmt->bindParam(':limite', $limite, PDO::PARAM_INT);
                     $stmt->execute();
 
                     // Recuperar os resultados
                     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Loop através dos resultados e exibir todas as colunas
-                    foreach ($resultados as $usuario) {
+                    foreach ($resultados as $usuario):
                         //Formatacao preco
                         // $price = str_replace(',', '.', str_replace('.', '', $usuario['price']));
                         $preco = $usuario['price'];
@@ -197,8 +244,17 @@
                         // Transforma o número no formato "R$ 149,90"
                         $price = "R$ " . number_format($preco, 2, ",", ".");
 
+                        $price = ($usuario['without_price'] == 1) ? "--" : $price;
+
+                        // SKU
+                        $sku = ($usuario['sku'] == "") ? "--" : $usuario['sku'];
+
                         //Formatacao para data
                         $date_create = date("d/m/Y", strtotime($usuario['date_create']));
+
+                        // Status
+                        $isActive = ($usuario['status'] == 1) ? "checked" : "";
+                        $status = '<div class="form-check form-switch"><input class="change-status-btn form-check-input" type="checkbox" name="status" role="switch" data-id="' . $usuario['id'] . '" ' . $isActive . '></div>';
 
                         echo '
                             <tbody>
@@ -223,7 +279,7 @@
                         if ($imagens) {
                             // Loop através dos resultados e exibir todas as colunas
                             foreach ($imagens as $imagem) {
-                                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
+                                echo '<img src="' . CDN_BASE_URL . 'products/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
                             }
                         } else {
                             echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/no-image.jpg" alt="Capa do Produto" style="width: 38px; height: 38px; object-fit: cover;">';
@@ -235,53 +291,85 @@
                                     <td>' . $price . '</td>';
 
                         // Nome da tabela para a busca
-                        $tabela = 'tb_categories';
+                        $tabela = 'tb_product_categories';
 
-                        $sql = "SELECT (name) FROM $tabela WHERE id = :id ORDER BY id DESC";
+                        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND product_id = :product_id ORDER BY (main = 1) DESC";
 
                         // Preparar e executar a consulta
                         $stmt = $conn_pdo->prepare($sql);
-                        $stmt->bindParam(':id', $usuario['categories']);
+                        $stmt->bindParam(':shop_id', $id);
+                        $stmt->bindParam(':product_id', $usuario['id']);
                         $stmt->execute();
 
                         // Recuperar os resultados
-                        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        $productsCategory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                        foreach ($categories as $category) {
-                            echo "<td>";
-                            echo $category['name'];
-                            echo "</td>";
+                        // Inicia a classe primeiro elemento
+                        $primeiroElemento = true;
+
+                        echo "<td style='max-width: 50px;'>";
+
+                        if ($productsCategory) {
+                            foreach ($productsCategory as $productCategory) {
+
+                                // Nome da tabela para a busca
+                                $tabela = 'tb_categories';
+
+                                $sql = "SELECT (name) FROM $tabela WHERE shop_id = :shop_id AND id = :id ORDER BY id DESC";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindParam(':shop_id', $id);
+                                $stmt->bindParam(':id', $productCategory['category_id']);
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                foreach ($categories as $category) {
+                                    echo (!$primeiroElemento) ? ", " : "";
+
+                                    echo $category['name'];
+
+                                    $primeiroElemento = false;
+                                }
+                            }
+                        } else {
+                            echo "--";
                         }
 
+                        echo "</td>";
+
                         echo '
-                                    <td>' . $usuario['sku'] . '</td>
+                                    <td>' . $sku . '</td>
+                                    <td>' . $status . '</td>
                                     <td>' . $date_create . '</td>
-                                    <td>
-                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'editar-produto?id=' . $usuario['id'] . '" class="btn btn-primary">
-                                            <i class="bx bxs-edit" ></i>
-                                        </a>
-                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'excluir-produto?id=' . $usuario['id'] . '" class="btn btn-danger">
-                                            <i class="bx bxs-trash" ></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
                         ';
-                    }
                 ?>
+                            <td>
+                                <a href="<?= INCLUDE_PATH_DASHBOARD ?>editar-produto?id=<?= $usuario['id'] ?>" class="btn btn-primary">
+                                    <i class="bx bxs-edit" ></i>
+                                </a>
+                                <a href="<?= INCLUDE_PATH_DASHBOARD ?>excluir-produto?id=<?= $usuario['id'] ?>" onclick="return confirm('Tem certeza que deseja excluir este produto?');" class="btn btn-danger">
+                                    <i class="bx bxs-trash" ></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                <?php endforeach; ?>
                 </table>
             </div>
             <div class="center">
                 <div class="left">
                     <div class="container__button">
                         <div class="limitPageDropdown dropdown button button--flex select">
-                            <input type="text" class="text02" placeholder="10" readonly="">
+                            <input type="text" class="text02" value="<?php echo $limite; ?>" readonly>
                             <div class="option">
-                                <div onclick="show('10')">10</div>
-                                <div onclick="show('20')">20</div>
-                                <div onclick="show('30')">30</div>
-                                <div onclick="show('40')">40</div>
-                                <div onclick="show('50')">50</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 10) ? "selected" : "" ; ?>" data-value="10">10</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 20) ? "selected" : "" ; ?>" data-value="20">20</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 30) ? "selected" : "" ; ?>" data-value="30">30</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 40) ? "selected" : "" ; ?>" data-value="40">40</div>
+                                <div class="alterar-produtos-por-pagina <?php echo ($limite == 50) ? "selected" : "" ; ?>" data-value="50">50</div>
                             </div>
                         </div>
                         <label>Produtos por página</label>
@@ -289,7 +377,49 @@
                 </div>
                 <div class="right grid">
                     <div class="controller">
-                        <span class="analog pag-link active pag-link">1</span>
+                        <?php
+                            // Nome da tabela para a busca
+                            $tabela = 'tb_products';
+
+                            // Lógica para exibição dos links de páginação
+                            $sql = "SELECT COUNT(*) as total FROM $tabela WHERE shop_id = :shop_id";
+                            $stmt = $conn_pdo->prepare($sql);
+                            $stmt->bindParam(':shop_id', $id);
+                            $stmt->execute();
+                            $totalProdutos = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                            $totalPaginas = ceil($totalProdutos / $limite);
+
+                            $search = isset($_GET['search']) ? "&search=" . $_GET['search'] : "";
+                    
+                            // Mostra o primeiro link
+                            if ($totalPaginas > 1) {
+                                echo '<a href="?limite=' . $limite . '&pagina=1' . $search . '" class="analog pag-link ' . ($paginaAtual == 1 ? "active" : "") . '">1</a>';
+                            }
+                    
+                            // Determina o intervalo de páginas a serem exibidas
+                            $inicio = max(2, $paginaAtual - 2); // começa no 2 para evitar duplicação do link 1
+                            $fim = min($totalPaginas - 1, $paginaAtual + 2); // termina no totalPaginas - 1 para evitar duplicação do link final
+                    
+                            // Adiciona "..." se necessário
+                            if ($inicio > 2) {
+                                echo '<span class="pag-link">...</span>';
+                            }
+                    
+                            // Mostra os links do intervalo calculado
+                            for ($i = $inicio; $i <= $fim; $i++) {
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $i . $search . '" class="analog pag-link ' . ($i == $paginaAtual ? "active" : "") . '">' . $i . '</a>';
+                            }
+                    
+                            // Adiciona "..." se necessário
+                            if ($fim < $totalPaginas - 1) {
+                                echo '<span class="pag-link">...</span>';
+                            }
+                    
+                            // Mostra o último link
+                            if ($totalPaginas > 1) {
+                                echo '<a href="?limite=' . $limite . '&pagina=' . $totalPaginas . $search . '" class="analog pag-link ' . ($paginaAtual == $totalPaginas ? "active" : "") . '">' . $totalPaginas . '</a>';
+                            }
+                        ?>
                     </div>
                 </div>
             <?php
@@ -311,6 +441,15 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    // Adicionar um ouvinte de evento para a mudança de produtos por página
+    $(".alterar-produtos-por-pagina").on("click", function() {
+        var novoslimite = parseInt($(this).data("value"));
+        var url = window.location.href.split('?')[0];
+        window.location.href = url + "?limite=" + novoslimite + "&pagina=1<?= isset($_GET['search']) ? "&search=" . $_GET['search'] : ""; ?>";
+    });
+</script>
+
+<script>
     $(document).ready(function() {
         $('#checkAll').on('click', function() {
             $('.itemCheckbox').prop('checked', $(this).prop('checked'));
@@ -327,5 +466,104 @@
                 $('#checkAll').prop('checked', false);
             }
         });
+    });
+</script>
+
+<!-- Ativar produto -->
+<script>
+    $(document).ready(function() {
+        $(".change-status-btn").click(function() {
+            var productId = $(this).data("id");
+            var shopId = <?php echo $shop_id; ?>;
+
+            // Armazenar a referência do elemento em uma variável para uso dentro do AJAX
+            var button = $(this);
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/change_product_status.php",
+                method: "POST",
+                data: {
+                    product_id: productId,
+                    shop_id: shopId
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === "success") {
+                        if (response.action === "activated") {
+                            // Alternar entre os ícones de like e atualizar o contador de likes
+                            button.prop('checked', true);
+                        } else if (response.action === "disabled") {
+                            // Alternar entre os ícones de like e atualizar o contador de likes
+                            button.prop('checked', false);
+                        }
+                    } else {
+                        // Alternar entre os ícones de like e atualizar o contador de likes
+                        button.prop('checked', false);
+                        alert("Erro ao alterar o status do produto. " + response.message);
+                    }
+                },
+                error: function() {
+                    alert("Erro na solicitação AJAX.");
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Search -->
+<script>
+    $(document).ready(function() {
+        // Ao clicar no botão de pesquisa
+        $('#searchButton').click(function() {
+            // Obtenha o valor do campo de entrada de pesquisa
+            var searchTerm = $('#searchInput').val();
+
+            // Verifique se o campo de pesquisa não está vazio
+            if (searchTerm && searchTerm.trim() !== '') {
+                // Atualize a URL do navegador com os parâmetros de pesquisa
+                window.location.href = updateQueryStringParameter(window.location.href, 'search', searchTerm);
+            } else {
+                // Se o campo de pesquisa estiver vazio, remova o parâmetro de pesquisa da URL
+                window.location.href = removeQueryStringParameter(window.location.href, 'search');
+            }
+        });
+
+        // Função para atualizar os parâmetros da string de consulta na URL do navegador
+        function updateQueryStringParameter(uri, key, value) {
+            var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+            var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+            if (uri.match(re)) {
+                return uri.replace(re, '$1' + key + "=" + value + '$2');
+            }
+            else {
+                return uri + separator + key + "=" + value;
+            }
+        }
+
+        // Função para remover um parâmetro da string de consulta na URL do navegador
+        function removeQueryStringParameter(url, parameter) {
+            var urlParts = url.split('?');
+            if (urlParts.length >= 2) {
+                var prefix = encodeURIComponent(parameter) + '=';
+                var parts = urlParts[1].split(/[&;]/g);
+
+                // Iterar sobre os parâmetros na string de consulta
+                for (var i = parts.length; i-- > 0;) {
+                    if (parts[i].lastIndexOf(prefix, 0) !== -1) {
+                        parts.splice(i, 1);
+                    }
+                }
+
+                // Se ainda houver parâmetros, recrie a string de consulta
+                if (parts.length > 0) {
+                    url = urlParts[0] + '?' + parts.join('&');
+                } else {
+                    // Se não houver mais parâmetros, remova completamente a string de consulta
+                    url = urlParts[0];
+                }
+            }
+
+            return url;
+        }
     });
 </script>

@@ -1,4 +1,8 @@
 <?php
+    session_start();
+    ob_start();
+    include_once('../../config.php');
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['center_highlight']) && is_array($_POST['center_highlight'])) {
             $selectedValues = $_POST['center_highlight'];
@@ -7,16 +11,10 @@
             $separatedValues = implode(', ', $selectedValues);
 
             echo $separatedValues;
-
-
         } else {
             echo "Nenhum checkbox foi selecionado.";
         }
     }
-
-    session_start();
-    ob_start();
-    include_once('../../config.php');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Recebe os dados do formulário

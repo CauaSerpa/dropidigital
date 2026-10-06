@@ -72,6 +72,33 @@
             $stmt->bindValue(':seo_description', $seo_description);
 
             if ($stmt->execute()) {
+                $category_id = $conn_pdo->lastInsertId();
+
+                if (isset($_POST['faq_question'])) {
+                    echo "Entrou<br><br>";
+                        
+                    $sqlFaq = "INSERT INTO tb_category_faqs (category_id, question, answer, position)
+                               VALUES (:category_id, :question, :answer, :position)";
+                    $stmtFaq = $conn_pdo->prepare($sqlFaq);
+                
+                    foreach ($_POST['faq_question'] as $index => $question) {
+                
+                        $answer = $_POST['faq_answer'][$index];
+                
+                        // evitar campos vazios
+                        if (trim($question) == "" || trim($answer) == "") continue;
+                
+                        $stmtFaq->execute([
+                            ':category_id' => $category_id,
+                            ':question' => $question,
+                            ':answer' => $answer,
+                            ':position' => $index,
+                        ]);
+                        
+                        echo "Cadastrou $question<br>";
+                    }
+                }
+
                 $_SESSION['msgcad'] = "<p class='green'>Categoria cadastrada com sucesso!</p>";
                 // Redireciona para a página de login ou exibe uma mensagem de sucesso
                 header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");
@@ -99,6 +126,33 @@
             $stmt->bindValue(':seo_description', $seo_description);
 
             if ($stmt->execute()) {
+                $category_id = $conn_pdo->lastInsertId();
+
+                if (isset($_POST['faq_question'])) {
+                    echo "Entrou<br><br>";
+                        
+                    $sqlFaq = "INSERT INTO tb_category_faqs (category_id, question, answer, position)
+                               VALUES (:category_id, :question, :answer, :position)";
+                    $stmtFaq = $conn_pdo->prepare($sqlFaq);
+                
+                    foreach ($_POST['faq_question'] as $index => $question) {
+                
+                        $answer = $_POST['faq_answer'][$index];
+                
+                        // evitar campos vazios
+                        if (trim($question) == "" || trim($answer) == "") continue;
+                
+                        $stmtFaq->execute([
+                            ':category_id' => $category_id,
+                            ':question' => $question,
+                            ':answer' => $answer,
+                            ':position' => $index,
+                        ]);
+                        
+                        echo "Cadastrou $question<br>";
+                    }
+                }
+                
                 $_SESSION['msgcad'] = "<p class='green'>Categoria cadastrada com sucesso!</p>";
                 // Redireciona para a página de login ou exibe uma mensagem de sucesso
                 header("Location: " . INCLUDE_PATH_DASHBOARD . "categorias");

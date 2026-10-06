@@ -419,7 +419,7 @@
                             Na nova estrutura o tamaho dos banners variam de acordo com a disposição escolhida no menu configurar tema e a resolução da tela, <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda" style="color: var(--green-color) !important;">clique aqui</a> para saber mais detalhes sobre as dimensões.
                         </p>
                         <div class="banner full-banner card bg-body-secondary text-center p-5 mb-3">
-                            <i class='bx bx-help-circle banner-size' data-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="Largura recomendada: 1920px<br>Altura recomendada: 535px"></i>
+                            <i class='bx bx-help-circle banner-size' data-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="Desktop: 1920 x 535px<br>Celular: 500 x 375px"></i>
                             <p class="small fw-semibold">FULL BANNER</p>
                         </div>
                         <div class="banner row g-3 mb-3">
@@ -462,7 +462,8 @@
                     <img src="#" alt="Image Preview" class="image-preview" id="image-preview-1">
                     <div class="center-text" id="text-1">
                         <i class='bx bx-image fs-1'></i>
-                        <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
+                        <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                        <small id="dimensions">Dimensões: 1920 x 535px</small>
                     </div>
                 </label>
                 <input type="file" name="image" accept="image/*" class="file-input" id="file-input-1">
@@ -480,7 +481,8 @@
                     <img src="#" alt="Image Preview" class="image-preview" id="image-preview-2">
                     <div class="center-text" id="text-2">
                         <i class='bx bx-image fs-1'></i>
-                        <p class="fs-5 fw-semibold">Faça upload das imagens aqui</p>
+                        <p class="fs-5 fw-semibold">Faça upload da imagem aqui</p>
+                        <small>Dimensões: 500 x 375px</small>
                     </div>
                 </label>
                 <input type="file" name="mobile" accept="image/*" class="file-input" id="file-input-2">
@@ -491,7 +493,13 @@
 
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>banners" class="text-decoration-none text-reset">Cancelar</a>
             <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
@@ -501,7 +509,7 @@
 </form>
 
 <!-- Link para o TinyMCE CSS -->
-<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyKey; ?>/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <!-- jQuery and jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -585,9 +593,13 @@
 
         $("#location").change(function() {
             if ($(this).val() === "full-banner") {
+                $('#dimensions').text('Dimensões: 1920 x 535px');
+
                 $("#addMobileBanner").removeClass("d-none");
                 $("#addMobileBanner").addClass("d-flex");
             } else {
+                $('#dimensions').text('Dimensões: 500 x 200px');
+
                 $("#addMobileBanner").removeClass("d-flex");
                 $("#addMobileBanner").addClass("d-none");
 

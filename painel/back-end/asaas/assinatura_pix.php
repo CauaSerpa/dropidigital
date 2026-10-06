@@ -35,31 +35,38 @@ function asaas_CriarAssinaturaPix($customer_id, $dataForm, $config) {
 
     $retorno = json_decode($response, true);
 
-	if($retorno['object'] == 'subscription') {
+	// Verifica se a resposta foi decodificada corretamente e se a chave 'object' existe
+    if (json_last_error() === JSON_ERROR_NONE) {
+        if (isset($retorno['object']) && $retorno['object'] == 'subscription') {
+            $tabela = 'tb_subscriptions';
 
-        $tabela = 'tb_subscriptions';
+            $stmt = $conn->prepare("INSERT INTO $tabela (shop_id, plan_id, customer_id, subscription_id, value, billing_type, status, start_date, due_date, cycle) VALUES (
+                :shop_id, :plan_id, :customer_id, :subscription_id, :value, :billing_type, :status, :start_date, :due_date, :cycle)");
 
-        $stmt = $conn->prepare("INSERT INTO $tabela (shop_id, plan_id, customer_id, subscription_id, value, billing_type, status, start_date, due_date, cycle) VALUES (
-            :shop_id, :plan_id, :customer_id, :subscription_id, :value, :billing_type, :status, :start_date, :due_date, :cycle)");
+            // Bind dos parâmetros
+            $stmt->bindParam(':shop_id', $dataForm['shop_id'], PDO::PARAM_STR);
+            $stmt->bindParam(':plan_id', $dataForm['plan_id'], PDO::PARAM_STR);
+            $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_STR);
+            $stmt->bindParam(':subscription_id', $retorno['id'], PDO::PARAM_STR);
+            $stmt->bindParam(':value', $retorno['value'], PDO::PARAM_STR);
+            $stmt->bindParam(':billing_type', $retorno['billingType'], PDO::PARAM_STR);
+            $stmt->bindParam(':status', $retorno['status'], PDO::PARAM_STR);
+            $stmt->bindParam(':start_date', $retorno['dateCreated'], PDO::PARAM_STR);
+            $stmt->bindParam(':due_date', $retorno['nextDueDate'], PDO::PARAM_STR);
+            $stmt->bindParam(':cycle', $retorno['cycle'], PDO::PARAM_STR);
 
-        // Bind dos parâmetros
-        $stmt->bindParam(':shop_id', $dataForm['shop_id'], PDO::PARAM_STR);
-        $stmt->bindParam(':plan_id', $dataForm['plan_id'], PDO::PARAM_STR);
-        $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_STR);
-        $stmt->bindParam(':subscription_id', $retorno['id'], PDO::PARAM_STR);
-        $stmt->bindParam(':value', $retorno['value'], PDO::PARAM_STR);
-        $stmt->bindParam(':billing_type', $retorno['billingType'], PDO::PARAM_STR);
-        $stmt->bindParam(':status', $retorno['status'], PDO::PARAM_STR);
-        $stmt->bindParam(':start_date', $retorno['dateCreated'], PDO::PARAM_STR);
-        $stmt->bindParam(':due_date', $retorno['nextDueDate'], PDO::PARAM_STR);
-        $stmt->bindParam(':cycle', $retorno['cycle'], PDO::PARAM_STR);
+            // Executando o update
+            $stmt->execute();
 
-        // Executando o update
-        $stmt->execute();
-
-		return $retorno['id'];
-	} else {
-		echo $response;
-		exit();
-	}
+            return $retorno['id'];
+        } else {
+            // Se a chave 'object' não existir ou não for 'subscription', exibe a resposta
+            echo json_encode($retorno, true);
+            exit();
+        }
+    } else {
+        // Se houver um erro na decodificação do JSON, exibe a resposta bruta
+        echo json_encode($response, true);
+        exit();
+    }
 }

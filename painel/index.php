@@ -1,13 +1,28 @@
 <?php
     //Url Amigavel
-    $url = isset($_GET['url']) ? $_GET['url'] : 'painel';
+    $url = isset($_GET['url']) && !empty($_GET['url']) ? $_GET['url'] : 'painel';
 
     //Edita o escrito da url para ser colocado no title
-    if ($url == "")
-    {
+    if ($url == "") {
         $title = "Painel";
     } else {
-        $title = ucwords(str_replace("-", " ", $url));
+        // Obtém a URL atual
+        $urlPath = $url;
+
+        // Remove qualquer string de consulta, se houver
+        $urlPath = parse_url($urlPath, PHP_URL_PATH);
+
+        // Divide a URL em partes
+        $urlParts = explode('/', trim($urlPath, '/'));
+
+        // Verifica se há partes suficientes na URL
+        if (count($urlParts) >= 2) {
+            $urlTitle = $urlParts[1]; // O nome do arquivo é a segunda parte
+        } else {
+            $urlTitle = $url;
+        }
+
+        $title = ucwords(str_replace("-", " ", $urlTitle));
     }
 
     // Caminho para o diretório pai
@@ -23,7 +38,19 @@
     session_start();
     ob_start();
     include('../config.php');
+    restoreRememberedLogin($conn_pdo);
 
+    // Prepara a consulta para verificar se a rota existe
+    $routeStmt = $conn_pdo->prepare("SELECT * FROM tb_routes WHERE page = :url LIMIT 1");
+    $routeStmt->bindParam(':url', $url);
+    $routeStmt->execute();
+
+    // Verifica se a rota foi encontrada
+    if ($routeStmt->rowCount() > 0) {
+        // Obter o resultado como um array associativo
+        $route = $routeStmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
     if ($url !== "login" && $url !== "dois-fatores" && $url !== "recuperar-senha" && $url !== "atualizar-senha" && $url !== "assinar" && $url !== "criar-loja" && $url !== "404") {
         // Verifica se esta logado
         if (!isset($_SESSION['user_id'])) {
@@ -40,7 +67,7 @@
     $id = @$_SESSION['user_id'];
 
     // Consulta SQL
-    $sql = "SELECT permissions, name, email FROM $tabela WHERE id = :id";
+    $sql = "SELECT * FROM $tabela WHERE id = :id";
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -59,24 +86,65 @@
     // Verificar se o resultado foi encontrado
     if ($resultado) {
         // Atribuir o valor da coluna "name" à variável $name
-        $permissions = $resultado['permissions'];
+        $permissions = (isset($_SESSION['ready_site'])) ? 0 : $resultado['permissions'];
         $name = $resultado['name'];
         $email = $resultado['email'];
+        $docType = $resultado['docType'];
+        $docNumber = $resultado['docNumber'];
+        $razaoSocial = $resultado['razaoSocial'];
+        $phone = $resultado['phone'];
+        $last_shop_login = $resultado['last_shop_login'];
     }
 
-    // Pesquisar Loja
+    // Usuario Loja
+
+    // Verifica se há um shop_id definido na sessão
+    @$shop_id = isset($_SESSION['shop_id']) ? $_SESSION['shop_id'] : $last_shop_login;
 
     // Tabela que sera feita a consulta
-    $tabela = "tb_shop";
+    $tabela = "tb_shop_users";
 
-    // Consulta SQL
-    $sql = "SELECT id, plan_id, name FROM $tabela WHERE user_id = :id ORDER BY id DESC LIMIT 1";
+    // Ajusta a consulta SQL para dar prioridade ao shop_id se ele existir
+    if ($shop_id) {
+        $sql = "SELECT * FROM $tabela WHERE user_id = :user_id AND shop_id = :shop_id LIMIT 1";
+    } else {
+        $sql = "SELECT * FROM $tabela WHERE user_id = :user_id ORDER BY id DESC LIMIT 1";
+    }
 
     // Preparar a consulta
     $stmt = $conn_pdo->prepare($sql);
 
     // Vincular o valor do parâmetro
-    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id', $id, PDO::PARAM_INT);
+    if ($shop_id) {
+        $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
+    }
+
+    // Executar a consulta
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verificar se o resultado foi encontrado
+    if ($resultado) {
+        $shop_id = $resultado['shop_id'];
+        $_SESSION['shop_id'] = $shop_id;
+    }
+
+    // Pesquisar Loja
+
+    // Tabela que será feita a consulta
+    $tabela = "tb_shop";
+
+    // Consulta SQL
+    $sql = "SELECT * FROM $tabela WHERE id = :id LIMIT 1";
+
+    // Preparar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+
+    // Vincular o valor do parâmetro
+    $stmt->bindParam(':id', $shop_id, PDO::PARAM_INT);
 
     // Executar a consulta
     $stmt->execute();
@@ -89,9 +157,28 @@
         // Atribuir o valor da coluna "name" à variável $name
         $user_id = $id;
         $id = $resultado['id'];
-        $plan_id = $resultado['plan_id'];
+        // $plan_id = $resultado['plan_id'];
         $loja = $resultado['name'];
+        $phone = $resultado['phone'];
+        $whatsapp = $resultado['whatsapp'];
+        $detailed_segment = $resultado['detailed_segment'];
     }
+
+    // Nome da tabela para a busca
+    $tabela = 'tb_subscriptions';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT plan_id FROM $tabela WHERE (status = :status OR status = :status1) AND shop_id = :shop_id ORDER BY id DESC LIMIT 1";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->bindValue(':status', 'ACTIVE');
+    $stmt->bindValue(':status1', 'RECEIVED');
+    $stmt->bindParam(':shop_id', $shop_id);
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $plan_id = (isset($plan['plan_id'])) ? $plan['plan_id'] : 1;
 
     // Nome da tabela para a busca
     $tabela = 'tb_plans_interval';
@@ -105,26 +192,16 @@
     // Recupere o resultado da consulta
     $plan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (@$plan['plan_id'] == 1)
-    {
-        $limitProducts = 10;
-    }
-    else if (@$plan['plan_id'] == 2)
-    {
-        $limitProducts = 50;
-    }
-    else if (@$plan['plan_id'] == 3)
-    {
-        $limitProducts = 250;
-    }
-    else if (@$plan['plan_id'] == 4)
-    {
-        $limitProducts = 750;
-    }
-    else
-    {
-        $limitProducts = "ilimitado";
-    }
+    // Definir o limite de produtos baseado no plano
+    $planLimits = [
+        1 => 10,
+        2 => 50,
+        3 => 250,
+        4 => 900,
+        5 => 'Ilimitado',
+    ];
+    
+    $limitProducts = $planLimits[$plan['plan_id']] ?? 10;
 
     // Nome da tabela para a busca
     $tabela = 'tb_plans';
@@ -138,7 +215,20 @@
     // Recupere o resultado da consulta
     $plan_info = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $plan_name = @$plan_info['name'];
+    $plan_name = $plan_info['name'];
+
+    // Nome da tabela para a busca
+    $tabela = 'tb_dashboard';
+
+    // Consulta SQL para contar os produtos na tabela
+    $sql = "SELECT * FROM $tabela LIMIT 1";
+    $stmt = $conn_pdo->prepare($sql);  // Use prepare para consultas preparadas
+    $stmt->execute();
+
+    // Recupere o resultado da consulta
+    $dash = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    @$ready_site_image = $dash['ready_site_image'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -160,6 +250,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Intro JS -->
     <link href="https://cdn.jsdelivr.net/npm/intro.js@7.0.1/minified/introjs.min.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- Inclua as folhas de estilo do Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
 
     <!-- Mercado pago -->
     <?php
@@ -175,7 +271,6 @@
     <?php
         if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404')
         {
-            echo "";
     ?>
     <header class="l-header login">
         <nav class="nav bd-grid">
@@ -206,23 +301,25 @@
                 <div class="container__description">
                     <div class="description">
                         <h2 class="title">Sobre a DropiDigital</h2>
-                        <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis lectus ac risus vulputate volutpat. Vestibulum tempor ultricies lobortis. Sed tempus diam eu laoreet iaculis. Nulla volutpat ultrices mauris, ac volutpat mi auctor at.</p>
+                        <p class="description">
+                            Crie seu site 5 em minutos na Dropi Digital e coloque seu serviço na Internet ainda hoje.<br>
+                            Serviço autônomo, comércio físico, dropshipping de Infoprodutos ou produto físicos.<br><br>
+                            Todas as possibilidades e um únicos lugar. Dropi Digital.<br><br>
+                            Clique em criar conta e comece agora, mesmo que seja iniciante. É grátis.</p>
                     </div>
                     <div class="balls"></div>
                 </div>
             </div>
     <?php
-            echo "";
         }
-        elseif ($permissions == 1)
+        elseif ($permissions == 1 || $permissions == 2)
         {
-            echo "";
     ?>
     <div class="tutorial__bg__"></div>
     <header class="l-header painel">
         <nav class="nav bd-grid">
             <div class="left">
-                <div class="toggle" onclick="toggle()">
+                <div class="toggle">
                     <i class='bx bx-menu' id="mobileBtn"></i>
                 </div>
                 <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo">
@@ -230,6 +327,11 @@
                 </a>
             </div>
             <div class="right">
+                <div class="header__icon help">
+                    <a href="<?= INCLUDE_PATH_DASHBOARD; ?>politica-privacidade">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13.707 2.293A.996.996 0 0 0 13 2H6c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V9a.996.996 0 0 0-.293-.707l-6-6zM6 4h6.586L18 9.414l.002 9.174-2.568-2.568c.35-.595.566-1.281.566-2.02 0-2.206-1.794-4-4-4s-4 1.794-4 4 1.794 4 4 4c.739 0 1.425-.216 2.02-.566L16.586 20H6V4zm6 12c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2z"></path></svg>
+                    </a>
+                </div>
                 <div class="header__icon help">
                     <a href="https://suporte.dropidigital.com.br">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M12 6a3.939 3.939 0 0 0-3.934 3.934h2C10.066 8.867 10.934 8 12 8s1.934.867 1.934 1.934c0 .598-.481 1.032-1.216 1.626a9.208 9.208 0 0 0-.691.599c-.998.997-1.027 2.056-1.027 2.174V15h2l-.001-.633c.001-.016.033-.386.441-.793.15-.15.339-.3.535-.458.779-.631 1.958-1.584 1.958-3.182A3.937 3.937 0 0 0 12 6zm-1 10h2v2h-2z"></path><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path></svg>
@@ -287,7 +389,8 @@
         }
         .sidebar .nav-links
         {
-            overflow-y: scroll;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
         }
         .sidebar.close .nav-links::before
         {
@@ -330,7 +433,7 @@
 
     <nav class="sidebar close">
         <ul class="nav-links">
-            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?>">
+            <li class="<?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?> <?php activeSidebarLink(''); ?> <?php activeSidebarLink('painel'); ?>">
                 <div class="iocn-link">
                     <p>
                         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">
@@ -343,7 +446,20 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">Dashboard</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('lojas'); ?> <?php activeSidebarLink('ver-loja'); ?>">
+            <li class="<?php activeSidebarLink('personalizar'); ?>" <?php verificaPermissaoMenu($permissions); ?>>
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>personalizar">
+                            <i class='bx bx-layout'></i>
+                        </a>
+                        <span class="link_name">Personalizar</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>personalizar">Personalizar</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('lojas'); ?> <?php activeSidebarLink('ver-loja'); ?>" <?php verificaPermissaoMenu($permissions); ?>>
                 <div class="iocn-link">
                     <p>
                         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lojas">
@@ -356,7 +472,20 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>lojas">Lojas</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('dominios'); ?> <?php activeSidebarLink('dominios-proprios'); ?> <?php showSidebarLinks('dominios'); ?> <?php showSidebarLinks('dominios-proprios'); ?>">
+            <li class="<?php activeSidebarLink('imagem-painel'); ?> <?php activeSidebarLink('imagem-painel'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>imagem-painel">
+                            <i class='bx bx-image'></i>
+                        </a>
+                        <span class="link_name">Imagem Painel</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>imagem-painel">Imagem Painel</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('dominios'); ?> <?php activeSidebarLink('dominios-proprios'); ?> <?php showSidebarLinks('dominios'); ?> <?php showSidebarLinks('dominios-proprios'); ?>" <?php verificaPermissaoMenu($permissions); ?>>
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios" class="sidebar_link">
@@ -370,6 +499,106 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios">Domínios</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios" class="<?php activeSidebarLink('dominios'); ?>">Domínios</a></li>
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>dominios-proprios" class="<?php activeSidebarLink('dominios-proprios'); ?>">Domínios Próprios</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('site-catalogo'); ?> <?php activeSidebarLink('site-catalogo'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>site-catalogo">
+                            <i class='bx bx-customize'></i>
+                        </a>
+                        <span class="link_name">Site Catálogo</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>site-catalogo">Site Catálogo</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('paginas'); ?> <?php activeSidebarLink('paginas'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas">
+                            <i class='bx bx-file-blank'></i>
+                        </a>
+                        <span class="link_name">Páginas</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas">Páginas</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('sugestoes-melhorias'); ?> <?php activeSidebarLink('ver-sugestao-melhoria'); ?> <?php activeSidebarLink('sugestoes-melhorias'); ?> <?php activeSidebarLink('ver-sugestao-melhoria'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sugestoes-melhorias">
+                            <i class='bx bx-message-square-add' ></i>
+                        </a>
+                        <span class="link_name">Melhorias</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sugestoes-melhorias">Melhorias</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('novidades'); ?> <?php activeSidebarLink('novidades'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>novidades">
+                            <i class='bx bx-bulb' ></i>
+                        </a>
+                        <span class="link_name">Novidades</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>novidades">Novidades</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('criar-site-pronto'); ?> <?php activeSidebarLink('editar-site-pronto'); ?> <?php activeSidebarLink('relatorio-sites-prontos'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('editar-site-pronto'); ?> <?php showSidebarLinks('criar-site-pronto'); ?> <?php showSidebarLinks('relatorio-sites-prontos'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos" class="sidebar_link">
+                                <i class='bx bx-windows'></i>
+                            </a>
+                            <span class="link_name">Sites Prontos</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos">Sites Prontos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos" class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('criar-site-pronto'); ?> <?php activeSidebarLink('editar-site-pronto'); ?>">Sites Prontos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>relatorio-sites-prontos" class="<?php activeSidebarLink('relatorio-sites-prontos'); ?>">Relatórios</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('criar-servico'); ?> <?php activeSidebarLink('editar-servico'); ?> <?php activeSidebarLink('relatorio-servicos'); ?> <?php showSidebarLinks('servicos'); ?> <?php showSidebarLinks('criar-servico'); ?> <?php showSidebarLinks('editar-servico'); ?> <?php showSidebarLinks('relatorio-servicos'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="sidebar_link">
+                                <i class='bx bx-wrench' ></i>
+                            </a>
+                            <span class="link_name">Serviços</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Serviços</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="<?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('criar-servico'); ?> <?php activeSidebarLink('editar-servico'); ?>">Serviços</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>relatorio-servicos" class="<?php activeSidebarLink('relatorio-servicos'); ?>">Relatórios</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="sidebar_link">
+                                <i class='bx bx-desktop' ></i>
+                            </a>
+                            <span class="link_name">Blog</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos">Blog</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('editar-artigo'); ?>">Listar Artigos</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">+ Criar Artigo</a></li>
                 </ul>
             </li>
             <div class="sidebar_bottom">
@@ -403,30 +632,73 @@
 		</ul>
     </nav>
     <?php
-            echo "";
         }
         else
         {
-            echo "";
     ?>
     <div class="tutorial__bg__"></div>
     <header class="l-header painel">
         <nav class="nav bd-grid">
             <div class="left">
-                <div class="toggle" onclick="toggle()">
+                <div class="toggle">
                     <i class='bx bx-menu' id="mobileBtn"></i>
                 </div>
-                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo">
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="nav__logo <?= (in_array($url, ['amazon', 'aliexpress'])) ? "me-2" : ""; ?>">
                     <img class="logo" src="" alt="Logo" id="logo">
                 </a>
-                <form action="" class="search__form">
+                <?php if ($url == 'amazon'): ?>
+                    <span style="margin-right: 100px;">
+                        |
+                        <img class="ms-2" alt="Current logo (2024–)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Amazon_2024.svg/120px-Amazon_2024.svg.png" decoding="async" class="mw-file-element" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Amazon_2024.svg/250px-Amazon_2024.svg.png 1.5x" data-file-width="1507" data-file-height="505" style="height: 6mm;">
+                    </span>
+                <?php endif; ?>
+                <?php if ($url == 'aliexpress'): ?>
+                    <span style="margin-right: 100px;">
+                        |
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ms-2" height="6mm" viewBox="0 0 57.573334 13.387917" version="1.1">
+                            <style type="text/css">
+                                .st0{fill:#E43225;}
+                                .st1{fill:#F7971D;}
+                            </style>
+                            <g transform="translate(-76.290715,-142.89532)">
+                                <g transform="matrix(0.26458333,0,0,0.26458333,38.931549,83.337617)">
+                                    <g>
+                                        <path class="st0" d="m 195.5,262.8 v -33.5 h 19.8 v 4.2 h -15.7 v 10.3 h 14.1 v 4.2 h -14.1 v 10.5 h 16.8 v 4.2 h -20.9 z"/>
+                                        <path class="st0" d="m 237.2,262.8 -6.8,-8.9 -6.8,8.9 h -4.8 l 9.3,-11.9 -9.8,-12.3 h 5.4 l 6.7,9.2 6.8,-9.2 h 5.3 l -9.3,12.3 8.8,11.9 z"/>
+                                        <path class="st0" d="m 248.6,259.2 v 16.5 h -4.1 V 251 c 0,-6.3 4.8,-13 12.3,-13 7.6,0 13.3,4.8 13.3,12.7 0,7.7 -5.8,13 -12.4,13 -3.2,0 -7.5,-1.4 -9.1,-4.5 z m 17.2,-8.5 c 0,-5.4 -3.5,-8.6 -9.7,-8.3 -3,0.1 -7.6,2.3 -7.2,10 0.1,2.5 2.7,7.2 8.4,7.2 4.9,0 8.5,-2.8 8.5,-8.9 z"/>
+                                        <path class="st0" d="m 273.6,262.8 v -24.2 h 4.1 v 2.6 c 2,-2.3 5.1,-3.1 8.4,-3.1 v 4.4 c -0.5,-0.1 -5.4,-0.7 -8.4,5.7 v 14.7 h -4.1 z"/>
+                                        <path class="st0" d="m 287.2,250.7 c 0,-7 5,-12.7 11.9,-12.7 8.6,0 11.8,5.7 11.8,13 v 2 h -19.2 c 0.3,4.6 4.4,7 8.2,6.9 2.8,-0.1 4.7,-0.9 6.7,-2.9 l 2.7,2.8 c -2.5,2.4 -5.7,4 -9.6,4 -7.3,-0.1 -12.5,-5.5 -12.5,-13.1 z m 11.6,-8.6 c -3.9,0 -6.9,3.4 -7.1,7.1 h 14.9 c 0,-3.6 -2.6,-7.1 -7.8,-7.1 z"/>
+                                        <path class="st0" d="m 313,259.4 c 0,0 3,-2.7 3,-2.7 -0.1,0 1.5,1.6 1.7,1.7 0.7,0.6 1.4,1 2.3,1.2 2.6,0.7 7.3,0.5 7.7,-3.1 0.2,-2 -1.3,-3.1 -3,-3.8 -2.2,-0.8 -4.6,-1.1 -6.8,-2.1 -2.5,-1.1 -4.1,-3 -4.1,-5.8 0,-7.3 10.4,-8.5 15.1,-5.1 0.2,0.2 2.5,2.3 2.4,2.3 l -3,2.4 c -1.5,-1.8 -2.9,-2.7 -6.1,-2.7 -1.6,0 -3.8,0.7 -4.2,2.4 -0.6,2.4 2.1,3.3 3.9,3.8 2.4,0.6 5,1 7.1,2.3 2.9,1.8 3.6,5.7 2.5,8.7 -1.2,3.3 -4.8,4.6 -8,4.7 -3.8,0.2 -7.1,-1 -9.8,-3.7 -0.2,0 -0.7,-0.5 -0.7,-0.5 z"/>
+                                        <path class="st0" d="m 334.1,259.4 c 0,0 3,-2.7 3,-2.7 -0.1,0 1.5,1.6 1.7,1.7 0.7,0.6 1.4,1 2.3,1.2 2.6,0.7 7.3,0.5 7.7,-3.1 0.2,-2 -1.3,-3.1 -3,-3.8 -2.2,-0.8 -4.6,-1.1 -6.8,-2.1 -2.5,-1.1 -4.1,-3 -4.1,-5.8 0,-7.3 10.4,-8.5 15.1,-5.1 0.2,0.2 2.5,2.3 2.4,2.3 l -3,2.4 c -1.5,-1.8 -2.9,-2.7 -6.1,-2.7 -1.6,0 -3.8,0.7 -4.2,2.4 -0.6,2.4 2.1,3.3 3.9,3.8 2.4,0.6 5,1 7.1,2.3 2.9,1.8 3.6,5.7 2.5,8.7 -1.2,3.3 -4.8,4.6 -8,4.7 -3.8,0.2 -7.1,-1 -9.8,-3.7 -0.2,0 -0.7,-0.5 -0.7,-0.5 z"/>
+                                        <g>
+                                        <path class="st0" d="M 353.6,238.6 V 236 h -0.9 v -0.5 h 2.4 v 0.5 h -0.9 v 2.6 z"/>
+                                        <path class="st0" d="m 358.1,238.6 v -2.4 l -0.9,2.4 H 357 l -0.9,-2.4 v 2.4 h -0.5 v -3.1 h 0.8 l 0.8,2.1 0.8,-2.1 h 0.8 v 3.1 z"/>
+                                        </g>
+                                    </g>
+                                    <g>
+                                        <path class="st1" d="m 167.7,262.8 -3,-8 h -16.2 l -3,8 h -4.3 l 13,-33.5 h 4.7 l 12.9,33.5 z m -11.3,-28.7 -6.1,16.6 H 163 Z"/>
+                                        <path class="st1" d="m 174.5,262.8 v -33.5 h 4.2 v 33.5 z"/>
+                                        <path class="st1" d="m 185,262.8 v -23.7 h 4.2 v 23.7 z"/>
+                                        <path class="st1" d="m 193.2,231.4 c 0,-0.1 0,-0.1 0,-0.2 0,-0.1 0,-0.1 0,-0.2 -3.2,-0.1 -5.8,-2.7 -5.9,-5.9 -0.1,0 -0.2,0 -0.3,0 -0.1,0 -0.2,0 -0.3,0 -0.1,3.2 -2.7,5.8 -5.9,5.9 0,0.1 0,0.1 0,0.2 0,0.1 0,0.1 0,0.2 3.2,0.1 5.8,2.7 5.9,5.9 0.1,0 0.2,0 0.3,0 0.1,0 0.2,0 0.3,0 0.1,-3.2 2.7,-5.8 5.9,-5.9 z"/>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+                    </span>
+                <?php endif; ?>
+                <form class="search__form">
                     <div class="search__container">
                         <input type="text" name="search" id="search" class="search" placeholder="Buscar produto..." title="Buscar produto..." autocomplete="off">
-                        <button type="button" class="button">
+                        <button type="button" class="button" id="buttonSearch">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path></svg>
                         </button>
                     </div>
                 </form>
+                <?php if (isset($route) && $route['url'] == $url) { ?>
+                <button type="button" class="border-0 bg-transparent ms-3 <?php echo ($route['video_location'] != 1) ? "d-none" : ""; ?>" data-bs-toggle="modal" data-bs-target="#tutorialVideoModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M21.593 7.203a2.506 2.506 0 0 0-1.762-1.766C18.265 5.007 12 5 12 5s-6.264-.007-7.831.404a2.56 2.56 0 0 0-1.766 1.778c-.413 1.566-.417 4.814-.417 4.814s-.004 3.264.406 4.814c.23.857.905 1.534 1.763 1.765 1.582.43 7.83.437 7.83.437s6.265.007 7.831-.403a2.515 2.515 0 0 0 1.767-1.763c.414-1.565.417-4.812.417-4.812s.02-3.265-.407-4.831zM9.996 15.005l.005-6 5.207 3.005-5.212 2.995z"></path></svg>
+                </button>
+                <?php } ?>
             </div>
             <div class="right">
                 <div class="header__icon shop-link">
@@ -454,11 +726,16 @@
                         }
 
                         $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
-                        $domain_url = "https://" . $subdomain . $domain['domain'];
+                        $domain_url = "https://www." . $subdomain . $domain['domain'];
                     ?>
                     <a href="<?php echo $domain_url; ?>" target="_blank" class="text-dark text-decoration-none fs-6 fw-semibold">
-                        Ver a loja
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="ms-1" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
+                        <span class="me-1">Ver o site</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="m13 3 3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"></path><path d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"></path></svg>
+                    </a>
+                </div>
+                <div class="header__icon help">
+                    <a href="<?= INCLUDE_PATH_DASHBOARD; ?>politica-privacidade">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13.707 2.293A.996.996 0 0 0 13 2H6c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V9a.996.996 0 0 0-.293-.707l-6-6zM6 4h6.586L18 9.414l.002 9.174-2.568-2.568c.35-.595.566-1.281.566-2.02 0-2.206-1.794-4-4-4s-4 1.794-4 4 1.794 4 4 4c.739 0 1.425-.216 2.02-.566L16.586 20H6V4zm6 12c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2z"></path></svg>
                     </a>
                 </div>
                 <div class="header__icon help">
@@ -561,10 +838,43 @@
                         </div>
                         <div class="shop">
                             <h5 class="fs-5 mb-1">Loja</h5>
+                            <?php
+                                // Tabela que será feita a consulta
+                                $tabela = "tb_shop";
+
+                                // Consulta SQL
+                                $sql = "SELECT id, name FROM $tabela WHERE user_id = :user_id ORDER BY (id = :shop_id) DESC";
+
+                                // Preparar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+
+                                // Vincular o valor do parâmetro
+                                $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                                $stmt->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);
+
+                                // Executar a consulta
+                                $stmt->execute();
+
+                                // Contar o numero de contas
+                                $countShops = $stmt->rowCount();
+
+                                // Obter todos os resultados como um array associativo
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            ?>
+
                             <ul class="mb-0">
-                                <li class="small active">Loja 1</li>
-                                <li class="small">Loja 2</li>
+                                <?php foreach ($resultados as $loja): ?>
+                                    <li class="small <?php echo $loja['id'] == $id ? 'active' : ''; ?>">
+                                        <a href="<?= INCLUDE_PATH_DASHBOARD; ?>alterar-loja?id=<?= $loja['id']; ?>" class="text-body text-decoration-none">
+                                            <?php echo $loja['name']; ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
                             </ul>
+                        </div>
+                        <div class="improvement small" data-bs-toggle="offcanvas" data-bs-target="#improvementOffcanvas" aria-controls="improvementOffcanvasExample">
+                            <i class='bx bx-bulb'></i>
+                            <p>Enviar uma Melhoria</p>
                         </div>
                         <div class="account">
                             <h5 class="fs-5 mb-1">Minha Conta</h5>
@@ -574,9 +884,20 @@
                                         Editar Conta
                                     </a>
                                 </li>
+                                <?php
+                                    if ($countShops < 5) {
+                                        $href = "href='" . INCLUDE_PATH_DASHBOARD . "criar-nova-loja'";
+                                        $css = "";
+                                        $i = "";
+                                    } else {
+                                        $href = "";
+                                        $css = 'class="text-body-secondary text-decoration-none"';
+                                        $i = '<i class="bx bx-help-circle" data-toggle="tooltip" data-placement="top" aria-label="Sua conta chegou no limite máximo de sites" data-bs-original-title="Sua conta chegou no limite máximo de sites"></i>';
+                                    }
+                                ?>
                                 <li class="small">
-                                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-loja">
-                                        Criar Loja
+                                    <a <?= $href; ?> <?= $css; ?>>
+                                        Criar Site <?= $i; ?>
                                     </a>
                                 </li>
                                 <li class="small">
@@ -592,9 +913,9 @@
                     if(isset($_SESSION['admin_id'])){
                 ?>
                     <div class="back">
-                        <a class="btn btn-success rounded-1 fw-semibold px-4 py-2 small d-flex align-items-center" href="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/admin/return.php" ?>">
-                            Voltar
-                            <i class='bx bx-log-in fs-5 ms-1' ></i>
+                        <a class="back-link btn btn-success rounded-1 fw-semibold px-4 py-2 small d-flex align-items-center" href="<?php echo INCLUDE_PATH_DASHBOARD . "back-end/admin/return.php" ?>">
+                            <span class="me-1">Voltar</span>
+                            <i class='bx bx-log-in fs-5' ></i>
                         </a>
                     </div>
                 <?php
@@ -617,7 +938,8 @@
         }
         .sidebar .nav-links
         {
-            overflow-y: scroll;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
         }
         .sidebar.close .nav-links::before
         {
@@ -716,7 +1038,7 @@
                 <div class="iocn-link">
                         <p>
                             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>planos" class="sidebar_link">
-                                <i class='bx bx-dollar-circle' ></i>
+                                <i class='bx bx-wallet' ></i>
                             </a>
                             <span class="link_name">Financeiro</span>
                         </p>
@@ -774,6 +1096,19 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>atendimento">Atendimento</a></li>
                 </ul>
             </li>
+            <li class="<?php activeSidebarLink('indique-e-ganhe'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>indique-e-ganhe">
+                            <i class='bx bx-dollar-circle' ></i>
+                        </a>
+                        <span class="link_name">Indique e Ganhe</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>indique-e-ganhe">Indique e Ganhe</a></li>
+                </ul>
+            </li>
             <li class="<?php activeSidebarLink('redes-sociais'); ?>">
                 <div class="iocn-link">
                     <p>
@@ -787,17 +1122,68 @@
                     <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais">Redes Sociais</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('servicos'); ?>">
+            <li class="<?php activeSidebarLink('kiwify'); ?> <?php activeSidebarLink('clickbank'); ?> <?php activeSidebarLink('digistore24'); ?> <?php activeSidebarLink('hotmart'); ?> <?php activeSidebarLink('amazon'); ?> <?php activeSidebarLink('aliexpress'); ?> <?php showSidebarLinks('kiwify'); ?> <?php showSidebarLinks('clickbank'); ?> <?php showSidebarLinks('digistore24'); ?> <?php showSidebarLinks('hotmart'); ?> <?php showSidebarLinks('amazon'); ?> <?php showSidebarLinks('aliexpress'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>kiwify" class="sidebar_link">
+                                <i class='bx bx-cube' ></i>
+                            </a>
+                            <span class="link_name">Integrações</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>kiwify">Integrações</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>kiwify" class="<?php activeSidebarLink('kiwify'); ?>">Kiwify</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>clickbank" class="<?php activeSidebarLink('clickbank'); ?>">ClickBank</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>digistore24" class="<?php activeSidebarLink('digistore24'); ?>">Digistore24</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>hotmart" class="<?php activeSidebarLink('hotmart'); ?>">Hotmart</a></li>
+                    <?php if (in_array($shop_id, [2, 25, 61])): ?>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>amazon" class="<?php activeSidebarLink('amazon'); ?>">Amazon</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>aliexpress" class="<?php activeSidebarLink('aliexpress'); ?>">AliExpress</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('importacao-produtos'); ?>">
                 <div class="iocn-link">
                     <p>
-                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">
-                            <i class='bx bx-bulb' ></i>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>importacao-produtos">
+                            <i class='bx bx-archive-in' ></i>
                         </a>
-                        <span class="link_name">Serviços</span>
+                        <span class="link_name">Import. de Produtos</span>
                     </p>
                 </div>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Serviços</a></li>
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>importacao-produtos">Import. de Produtos</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('gerador-artigos'); ?>">
+                <div class="iocn-link">
+                    <p>
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>gerador-artigos">
+                            <i class='bx bx-receipt' ></i>
+                        </a>
+                        <span class="link_name">Gerar Artigos</span>
+                    </p>
+                </div>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>gerador-artigos">Gerar Artigos</a></li>
+                </ul>
+            </li>
+            <li class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?> <?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('servico'); ?> <?php showSidebarLinks('sites-prontos'); ?> <?php showSidebarLinks('site-pronto'); ?> <?php showSidebarLinks('servicos'); ?> <?php showSidebarLinks('servico'); ?>">
+                <div class="iocn-link">
+                        <p>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="sidebar_link">
+                                <i class='bx bx-bulb' ></i>
+                            </a>
+                            <span class="link_name">Soluções</span>
+                        </p>
+                    <i class='bx bxs-chevron-down arrow' ></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos">Soluções</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>servicos" class="<?php activeSidebarLink('servicos'); ?> <?php activeSidebarLink('servico'); ?>">Serviços</a></li>
+                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>sites-prontos" class="<?php activeSidebarLink('sites-prontos'); ?> <?php activeSidebarLink('site-pronto'); ?>">Sites Prontos</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('artigos'); ?> <?php activeSidebarLink('criar-artigo'); ?> <?php activeSidebarLink('editar-artigo'); ?> <?php showSidebarLinks('artigos'); ?> <?php showSidebarLinks('criar-artigo'); ?> <?php showSidebarLinks('editar-artigo'); ?>">
@@ -816,19 +1202,18 @@
                     <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-artigo" class="<?php activeSidebarLink('criar-artigo'); ?>">+ Criar Artigo</a></li>
                 </ul>
             </li>
-            <li class="<?php activeSidebarLink('newsletter'); ?> <?php showSidebarLinks('newsletter'); ?>">
+            <li class="<?php activeSidebarLink('grupo-whatsapp'); ?> <?php showSidebarLinks('grupo-whatsapp'); ?>">
                 <div class="iocn-link">
                         <p>
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter" class="sidebar_link">
-                                <i class='bx bx-envelope-open' ></i>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>grupo-whatsapp" class="sidebar_link">
+                                <i class='bx bxl-whatsapp' ></i>
                             </a>
-                            <span class="link_name">Newsletter</span>
+                            <span class="link_name">Grupo WhatsApp</span>
                         </p>
                     <i class='bx bxs-chevron-down arrow' ></i>
                 </div>
-                <ul class="sub-menu">
-                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter">Newsletter</a></li>
-                    <li><a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>newsletter" class="<?php activeSidebarLink('newsletter'); ?>">E-mails Cadastrados</a></li>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="<?php echo INCLUDE_PATH_DASHBOARD; ?>grupo-whatsapp">Grupo WhatsApp</a></li>
                 </ul>
             </li>
             <li class="<?php activeSidebarLink('influenciadores'); ?>">
@@ -888,8 +1273,64 @@
 			</div>
 		</ul>
     </nav>
-    <?php 
-            echo ""; 
+
+    <style>
+        @media screen and (max-width: 768px) {
+            .mobile-nav
+            {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                height: 3.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                border: 1px solid var(--border-color);
+                background: var(--card-color);
+                z-index: 9;
+            }
+            .mobile-nav .mobile-itens
+            {
+                font-size: 1.5rem;
+                color: black;
+                text-decoration: none;
+            }
+            .mobile-nav .create-shop
+            {
+                width: 45px;
+                height: 45px;
+                color: white;
+                background: var(--green-color);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                bottom: 25px;
+            }
+        }
+    </style>
+
+    <div class="mobile-nav">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>" class="mobile-itens">
+            <i class='bx bx-grid-alt' ></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="mobile-itens">
+            <i class='bx bx-package' ></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>criar-produto" class="mobile-itens create-shop">
+            <i class='bx bx-plus'></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>ajuda" class="mobile-itens">
+            <i class='bx bx-help-circle' ></i>
+        </a>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="mobile-itens">
+            <i class='bx bx-cog' ></i>
+        </a>
+    </div>
+
+    <?php
         }
     ?>
 
@@ -925,6 +1366,735 @@
             </div>
         </div>
 
+<!-- Modal de Histórico de Melhorias Enviadas -->
+<div class="modal fade" id="improvementHistoryModal" tabindex="-1" role="dialog" aria-labelledby="improvementHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Histórico de melhorias
+                </div>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="improvementHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Melhoria</th>
+                                <th>Situação</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                // Nome da tabela para a busca
+                                $tabela = 'tb_improvement';
+
+                                // Preparar a consulta com base na pesquisa (se houver)
+                                $sql = "SELECT * FROM $tabela WHERE author = :author";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindParam(':author', $user_id);
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                // Loop através dos resultados e exibir todas as colunas
+                                if ($resultados) {
+                                    foreach ($resultados as $improvement) {
+                                        if ($improvement['status'] == 2) {
+                                            $improvement['status'] = "Finalizado";
+                                        } elseif ($improvement['status'] == 1) {
+                                            $improvement['status'] = "Em desenvolvimento";
+                                        } elseif ($improvement['status'] == 0) {
+                                            $improvement['status'] = "Em análise";
+                                        } else {
+                                            $improvement['status'] = "Recusado";
+                                        }
+
+                                        $formattedDateCreate = DateTime::createFromFormat('Y-m-d H:i:s', $improvement['date_create']);
+                                        $improvement['date_create'] = $formattedDateCreate->format('d/m/Y H:i');
+                            ?>
+                                <tr>
+                                    <td class='w-100'><?= $improvement['title']; ?></td>
+                                    <td><?= $improvement['status']; ?></td>
+                                    <td><?= $improvement['date_create']; ?></td>
+                                </tr>
+                            <?php
+                                    }
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer d-flex align-items-center justify-content-end fw-semibold px-4">
+                <button type="button" class="btn btn-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Denunciar melhoria -->
+<div class="modal fade" id="reportImprovement" tabindex="-1" aria-labelledby="reportImprovementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="reportImprovementForm" method="post">
+                <div class="modal-header px-4 pb-3 pt-4 border-0">
+                    <h6 class="modal-title fs-6" id="reportImprovementModalLabel">Denunciar Melhoria</h6>
+                </div>
+                <div class="modal-body px-4 pb-3 pt-0">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="already_solved" id="already_solved">
+                        <label class="form-check-label" for="already_solved">
+                            Já Resolvido
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="inappropriate_content" id="inappropriate_content">
+                        <label class="form-check-label" for="inappropriate_content">
+                            Conteúdo Impróprio
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="spam" id="spam">
+                        <label class="form-check-label" for="spam">
+                            Spam
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="incorrect_information" id="incorrect_information">
+                        <label class="form-check-label" for="incorrect_information">
+                            Informação Incorreta
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="report" value="other" id="other">
+                        <label class="form-check-label" for="other">
+                            Outro
+                        </label>
+                    </div>
+                    <div class="form-group mt-2" id="other_description_div" style="display: none;">
+                        <input type="text" class="form-control" name="other_description" id="other_description" maxlength="150" placeholder="Descreva a denúncia">
+                    </div>
+                </div>
+                <input type="hidden" name="improvement_id" id="improvement_id">
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Enviar Denúncia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    #preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .preview-image {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-image button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 30px;
+        height: 30px;
+        border: 1px solid #c4c4c4;
+        border-radius: 0.3rem;
+        background: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: .3s;
+    }
+
+    .preview-image button::before {
+        -webkit-text-stroke: 2px #f4f6f8;
+        align-items: center;
+        border-radius: 8px;
+        color: #666;
+        content: "\f00d";
+        display: flex;
+        font-family: Font Awesome\ 5 Free;
+        font-size: 22px;
+        font-weight: 700;
+        height: 32px;
+        justify-content: center;
+    }
+</style>
+
+<!-- Enviar melhoria -->
+<div class="modal fade" id="sendImprovement" tabindex="-1" aria-labelledby="sendImprovementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="improvementForm" method="post" enctype="multipart/form-data">
+                <div class="modal-header px-4 pb-3 pt-4 border-0">
+                    <h6 class="modal-title fs-6" id="sendImprovementModalLabel">Enviar Melhoria</h6>
+                </div>
+                <div class="modal-body px-4 pb-3 pt-0">
+                    <div class="alert-container" id="error-improvement"></div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label small">Título *</label>
+                        <input type="text" class="form-control" name="title" id="title" aria-describedby="titleHelp" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <label for="description" class="form-label small">Descrição da melhoria *</label>
+                            <small id="descriptionCounter" class="form-text text-muted">0 de 1000 caracteres</small>
+                        </div>
+                        <textarea class="form-control mb-2" name="description" id="description" maxlength="1000" rows="3" required></textarea>
+                        <div class="row">
+                            <div class="col-md-2 mb-3">
+                                <label for="images" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold d-flex align-items-center justify-content-center px-3 py-1 small">
+                                    <i class='bx bx-paperclip me-2' ></i>
+                                    Anexar
+                                </label>
+                                <input type="file" class="d-none" id="images" name="images[]" multiple accept="image/*">
+                            </div>
+                            <div class="col-md-10 d-flex justify-content-end">
+                                <div id="preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label small">Tags <span class="text-secondary small">(Máx. 3)</span></label>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="suggestion" id="suggestion">
+                                <label class="form-check-label" for="suggestion">Sugestão</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="development" id="development">
+                                <label class="form-check-label" for="development">Desenvolvimento</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="error" id="error">
+                                <label class="form-check-label" for="error">Erro</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="404" id="404">
+                                <label class="form-check-label" for="404">404</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="modify" id="modify">
+                                <label class="form-check-label" for="modify">Modificar</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-limit" type="checkbox" name="tags[]" value="integration" id="integration">
+                                <label class="form-check-label" for="integration">Integração</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Enviar Melhoria</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Description Counter -->
+<script>
+    $(document).ready(function() {
+        $('#description').on('input', function() {
+            var currentText = $(this).val();
+            var currentLength = currentText.length;
+            var maxLength = parseInt($(this).attr('maxlength'));
+            $('#descriptionCounter').text(currentLength + ' de ' + maxLength + ' caracteres');
+        });
+    });
+</script>
+
+<!-- Image Preview -->
+<script>
+    $(document).ready(function() {
+        const dataTransfer = new DataTransfer();
+        
+        $('#images').on('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            
+            // Verifica se o total de arquivos é maior que 5
+            if (dataTransfer.files.length + files.length > 5) {
+                alert('Você pode enviar no máximo 5 imagens.');
+                $(event.target).val(''); // Reseta o input de arquivos
+                return;
+            }
+
+            Array.from(files).forEach((file) => {
+                dataTransfer.items.add(file);
+            });
+
+            updatePreview();
+            updateInputFiles();
+        }
+
+        function updatePreview() {
+            const $previewContainer = $('#preview');
+            $previewContainer.empty(); // Limpa o preview antes de adicionar novos arquivos
+
+            Array.from(dataTransfer.files).forEach((file) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const $previewImage = $('<div class="preview-image"></div>');
+                    const $img = $('<img>').attr('src', e.target.result);
+                    const $removeBtn = $('<button class="remove-btn"></button>');
+
+                    $removeBtn.on('click', function() {
+                        removeFile(file);
+                    });
+
+                    $previewImage.append($img).append($removeBtn);
+                    $previewContainer.append($previewImage);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateInputFiles() {
+            const $input = $('#images');
+            $input[0].files = dataTransfer.files;
+        }
+
+        function removeFile(fileToRemove) {
+            const items = Array.from(dataTransfer.items);
+            dataTransfer.items.clear();
+            
+            items.forEach((item) => {
+                if (item.getAsFile() !== fileToRemove) {
+                    dataTransfer.items.add(item.getAsFile());
+                }
+            });
+
+            updatePreview();
+            updateInputFiles();
+        }
+    });
+</script>
+
+<!-- Checkbox max. 3 itens -->
+<script>
+    $('input.checkbox-limit').on('change', function(evt) {
+        if ($('input.checkbox-limit:checked').length > 3) {
+            this.checked = false;
+        }
+    });
+</script>
+
+<!-- Form Ajax -->
+<script>
+    $(document).ready(function() {
+        // AJAX form submission
+        $('#improvementForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            let formData = new FormData(this);
+            
+            $.ajax({
+                url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/add_improvement.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    let res = JSON.parse(response);
+                    if (res.status === 'success') {
+                        location.reload();
+                    } else {
+                        // Exibir a mensagem de erro
+                        var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                            + res.message +
+                                            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                            '</div>';
+                        $('#error-improvement').html(errorMessage);
+                    }
+                },
+                error: function() {
+                    // Exibir a mensagem de erro
+                    var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                        + res.message +
+                                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                        '</div>';
+                    $('#error-improvement').html(errorMessage);
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    #improvementOffcanvas .dropdown-toggle::after
+    {
+        display: none;
+    }
+
+    #improvementOffcanvas .dropdown-item.active,
+    #improvementOffcanvas .dropdown-item:active
+    {
+        color: #212529 !important;
+        background-color: #f8f9fa !important;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button
+    {
+        border: none;
+        color: #6c757d !important;
+        background-color: transparent;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button:hover,
+    #improvementOffcanvas .nav.nav-tabs button.active
+    {
+        color: inherit !important;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button.active
+    {
+        position: relative;
+        font-weight: 500;
+    }
+
+    #improvementOffcanvas .nav.nav-tabs button.active::before
+    {
+        content: "";
+        width: 100%;
+        height: 2px;
+        background: #000;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+    }
+</style>
+
+<!-- Offcanvas enviar melhorias -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="improvementOffcanvas" aria-labelledby="improvementOffcanvasLabel">
+    <div class="offcanvas-header bg-success-subtle p-4">
+        <h5 class="offcanvas-title" id="improvementOffcanvasLabel">Dropi Digital</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <nav class="bg-success-subtle border-bottom border-success-subtle px-4">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="improvement-tab" data-bs-toggle="tab" data-bs-target="#improvement" type="button" role="tab" aria-controls="improvement" aria-selected="true">Sugestões de Melhorias</button>
+            <button class="nav-link" id="news-tab" data-bs-toggle="tab" data-bs-target="#news" type="button" role="tab" aria-controls="news" aria-selected="false" disabled>Novidades</button>
+        </div>
+    </nav>
+    <div class="offcanvas-body p-0">
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="improvement" role="tabpanel" aria-labelledby="improvement-tab" tabindex="0">
+                <div class="d-flex justify-content-end px-3 py-2">
+                    <button type="button" class="btn btn-secondary d-flex align-items-center justify-content-center me-2" style="width: 34px;" data-bs-toggle="modal" data-bs-target="#improvementHistoryModal" data-toggle="tooltip" data-placement="top" title="Minhas Sugestões"><i class='bx bx-history'></i></button>
+                    <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-3 py-1 small" data-bs-toggle="modal" data-bs-target="#sendImprovement">+ Adicionar Melhoria</button>
+                </div>
+                <?php
+                    // Formatar nome
+                    function formatName($fullName) {
+                        // Divide o nome completo em partes
+                        $nameParts = explode(' ', $fullName);
+
+                        // Se houver mais de um nome (nome e sobrenome)
+                        if (count($nameParts) > 1) {
+                            // Obter o primeiro nome
+                            $firstName = $nameParts[0];
+                            
+                            // Obter o primeiro sobrenome
+                            $lastName = $nameParts[1];
+
+                            // Formatar o nome
+                            return $firstName . ' ' . strtoupper($lastName[0]) . '.';
+                        }
+
+                        // Se não houver sobrenome, apenas retorne o nome
+                        return $fullName;
+                    }
+
+                    // Limit text
+                    function limitarPalavras($texto, $limite) {
+                        // Quebrar o texto em palavras
+                        $palavras = explode(' ', $texto);
+                    
+                        // Contar o número de palavras
+                        $numPalavras = count($palavras);
+                    
+                        // Se o número de palavras for maior que o limite, cortar o texto
+                        if ($numPalavras > $limite) {
+                            // Pegar apenas as palavras até o limite
+                            $palavras = array_slice($palavras, 0, $limite);
+                    
+                            // Juntar as palavras de volta em um texto
+                            $texto = implode(' ', $palavras) . '...'; // Adicionar reticências ou outro indicativo de truncamento
+                        }
+                    
+                        return $texto;
+                    }
+
+                    // Nome da tabela para a busca
+                    $tabelaImprovement = 'tb_improvement';
+                    $tabelaLikes = 'tb_improvement_likes';
+
+                    // Preparar a consulta com base na pesquisa (se houver)
+                    $sql = "SELECT i.*, COUNT(l.improvement_id) AS total_likes
+                            FROM $tabelaImprovement i
+                            LEFT JOIN $tabelaLikes l ON i.id = l.improvement_id
+                            WHERE i.status = 1
+                            GROUP BY i.id
+                            ORDER BY total_likes DESC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Loop através dos resultados e exibir todas as colunas
+                    if ($resultados) {
+                        foreach ($resultados as $improvement) {
+                            // Recuperar nome do autor
+                            $sql_author = "SELECT name FROM tb_users WHERE id = :id";
+                            $stmt_author = $conn_pdo->prepare($sql_author);
+                            $stmt_author->bindParam(':id', $improvement['author']);
+                            $stmt_author->execute();
+                            $improvement['author'] = formatName($stmt_author->fetch(PDO::FETCH_ASSOC)['name']);
+
+                            // Formatação da data
+                            $meses = [
+                                1 => 'janeiro', 2 => 'fevereiro', 3 => 'março', 4 => 'abril',
+                                5 => 'maio', 6 => 'junho', 7 => 'julho', 8 => 'agosto',
+                                9 => 'setembro', 10 => 'outubro', 11 => 'novembro', 12 => 'dezembro'
+                            ];
+                            $data = new DateTime($improvement['date_create']);
+                            $dia = $data->format('d');
+                            $mes = (int)$data->format('m');
+                            $ano = $data->format('Y');
+                            $mesPortugues = $meses[$mes];
+                            $improvement['date_create'] = sprintf('%d de %s de %d', $dia, $mesPortugues, $ano);
+
+                            // Tags
+                            // Array com os textos das tags em português
+                            $tagTranslations = array(
+                                'suggestion' => 'Sugestão',
+                                'development' => 'Desenvolvimento',
+                                'error' => 'Erro',
+                                '404' => '404',
+                                'modify' => 'Modificar',
+                                'integration' => 'Integração'
+                            );
+
+                            // Array com os dados do CSS para cada tipo de tag
+                            $tagColors = array(
+                                'suggestion' => 'text-warning-emphasis bg-warning-subtle border border-warning-subtle',
+                                'development' => 'text-danger-emphasis bg-danger-subtle border border-danger-subtle',
+                                'error' => 'text-primary-emphasis bg-primary-subtle border border-primary-subtle',
+                                '404' => 'text-success-emphasis bg-success-subtle border border-success-subtle',
+                                'modify' => 'text-secondary-emphasis bg-secondary-subtle border border-secondary-subtle',
+                                'integration' => 'text-info-emphasis bg-info-subtle border border-info-subtle'
+                            );
+
+                            // Decodificar o JSON para obter um array de tags
+                            $tagsArray = json_decode($improvement['tags']);
+
+                            // Limit text
+                            $improvement['description'] = strlen($improvement['description']) > 125 ? substr($improvement['description'], 0, 125) . '...' : $improvement['description'];
+                ?>
+                    <div class="improvement border-bottom px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5>#<?= $improvement['id']; ?> <?= $improvement['title']; ?></h5>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-light border border-secondary-subtle text-secondary d-flex align-items-center justify-content-center dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 30px;">
+                                    <i class='bx bx-dots-vertical-rounded'></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#reportImprovement" data-improvement="<?= $improvement['id']; ?>">
+                                            <i class='bx bx-flag'></i>
+                                            Denunciar
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="tags d-table mb-2">
+                            <?php
+                                if ($tagsArray) {
+                                    // Exibir as tags com seus textos em português
+                                    foreach ($tagsArray as $tag) {
+                                        if (isset($tagTranslations[$tag])) {
+                                            $tagName = $tagTranslations[$tag];
+                                            $tagClass = isset($tagColors[$tag]) ? $tagColors[$tag] : '';
+
+                                            // Exibir a tag usando as classes CSS correspondentes
+                                            echo '<small class="d-inline-flex me-1 px-2 py-0 fw-semibold ' . $tagClass . ' rounded-1">' . $tagName . '</small>';
+                                        }
+                                    }
+                                }
+                            ?>
+                        </div>
+                        <p class="text-secondary mb-2"><?= $improvement['description']; ?></p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <p class="small"><span class="fw-semibold">Por <?= $improvement['author']; ?></span> • <?= $improvement['date_create']; ?></p>
+                            <button type="button" class="like-btn btn btn-outline-light border border-secondary-subtle text-secondary d-flex align-items-center justify-content-center px-2 py-0" data-id="<?= $improvement['id']; ?>" data-value="<?= $improvement['total_likes']; ?>">
+                                <i class='bx <?= ($improvement['total_likes'] > 0) ? "bxs-like" : "bx-like"; ?> me-2'></i>
+                                <p class="number-likes small fw-semibold"><?= $improvement['total_likes']; ?></p>
+                            </button>
+                        </div>
+                    </div>
+                <?php
+                        }
+                    } else {
+                ?>
+                    <div class="px-4 py-3">
+                        <p class="text-center mb-2">Nenhuma melhoria cadastrada até agora, seja o primeiro!</p>
+                    </div>
+                <?php
+                    }
+                ?>
+            </div>
+            <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab" tabindex="0">
+                Novidades
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(".like-btn").click(function() {
+            var improvementId = $(this).data("id");
+            var improvementValue = $(this).data("value");
+            var shopId = <?php echo $shop_id; ?>;
+
+            // Armazenar a referência do elemento em uma variável para uso dentro do AJAX
+            var button = $(this);
+
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/improvement_like.php",
+                method: "POST",
+                data: {
+                    improvement_id: improvementId,
+                    shop_id: shopId
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === "success") {
+                        // Alternar entre os ícones de like e atualizar o contador de likes
+                        button.find("i").toggleClass("bx-like bxs-like");
+                        var totalLikes = improvementValue + 1;
+                        button.data("value", totalLikes);
+                        button.find(".number-likes").text(totalLikes);
+                    } else if (response.status === "removed") {
+                        // Alternar entre os ícones de like e atualizar o contador de likes
+                        button.find("i").toggleClass("bx-like bxs-like");
+                        var totalLikes = improvementValue - 1;
+                        button.data("value", totalLikes);
+                        button.find(".number-likes").text(totalLikes);
+                    } else {
+                        alert("Erro ao curtir a melhoria.");
+                    }
+                },
+                error: function() {
+                    alert("Erro na solicitação AJAX.");
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    // Script para capturar o ID da melhoria e passá-lo para o campo oculto no modal
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#reportImprovement').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Botão que acionou o modal
+            var improvementId = button.data('improvement'); // Extrair o valor do atributo data-improvement
+            var modal = $(this);
+            modal.find('#improvement_id').val(improvementId); // Definir o valor do campo oculto no modal
+
+            // Verificar o estado do radio "other" ao abrir o modal
+            var otherRadio = modal.find('#other');
+            var otherDescriptionDiv = modal.find('#other_description_div');
+            otherDescriptionDiv.hide().removeAttr('required');
+
+            // Adicionar evento de clique nos rádios para mostrar/esconder o campo de descrição
+            modal.find('input[name="report"]').on('change', function() {
+                if (otherRadio.is(':checked')) {
+                    otherDescriptionDiv.show().attr('required', true);
+                } else {
+                    otherDescriptionDiv.hide().removeAttr('required');
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        // AJAX form submission
+        $('#reportImprovementForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            let formData = new FormData(this);
+            
+            $.ajax({
+                url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/report_improvement.php',
+                type: 'POST',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.status === "success") {
+                        location.reload();
+                    } else {
+                        // Exibir a mensagem de erro
+                        var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                            + response.message +
+                                            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                            '</div>';
+                        $('#error-improvement').html("errorMessage");
+                    }
+                },
+                error: function() {
+                    // Exibir a mensagem de erro
+                    var errorMessage = '<div class="alert alert-danger alert-dismissible fade show py-2" role="alert">'
+                                        + response.message +
+                                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="height: 42px; padding: 0 1rem;"></button>' +
+                                        '</div>';
+                    $('#error-improvement').html("errorMessage");
+                }
+            });
+        });
+    });
+</script>
+
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -959,10 +2129,331 @@
   </div>
 </div>
 
+<!-- Modal de Chamada Para atualizar o perfil -->
+<div class="modal fade" id="callToUpdProfileModal" tabindex="-1" role="dialog" aria-labelledby="callToUpdProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 pb-3 pt-4 border-0">
+                <div class="fw-semibold py-2">Atualização de Perfil Necessária</div>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center justify-content-center px-4 py-3">
+                <div><i class='bx bx-error fs-1'></i></div>
+                <p class="fw-semibold">Você tem campos em branco.</p>
+                <p class="small">Clique no botão abaixo para inserir os campos vazios.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" id="closeCallToUpdProfileModal" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="btn btn-secondary fw-semibold px-4 py-2 small">Ir para Configurações</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+    if (isset($id) && $permissions == 0) {
+        if (empty($_SESSION['close_upd_modal'])) {
+            if (!isset($detailed_segment)) {
+                echo "
+                    <script>
+                        $(document).ready(function() {
+                            $('#callToUpdProfileModal').modal('show');
+                        });
+                    </script>
+                ";
+            }
+        }
+    }
+?>
+
+<script>
+    $(document).ready(function () {
+        function closeCallToUpdProfileModal() {
+            $.ajax({
+                url: "<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/close_upd_modal.php",
+                method: "POST",
+                dataType: "json"
+            });
+        }
+        
+        $("#closeCallToUpdProfileModal").click(function () {
+            closeCallToUpdProfileModal();
+        });
+    });
+</script>
+
+    <?php
+        if (isset($_SESSION['admin_id'])) {
+            // Tabela que sera feita a consulta
+            $tabela = "tb_warning";
+
+            // Consulta SQL
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND type = :type ORDER BY id DESC";
+
+            // Preparar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+
+            // Type 1 = "modal"
+            $type = 1;
+
+            // Vincular o valor do parâmetro
+            $stmt->bindParam(':shop_id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':type', $type, PDO::PARAM_INT);
+
+            // Executar a consulta
+            $stmt->execute();
+
+            // Obter o resultado como um array associativo
+            $warnings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Verificar se o resultado foi encontrado
+            foreach ($warnings as $warning) {
+    ?>
+        <style>
+            #warningModal .btn.btn-success
+            {
+                background: var(--green-color);
+                border: none;
+            }
+        </style>
+
+        <div class="modal fade" id="warningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="warningModalLabel">Aviso</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="fs-6 fw-semibold"><?= $warning['title']; ?></p>
+                        <span class="small"><?= nl2br(htmlspecialchars($warning['content'])); ?></span>
+                    </div>
+                    <div class="modal-footer fw-semibold px-4">
+                        <button type="button" class="btn btn-success d-flex align-items-center fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function(){
+                // Mostra o modal com id 'warningModal'
+                $("#warningModal").modal('show');
+            });
+        </script>
+    <?php
+            }
+        }
+    ?>
+
+    <?php
+        if (isset($_SESSION['admin_id'])) {
+            // Tabela que sera feita a consulta
+            $tabela = "tb_warning";
+
+            // Consulta SQL
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND type = :type ORDER BY id DESC";
+
+            // Preparar a consulta
+            $stmt = $conn_pdo->prepare($sql);
+
+            // Type 2 = "Texto"
+            $type = 2;
+
+            // Vincular o valor do parâmetro
+            $stmt->bindParam(':shop_id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':type', $type, PDO::PARAM_INT);
+
+            // Executar a consulta
+            $stmt->execute();
+
+            // Obter o resultado como um array associativo
+            $warnings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Verificar se o resultado foi encontrado
+            foreach ($warnings as $warning) {
+                if ($warning['level'] == 1) {
+                    $level = "info";
+                } elseif ($warning['level'] == 2) {
+                    $level = "warning";
+                } else {
+                    $level = "danger";
+                }
+    ?>
+        <style>
+            .bd-callout {
+                --bs-link-color-rgb: var(--bd-callout-link);
+                --bs-code-color: var(--bd-callout-code-color);
+                padding: 1.25rem;
+                color: var(--bd-callout-color, inherit);
+                background-color: var(--bd-callout-bg, var(--bs-gray-100));
+                border-left: 0.25rem solid var(--bd-callout-border, var(--bs-gray-300))
+            }
+
+            .bd-callout-info {
+                --bd-callout-color: var(--bs-info-text-emphasis);
+                --bd-callout-bg: var(--bs-info-bg-subtle);
+                --bd-callout-border: var(--bs-info-border-subtle);
+            }
+
+            .bd-callout-warning {
+                --bd-callout-color: var(--bs-warning-text-emphasis);
+                --bd-callout-bg: var(--bs-warning-bg-subtle);
+                --bd-callout-border: var(--bs-warning-border-subtle);
+            }
+
+            .bd-callout-danger {
+                --bd-callout-color: var(--bs-danger-text-emphasis);
+                --bd-callout-bg: var(--bs-danger-bg-subtle);
+                --bd-callout-border: var(--bs-danger-border-subtle);
+            }
+        </style>
+
+        <div class="bd-callout bd-callout-<?= $level; ?>">
+            <p class="fs-6 fw-semibold"><?= $warning['title']; ?></p>
+            <span class="small"><?= nl2br(htmlspecialchars($warning['content'])); ?></span>
+        </div>
+    <?php
+            }
+        }
+    ?>
+
+    <?php
+        if ($permissions == 0 && in_array($shop_id, [2, 25, 61])):
+
+        // ============================================
+        // PRODUTOS
+        // ============================================
+
+        // Total de produtos da loja
+        $stmtTotalProducts = $conn_pdo->prepare("
+            SELECT COUNT(*) 
+            FROM tb_products
+            WHERE shop_id = :shop_id
+        ");
+        $stmtTotalProducts->bindValue(':shop_id', $shop_id, PDO::PARAM_INT);
+        $stmtTotalProducts->execute();
+        $totalProducts = (int) $stmtTotalProducts->fetchColumn();
+
+        // Produtos com descrição gerada/finalizada
+        $stmtProcessedProducts = $conn_pdo->prepare("
+            SELECT COUNT(*) 
+            FROM tb_products
+            WHERE shop_id = :shop_id
+            AND description IS NOT NULL
+            AND description <> ''
+            AND ai_status = 'done'
+        ");
+        $stmtProcessedProducts->bindValue(':shop_id', $shop_id, PDO::PARAM_INT);
+        $stmtProcessedProducts->execute();
+        $processedProducts = (int) $stmtProcessedProducts->fetchColumn();
+
+        $processedProductsPercent = $totalProducts > 0
+            ? round(($processedProducts / $totalProducts) * 100)
+            : 0;
+
+        // ============================================
+        // ARTIGOS
+        // ============================================
+
+        // Total de artigos já gerados pelo worker
+        $stmtProcessedArticles = $conn_pdo->prepare("
+            SELECT COUNT(*) 
+            FROM tb_articles
+            WHERE shop_id = :shop_id
+            AND source_type = 'product_ai'
+        ");
+        $stmtProcessedArticles->bindValue(':shop_id', $shop_id, PDO::PARAM_INT);
+        $stmtProcessedArticles->execute();
+        $processedArticles = (int) $stmtProcessedArticles->fetchColumn();
+
+        $processedArticlesPercent = $totalProducts > 0
+            ? round(($processedArticles / $totalProducts) * 100)
+            : 0;
+    ?>
+
+    <style>
+        .info-card.worker-status-card {
+            max-width: 500px;
+            left: calc(266px + 1rem);
+            right: auto;
+        }
+
+        .sidebar.close ~ .main .info-card.worker-status-card {
+            left: calc(80px + 1rem);
+            right: auto;
+        }
+
+        .worker-status-card .text {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .bg-green {
+            background-color: #01c89b !important;
+        }
+        .text-green {
+            color: #01c89b !important;
+        }
+
+        .worker-bar {
+            width: 100%;
+            height: 10px;
+            background: #eceff3;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .worker-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+        }
+    </style>
+
+    <div class="card info-card worker-status-card <?= ($processedProductsPercent === 100 && $processedArticlesPercent === 100) ? 'd-none' : '' ?>">
+        <div class="row mb-3">
+            <div class="col-md-10 d-flex align-items-center">
+                <i class='bx bxs-magic-wand fs-5 me-2 text-green'></i>
+                <div>
+                    <p class="text mb-1">Geração de artigos com IA em andamento</p>
+                    <small class="text-muted">
+                        O worker está processando os produtos da loja que ainda não possuem artigo.
+                    </small>
+                </div>
+            </div>
+            <button type="button" class="close col-md-2">
+                <i class='bx bx-x fs-4'></i>
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <small class="fw-semibold">Produtos</small>
+                <small><?php echo $processedProducts; ?> / <?php echo $totalProducts; ?></small>
+            </div>
+            <div class="worker-bar">
+                <div class="worker-bar-fill bg-green" style="width: <?php echo $processedProductsPercent; ?>%;"></div>
+            </div>
+        </div>
+
+        <div class="mb-0">
+            <div class="d-flex justify-content-between mb-1">
+                <small class="fw-semibold">Artigos</small>
+                <small><?php echo $processedArticles; ?> / <?php echo $totalProducts; ?></small>
+            </div>
+            <div class="worker-bar">
+                <div class="worker-bar-fill bg-green" style="width: <?php echo $processedArticlesPercent; ?>%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <?php
+        endif;
+    ?>
+
     <?php
         if(isset($_SESSION['admin_id'])){
     ?>
-        <div class="card info-card">
+        <div class="card info-card return-card">
             <div class="row mb-2">
                 <div class="col-md-10 d-flex align-items-center">
                     <i class='bx bx-info-circle fs-5 me-2' ></i>
@@ -994,7 +2485,7 @@
                 list($url, $tab) = explode('/', $url, 2);
             }
 
-            if ($permissions == 1) {
+            if ($permissions == 1 || $permissions == 2) {
                 // Administrador
                 $permission = 'admin';
             } elseif ($permissions == 0) {
@@ -1013,17 +2504,111 @@
                     header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
                 }
             } else {
-                if (file_exists('pages/' . $permission . '/' . $url . '.php')) {
-                    include('pages/' . $permission . '/' . $url . '.php');
+                // Se o permission for 'user', verificar na tabela tb_routes
+                if ($permission == 'user') {
+                    // Verifica se a rota foi encontrada
+                    if (isset($route)) {
+                        // Se a rota existe, inclui a página normalmente
+                        if (file_exists('pages/user/' . $route['url'] . '.php')) {
+                            include('pages/user/' . $route['url'] . '.php');
+                        } else {
+                            // Se o arquivo físico não existir, redireciona para 404
+                            header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                        }
+                    } else {
+                        // Se a rota não for encontrada no banco de dados, redireciona para 404
+                        header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                    }
                 } else {
-                    // A página não existe
-                    header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                    if (file_exists('pages/' . $permission . '/' . $url . '.php')) {
+                        include('pages/' . $permission . '/' . $url . '.php');
+                    } else {
+                        // A página não existe
+                        header('Location: ' . INCLUDE_PATH_DASHBOARD . '404');
+                    }
                 }
             }
         ?>
 
+        <?php
+            // Função para extrair o código do vídeo do URL do YouTube
+            function getYoutubeEmbedCode($url) {
+                if(empty($url)){
+                    return '';
+                }
+
+                // Verifica se o URL é um link válido do YouTube
+                if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                    $videoCode = $matches[1];
+
+                    // Gera o código de incorporação
+                    $embedCode = '<iframe src="https://www.youtube.com/embed/' . $videoCode . '" width="800px" height="450px" frameborder="0" allowfullscreen></iframe>';
+
+                    return $embedCode;
+                } else {
+                    // URL inválido do YouTube
+                    return 'URL do YouTube inválido.';
+                }
+            }
+        ?>
+
+        <?php if (isset($route) && $route['url'] == $url) { ?>
+        <div class="container <?php echo ($route['video_location'] != 0) ? "d-none" : ""; ?>">
+            <div class="row p-4">
+                <div class="col-sm-12">
+                    <div id="video-display" class="d-flex justify-content-center">
+                        <div class="video-wrapper d-flex justify-content-center">
+                            <?php
+                                // Exemplo de uso:
+                                $youtubeURL = $route['tutorial_video'];
+                                $embedCode = getYoutubeEmbedCode($youtubeURL);
+
+                                if ($embedCode !== 'URL do YouTube inválido.') {
+                                    echo $embedCode;
+                                }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+
         </div>
     </main>
+
+    <?php if (isset($route) && $route['url'] == $url) { ?>
+        <?php if ($route['video_location'] == 1) { ?>
+            <!-- Modal Video Tutorial -->
+            <div class="modal fade" id="tutorialVideoModal" tabindex="-1" aria-labelledby="tutorialVideoModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="tutorialVideoModalLabel">Tutorial em Vídeo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Vídeo do YouTube -->
+                            <div class="ratio ratio-16x9">
+                                <?php
+                                    // Exemplo de uso:
+                                    $youtubeURL = $route['tutorial_video'];
+                                    $embedCode = getYoutubeEmbedCode($youtubeURL);
+
+                                    if ($embedCode !== 'URL do YouTube inválido.') {
+                                        echo $embedCode;
+                                    }
+                                ?>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+    <?php } ?>
 
     <div class='card__info'>
         <div class='info'>
@@ -1039,6 +2624,30 @@
             ?>
         </div>
     </div>
+
+    <div class="backdrop"></div>
+
+    <style>
+        .fixed-whatsapp-button
+        {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 9999999999999;
+            border: none;
+        }
+        .fixed-whatsapp-button .whatsapp-button svg {
+            width: 80px;
+            height: 80px;
+        }
+    </style>
+
+    <div class="fixed-whatsapp-button <?= (!isset($shop_id)) ? "d-none" : ""; ?>">
+        <a class="whatsapp-button" href="https://wa.me/11940496818" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="800" width="1200" viewBox="-93.2412 -156.2325 808.0904 937.395"><defs><linearGradient x1=".5" y1="0" x2=".5" y2="1" id="a"><stop stop-color="#20B038" offset="0%"/><stop stop-color="#60D66A" offset="100%"/></linearGradient><linearGradient x1=".5" y1="0" x2=".5" y2="1" id="b"><stop stop-color="#F9F9F9" offset="0%"/><stop stop-color="#FFF" offset="100%"/></linearGradient><linearGradient xlink:href="#a" id="f" x1="270.265" y1="1.184" x2="270.265" y2="541.56" gradientTransform="scale(.99775 1.00225)" gradientUnits="userSpaceOnUse"/><linearGradient xlink:href="#b" id="g" x1="279.952" y1=".811" x2="279.952" y2="560.571" gradientTransform="scale(.99777 1.00224)" gradientUnits="userSpaceOnUse"/><filter x="-.056" y="-.062" width="1.112" height="1.11" filterUnits="objectBoundingBox" id="c"><feGaussianBlur stdDeviation="2" in="SourceGraphic"/></filter><filter x="-.082" y="-.088" width="1.164" height="1.162" filterUnits="objectBoundingBox" id="d"><feOffset dy="-4" in="SourceAlpha" result="shadowOffsetOuter1"/><feGaussianBlur stdDeviation="12.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"/><feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.21 0" in="shadowBlurOuter1"/></filter><path d="M576.337 707.516c-.018-49.17 12.795-97.167 37.15-139.475L574 423.48l147.548 38.792c40.652-22.23 86.423-33.944 133.002-33.962h.12c153.395 0 278.265 125.166 278.33 278.98.025 74.548-28.9 144.642-81.446 197.373C999 957.393 929.12 986.447 854.67 986.48c-153.42 0-278.272-125.146-278.333-278.964z" id="e"/></defs><g fill="none" fill-rule="evenodd"><g transform="matrix(1 0 0 -1 -542.696 1013.504)" fill="#000" fill-rule="nonzero" filter="url(#c)"><use filter="url(#d)" xlink:href="#e" width="100%" height="100%"/><use fill-opacity=".2" xlink:href="#e" width="100%" height="100%"/></g><path transform="matrix(1 0 0 -1 41.304 577.504)" fill-rule="nonzero" fill="url(#f)" d="M2.325 274.421c-.014-47.29 12.342-93.466 35.839-134.166L.077 1.187l142.314 37.316C181.6 17.133 225.745 5.856 270.673 5.84h.12c147.95 0 268.386 120.396 268.447 268.372.03 71.707-27.87 139.132-78.559 189.858-50.68 50.726-118.084 78.676-189.898 78.708-147.968 0-268.398-120.386-268.458-268.358"/><path transform="matrix(1 0 0 -1 31.637 586.837)" fill-rule="nonzero" fill="url(#g)" d="M2.407 283.847c-.018-48.996 12.784-96.824 37.117-138.983L.072.814l147.419 38.654c40.616-22.15 86.346-33.824 132.885-33.841h.12c153.26 0 278.02 124.724 278.085 277.994.026 74.286-28.874 144.132-81.374 196.678-52.507 52.544-122.326 81.494-196.711 81.528-153.285 0-278.028-124.704-278.09-277.98zm87.789-131.724l-5.503 8.74C61.555 197.653 49.34 240.17 49.36 283.828c.049 127.399 103.73 231.044 231.224 231.044 61.74-.025 119.765-24.09 163.409-67.763 43.639-43.67 67.653-101.726 67.635-163.469-.054-127.403-103.739-231.063-231.131-231.063h-.09c-41.482.022-82.162 11.159-117.642 32.214l-8.444 5.004L66.84 66.86z"/><path d="M242.63 186.78c-5.205-11.57-10.684-11.803-15.636-12.006-4.05-.173-8.687-.162-13.316-.162-4.632 0-12.161 1.74-18.527 8.693-6.37 6.953-24.322 23.761-24.322 57.947 0 34.19 24.901 67.222 28.372 71.862 3.474 4.634 48.07 77.028 118.694 104.88 58.696 23.146 70.64 18.542 83.38 17.384 12.74-1.158 41.11-16.805 46.9-33.03 5.791-16.223 5.791-30.128 4.054-33.035-1.738-2.896-6.37-4.633-13.319-8.108-6.95-3.475-41.11-20.287-47.48-22.603-6.37-2.316-11.003-3.474-15.635 3.482-4.633 6.95-17.94 22.596-21.996 27.23-4.053 4.643-8.106 5.222-15.056 1.747-6.949-3.485-29.328-10.815-55.876-34.485-20.656-18.416-34.6-41.16-38.656-48.116-4.053-6.95-.433-10.714 3.052-14.178 3.12-3.113 6.95-8.11 10.424-12.168 3.467-4.057 4.626-6.953 6.942-11.586 2.316-4.64 1.158-8.698-.579-12.172-1.737-3.475-15.241-37.838-21.42-51.576" fill="#FFF"/></g></svg>
+        </a>
+    </div>
+
     <?php
         if ($url == 'login' || $url == 'dois-fatores' || $url == 'recuperar-senha' || $url == 'atualizar-senha' || $url == 'assinar' || $url == 'criar-loja' || $url == '404') {
             echo '
@@ -1061,8 +2670,10 @@
     <!-- Assets -->
     <script src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/js/form-steps.js"></script>
     <script src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/js/main.js"></script>
+    <?php if ($url !== 'editar-artigo' && $url !== 'criar-artigo'): ?>
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <?php endif; ?>
 
     <script>
         function obterTamanhoDaTela() {
@@ -1156,19 +2767,74 @@
                 arrowParent.classList.toggle("showMenu");
             });
         }
+        let body = document.querySelector("body");
+        let backdrop = document.querySelector(".backdrop");
         let sidebar = document.querySelector(".sidebar");
-        let sidebarBtn = document.querySelector(".bx-menu");
+        let sidebarBtn = document.querySelector("#mobileBtn");
         sidebarBtn.addEventListener("click", ()=>{
             sidebar.classList.toggle("close");
+
+            sidebarBtn.classList.toggle("bx-menu");
+            sidebarBtn.classList.toggle("bx-x");
+
+            body.classList.toggle("overflow-hidden");
+            backdrop.classList.toggle("show");
         });
     </script>
 
     <script>
         $(document).ready(function () {
             // Adiciona um evento de clique ao botão com a classe 'close'
-            $('.info-card :button').on('click', function () {
+            $('.info-card.worker-status-card :button').on('click', function () {
                 // Remove o elemento pai do botão, que é o card
-                $(".info-card").addClass("d-none");
+                $(".info-card.worker-status-card").addClass("d-none");
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Adiciona um evento de clique ao botão com a classe 'close'
+            $('.info-card.return-card :button').on('click', function () {
+                // Remove o elemento pai do botão, que é o card
+                $(".info-card.return-card").addClass("d-none");
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Adiciona um evento de clique ao botão com a classe 'close'
+            $('.dropdown').on('click', function () {
+                // Remove o elemento pai do botão, que é o card
+                $(".dropdown").toggleClass("selected");
+            });
+        });
+    </script>
+
+    <!-- Tooltip -->
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
+    <!-- Search products -->
+    <script>
+        $(document).ready(function() {
+            // Ao clicar no botão de pesquisa
+            $('#buttonSearch').click(function() {
+                // Obtenha o valor do campo de entrada de pesquisa
+                var searchTerm = $('#search').val();
+
+                // Verifique se o campo de pesquisa não está vazio
+                if (searchTerm && searchTerm.trim() !== '') {
+                    // Atualize a URL do navegador com os parâmetros de pesquisa
+                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos?search=' + searchTerm;
+                } else {
+                    // Se o campo de pesquisa estiver vazio, remova o parâmetro de pesquisa da URL
+                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos';
+                }
             });
         });
     </script>

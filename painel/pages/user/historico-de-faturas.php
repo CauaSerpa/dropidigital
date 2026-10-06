@@ -1,3 +1,14 @@
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_subscriptions';
+
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->execute();
+?>
 <style>
     .card.table
     {
@@ -88,6 +99,162 @@
     </div>
 </div>
 
+<style>
+    /* Btn */
+    .btn.btn-success
+    {
+        background: var(--green-color) !important;
+        border: none !important;
+    }
+    .btn.btn-success:hover
+    {
+        background: var(--dark-green-color) !important;
+        border: none !important;
+    }
+
+    /* Bullet */
+    .bullet
+    {
+        display: inline-flex;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .bullet.success
+    {
+        background: rgb(1, 200, 155);
+    }
+    .bullet.warning
+    {
+        background: rgb(251, 188, 5);
+    }
+    .bullet.danger
+    {
+        background: rgb(229, 15, 56);
+    }
+</style>
+
+<?php
+    // Nome da tabela para a busca
+    $tabela = 'tb_subscriptions';
+    
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND plan_id = :plan_id ORDER BY id DESC LIMIT 1";
+
+    // Preparar e executar a consulta
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $id);
+    $stmt->bindParam(':plan_id', $plan_id);
+    $stmt->execute();
+
+    // Obter o resultado como um array associativo
+    $sub = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($sub['status'] == "RECEIVED") {
+        $bullet = "<span class='bullet success me-2'></span>";
+        $status = "Paga";
+    } else if ($sub['status'] == "ACTIVE" && $sub['billing_type'] == "CREDIT_CARD") {
+        $bullet = "<span class='bullet success me-2'></span>";
+        $status = "Paga";
+    } else if ($sub['status'] == "ACTIVE") {
+        $bullet = "<span class='bullet warning me-2'></span>";
+        $status = "Aguardando pagamento";
+    } else if ($sub['status'] == "OVERDUE") {
+        $bullet = "<span class='bullet danger me-2'></span>";
+        $status = "Atrasada";
+    } else {
+        $bullet = "<span class='bullet danger me-2'></span>";
+        $status = "Cancelada";
+    }
+
+    // Verificação se a consulta retornou algum resultado
+    if ($sub) {
+        if ($sub['cycle'] == "MONTHLY")
+        {
+            $cycle = "Mensal";
+        } else {
+            $cycle = "Anual";
+        }
+
+        if ($sub['billing_type'] == "CREDIT_CARD")
+        {
+            $billing_type = "Cartão de crédito";
+        } else {
+            $billing_type = "Pix";
+        }
+
+        // Formatando datas
+        $startDate = new DateTime($sub['start_date']);
+        $start_date = $startDate->format("d/m/Y");
+
+        $dueDate = new DateTime($sub['due_date']);
+        $due_date = $dueDate->format("d/m/Y");
+    }
+?>
+
+<div class="card mb-3 p-0">
+    <div class="card-header fw-semibold px-4 py-3 bg-transparent">Plano Atual</div>
+    <div class="card-body row px-4 py-3">
+        <div class="card col-md-6 px-4 py-3">
+            <ul class="mb-0">
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">ID:</small>
+                    <small><?php echo $sub['id']; ?></small>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">Status:</small>
+                    <small><?php echo $bullet . $status; ?></small>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">Valor:</small>
+                    <small>R$ <?php echo number_format($sub['value'], 2, ',', '.'); ?></small>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">Forma de Pagamento:</small>
+                    <small><?php echo $billing_type; ?></small>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">Ciclo:</small>
+                    <small><?php echo $cycle; ?></small>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">E-mail para NFe:</small>
+                    <small><?php echo $email; ?></small>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">Data da Emissão:</small>
+                    <small><?php echo $start_date; ?></small>
+                </li>
+                <li class="d-flex justify-content-between">
+                    <small class="fw-semibold">Próximo Pagamento:</small>
+                    <small><?php echo $due_date; ?></small>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h5 class="fs-5 mb-3">Ações</h5>
+            <div class="d-flex justify-content-between mb-3">
+                <div>
+                    <h6 class="fs-6 fw-semibold mb-0">Alterar Plano</h6>
+                    <small>Clique em alterar plano para alterar o plano da loja</small>
+                </div>
+                <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#editShopPlan">
+                    <a href="#" class="btn btn-success d-flex align-items-center fw-semibold px-4 py-2 small">
+                        Alterar Plano
+                    </a>
+                </button>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <div>
+                    <h6 class="fs-6 fw-semibold mb-0">Listar NFS-e</h6>
+                    <small>Clique em listar para alterar o plano da loja</small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?id=<?php echo $user['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Alterar Plano</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <form action="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/delete_tables.php" method="post" class="table__actions">
     <div class="card__container grid one tabPanel" style="display: grid;">
@@ -142,7 +309,10 @@
                         } else if ($usuario['status'] == "ACTIVE") {
                             $bullet = "<span class='bullet warning me-2'></span>";
                             $status = "Aguardando pagamento";
-                        } else if ($usuario['status'] == "OVERDUE" || $usuario['status'] == "INACTIVE") {
+                        } else if ($usuario['status'] == "OVERDUE") {
+                            $bullet = "<span class='bullet danger me-2'></span>";
+                            $status = "Atrasada";
+                        } else {
                             $bullet = "<span class='bullet danger me-2'></span>";
                             $status = "Cancelada";
                         }

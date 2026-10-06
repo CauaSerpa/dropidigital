@@ -334,8 +334,7 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
 <div class="card mb-3 p-0">
     <div class="card-header fw-semibold px-4 py-3 bg-transparent">Certificado Digital de Segurança</div>
     <div class="card-body row px-4 py-3">
-        <small class="mb-3">Com seu domínio configurado, sua loja receberá um certificado digital, automaticamente e sem custo algum!<br>
-        Com isso seus clientes navegam em um ambiente seguro, além de garantir melhor posicionamento de sua loja nos mecanismos de busca.</small>
+        <small class="mb-3">Estando tudo certo, seu site receberá um certificado SSL gratuito e a criação de um Sitemap automático no seu site.</small>
         <small class="fw-semibold">Certificado SSL</small>
         <small class="d-flex align-items-center">
 
@@ -381,9 +380,9 @@ $shop = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <form id="myForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_subdomain.php" method="post">
     <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Subdomínio na Loja integrada</div>
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Subdomínio</div>
         <div class="card-body row px-4 py-3">
-            <small class="mb-3">Oferecemos gratuitamente um endereço virtual para sua loja através do subdomínio abaixo. <div class="fw-semibold">Esta é uma opção alternativa caso não tenha adquirido um domínio, portanto não é necessário editar.</div></small>
+            <small class="mb-3">Você terá um subdomínio, que será o endereço online do seu site, você pode também comprar um domínio no Registro BR por exemplo, para ter seu domínio próprio de endereço Web.</small>
             <small class="d-flex align-items-center fw-semibold" id="currentSubdomain">
                 <div class="me-2" style="width: 8px; height: 8px; border-radius: 50%; background: var(--green-color);"></div>
                 <a href="<?php echo $subdomain_url; ?>" target="_black" class="link text-dark fw-semibold"><?php echo $domain['subdomain'] . "." . $domain['domain']; ?></a>

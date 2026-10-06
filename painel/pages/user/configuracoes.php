@@ -191,6 +191,10 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
+                    <label for="detailed_segment" class="form-label small">Segmento Detalhado</label>
+                    <input type="text" class="form-control" name="detailed_segment" id="detailed_segment" aria-describedby="detailedSegmentHelp" placeholder="Ex.: Marketing Digital" value="<?php echo $shop['detailed_segment']; ?>">
+                </div>
+                <div class="col-md-6">
                     <label for="segment" class="form-label small">Segmento *</label>
                     <div class="input-group">
                         <select name="segment" id="segment" class="form-select">
@@ -259,10 +263,16 @@
     <input type="hidden" name="id" value="<?php echo $shop['user_id']; ?>">
     <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>configuracoes" class="text-decoration-none text-reset">Cancelar</a>
-            <button type="submit" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+            <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
         </div>
     </div>
 </form>

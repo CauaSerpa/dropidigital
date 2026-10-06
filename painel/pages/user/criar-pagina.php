@@ -81,7 +81,13 @@
     <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>paginas" class="text-decoration-none text-reset">Cancelar</a>
             <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
@@ -91,7 +97,7 @@
 </form>
 
 <!-- Link para o TinyMCE CSS -->
-<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyKey; ?>/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <!-- jQuery and jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">

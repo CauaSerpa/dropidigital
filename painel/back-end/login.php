@@ -1,4 +1,8 @@
 <?php
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
     session_start();
     ob_start();
     include_once('../../config.php');
@@ -17,7 +21,7 @@
         $email = $_POST['email'];
 
         // Consulta SQL
-        $sql = "SELECT id, name, email, password, two_factors FROM $tabela WHERE email = :email";
+        $sql = "SELECT id, permissions, name, email, password, two_factors FROM $tabela WHERE email = :email";
 
         // Preparar a consulta
         $stmt = $conn_pdo->prepare($sql);
@@ -38,6 +42,26 @@
             $password = $_POST['password'];
 
             if ($email === $resultado['email'] && password_verify($password, $resultado['password'])) {
+                // Verifica se o usuario possui uma loja
+                //Tabela que será solicitada
+                $tabela = 'tb_shop';
+
+                // Verifica se existe alguma loja com o id do usuario
+                $sql = "SELECT id FROM $tabela WHERE user_id = :user_id";
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindParam(':user_id', $resultado['id']);
+                $stmt->execute();
+
+                if ($stmt->rowCount() == 0 && $resultado['permissions'] == 0) {
+                    // Obtém o ID do novo usuário e passa pelo metodo session
+                    $_SESSION['user_id_for_create_shop'] = $resultado['id'];
+                    $_SESSION['email'] = $resultado['email'];
+
+                    $_SESSION['msg'] = "Por favor termine a criação de sua loja para continuar";
+                    header("Location: " . INCLUDE_PATH_DASHBOARD . "criar-loja");
+                    exit;
+                }
+
                 if (empty($_SESSION['2fa']))
                 {
                     $twoFactors = false;
@@ -47,6 +71,7 @@
 
                 // Verifica se o two factors esta ativo e/ou o two factors ja foi feito
                 if ($resultado['two_factors'] == 1 && $twoFactors == false) {
+                    $_SESSION['remember_login_pending'] = !empty($_POST['remember_login']);
                     // Se estiver ativo envia codigo de verificacao
                     // Cria codigo e envia por email
                     // Caminho para o diretório pai
@@ -125,6 +150,8 @@
                     // Obtém a string do agente do usuário
                     $browser = $_SERVER['HTTP_USER_AGENT'];
 
+                    $two_factors = $resultado['two_factors'];
+
                     // Verificar se o IP já foi usado
                     $sql = "SELECT * FROM tb_login WHERE user_id = :user_id AND ip_address = :ip_address";
                     $stmt = $conn_pdo->prepare($sql);
@@ -134,7 +161,7 @@
 
                     // Se o IP não foi encontrado, salvar no banco de dados
                     if ($stmt->rowCount() == 0) {
-                        noticeLogin($name, $email, $datetime, $ip, $browser);
+                        noticeLogin($name, $email, $datetime, $ip, $browser, $two_factors);
                     }
 
                     $sql = "INSERT INTO tb_login (user_id, ip_address, first_used_at) VALUES (:user_id, :ip_address, :first_used_at)";
@@ -143,6 +170,12 @@
                     $stmt->bindParam(':ip_address', $ip);
                     $stmt->bindParam(':first_used_at', $datetime);
                     $stmt->execute();
+
+                    if (!empty($_POST['remember_login'])) {
+                        setRememberLoginCookie($conn_pdo, (int) $resultado['id']);
+                    } else {
+                        clearRememberLoginCookie($conn_pdo);
+                    }
 
                     // Se estiver desativado entra no painel
                     $_SESSION['user_id'] = $resultado['id']; // Você pode definir informações do usuário aqui

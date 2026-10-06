@@ -28,17 +28,29 @@ function asaas_ObterQRCodePix($subscription_id, $payment_id, $config) {
 
     if($retorno["success"] == true) {
 
-        $tabela = 'tb_subscriptions';
+        if ($subscription_id !== false) {
+            $tabela = 'tb_subscriptions';
+        } else {
+            $tabela = 'tb_payments';
+        }
 
-        $stmt = $conn->prepare("UPDATE $tabela SET pix_expirationDate = :pix_expirationDate, pix_encodedImage = :pix_encodedImage, pix_payload = :pix_payload WHERE subscription_id = :subscription_id");
+        if ($subscription_id !== false) {
+            $stmt = $conn->prepare("UPDATE $tabela SET pix_expirationDate = :pix_expirationDate, pix_encodedImage = :pix_encodedImage, pix_payload = :pix_payload WHERE subscription_id = :subscription_id");
+        } else {
+            $stmt = $conn->prepare("UPDATE $tabela SET pix_expirationDate = :pix_expirationDate, pix_encodedImage = :pix_encodedImage, pix_payload = :pix_payload WHERE payment_id = :payment_id");
+        }
 
         // Bind dos parâmetros
         $stmt->bindValue(':pix_expirationDate', $retorno['expirationDate']);
         $stmt->bindValue(':pix_encodedImage', $retorno['encodedImage']);
         $stmt->bindValue(':pix_payload', $retorno['payload']);
 
-        $stmt->bindValue(':subscription_id', $subscription_id);
-    
+        if ($subscription_id !== false) {
+            $stmt->bindValue(':subscription_id', $subscription_id);
+        } else {
+            $stmt->bindValue(':payment_id', $payment_id);
+        }
+
         // Executando o update
         $stmt->execute();
 

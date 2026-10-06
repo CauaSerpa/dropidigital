@@ -1,3 +1,6 @@
+<?php
+    echo verificaPermissaoPagina($permissions);
+?>
 
 <?php
         // Nome da tabela para a busca
@@ -218,7 +221,7 @@
                                                 <a href="' . INCLUDE_PATH_DASHBOARD . 'ver-loja?id=' . $shop['id'] . '" class="btn btn-secondary">
                                                     <i class="bx bx-show" ></i>
                                                 </a>
-                                                <a href="' . INCLUDE_PATH_DASHBOARD . 'ver-loja/dominio?id=' . $shop['id'] . '" class="btn btn-success d-inline-flex align-items-center">
+                                                <a href="' . INCLUDE_PATH_DASHBOARD . 'ativar-dominio?id=' . $domain['id'] . '" class="btn btn-success d-inline-flex align-items-center">
                                                     <i class="bx bx-check fs-5 me-1" ></i>
                                                     Finalizar
                                                 </a>

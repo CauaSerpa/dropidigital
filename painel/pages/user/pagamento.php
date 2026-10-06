@@ -1,18 +1,32 @@
 <?php
     $shop_id = $id;
 
-    $subscription_id = $_GET['s'];
+    if (isset($_GET['s'])) {
+        $subscription_id = $_GET['s'];
 
-    $s = base64_decode($subscription_id);
+        $s = base64_decode($subscription_id);
+        
+        // Consulta SQL
+        $sql = "SELECT * FROM tb_subscriptions WHERE subscription_id = :s AND shop_id = :shop_id";
+    } else {
+        $payment_id = $_GET['p'];
 
-    // Consulta SQL
-    $sql = "SELECT * FROM tb_subscriptions WHERE subscription_id = :s AND shop_id = :shop_id";
+        $p = base64_decode($payment_id);
+
+        // Consulta SQL
+        $sql = "SELECT * FROM tb_payments WHERE payment_id = :p AND shop_id = :shop_id";
+    }
 
     // Preparação da declaração PDO
     $stmt = $conn_pdo->prepare($sql);
 
     // Bind do valor do ID
-    $stmt->bindParam(':s', $s);
+    if (isset($_GET['s'])) {
+        $stmt->bindParam(':s', $s);
+    } else {
+        $stmt->bindParam(':p', $p);
+    }
+
     $stmt->bindParam(':shop_id', $id);
 
     // Execução da consulta
@@ -44,14 +58,14 @@
 
 <style>
     /* Botao */
-    .btn
+    .btn.btn-success
     {
         background: var(--green-color);
         font-size: .875rem;
         border: none;
         padding: .75rem 1.5rem;
     }
-    .btn:hover
+    .btn.btn-success:hover
     {
         background: var(--dark-green-color);
     }
@@ -61,7 +75,7 @@
     <div class="border rounded p-4 d-flex flex-column align-items-center" style="width: 425px;">
         <p class="fw-semibold">Validade do pagamento:</p>
         <div id="temporizador" class="fs-1 fw-semibold"></div>
-        <p class="fs-5 fw-semibold">Total a pagar: <span class="fs-4 text-success fw-semibold">R$ <?php echo $valor ?></span></p>
+        <p class="fs-5 fw-semibold">Total a pagar: <span class="fs-4 text-success fw-semibold">R$ <?php echo number_format($valor, 2, ",", ".") ?></span></p>
 
         <img src="data:image/png;base64,<?php echo $pix_encodedImage ?>" alt="QR Code Pix" style="width: 350px;">
 
@@ -73,6 +87,46 @@
         </div>
     </div>
 </div>
+
+
+<style>
+    .loader {
+        width: 32px;
+        height: 32px;
+        border: 2.5px solid var(--green-color);
+        border-bottom-color: transparent;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+</style>
+<!-- Modal -->
+<div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header px-4 pb-3 pt-4 border-0">
+                <h6 class="modal-title fs-6" id="exampleModalLabel">Aviso!</h6>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center justify-content-center px-4 pb-3 pt-0">
+                <div class="loader"></div>
+                <p class="fs-5 fw-semibold mt-2">Seu tema está sendo instalado!</p>
+                <p>Por favor não saia desta página ou feche o navegador.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -129,6 +183,9 @@
                 clearInterval(temporizador);
                 alert("Tempo expirado para o Cobrança ID: " + produtoId);
 
+                // Remover o item do localStorage
+                localStorage.removeItem("tempoRestante_" + produtoId);
+
                 // Envia o id para alterar status para cancelado
                 window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/pagamento_expirado.php?shop=<?php echo $shop_id; ?>&subs=<?php echo $subscription_id; ?>";
             }
@@ -157,16 +214,101 @@
 <script>
     // Função para realizar a consulta AJAX
     function realizarConsulta() {
+        <?php
+            if ($_GET['site']) {
+                if (isset($p)) {
+                    $payment = "payment_id: '$p'";
+                } else {
+                    $payment = "subscription_id: '$s'";
+                }
+        ?>
+            var params = {
+                shop_id: <?php echo $shop_id; ?>,
+                ready_site_id: <?php echo $_GET['site']; ?>
+            };
+        <?php
+                $ajaxData = "{ params: params, $payment }";
+            } else {
+                if (isset($p)) {
+                    $ajaxData = "payment_id: '$p'";
+                } else {
+                    $ajaxData = "subscription_id: '$s'";
+                }
+            }
+        ?>
+
         // Enviar uma solicitação AJAX para verificar o pagamento
         $.ajax({
             type: 'POST',
             url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/status_pagamento.php', // Crie um arquivo PHP para lidar com a verificação
-            data: { subscription_id: "<?php echo $s; ?>" },
+            data: <?php echo $ajaxData; ?>,
             dataType: 'JSON',
             success: function(response) {
                 if (response.status == 'pago') {
-                    // Se o pagamento foi aprovado, redirecione para a página desejada
-                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?s=<?php echo $subscription_id; ?>';
+                    clearInterval(intervalId);  // Parar o intervalo
+                    
+                    $('#warningModal').modal('show');
+                    
+                    var redirect = <?= (isset($_GET['r']) == 1) ? 1 : 0; ?>;
+
+                    <?php
+                        if (!isset($_GET['s'])) {
+                    ?>
+
+
+                    var params = {
+                        shop_id: <?php echo $shop_id; ?>,
+                        ready_site_id: <?php echo $_GET['site']; ?>
+                    };
+
+                    // Enviar uma solicitação AJAX para verificar o pagamento
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/copy_site_shop.php', // Crie um arquivo PHP para lidar com a verificação
+                        data: params,
+                        dataType: 'JSON',
+                        success: function(response) {
+                            if (response.status == 'sucesso') {
+                                if (redirect == 1) {
+                                    // Se o pagamento foi aprovado, redirecione para a página desejada
+                                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano-asaas?p=<?php echo $plan_id; ?>&r=1';
+                                } else {
+                                    // Se o pagamento foi aprovado, redirecione para a página desejada
+                                    window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?<?php echo (isset($payment_id)) ? "p=$payment_id" : "s=$subscription_id"; ?>';
+                                }
+                            } else {
+                                // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
+                                console.log('O pagamento ainda não foi aprovado.');
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Erro ao verificar o pagamento:', error);
+                        }
+                    });
+
+
+
+
+                    <?php
+                        } else {
+                    ?>
+
+
+
+                    if (redirect == 1) {
+                        // Se o pagamento foi aprovado, redirecione para a página desejada
+                        window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>assinar-plano-asaas?p=<?php echo $plan_id; ?>&r=1';
+                    } else {
+                        // Se o pagamento foi aprovado, redirecione para a página desejada
+                        window.location.href = '<?php echo INCLUDE_PATH_DASHBOARD; ?>pagamento-confirmado?<?php echo (isset($payment_id)) ? "p=$payment_id" : "s=$subscription_id"; ?>';
+                    }
+
+
+
+
+                    <?php
+                        }
+                    ?>
                 } else {
                     // Se o pagamento não foi aprovado, você pode tomar alguma ação aqui
                     console.log('O pagamento ainda não foi aprovado.');
@@ -178,6 +320,6 @@
         });
     }
 
-    // Executar a função de consulta a cada 10 segundos
-    setInterval(realizarConsulta, 10000);
+    // Guardar o ID do intervalo para poder pará-lo posteriormente
+    var intervalId = setInterval(realizarConsulta, 10000);
 </script>

@@ -1,0 +1,9 @@
+[07-Sep-2024 15:16:57 America/Fortaleza] PHP Warning:  Undefined array key "user_id" in /home3/dropid72/public_html/painel/back-end/admin/return.php on line 6
+[07-Sep-2024 15:16:57 America/Fortaleza] PHP Warning:  Undefined array key "shop_id" in /home3/dropid72/public_html/painel/back-end/admin/return.php on line 7
+[07-Sep-2024 15:16:57 America/Fortaleza] PHP Warning:  Undefined array key "admin_id" in /home3/dropid72/public_html/painel/back-end/admin/return.php on line 8
+[17-Sep-2024 23:20:47 America/Fortaleza] PHP Warning:  Undefined array key "TINY_API_KEY" in /home3/dropid72/public_html/config.php on line 34
+[17-Sep-2024 23:20:47 America/Fortaleza] PHP Warning:  Undefined array key "TINY_API_KEY" in /home3/dropid72/public_html/config.php on line 34
+[29-Oct-2024 20:34:15 America/Fortaleza] PHP Warning:  Undefined array key "due_date" in /home3/dropid72/public_html/painel/back-end/admin/edit_shop_plan.php on line 18
+[24-Dec-2024 00:28:09 America/Fortaleza] PHP Warning:  Undefined array key "due_date" in /home3/dropid72/public_html/painel/back-end/admin/edit_shop_plan.php on line 18
+[24-Dec-2024 00:45:17 America/Fortaleza] PHP Warning:  Undefined array key "due_date" in /home3/dropid72/public_html/painel/back-end/admin/edit_shop_plan.php on line 18
+[14-Jul-2025 23:42:17 America/Fortaleza] PHP Warning:  Undefined array key "user_id" in /home4/dropid72/public_html/painel/back-end/admin/access_shop.php on line 10

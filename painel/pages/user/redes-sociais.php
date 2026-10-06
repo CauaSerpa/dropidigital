@@ -2,11 +2,11 @@
     // Nome da tabela para a busca
     $tabela = 'tb_shop';
 
-    $sql = "SELECT facebook, x, pinterest, instagram, youtube FROM $tabela WHERE user_id = :user_id";
+    $sql = "SELECT facebook, x, pinterest, instagram, youtube, tiktok FROM $tabela WHERE id = :id";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':user_id', $id);
+    $stmt->bindParam(':id', $id);
     $stmt->execute();
 
     // Obter o resultado como um array associativo
@@ -185,7 +185,7 @@
     </div>
 </div>
 
-<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/social_medias.php" method="post" enctype="multipart/form-data">
+<form id="myForm" class="position-relative" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/social_medias.php" method="post">
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent">Redes Sociais</div>
         <div class="card-body row px-4 py-3">
@@ -224,12 +224,25 @@
                     <input type="text" class="form-control" name="youtube" id="youtube" placeholder="https://www.youtube.com/..." value="<?php echo @$shop['youtube']; ?>">
                 </div>
             </div>
+            <div class="col-sm-6 mb-3">
+                <label for="video" class="form-label small">TikTok</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-brands fa-tiktok" style="width: 18px; color: #000000;"></i></span>
+                    <input type="text" class="form-control" name="tiktok" id="tiktok" placeholder="https://www.tiktok.com/..." value="<?php echo @$shop['tiktok']; ?>">
+                </div>
+            </div>
         </div>
     </div>
 
     <input type="hidden" name="shop_id" value="<?php echo $id; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>redes-sociais" class="text-decoration-none text-reset">Cancelar</a>
             <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
