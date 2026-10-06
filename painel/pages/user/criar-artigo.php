@@ -73,10 +73,32 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="linkInput" class="form-label small">Nome do artigo *</label>
-                <input type="text" class="form-control" name="name" id="linkInput" maxlength="120" aria-describedby="nameHelp" require>
+                <label for="name" class="form-label small">Nome do artigo *</label>
+                <input type="text" class="form-control" name="name" id="name" maxlength="120" aria-describedby="nameHelp" require>
                 <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/blog/<span class="fw-semibold" id="linkPreview">...</span></p>
             </div>
+            <div class="mb-3">
+                <label for="product_id" class="form-label small">
+                    Associar artigo a um produto
+                </label>
+
+                <select 
+                    class="form-control select2-product" 
+                    name="product_id[]" 
+                    id="product_id"
+                    multiple>
+                </select>
+
+                <small class="text-muted">
+                    Digite o nome do produto para pesquisar e selecione um ou mais produtos.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Conteúdo do artigo</div>
+        <div class="card-body px-5 py-3">
             <div class="mb-3">
                 <label for="editor" class="form-label small">Conteúdo do artigo</label>
                 <textarea name="content" id="editor"></textarea>
@@ -138,11 +160,16 @@
         </div>
     </div>
 
-    <input type="hidden" name="link" id="link" value="">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
     <input type="hidden" name="image_id" value="<?php echo $image_id; ?>">
 
-    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
+    <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>artigos" class="text-decoration-none text-reset">Cancelar</a>
             <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
@@ -152,37 +179,80 @@
 </form>
 
 <!-- Link para o TinyMCE CSS -->
-<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyKey; ?>/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <!-- jQuery and jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- Select2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#product_id').select2({
+            theme: 'bootstrap-5',
+            placeholder: "Digite o nome do produto",
+            minimumInputLength: 3,
+            allowClear: true,
+            closeOnSelect: false,
+            width: '100%',
+            ajax: {
+                url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/search_products.php',
+                type: 'POST',
+                dataType: 'json',
+                delay: 300,
+                data: function(params) {
+                    return {
+                        search: params.term || '',
+                        shop_id: '<?php echo $shop_id; ?>'
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+</script>
 
 <!-- Link -->
 <script>
     // Aguarde o documento estar pronto
     $(document).ready(function() {
         // Selecione o campo de entrada e o span
-        var input = $("#linkInput");
+        var input = $("#name");
         var span = $("#linkPreview");
 
-        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        var inputText2 = $('#textInput2');
+        var textPreview2 = $('#textPreview2');
+
         input.on("input", function() {
-            // Obtenha o valor atual do campo de entrada
-            var valor = input.val();
+            var value = input.val();
 
-            if (valor === '') {
-                valor = '...';
+            // Remover acentos e substituir espaços por traço
+            value = removerAcentosEespacos(value);
+            
+            span.text(value);
+
+            inputText2.val(value);
+            textPreview2.text(value);
+
+            if (value === '') {
+                span.text("...");
+                textPreview2.text("link-da-pagina");
             }
-            
-            // Substitua espaços extras por um único traço e converta para letras minúsculas
-            valor = valor.replace(/\s+/g, "-").toLowerCase();
-            
-            // Atualize o texto no span com o valor formatado
-            span.text(valor);
-
-            $('#link').val(valor);
         });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
     });
 </script>
 
@@ -238,8 +308,64 @@
         toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link image',
         width: '100%',
         height: 300,
-        menubar: false
+        menubar: false,
+        images_upload_url: '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/upload_image.php',
+        images_upload_handler: function (blobInfo, success, failure) {
+            var xhr, formData;
+
+            xhr = new XMLHttpRequest();
+            xhr.withCredentials = false;
+            xhr.open('POST', '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/upload_image.php');
+
+            xhr.onload = function() {
+                var json;
+
+                if (xhr.status != 200) {
+                    failure('HTTP Error: ' + xhr.status);
+                    return;
+                }
+
+                json = JSON.parse(xhr.responseText);
+
+                if (!json || typeof json.location != 'string') {
+                    failure('Invalid JSON: ' + xhr.responseText);
+                    return;
+                }
+
+                success(json.location);
+            };
+
+            formData = new FormData();
+            formData.append('file', blobInfo.blob(), blobInfo.filename());
+            formData.append('shop_id', '<?php echo $shop_id; ?>'); // Passando o id da loja
+            xhr.send(formData);
+        },
+        setup: function (editor) {
+            editor.on('RemoveNode', function (e) {
+                if (e.node.nodeName === 'IMG') {
+                    var src = e.node.src;
+                    deleteImage(src);
+                }
+            });
+        }
     });
+
+    function deleteImage(src) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/delete_image.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.status === 'success') {
+                    console.log('Imagem deletada com sucesso');
+                } else {
+                    console.error('Erro ao deletar imagem: ' + response.message);
+                }
+            }
+        };
+        xhr.send('src=' + encodeURIComponent(src));
+    }
 </script>
 
 <!-- Tooltip -->
@@ -257,6 +383,7 @@
         var inputText3 = $('#textInput3');
         var textPreview1 = $('#textPreview1');
         var textPreview2 = $('#textPreview2');
+        var linkPreview = $('#linkPreview');
         var textPreview3 = $('#textPreview3');
 
         inputText1.on('input', function () {
@@ -270,11 +397,14 @@
         inputText2.on("input", function() {
             var text = inputText2.val();
             if (text === '') {
-                text = 'link-da-pagina';
+                text = 'link-da-categoria';
+                linkPreview.text('...');
             }
-            newText = text.replace(/\s+/g, "-").toLowerCase();
-            $(this).val($(this).val().replace(/\s+/g, "-").toLowerCase());
+            // Remover acentos e substituir espaços por traço
+            newText = removerAcentosEespacos(text);
+            $(this).val($(this).val().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
+            linkPreview.text(newText);
         });
 
         inputText3.on('input', function () {
@@ -284,6 +414,11 @@
             }
             textPreview3.text(newText);
         });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
     });
 </script>
 

@@ -25,6 +25,14 @@ if(!empty($id)){
 
     // Verificar se o resultado foi encontrado
     if ($category) {
+
+        // CONSULTAR FAQs DA CATEGORIA
+        $sqlFaq = "SELECT * FROM tb_category_faqs WHERE category_id = :id ORDER BY position ASC";
+        $stmtFaq = $conn_pdo->prepare($sqlFaq);
+        $stmtFaq->bindParam(':id', $category['id']);
+        $stmtFaq->execute();
+
+        $faqs = $stmtFaq->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <style>
     .image-container
@@ -119,13 +127,6 @@ if(!empty($id)){
                 </div>
                 <input type="text" class="form-control" name="name" id="name" aria-describedby="nameHelp" value="<?php echo $category['name']; ?>" required>
                 <p class="small text-decoration-none" style="color: #01C89B;">https://sua-loja.dropidigital.com.br/<span class="fw-semibold" id="linkPreview"><?php echo $category['link']; ?></span></p>
-            </div>
-            <div class="mb-3">
-                <div class="d-flex justify-content-between">
-                    <label for="name" class="form-label small">Descrição *</label>
-                    <small id="descriptionCounter" class="form-text text-muted">0 de 4000 caracteres</small>
-                </div>
-                <textarea class="form-control" name="description" id="description" maxlength="4000" rows="3"><?php echo $category['description']; ?></textarea>
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -233,6 +234,52 @@ if(!empty($id)){
             </div>
         </div>
     </div>
+    
+    <div class="card mb-3 p-0">
+        <div class="card-header d-flex justify-content-between fw-semibold px-4 py-3 bg-transparent">
+            Descrição da categoria
+        </div>
+        <div class="card-body px-5 py-3">
+            <label for="editor" class="form-label small">Descrição da categoria</label>
+            <textarea name="description" id="editor" maxlength="4000"><?php echo $category['description']; ?></textarea>
+        </div>
+    </div>
+
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">
+            FAQ da Categoria
+            <button type="button" class="btn btn-sm btn-success" id="addFaqBtn">
+                + Adicionar FAQ
+            </button>
+        </div>
+    
+        <div class="card-body" id="faqContainer">
+            <!-- ALERTA QUANDO NÃO HÁ FAQ -->
+            <div id="faqAlert" class="alert alert-warning" <?= (count($faqs) > 0) ? 'style="display: none;"' : ''; ?>>
+                Nenhum FAQ foi adicionado ainda. Clique no botão acima para adicionar.
+            </div>
+            
+            <!-- Aqui ficam os FAQs já cadastrados -->
+            <?php foreach ($faqs as $faq): ?>
+                <div class="faq-item border rounded p-3 mb-3 position-relative">
+                    <button type="button" class="btn btn-danger btn-sm remove-faq" 
+                        style="position:absolute; right:10px; top:10px;">
+                        Remover
+                    </button>
+    
+                    <div class="mb-3">
+                        <label class="form-label small">Título da pergunta *</label>
+                        <input type="text" class="form-control" name="faq_question[]" value="<?= $faq['question'] ?>" required>
+                    </div>
+    
+                    <div class="mb-3">
+                        <label class="form-label small">Resposta *</label>
+                        <textarea class="form-control" name="faq_answer[]" rows="3" required><?= $faq['answer'] ?></textarea>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
 
     <div class="card mb-3 p-0">
         <div class="card-header fw-semibold px-4 py-3 bg-transparent d-flex justify-content-between">Google / SEO</div>
@@ -274,6 +321,12 @@ if(!empty($id)){
     <input type="hidden" name="shop_id" value="<?php echo $shop_id; ?>">
     <input type="hidden" name="id" value="<?php echo $id; ?>">
 
+    <!-- Botao salvar -->
+    <div class="container-save-button save fw-semibold bg-transparent d-flex align-items-center justify-content-between mb-3">
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="text-decoration-none text-reset">Cancelar</a>
+        <button type="submit" name="SendAddProduct" class="btn btn-success fw-semibold px-4 py-2 small">Salvar</button>
+    </div>
+
     <div class="save-button bg-white px-6 py-3 align-item-right" id="saveButton" style="position: fixed;width: calc(100% - 78px);left: 78px;bottom: 0px;z-index: 99999; display: none;">
         <div class="container-save-button container fw-semibold bg-transparent d-flex align-items-center justify-content-between">
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>categorias" class="text-decoration-none text-reset">Cancelar</a>
@@ -284,11 +337,63 @@ if(!empty($id)){
 </form>
 
 <!-- Link para o TinyMCE CSS -->
-<script src="https://cdn.tiny.cloud/1/xiqhvnpyyc1fqurimqcwiz49n6zap8glrv70bar36fbloiko/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/<?= $tinyKey; ?>/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <!-- jQuery and jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- FAQ -->
+<script>
+    $(document).ready(function () {
+        function checkFaqAlert() {
+            // Se NÃO houver itens .faq-item, mostra alerta
+            if ($("#faqContainer .faq-item").length === 0) {
+                $("#faqAlert").show();
+            } else {
+                $("#faqAlert").hide();
+            }
+        }
+    
+        // Já conferimos ao carregar
+        checkFaqAlert();
+    
+        // Adicionar FAQ
+        $("#addFaqBtn").on("click", function () {
+            // Remove alerta ao adicionar
+            $("#faqAlert").hide();
+    
+            let faq = `
+                <div class="faq-item border rounded p-3 mb-3 position-relative">
+                    <button type="button" class="btn btn-danger btn-sm remove-faq" 
+                        style="position:absolute; right:10px; top:10px;">
+                        Remover
+                    </button>
+    
+                    <div class="mb-3">
+                        <label class="form-label small">Título da pergunta *</label>
+                        <input type="text" class="form-control" name="faq_question[]" required>
+                    </div>
+    
+                    <div class="mb-3">
+                        <label class="form-label small">Resposta *</label>
+                        <textarea class="form-control" name="faq_answer[]" rows="3" required></textarea>
+                    </div>
+                </div>
+            `;
+    
+            $("#faqContainer").append(faq);
+        });
+    
+        // Remover FAQ
+        $(document).on("click", ".remove-faq", function () {
+            $(this).closest(".faq-item").remove();
+    
+            // Checa se ficou vazio e mostra alerta novamente
+            checkFaqAlert();
+        });
+    });
+</script>
 
 <!-- Imagens -->
 <script>
@@ -373,6 +478,42 @@ if(!empty($id)){
     ativarVisualizacaoImagem('iconInput', 'iconPreview');
 </script>
 
+<!-- Name -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Selecione o campo de entrada e o span
+        var input = $("#name");
+
+        var seoName = $('#textInput1');
+        var seoNamePreview = $('#textPreview1');
+
+        input.on("input", function() {
+            var value = input.val();
+
+            // Verifica se a string excede 67 caracteres
+            if (value.length > 67) {
+                // Limita a string aos primeiros 67 caracteres
+                value = value.substring(0, 67);
+            }
+
+            if (value.length < 67) {
+                seoName.val(value);
+                seoNamePreview.text(value);
+            } else if (value.length >= 67) {
+                value = value.substring(0, 67);
+
+                seoName.val(value + "...");
+                seoNamePreview.text(value + "...");
+            }
+
+            if (value === '') {
+                seoNamePreview.text("Título da página");
+            }
+        });
+    });
+</script>
+
 <!-- Link -->
 <script>
     // Aguarde o documento estar pronto
@@ -380,23 +521,69 @@ if(!empty($id)){
         // Selecione o campo de entrada e o span
         var input = $("#name");
         var span = $("#linkPreview");
+        var inputPreview = $("#link");
 
-        // Adicione um ouvinte de evento de entrada ao campo de entrada
+        var inputText2 = $('#textInput2');
+        var textPreview2 = $('#textPreview2');
+
         input.on("input", function() {
-            // Obtenha o valor atual do campo de entrada
-            var valor = input.val();
+            var value = input.val();
 
-            if (valor === '') {
-                valor = '...';
+            // Remover acentos e substituir espaços por traço
+            value = removerAcentosEespacos(value);
+            
+            span.text(value);
+            inputPreview.val(value);
+
+            inputText2.val(value);
+            textPreview2.text(value);
+
+            if (value === '') {
+                span.text("...");
+                textPreview2.text("link-da-pagina");
             }
-            
-            // Substitua espaços extras por um único traço e converta para letras minúsculas
-            valor = valor.replace(/\s+/g, "-").toLowerCase();
-            
-            // Atualize o texto no span com o valor formatado
-            span.text(valor);
+        });
 
-            $('#link').val(valor);
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
+    });
+</script>
+
+<!-- Description -->
+<script>
+    // Aguarde o documento estar pronto
+    $(document).ready(function() {
+        // Substitua 'meuTextarea' pelo ID real do seu textarea configurado com o TinyMCE
+        var description = $("#description");
+
+        description.on('input', function() {
+            var value = description.val();
+
+            // Selecione o campo de entrada e o span
+            var seoDescription = $("#textInput3");
+            var seoDescriptionPreview = $("#textPreview3");
+
+            // Verifica se a string excede 157 caracteres
+            if (value.length > 157) {
+                // Limita a string aos primeiros 157 caracteres
+                value = value.substring(0, 157);
+            }
+
+            if (value.length < 157) {
+                seoDescription.val(value);
+                seoDescriptionPreview.text(value);
+            } else if (value.length >= 157) {
+                value = value.substring(0, 157);
+
+                seoDescription.val(value + "...");
+                seoDescriptionPreview.text(value + "...");
+            }
+
+            if (value === '') {
+                seoDescriptionPreview.text("Descrição da página");
+            }
         });
     });
 </script>
@@ -619,8 +806,9 @@ if(!empty($id)){
             if (text === '') {
                 text = 'link-da-categoria';
             }
-            newText = text.replace(/\s+/g, "-").toLowerCase();
-            $(this).val($(this).val().replace(/\s+/g, "-").toLowerCase());
+            // Remover acentos e substituir espaços por traço
+            newText = removerAcentosEespacos(text);
+            $(this).val($(this).val().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase());
             textPreview2.text(newText);
             $('#link').val(newText);
         });
@@ -632,6 +820,11 @@ if(!empty($id)){
             }
             textPreview3.text(newText);
         });
+
+        function removerAcentosEespacos(texto) {
+            // Remove acentos usando normalize e substitui espaços por traço
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, "-").toLowerCase();
+        }
     });
 </script>
 
@@ -680,14 +873,14 @@ if(!empty($id)){
         $('input, textarea').on('input', function () {
             formChanged = true;
             $('#saveButton').show();
-            $('.main.container').addClass('save-button-show');
+            $('.main .container').addClass('save-button-show');
         });
 
         $('#saveButton button').click(function () {
             if (formChanged) {
                 formChanged = false;
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container').removeClass('save-button-show');
             }
         });
 
@@ -703,7 +896,7 @@ if(!empty($id)){
             var hasChanges = $('input.changed, textarea.changed').length > 0;
             if (!hasChanges) {
                 $('#saveButton').hide();
-                $('.main.container').removeClass('save-button-show');
+                $('.main .container').removeClass('save-button-show');
             }
         });
     });

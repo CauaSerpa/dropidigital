@@ -1,2 +1,2 @@
 <h1>404</h1>
-<p>Nenhuma loja encontrada</p>
+<p><?= __('no_stores_found') ?></p>

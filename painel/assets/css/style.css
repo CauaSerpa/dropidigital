@@ -205,6 +205,7 @@ a.link:hover
     100%
     {
         transform: translateY(0);
+        display: none;
     }
 }
 .card__info .info p
@@ -227,6 +228,24 @@ a.link:hover
 {
     margin-left: var(--mb-1-25);
 }
+.btn.btn-success
+{
+    background: var(--green-color);
+    border: none;
+}
+.btn.btn-success:hover {
+    background: var(--dark-green-color);
+}
+.btn.btn-outline-success
+{
+    color: var(--green-color);
+    border-color: var(--green-color);
+}
+.btn.btn-outline-success:hover {
+    color: white;
+    background: var(--dark-green-color);
+    border-color: var(--dark-green-color);
+}
 .back .btn.btn-success
 {
     background: var(--green-color);
@@ -240,7 +259,7 @@ a.link:hover
     position: fixed;
     right: 20px;
     bottom: 20px;
-    z-index: var(--z-fixed);
+    z-index: 999999999;
     border: none;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, .15);
 }
@@ -264,6 +283,18 @@ a.link:hover
 }
 .card.info-card .button .btn.btn-success:hover {
     background: var(--dark-green-color);
+}
+.fixed-whatsapp-button
+{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999999999999;
+    border: none;
+}
+.fixed-whatsapp-button .whatsapp-button svg {
+    width: 80px;
+    height: 80px;
 }
 .table
 {
@@ -681,6 +712,7 @@ nav.sidebar ul li .tooltip .two .buttons .next:hover
 .sidebar.close .nav-links li a .link_name{
     opacity: 0;
     pointer-events: none;
+    text-wrap: nowrap;
 }
 .sidebar .nav-links li .sub-menu{
     padding: 6px 6px 14px 80px !important;
@@ -1127,6 +1159,12 @@ select {
     padding: .75rem 1rem;
     border-bottom: 1px solid var(--border-color);
 }
+.user .modal__user__info p.small
+{
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .user .theme__dark
 {
     position: relative;
@@ -1173,6 +1211,21 @@ select {
     width: 2px;
     height: 100%;
     background: black;
+}
+.user .improvement
+{
+    position: relative;
+    color: var(--text-color);
+    transition: .3s;
+    display: flex;
+    align-items: center;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+.user .improvement i
+{
+    margin-right: var(--mb-0-5);
 }
 .user .account
 {
@@ -1458,6 +1511,10 @@ select {
 {
     padding-bottom: 73px;
 }
+.container.grid.save-button-show .container-save-button.save
+{
+    display: none !important;
+}
 .save-button
 {
     border-top: 1px solid var(--border-color);
@@ -1473,12 +1530,12 @@ select {
     left: 50% !important;
     transform: translateX(-50%);
 }
-.save-button .container-save-button.container .btn
+.container-save-button .btn
 {
     background: var(--green-color);
     border: none;
 }
-.save-button .container-save-button.container .btn:hover
+.container-save-button .btn:hover
 {
     background: var(--dark-green-color);
 }
@@ -2147,6 +2204,12 @@ select {
     left: 260px !important;
     z-index: 50 !important;
 }
+.offcanvas.offcanvas-end.show ~ .offcanvas-backdrop.fade.show
+{
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1000 !important;
+}
 .card__container .card__box .card .card__title .title__content .btn.delete
 {
     height: 30px !important;
@@ -2284,7 +2347,9 @@ select {
     padding-top: 11px;
     padding-bottom: 11px;
     white-space: nowrap;
+    height: 0;
     visibility: hidden;
+    overflow: hidden;
     opacity: 0;
     transition: .3s;
 }
@@ -2310,7 +2375,9 @@ select {
 }
 .card__container .card__box .center .left .container__button .dropdown.selected .option
 {
+    height: max-content;
     visibility: visible;
+    overflow: visible;
     opacity: 1;
 }
 .card__container .card__box .center .left .container__button .dropdown .option div
@@ -2318,10 +2385,13 @@ select {
     padding: .5rem 1.5rem;
     cursor: pointer;
 }
+.card__container .card__box .center .left .container__button .dropdown .option div.selected
+{
+    color: var(--green-color);
+}
 .card__container .card__box .center .left .container__button .dropdown .option div:hover
 {
-    background: var(--first-color);
-    color: #fff;
+    background: #f8f9fa;
 }
 
 
@@ -2366,6 +2436,7 @@ select {
     justify-content: center;
     font-size: var(--normal-font-size);
     color: var(--text-color);
+    text-decoration: none !important;
 }
 .card__container .card__box .center .right .controller .analog.pag-limit
 {
@@ -2422,7 +2493,11 @@ select {
     margin-top: 0;
 }
 
-
+.card.table
+{
+    overflow-x: auto !important;
+    overflow-y: hidden;
+}
 
 
 .card .input-icon
@@ -3571,6 +3646,88 @@ input[type="number"]::-webkit-inner-spin-button
 
 
 
+@media screen and (max-width: 768px) {
+    .main
+    {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .header__icon
+    {
+        margin-right: var(--mb-0-75);
+    }
+
+    nav.sidebar
+    {
+        background: white !important;
+    }
+    .sidebar.close
+    {
+        display: none;
+    }
+    .sidebar
+    {
+        display: block;
+    }
+    .backdrop
+    {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        opacity: .5;
+        z-index: 99;
+    }
+    .backdrop.show
+    {
+        display: block;
+    }
+
+    .shop-link a
+    {
+        padding: 0;
+    }
+    .shop-link a span
+    {
+        display: none;
+    }
+
+    .back .back-link
+    {
+        padding: .5rem !important;
+    }
+    .back .back-link span
+    {
+        display: none;
+    }
+    
+    .main .card__container .card__box.shop__info .card .shop__details .details__content
+    {
+        align-items: center;
+    }
+    .main .card__container .card__box.shop__info .card .shop__details .details__content .shop__metrics
+    {
+        display: block;
+    }
+    .main .card__container .card__box.shop__info .card .shop__details .details__content h1
+    {
+        margin-bottom: 0;
+    }
+
+    .main .card__container .card__box .card .card__header .link
+    {
+        text-wrap: nowrap;
+    }
+
+    .card.info-card
+    {
+        display: none;
+    }
+}
 
 
 

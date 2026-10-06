@@ -1,4 +1,17 @@
-<div class="container">
+<style>
+    .listProducts .row
+    {
+        --bs-gutter-x: 1rem !important;
+        --bs-gutter-y: 1rem !important;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        color: inherit !important;
+        background-color: transparent !important;
+    }
+</style>
+
+<div class="listProducts container">
     <div class="row p-4">
         <nav class="mb-2" aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -18,40 +31,183 @@
 
                     if ($category['parent_category'] == 1)
                     {
-                        echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
+                        echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">' . __('home_page') . '</a></li>';
                     } else {
-                        echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">Página inicial</a></li>';
-                        echo '<li class="breadcrumb-item small ms-2"><a href="' . INCLUDE_PATH_LOJA . $parent_category['link'] . '" class="text-decoration-none">' . $parent_category['name'] . '</a></li>';
+                        echo '<li class="breadcrumb-item small"><a href="' . INCLUDE_PATH_LOJA . '" class="text-decoration-none">' . __('home_page') . '</a></li>';
+                        echo '<li class="breadcrumb-item small ms-2"><a href="' . INCLUDE_PATH_LOJA . 'c/' . $parent_category['link'] . '" class="text-decoration-none">' . $parent_category['name'] . '</a></li>';
                     }
                 ?>
                 <li class="breadcrumb-item small fw-semibold text-body-secondary text-decoration-none ms-2 active" aria-current="page"><?php echo $category['name']; ?></li>
             </ol>
         </nav>
         <div class="col-sm-3">
-            <div class="card p-3">
-                <h4>Filtro</h4>
+            <!-- <div class="card p-3 mb-3">
+                <h4><?= __('filter') ?></h4>
+            </div> -->
+
+            <?php
+                $sqlSubcategories = "
+                    SELECT c.id, c.name, c.link
+                    FROM tb_categories c
+                    WHERE c.parent_category = :parent_category
+                    AND c.parent_category != 1
+                    AND c.status = 1
+                    ORDER BY c.name ASC
+                ";
+
+                $stmtSubcategories = $conn_pdo->prepare($sqlSubcategories);
+                $stmtSubcategories->bindParam(':parent_category', $category['id'], PDO::PARAM_INT);
+                $stmtSubcategories->execute();
+
+                $subcategories = $stmtSubcategories->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+
+            <?php if (!empty($subcategories)): ?>
+                <div class="mb-3">
+                    <h5><?= __('subcategories') ?></h5>
+
+                    <?php foreach ($subcategories as $subcategory): ?>
+                        <li>
+                            <a href="<?= INCLUDE_PATH_LOJA . 'c/' . $subcategory['link']; ?>"
+                            class="list-group-item list-group-item-action border-0 px-0">
+                                <?= htmlspecialchars($subcategory['name']); ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            
+            <!-- Descrição da categoria (opcional) -->
+            <?php if (!empty($category['description'])): ?>
+                <div class="mb-3">
+                    <h5><?= __('description') ?></h5>
+                    <p><?= nl2br($category['description']); ?></p>
+                </div>
+            <?php endif; ?>
+            
+            <!--Listar FAQ-->
+            <?php
+                $sqlFaq = "SELECT id, question, answer 
+                           FROM tb_category_faqs 
+                           WHERE category_id = :category_id 
+                           ORDER BY position ASC";
+
+                $stmtFaq = $conn_pdo->prepare($sqlFaq);
+                $stmtFaq->bindParam(':category_id', $category['id'], PDO::PARAM_INT);
+                $stmtFaq->execute();
+                $faqs = $stmtFaq->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+            <div>
+                <?php if (!empty($faqs)): ?>
+                    <h5 class="mb-3"><?= __('category_faq') ?></h5>
+                    
+                    <div class="accordion" id="accordionFaq">
+                        <?php foreach ($faqs as $index => $faq): ?>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading<?= $faq['id']; ?>">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse<?= $faq['id']; ?>" aria-expanded="false"
+                                        aria-controls="collapse<?= $faq['id']; ?>">
+                                        <?= htmlspecialchars($faq['question']); ?>
+                                    </button>
+                                </h2>
+        
+                                <div id="collapse<?= $faq['id']; ?>" class="accordion-collapse collapse"
+                                    aria-labelledby="heading<?= $faq['id']; ?>" data-bs-parent="#accordionFaq">
+                                    <div class="accordion-body">
+                                        <?= nl2br(htmlspecialchars($faq['answer'])); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </div>
+            
         </div>
         <div class="col-sm-9">
             <div class="row g-3">
                 <?php
-                    // Nome da tabela para a busca
-                    $tabela = 'tb_products';
+                    // Paginação
+                    $limite = 48; // quantidade de produtos por página
+                    $paginaAtual = isset($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+                    $offset = ($paginaAtual - 1) * $limite;
 
-                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND categories = :categories AND status = :status ORDER BY id ASC";
 
-                    // Preparar e executar a consulta
+                    
+                    $categoryIds = [$category['id']]; // categoria atual
+
+                    foreach ($subcategories as $subcategory) {
+                        $categoryIds[] = $subcategory['id'];
+                    }
+
+                    $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+
+
+                
+                    $sqlTotal = "
+                        SELECT COUNT(*)
+                        FROM tb_products p
+                        WHERE p.status = 1
+                        AND EXISTS (
+                            SELECT 1
+                            FROM tb_product_categories pc
+                            WHERE pc.shop_id = ?
+                            AND pc.product_id = p.id
+                            AND pc.category_id IN ($placeholders)
+                        )
+                    ";
+
+                    $paramsTotal = array_merge([$shop_id], $categoryIds);
+
+                    $stmtTotal = $conn_pdo->prepare($sqlTotal);
+                    $stmtTotal->execute($paramsTotal);
+
+                    $totalRegistros = (int)$stmtTotal->fetchColumn();
+                    $totalPaginas = ceil($totalRegistros / $limite);
+                
+                    $sql = "
+                        SELECT
+                            p.id,
+                            p.name,
+                            p.price,
+                            p.discount,
+                            p.link, 
+                            p.without_price
+                        FROM tb_products p
+                        INNER JOIN (
+                            SELECT DISTINCT p2.id
+                            FROM tb_product_categories pc
+                            INNER JOIN tb_products p2
+                                ON p2.id = pc.product_id
+                            WHERE pc.shop_id = ?
+                            AND pc.category_id IN ($placeholders)
+                            AND p2.status = 1
+                            ORDER BY p2.id ASC
+                            LIMIT ? OFFSET ?
+                        ) ids ON ids.id = p.id
+                        ORDER BY p.id ASC
+                    ";
+
+                    $params = array_merge(
+                        [$shop_id],
+                        $categoryIds,
+                        [$limite, $offset]
+                    );
+
                     $stmt = $conn_pdo->prepare($sql);
-                    $stmt->bindParam(':shop_id', $shop_id);
-                    $stmt->bindParam(':categories', $category_id);
-                    $stmt->bindValue(':status', 1);
+
+                    foreach ($params as $i => $value) {
+                        $type = PDO::PARAM_INT;
+                        $stmt->bindValue($i + 1, $value, $type);
+                    }
+
                     $stmt->execute();
 
-                    // Recuperar os resultados
-                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Loop através dos resultados e exibir todas as colunas
-                    foreach ($resultados as $product) {
+                    foreach ($products as $product) {
                         // Consulta SQL para selecionar todas as colunas com base no ID
                         $sql = "SELECT * FROM imagens WHERE usuario_id = :usuario_id ORDER BY id ASC LIMIT 1";
 
@@ -63,20 +219,28 @@
                         // Recuperar os resultados
                         $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+                        // Formatacao da moeda
+                        $currencySymbol = ($product['language'] == 'pt') ? "R$ " : "$ ";
+
                         // Formatação preço
                         $preco = $product['price'];
 
                         // Transforma o número no formato "R$ 149,90"
-                        $price = "R$ " . number_format($preco, 2, ",", ".");
+                        $price = $currencySymbol . number_format($preco, 2, ",", ".");
 
                         // Formatação preço com desconto
                         $desconto = $product['discount'];
 
                         // Transforma o número no formato "R$ 149,90"
-                        $discount = "R$ " . number_format($desconto, 2, ",", ".");
+                        $discount = $currencySymbol . number_format($desconto, 2, ",", ".");
 
                         // Calcula a porcentagem de desconto
-                        $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                        if ($product['price'] != 0) {
+                            $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                        } else {
+                            // Lógica para lidar com o caso em que $product['price'] é zero
+                            $porcentagemDesconto = 0; // Ou outro valor padrão
+                        }
 
                         // Arredonda o resultado para duas casas decimais
                         $porcentagemDesconto = round($porcentagemDesconto, 0);
@@ -93,17 +257,21 @@
                         }
 
                         // Link do produto
-                        $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
+                        $link = INCLUDE_PATH_LOJA . $product['link'];
 
-                        echo '<div class="col-sm-4">';
-                        echo '<a href="' . $link . '" class="product-link">';
+                        if ($product['without_price']) {
+                            $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
+                        }
+
+                        echo '<div class="col-sm-3 numBanner d-grid">';
+                        echo '<a href="' . $link . '" class="product-link d-grid">';
                         echo '<div class="card">';
 
                         if ($imagens) {
                             foreach ($imagens as $imagem) {
                                 echo '<div class="product-image">';
                                 echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
-                                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
+                                echo '<img src="' . CDN_BASE_URL . 'products/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
                                 echo '</div>';
                             }
                         } else {
@@ -127,5 +295,102 @@
                 ?>
             </div>
         </div>
+        
+        <?php if ($totalPaginas > 1): ?>
+        <style>
+            .line {
+                height: 80%;
+                width: 1px;
+                background-color: #dedede;
+            }
+            
+            .pagination.categories li {
+                margin: 0 !important;
+            }
+            
+            .pagination.categories li.active .page-link {
+                --bs-btn-color: #fff;
+                --bs-btn-border-width: 1px;
+                --bs-btn-border-color: #212529;
+                --bs-btn-border-radius: .375rem;
+                --bs-btn-bg: #212529;
+                color: var(--bs-btn-color) !important;
+                border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
+                background-color: var(--bs-btn-bg);
+            }
+            
+            .pagination.categories li.active:hover .page-link {
+                --bs-btn-hover-color: #fff;
+                --bs-btn-hover-bg: #424649;
+                --bs-btn-hover-border-color: #373b3e;
+                color: var(--bs-btn-hover-color) !important;
+                background-color: var(--bs-btn-hover-bg);
+                border-color: var(--bs-btn-hover-border-color);
+            }
+            
+            .pagination.categories li .page-link {
+                color: #838694 !important;
+                line-height: 1.5 !important;
+                text-decoration: none !important;
+            }
+        </style>
+        
+        <!-- Paginação -->
+        <nav aria-label="Page navigation example" class="d-flex align-items-center justify-content-end">
+            <form method="get" class="form-inline d-flex align-items-center justify-content-end w-25">
+                <label for="goto_page" class="text-end me-3 mb-0">Ir para página:</label>
+                <div class="input-group" style="align-items: center; width: max-content;">
+                    <input
+                        type="number"
+                        id="goto_page"
+                        name="page"
+                        class="form-control"
+                        style="padding: .375rem .75rem; width: 70px; max-width: 70px;"
+                        min="1"
+                        max="<?= $totalPaginas; ?>"
+                        value="<?= $paginaAtual; ?>"
+                    >
+                    <button type="submit" class="btn btn-dark ml-2">Ir</button>
+                </div>
+            </form>
+            
+            <div class="line ms-3 me-3"></div>
+            
+            <ul class="pagination categories justify-content-end align-items-center mb-0">
+                <!-- Números das páginas -->
+                <?php
+                    $intervalo = 2; // Número de páginas antes e depois da página atual
+                    $inicio = max(1, $paginaAtual - $intervalo);
+                    $fim = min($totalPaginas, $paginaAtual + $intervalo);
+        
+                    // Primeira página
+                    if ($inicio > 1) {
+                        echo '<li class="page-item"><a class="page-link" href="?page=1&search=' . urlencode($search) . '">1</a></li>';
+                        if ($inicio > 2) {
+                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        }
+                    }
+        
+                    // Páginas antes e depois da atual
+                    for ($i = $inicio; $i <= $fim; $i++) {
+                        if ($i == $paginaAtual) {
+                            echo '<li class="page-item active"><a class="page-link" href="?page=' . $i . '&search=' . urlencode($search) . '">' . $i . '</a></li>';
+                        } else {
+                            echo '<li class="page-item"><a class="page-link" href="?page=' . $i . '&search=' . urlencode($search) . '">' . $i . '</a></li>';
+                        }
+                    }
+        
+                    // Última página
+                    if ($fim < $totalPaginas) {
+                        if ($fim < $totalPaginas - 1) {
+                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        }
+                        echo '<li class="page-item"><a class="page-link" href="?page=' . $totalPaginas . '&search=' . urlencode($search) . '">' . $totalPaginas . '</a></li>';
+                    }
+                ?>
+            </ul>
+        </nav>
+        <?php endif; ?>
+        
     </div>
 </div>

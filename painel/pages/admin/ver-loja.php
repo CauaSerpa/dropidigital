@@ -1,4 +1,7 @@
 <?php
+    echo verificaPermissaoPagina($permissions);
+?>
+<?php
     $shop_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
     
     if (!empty($shop_id)) {
@@ -46,7 +49,7 @@
             // Nome da tabela para a busca
             $tabela = 'tb_subscriptions';
     
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id ASC LIMIT 1";
+            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC LIMIT 1";
     
             // Preparar e executar a consulta
             $stmt = $conn_pdo->prepare($sql);
@@ -54,7 +57,7 @@
             $stmt->execute();
     
             // Obter o resultado como um array associativo
-            $subs = $stmt->fetch(PDO::FETCH_ASSOC);
+            $sub = $stmt->fetch(PDO::FETCH_ASSOC);
     
             // Nome da tabela para a busca
             $tabela = 'tb_login';
@@ -74,7 +77,7 @@
             $tabelaInterval = 'tb_plans_interval';
             $tabelaPlans = 'tb_plans';
     
-            $sql = "SELECT p.name
+            $sql = "SELECT p.id, p.name
                     FROM $tabelaInterval i
                     JOIN $tabelaPlans p ON i.plan_id = p.id
                     WHERE i.id = :id
@@ -89,7 +92,7 @@
             $plan = $stmt->fetch(PDO::FETCH_ASSOC);
     
             if ($plan) {
-                $plan = $plan['name'];
+                $shopPlan = $plan['name'];
             }
 ?>
 
@@ -254,6 +257,128 @@
 </form>
 </div>
 
+<div class="modal fade" id="warningShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="warningShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/warning_shop.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Criar Aviso
+                </div>
+            </div>
+            <div class="modal-body row px-4 py-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="level" class="form-label small">Nível de Relevância *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="level" id="level" required>
+                                <option value="" selected disabled>Selecione o nível de relevância</option>
+                                <option value="1">Baixo</option>
+                                <option value="2">Médio</option>
+                                <option value="3">Alto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="type" class="form-label small">Tipo *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="type" id="type" required>
+                                <option value="" selected disabled>Selecione o tipo</option>
+                                <option value="1">Modal</option>
+                                <option value="2">Texto fixo</option>
+                                <option value="3">Notificação</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="title" class="form-label small">Título *</label>
+                        <input type="text" class="form-control" name="title" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label small">Conteúdo *</label>
+                        <textarea class="form-control" name="content" id="content" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success border-danger d-flex align-items-center fw-semibold px-4 py-2 small" id="warningButton">
+                    <i class='bx bx-error-circle me-2' ></i>
+                    Avisar
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
+<div class="modal fade" id="updateWarningShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="updateWarningShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_warning_shop.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Editar Aviso
+                </div>
+            </div>
+            <div class="modal-body row px-4 py-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="level" class="form-label small">Nível de Relevância *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="level" id="level" required>
+                                <option value="" selected disabled>Selecione o nível de relevância</option>
+                                <option value="1">Baixo</option>
+                                <option value="2">Médio</option>
+                                <option value="3">Alto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="type" class="form-label small">Tipo *</label>
+                        <div class="input-group">
+                            <select class="form-select" name="type" id="type" required>
+                                <option value="" selected disabled>Selecione o tipo</option>
+                                <option value="1">Modal</option>
+                                <option value="2">Texto fixo</option>
+                                <option value="3">Notificação</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="title" class="form-label small">Título *</label>
+                        <input type="text" class="form-control" name="title" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label small">Conteúdo *</label>
+                        <textarea class="form-control" name="content" id="content" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="id" id="id">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success d-flex align-items-center fw-semibold px-4 py-2 small" id="warningButton">
+                    <i class='bx bx-error-circle me-2' ></i>
+                    Editar Aviso
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
 <div class="modal fade" id="deleteShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 <form id="deleteShopForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/delete_shop.php" method="post">
     <div class="modal-dialog modal-lg">
@@ -293,6 +418,148 @@
     </div>
 </form>
 </div>
+
+<?php
+    date_default_timezone_set('America/Sao_Paulo');
+
+    $today = new DateTime();
+    $date = $today->format("Y-m-d");
+?>
+
+<div class="modal fade" id="editShopPlan" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<form id="editShopPlanForm" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/admin/edit_shop_plan.php" method="post">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 py-3 bg-transparent">
+                <div class="fw-semibold py-2">
+                    Editar Plano
+                </div>
+            </div>
+            <div class="modal-body row px-4 py-3">
+                <div class="mb-3">
+                    <label for="plan_id" class="form-label small">Plano *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="plan_id" id="plan_id" required>
+                            <option value="" disabled>Selecione o plano</option>
+                            <?php
+                                // Aqui você pode popular a tabela com dados do banco de dados
+                                // Vamos supor que cada linha tem um ID únic
+
+                                // Nome da tabela para a busca
+                                $tabelaInterval = 'tb_plans_interval';
+                                $tabelaPlans = 'tb_plans';
+
+                                // id do plano
+                                $shop['plan_id'] = ($sub['cycle'] == "MONTHLY") ? $shop['plan_id'] : ($shop['plan_id'] - 1);
+
+                                $sql = "SELECT i.id, p.name
+                                    FROM $tabelaInterval i
+                                    JOIN $tabelaPlans p ON i.plan_id = p.id
+                                    WHERE i.billing_interval = :billing_interval
+                                    ORDER BY p.id ASC";
+
+                                // Preparar e executar a consulta
+                                $stmt = $conn_pdo->prepare($sql);
+                                $stmt->bindValue(':billing_interval', 'monthly');
+                                $stmt->execute();
+
+                                // Recuperar os resultados
+                                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                if ($stmt->rowCount() > 0) {
+                                    // Loop através dos resultados e exibir todas as colunas
+                                    foreach ($resultados as $plan) {
+                                        $selected = ($shop['plan_id'] == $plan['id']) ? "selected" : "";
+
+                                        echo "<option value='" . $plan['id'] . "' $selected>" . $plan['name'] . "</option>";
+                                    }
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="cycle" class="form-label small">Tipo de Cobrança *</label>
+                    <div class="input-group">
+                        <select class="form-select" name="cycle" id="cycle" required>
+                            <option value="" disabled>Selecione o tipo</option>
+                            <option value="MONTHLY">Mensal</option>
+                            <option value="YEARLY">Anual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6 class="mb-3">Duração</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label small">Início *</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" name="start_date" id="start_date" min="<?php echo $date; ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="due_date" class="form-label small">Fim *</label>
+                            <div class="input-group mb-2">
+                                <input type="date" class="form-control" name="due_date" id="due_date" min="<?php echo $date; ?>" required>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="undefined" id="undefined">
+                                <label class="form-check-label" for="undefined">Indefinido</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+            <div class="modal-footer fw-semibold px-4">
+                <button type="button" class="btn btn-outline-light border border-secondary-subtle text-secondary fw-semibold px-4 py-2 small" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success border-danger d-flex align-items-center fw-semibold px-4 py-2 small" id="updShopPlan">Salvar</button>
+            </div>
+        </div>
+    </div>
+</form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+      $('#start_date').on('change', updateDueDate);
+      $('#cycle').on('change', updateDueDate);
+      $('#undefined').on('change', updateDueDate);
+
+      function updateDueDate() {
+        var startDateValue = $('#start_date').val();
+        var billingTypeValue = $('#cycle').val();
+        var undefinedCheckbox = $('#undefined');
+
+        if (undefinedCheckbox.is(':checked')) {
+          // Se o checkbox estiver marcado, desabilita o input e remove o valor
+          $('#due_date').prop('disabled', true).prop('required', false).val('');
+          $('#undefined').prop('required', true);
+        } else {
+          // Se o checkbox não estiver marcado, habilita o input e atualiza o valor mínimo
+          $('#due_date').prop('disabled', false).prop('required', true);
+          $('#undefined').prop('required', false);
+
+          if (startDateValue && billingTypeValue) {
+            var nextDate = new Date(startDateValue);
+
+            if (billingTypeValue === 'MONTHLY') {
+              nextDate.setMonth(nextDate.getMonth() + 1);
+            } else if (billingTypeValue === 'YEARLY') {
+              nextDate.setFullYear(nextDate.getFullYear() + 1);
+            }
+
+            var nextDateFormatted = nextDate.toISOString().split('T')[0];
+            $('#due_date').attr('min', nextDateFormatted);
+            $('#due_date').val(nextDateFormatted);
+          }
+        }
+      }
+    });
+</script>
 
 <div class="page__header center">
     <div class="header__title">
@@ -349,10 +616,7 @@
         <a class="nav-link <?php echo ($tab == "dominio") ? "active" : ""; ?>" id="dominio" onclick="changeTab('dominio')" data-bs-toggle="tab" data-bs-target="#domain-tab-pane" type="button" role="tab" aria-controls="domain-tab-pane" aria-selected="<?php echo ($tab == "dominio") ? "true" : "false"; ?>">Domínio</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link <?php echo ($tab == "tema") ? "active" : ""; ?>" id="tema" onclick="changeTab('tema')" data-bs-toggle="tab" data-bs-target="#theme-tab-pane" type="button" role="tab" aria-controls="theme-tab-pane" aria-selected="<?php echo ($tab == "tema") ? "true" : "false"; ?>">Tema</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <?php echo ($tab == "seguranca") ? "active" : ""; ?>" id="seguranca" onclick="changeTab('seguranca')" data-bs-toggle="tab" data-bs-target="#security-tab-pane" type="button" role="tab" aria-controls="security-tab-pane" aria-selected="<?php echo ($tab == "seguranca") ? "true" : "false"; ?>">Segurança</a>
+        <a class="nav-link <?php echo ($tab == "historico-de-faturas") ? "active" : ""; ?>" id="historico-de-faturas" onclick="changeTab('historico-de-faturas')" data-bs-toggle="tab" data-bs-target="#invoice-tab-pane" type="button" role="tab" aria-controls="invoice-tab-pane" aria-selected="<?php echo ($tab == "historico-de-faturas") ? "true" : "false"; ?>">Histórico de Faturas</a>
     </li>
 </ul>
 
@@ -361,7 +625,7 @@
 <div class="tab-pane fade <?php echo ($tab == "" || $tab == "loja") ? "show active" : ""; ?>" id="shop-tab-pane" role="tabpanel" aria-labelledby="shop-tab" tabindex="0">
     <div class="row">
         <div class="col-md-6">
-            <div class="card p-0">
+            <div class="card p-0 mb-3">
                 <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
                 <div class="card-body row px-4 py-3">
                     <ul class="mb-0">
@@ -387,11 +651,11 @@
                         </li>
                         <li class="d-flex justify-content-between">
                             <small class="fw-semibold">Plano atual:</small>
-                            <small><?php echo $plan; ?></small>
+                            <small><?php echo $shopPlan; ?></small>
                         </li>
                         <li class="d-flex justify-content-between">
                             <small class="fw-semibold">Vencimento:</small>
-                            <small><?php echo date("d/m/Y", strtotime($subs['due_date'])); ?></small>
+                            <small><?php echo date("d/m/Y", strtotime($sub['due_date'])); ?></small>
                         </li>
                         <li class="d-flex justify-content-between">
                             <small class="fw-semibold">Endereço:</small>
@@ -412,10 +676,96 @@
                     </ul>
                 </div>
             </div>
+            <?php
+                // Tabela que sera feita a consulta
+                $tabela = "tb_warning";
+
+                // Consulta SQL
+                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+                // Preparar a consulta
+                $stmt = $conn_pdo->prepare($sql);
+
+                // Vincular o valor do parâmetro
+                $stmt->bindParam(':shop_id', $shop['id'], PDO::PARAM_INT);
+
+                // Executar a consulta
+                $stmt->execute();
+
+                // Obter o resultado como um array associativo
+                $warnings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+
+            <style>
+                table#shopWarnings thead tr th,
+                table#shopWarnings tbody tr td
+                {
+                    padding: 0.5rem 1rem !important;
+                    font-size: .875rem;
+                }
+                table#shopWarnings tbody tr td
+                {
+                    max-width: 150px;
+                }
+                #shopWarnings .btn
+                {
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            </style>
+
+            <div class="card p-0 <?= (!$warnings) ? "d-none" : ""; ?>">
+                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Avisos</div>
+                <div class="card-body row px-4 py-3">
+                    <table id="shopWarnings">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="checkAll">
+                                </th>
+                                <th class="small">Título</th>
+                                <th class="small">Conteúdo</th>
+                                <th class="small">Data de Criação</th>
+                                <th class="small">Eventos</th>
+                            </tr>
+                        </thead>
+                        <?php
+                        // Loop através dos resultados e exibir todas as colunas
+                        foreach ($warnings as $warning) {
+                            $date_create = date("d/m/Y", strtotime($warning['date_create']));
+                        ?>
+                            <tbody>
+                                <tr>
+                                    <td scope="row">
+                                        <input class="form-check-input itemCheckbox" type="checkbox" name="selected_ids[]" value="<?= $warning['id']; ?>" id="defaultCheck2">
+                                    </td>
+                                    <td title="<?= $warning['title']; ?>"><?= $warning['title']; ?></td>
+                                    <td title="<?= $warning['content']; ?>"><?= $warning['content']; ?></td>
+                                    <td title="<?= $warning['date_create']; ?>"><?= $date_create; ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary editBtn" data-id="<?= $warning['id']; ?>" data-title="<?= htmlspecialchars($warning['title'], ENT_QUOTES); ?>" data-content="<?= htmlspecialchars($warning['content'], ENT_QUOTES); ?>" data-level="<?= $warning['level']; ?>" data-type="<?= $warning['type']; ?>">
+                                            <i class="bx bxs-edit"></i>
+                                        </button>
+                                        <a href="<?= INCLUDE_PATH_DASHBOARD; ?>excluir-aviso?id=<?= $warning['id']; ?>&shop=<?= $shop['id']; ?>" class="btn btn-danger">
+                                            <i class="bx bxs-trash" ></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        <?php
+                        }
+                    ?>
+                    </table>
+                </div>
+            </div>
         </div>
         <div class="col-md-6">
             <div class="card p-0">
-                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Informações básicas</div>
+                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Ações</div>
                 <div class="card-body row px-4 py-3">
                     <div class="d-flex justify-content-between mb-3">
                         <div>
@@ -423,7 +773,7 @@
                             <small>Clique em acessar para acessar a loja</small>
                         </div>
                         <div class="d-flex align-items-center">
-                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?id=<?php echo $user['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Acessar</a>
+                            <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?user_id=<?php echo $user['id']; ?>&shop_id=<?php echo $shop['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Acessar</a>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -457,12 +807,12 @@
                             <h6 class="fs-6 fw-semibold mb-0">Enviar Aviso</h6>
                             <small>Clique em aviso para enviar um aviso para a loja.</small>
                         </div>
-                        <div class="d-flex align-items-center">
+                        <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#warningShop">
                             <a href="#" class="btn btn-warning text-white d-flex align-items-center fw-semibold px-4 py-2 small">
                                 <i class='bx bx-error-circle me-2' ></i>
                                 Aviso
                             </a>
-                        </div>
+                        </button>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <div>
@@ -486,20 +836,40 @@
     // Nome da tabela para a busca
     $tabela = 'tb_domains';
 
+    // Consulta para obter o domínio que não seja "dropidigital.com.br"
     $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain != :domain";
-
-    // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':shop_id', $shop['id']);
     $stmt->bindValue(':domain', "dropidigital.com.br");
     $stmt->execute();
+    $domainWithoutDropi = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Recuperar os resultados
-    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Consulta para obter o domínio que seja "dropidigital.com.br"
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain";
+    $stmt = $conn_pdo->prepare($sql);
+    $stmt->bindParam(':shop_id', $shop['id']);
+    $stmt->bindValue(':domain', "dropidigital.com.br");
+    $stmt->execute();
+    $domainWithDropi = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($domain) {
-        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
-        $domain_url = $subdomain . $domain['domain'];
+    // Definir o domínio final com base nos resultados
+    if ($domainWithoutDropi) {
+        $subdomain = ($domainWithoutDropi['subdomain'] !== "www") ? $domainWithoutDropi['subdomain'] . "." : "";
+        $domain_url = $subdomain . $domainWithoutDropi['domain'];
+        $subdomain = $domainWithDropi['subdomain'] . "." . $domainWithDropi['domain'];
+
+        $domain = $domainWithoutDropi;
+    } else {
+        $domain_url = $domainWithDropi['subdomain'] . "." . $domainWithDropi['domain'];
+        $subdomain = $domain_url;
+
+        $domain = $domainWithDropi;
+
+        $domain['configure_date'] = $domain['register_date'];
+        $domain['active_date'] = $domain['register_date'];
+
+        $domain['configure'] = 1;
+        $domain['status'] = 1;
     }
 ?>
 
@@ -558,31 +928,10 @@
                         </ul>
                     </div>
                     
-                    <div class="line my-3"></div>
+                    <div class="line my-3 <?php echo (!$domainWithoutDropi) ? "d-none" : ""; ?>"></div>
 
-<?php
-    // Nome da tabela para a busca
-    $tabela = 'tb_domains';
-
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND domain = :domain";
-
-    // Preparar e executar a consulta
-    $stmt = $conn_pdo->prepare($sql);
-    $stmt->bindParam(':shop_id', $shop['id']);
-    $stmt->bindValue(':domain', "dropidigital.com.br");
-    $stmt->execute();
-
-    // Recuperar os resultados
-    $domain = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($domain) {
-        $subdomain = ($domain['subdomain'] !== "www") ? $domain['subdomain'] . "." : "";
-        $subdomain_url = $subdomain . $domain['domain'];
-    }
-?>
-
-                    <div class="d-flex align-items-center mb-3">
-                        <a href="<?php echo "https://" . $subdomain_url; ?>" target="_black" class="domain d-inline-flex align-items-center fs-5 fw-semibold" style="color: var(--bs-body-color);"><?php echo $subdomain_url; ?></a>
+                    <div class="d-flex align-items-center mb-3 <?php echo (!$domainWithoutDropi) ? "d-none" : ""; ?>">
+                        <a href="<?php echo "https://" . $subdomain; ?>" target="_black" class="domain d-inline-flex align-items-center fs-5 fw-semibold" style="color: var(--bs-body-color);"><?php echo $subdomain; ?></a>
                         <i class='bx bxs-copy fs-4 ms-1' id="copySubdomain"></i>
                     </div>
                 </div>
@@ -592,105 +941,210 @@
     </div>
 
     <input type="hidden" id="domain" value="<?php echo $domain_url; ?>">
-    <input type="hidden" id="subdomain" value="<?php echo $subdomain_url; ?>">
-
-    <input type="hidden" name="id" value="<?php echo $id; ?>">
-    <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
+    <input type="hidden" id="subdomain" value="<?php echo $subdomain; ?>">
 
 </form>
 </div>
 
-<div class="tab-pane fade <?php echo ($tab == "tema") ? "show active" : ""; ?>" id="theme-tab-pane" role="tabpanel" aria-labelledby="theme-tab" tabindex="0">
+<?php
+    if ($sub['status'] == "RECEIVED") {
+        $bullet = "<span class='bullet success me-2'></span>";
+        $status = "Paga";
+    } else if ($sub['status'] == "ACTIVE" && $sub['billing_type'] == "CREDIT_CARD") {
+        $bullet = "<span class='bullet success me-2'></span>";
+        $status = "Paga";
+    } else if ($sub['status'] == "ACTIVE") {
+        $bullet = "<span class='bullet warning me-2'></span>";
+        $status = "Aguardando pagamento";
+    } else if ($sub['status'] == "OVERDUE" || $sub['status'] == "INACTIVE") {
+        $bullet = "<span class='bullet danger me-2'></span>";
+        $status = "Cancelada";
+    }
+
+    // Verificação se a consulta retornou algum resultado
+    if ($sub) {
+        if ($sub['cycle'] == "MONTHLY")
+        {
+            $cycle = "Mensal";
+        } else {
+            $cycle = "Anual";
+        }
+
+        if ($sub['billing_type'] == "CREDIT_CARD")
+        {
+            $billing_type = "Cartão de crédito";
+        } else {
+            $billing_type = "Pix";
+        }
+
+        // Formatando datas
+        $startDate = new DateTime($sub['start_date']);
+        $start_date = $startDate->format("d/m/Y");
+
+        $dueDate = new DateTime($sub['due_date']);
+        $due_date = $dueDate->format("d/m/Y");
+    }
+?>
+
+<div class="tab-pane fade <?php echo ($tab == "historico-de-faturas") ? "show active" : ""; ?>" id="invoice-tab-pane" role="tabpanel" aria-labelledby="invoice-tab" tabindex="0">
 <form id="editTheme" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_theme.php" method="post">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-3 p-0">
-                <div class="card-header fw-semibold px-4 py-3 bg-transparent">Tema</div>
-                <div class="card-body row px-4 py-3">
+    <div class="card mb-3 p-0">
+        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Plano Atual</div>
+        <div class="card-body row px-4 py-3">
+            <div class="card col-md-6 px-4 py-3">
+                <ul class="mb-0">
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">ID:</small>
+                        <small><?php echo $sub['id']; ?></small>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">Status:</small>
+                        <small><?php echo $bullet . $status; ?></small>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">Valor:</small>
+                        <small>R$ <?php echo number_format($sub['value'], 2, ',', '.'); ?></small>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">Forma de Pagamento:</small>
+                        <small><?php echo $billing_type; ?></small>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">Ciclo:</small>
+                        <small><?php echo $cycle; ?></small>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">E-mail para NFe:</small>
+                        <small><?php echo $email; ?></small>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">Data da Emissão:</small>
+                        <small><?php echo $start_date; ?></small>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <small class="fw-semibold">Próximo Pagamento:</small>
+                        <small><?php echo $due_date; ?></small>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5 class="fs-5 mb-3">Ações</h5>
+                <div class="d-flex justify-content-between mb-3">
                     <div>
-                        <label for="active2fa" class="form-label small">Ativar tema escuro?</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="activeTheme" role="switch" id="activeTheme" value="1">
-                            <label class="form-check-label" id="textTheme" for="activeTheme">Não</label>
-                        </div>
+                        <h6 class="fs-6 fw-semibold mb-0">Alterar Plano</h6>
+                        <small>Clique em alterar plano para alterar o plano da loja</small>
+                    </div>
+                    <button class="d-flex align-items-center border-0" data-bs-toggle="modal" data-bs-target="#editShopPlan">
+                        <a href="#" class="btn btn-success d-flex align-items-center fw-semibold px-4 py-2 small">
+                            Alterar Plano
+                        </a>
+                    </button>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <h6 class="fs-6 fw-semibold mb-0">Listar NFS-e</h6>
+                        <small>Clique em listar para alterar o plano da loja</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/admin/access_shop.php?id=<?php echo $user['id']; ?>" class="btn btn-success fw-semibold px-4 py-2 small">Alterar Plano</a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6"></div>
     </div>
 
     <input type="hidden" name="id" value="<?php echo $id; ?>">
     <input type="hidden" name="shop_id" value="<?php echo $shop['id']; ?>">
 </form>
-</div>
 
-<div class="tab-pane fade <?php echo ($tab == "seguranca") ? "show active" : ""; ?>" id="security-tab-pane" role="tabpanel" aria-labelledby="security-tab" tabindex="0">
-<form id="editPassword" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/edit_password.php" method="post">
-    <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Alterar Senha</div>
-        <div class="card-body row px-4 py-3">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="password" class="form-label small">Senha atual</label>
-                    <div class="position-relative">
-                        <input type="password" class="form-control" name="currentPassword" id="password" aria-describedby="passwordHelp">
-                        <button type="button" class="btn toggle-password" data-target="#password">
-                            <i class='bx bx-show-alt' ></i>
-                        </button>
-                        <small id="password-error" class="invalid-feedback"></small>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="newPassword" class="form-label small">Nova senha</label>
-                    <div class="position-relative">
-                        <input type="password" class="form-control" name="newPassword" id="newPassword" aria-describedby="passwordHelp">
-                        <button type="button" class="btn toggle-password" data-target="#newPassword">
-                            <i class='bx bx-show-alt' ></i>
-                        </button>
-                        <small id="new-password-error" class="invalid-feedback"></small>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="confirmNewPassword" class="form-label small">Confirmar nova senha</label>
-                    <div class="position-relative">
-                        <input type="password" class="form-control" name="confirmNewPassword" id="confirmNewPassword" aria-describedby="passwordHelp">
-                        <button type="button" class="btn toggle-password" data-target="#confirmNewPassword">
-                            <i class='bx bx-show-alt' ></i>
-                        </button>
-                        <small id="confirm-new-password-error" class="invalid-feedback"></small>
-                    </div>
-                </div>
+    <div class="card__container grid one tabPanel" style="display: grid;">
+        <div class="card__box grid">
+            <div class="card table">
 
-                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-    
-                <button type="submit" name="buttonUpdPassword" id="buttonUpdPassword" class="btn btn-success fw-semibold px-4 py-2 small disabled">Salvar</button>
+            <?php
+                if ($stmt->rowCount() > 0) {
+            ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="small">ID</th>
+                            <th class="small">Vencimento</th>
+                            <th class="small">Valor</th>
+                            <th class="small">Status</th>
+                            <th class="small">Eventos</th>
+                        </tr>
+                    </thead>
+                    <?php
+                    // Nome da tabela para a busca
+                    $tabela = 'tb_subscriptions';
+
+                    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id ORDER BY id DESC";
+
+                    // Preparar e executar a consulta
+                    $stmt = $conn_pdo->prepare($sql);
+                    $stmt->bindParam(':shop_id', $shop['id']);
+                    $stmt->execute();
+
+                    // Recuperar os resultados
+                    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Loop através dos resultados e exibir todas as colunas
+                    foreach ($resultados as $usuario) {
+                        //Formatacao preco
+                        // $price = str_replace(',', '.', str_replace('.', '', $usuario['price']));
+                        $valor = $usuario['value'];
+
+                        // Transforma o número no formato "R$ 149,90"
+                        $value = "R$ " . number_format($valor, 2, ",", ".");
+
+                        //Formatacao para data
+                        $due_date = date("d/m/Y", strtotime($usuario['due_date']));
+
+                        if ($usuario['status'] == "RECEIVED") {
+                            $bullet = "<span class='bullet success me-2'></span>";
+                            $status = "Paga";
+                        } else if ($usuario['status'] == "ACTIVE" && $usuario['billing_type'] == "CREDIT_CARD") {
+                            $bullet = "<span class='bullet success me-2'></span>";
+                            $status = "Paga";
+                        } else if ($usuario['status'] == "ACTIVE") {
+                            $bullet = "<span class='bullet warning me-2'></span>";
+                            $status = "Aguardando pagamento";
+                        } else if ($usuario['status'] == "OVERDUE" || $usuario['status'] == "INACTIVE") {
+                            $bullet = "<span class='bullet danger me-2'></span>";
+                            $status = "Cancelada";
+                        }
+
+                        echo '
+                            <tbody>
+                                <tr>
+                                    <td>' . $usuario['id'] . '</td>
+                                    <td>' . $due_date . '</td>
+                                    <td>' . $value . '</td>
+                                    <td><div class="d-flex align-items-center">' . $bullet . $status . '</div></td>
+                                    <td>
+                                        <a href="' . INCLUDE_PATH_DASHBOARD . 'fatura?id=' . $usuario['id'] . '" class="btn btn-secondary">
+                                            <i class="bx bx-show"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        ';
+                    }
+                ?>
+                </table>
             </div>
+            <?php
+                } else {
+                    echo '
+                            <div class="p-5 text-center">
+                                <i class="bx bx-receipt" style="font-size: 3.5rem;"></i>
+                                <p class="fw-semibold mb-4">Você não possui nenhum plano ativo!</p>
+                            </div>
+                        ';
+                }
+            ?>
         </div>
     </div>
-</form>
-
-<form id="toggleTwoFactors" action="<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/toggle_two_factors.php" method="post">
-    <div class="card mb-3 p-0">
-        <div class="card-header fw-semibold px-4 py-3 bg-transparent">Autenticação de dois fatores</div>
-        <div class="card-body row px-4 py-3">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="activeTheme" class="form-label small">Ativar autenticação de dois fatores?</label>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="active2fa" role="switch" id="active2fa" value="1" <?php echo ($user['two_factors'] == 1) ? "checked" : ""; ?> <?php echo ($user['active_email'] !== 1) ? "disabled" : ""; ?>>
-                        <label class="form-check-label" id="text2fa" for="active2fa"><?php echo ($user['two_factors'] == 1) ? "Sim" : "Não"; ?></label>
-                    </div>
-                    <small class="<?php echo ($user['active_email'] == 1) ? "d-none" : ""; ?>">É necessário verificar seu e-mail antes! <a href="#" class="link">Reenviar E-mail</a></small>
-                </div>
-
-                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-
-                <button type="submit" name="SendEmail" class="btn btn-success fw-semibold px-4 py-2 small <?php echo ($user['active_email'] !== 1) ? "disabled" : ""; ?>">Salvar</button>
-            </div>
-        </div>
-    </div>
-</form>
 </div>
 
 </div>
@@ -745,6 +1199,31 @@
                 copyButton.attr('disabled', 'disabled');
                 copyButton.addClass('disabled');
             }
+        });
+    });
+</script>
+
+<!-- Update Warning -->
+<script>
+    $(document).ready(function() {
+        // Função para abrir o modal de edição
+        $('.editBtn').click(function() {
+            // Obter dados do botão clicado
+            var id = $(this).data('id');
+            var title = $(this).data('title');
+            var content = $(this).data('content');
+            var level = $(this).data('level');
+            var type = $(this).data('type');
+
+            // Preencher o formulário do modal com os dados
+            $('#updateWarningShop #id').val(id);
+            $('#updateWarningShop #title').val(title);
+            $('#updateWarningShop #content').val(content);
+            $('#updateWarningShop #level').val(level);
+            $('#updateWarningShop #type').val(type);
+
+            // Abrir o modal
+            $('#updateWarningShop').modal('show');
         });
     });
 </script>

@@ -32,6 +32,12 @@
         // Exclua o diretório do usuário
         rmdir($diretorio);
 
+        // Consulta para excluir os produtos associados ao artigo
+        $query = "DELETE FROM tb_article_products WHERE article_id = :article_id";
+        $stmt = $conn_pdo->prepare($query);
+        $stmt->bindParam(':article_id', $id);
+        $stmt->execute();
+
         // Consulta para excluir o banner do banco de dados
         $query = "DELETE FROM $tabela WHERE id = :id";
         $stmt = $conn_pdo->prepare($query);

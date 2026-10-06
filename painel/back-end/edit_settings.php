@@ -13,6 +13,7 @@
         $title = $_POST['title'];
         $description = $_POST['description'];
         $segment = $_POST['segment'];
+        $detailed_segment = $_POST['detailed_segment'];
 
         if ($_POST['shopType'] == "pf") {
             $cpfCnpj = $_POST['cpf'];
@@ -46,7 +47,7 @@
         $tabela = 'tb_shop';
 
         // Insere a categoria no banco de dados da loja
-        $sql = "UPDATE $tabela SET name = :name, title = :title, description = :description, cpf_cnpj = :cpf_cnpj, razao_social = :razao_social, phone = :phone, segment = :segment, map = :map WHERE id = :id";
+        $sql = "UPDATE $tabela SET name = :name, title = :title, description = :description, cpf_cnpj = :cpf_cnpj, razao_social = :razao_social, phone = :phone, segment = :segment, detailed_segment = :detailed_segment, map = :map WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':title', $title);
@@ -55,6 +56,7 @@
         $stmt->bindValue(':razao_social', $razaoSocial);
         $stmt->bindValue(':phone', $phone);
         $stmt->bindValue(':segment', $segment);
+        $stmt->bindValue(':detailed_segment', $detailed_segment);
         $stmt->bindValue(':map', $activeMaps);
 
         // Id que sera editado

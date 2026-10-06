@@ -1,5 +1,5 @@
 <?php
-    if (empty($_SESSION['user_id'])) {
+    if (empty($_SESSION['user_id_for_create_shop'])) {
         session_destroy();
         session_start();
         $_SESSION['msg'] = "Erro: Crie um usuário ou faça login para acessar essa página!";
@@ -39,16 +39,15 @@
             ?>
         </p>
 
-        <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
         <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
 
         <fieldset class="step-form form-one active" data-step="1">
             <div class="container__title login">
-                <h3 class="title">Qual o nome e o segmento de sua loja?</h3>
+                <h3 class="title">Qual o nome e o segmento do seu site/loja?</h3>
                 <p class="subtitle">Essas informações poderão ser alteradas a qualquer momento.</p>
             </div>
             <div class="inputBox">
-                <label for="name" class="labelInput">Nome da Loja <span class="danger">*</span></label>
+                <label for="name" class="labelInput">Nome do Site/Loja <span class="danger">*</span></label>
                 <input type="text" name="name" id="name" class="inputUser">
                 <span id="name-error" class="error-message"></span>
             </div>
@@ -68,7 +67,7 @@
                 </div>
             </div>
             <div class="inputBox select">
-                <label for="segment" class="labelInput">Segmento <span class="danger">*</span></label>
+                <label for="segment" class="labelInput">Segmento <span class="danger">*</span><i class="bx bx-help-circle" data-toggle="tooltip" data-placement="top" aria-label="Exemplo Escritório de Advocacia, Instalação de Ar Condicionado, Eletricista, Consultoria, etc." data-bs-original-title="Exemplo Escritório de Advocacia, Instalação de Ar Condicionado, Eletricista, Consultoria, etc."></i></label>
                 <select name="segment" id="segment" class="inputUser">
                     <option value="" disabled selected>-- Nos fale qual o segmento da sua loja --</option>
                     <option value="0">Dropshipping Infoproduto</option>
@@ -78,6 +77,11 @@
                     <option value="4">Site para agendamento</option>
                 </select>
                 <span id="segment-error" class="error-message"></span>
+            </div>
+            <div class="inputBox select">
+                <label for="detailedSegment" class="labelInput">Segmento Detalhado <span class="danger">*</span></label>
+                <input type="text" name="detailed_segment" id="detailedSegment" class="inputUser">
+                <span id="detailed-segment-error" class="error-message"></span>
             </div>
             <div class="container__button">
                 <button type="button" name="next" class="button button--flex next" onclick="validarEtapa(1)">Continuar</button>
@@ -151,7 +155,7 @@
                 <input type="text" name="cep" id="cep" class="inputUser" oninput="getCepData()">
                 <span id="cep-error" class="error-message"></span>
             </div>
-            <div id="addressContent" style="overflow: hidden; height: 0; transition: all .3s;">
+            <div id="addressContent" class="mb-3" style="overflow: hidden; height: 0; transition: all .3s;">
                 <div class="inputBox">
                     <label for="endereco" class="labelInput">Endereço <span class="danger">*</span></label>
                     <input type="text" name="endereco" id="endereco" class="inputUser">
@@ -193,10 +197,23 @@
             </div>
         </fieldset>
     </form>
+    <?php
+        if (!empty($_SESSION['create_new_shop'])) {
+    ?>
+    <div class="bottom__text signup">
+        <p>Quer voltar para o painel administrativo?</p>
+        <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>">Voltar para o painel administrativo.</a>
+    </div>
+    <?php
+        } else {
+    ?>
     <div class="bottom__text signup">
         <p>Já possui uma loja na DropiDigital?</p>
         <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>login">Acesse sua conta agora.</a>
     </div>
+    <?php
+        }
+    ?>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -219,35 +236,47 @@
     });
 </script>
 <script>
-  $(document).ready(function() {
-    $('#name').on('blur', function() {
-      const name = $(this).val();
-      
-      const urlField = $('#urlForm');
-      const urlInput = $('#url');
-
-      if (name !== '') {
-        $.ajax({
-          url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/check_url.php', // Arquivo PHP para verificar o url
-          method: 'POST',
-          data: { name: name },
-          success: function(response) {
-            $('#url-error').html(response);
-
-            if (response.includes('URL já cadastrada!')) {
-                urlField.addClass('active'); // Adiciona classe em caso de erro
-                urlInput.addClass('urlActive'); // Adiciona classe em caso de erro
-                urlInput.addClass('input-error'); // Adiciona classe em caso de erro
-            } else {
-                urlField.removeClass('active'); // Adiciona classe em caso de erro
-                urlInput.removeClass('urlActive'); // Adiciona classe em caso de erro
-                urlInput.removeClass('input-error'); // Remove classe em caso de sucesso
+    $(document).ready(function() {
+        $('#name').on('blur', function() {
+            const name = $(this).val();
+            
+            // Função para verificar se o texto contém caracteres especiais
+            function hasSpecialCharacters(text) {
+                var regex = /[áàâãäéèêëíìîïóòôõöúùûüç.,~^´`¨*&]/i;
+                return regex.test(text);
             }
-          }
+
+            const urlField = $('#urlForm');
+            const urlInput = $('#url');
+
+            if (!hasSpecialCharacters(name)) {
+                if (name !== '') {
+                    $.ajax({
+                        url: '<?php echo INCLUDE_PATH_DASHBOARD; ?>back-end/check_url.php',
+                        method: 'POST',
+                        data: { name: name },
+                        success: function(response) {
+                            $('#url-error').html(response);
+    
+                            if (response.includes('URL já cadastrada!')) {
+                                urlField.addClass('active');
+                                urlInput.addClass('urlActive');
+                                urlInput.addClass('input-error');
+                            } else {
+                                urlField.removeClass('active');
+                                urlInput.removeClass('urlActive');
+                                urlInput.removeClass('input-error');
+                            }
+                        }
+                    });
+                }
+            } else {
+                urlField.addClass('active');
+                urlInput.addClass('urlActive');
+                urlInput.addClass('input-error');
+            }
         });
-      }
     });
-  });
 </script>
 <script>
   $(document).ready(function() {
@@ -323,14 +352,17 @@
                 const nameInput = document.getElementById('name');
                 const urlInput = document.getElementById('url');
                 const segmentInput = document.getElementById('segment');
+                const detailedSegmentInput = document.getElementById('detailedSegment');
 
                 const nameError = document.getElementById('name-error');
                 const urlError = document.getElementById('url-error');
                 const segmentError = document.getElementById('segment-error');
+                const detailedSegmentError = document.getElementById('detailed-segment-error');
 
                 const nameField = $(nameInput);
                 const urlField = $(urlInput);
                 const segmentField = $(segmentInput);
+                const detailedSegmentField = $(detailedSegmentInput);
 
                 nameError.textContent = '';
 
@@ -355,6 +387,14 @@
                 if (!validateSegment(segmentInput.value)) {
                     segmentError.textContent = 'Selecione um segmento!';
                     segmentField.addClass('input-error');
+                    return false;
+                }
+
+                detailedSegmentError.textContent = '';
+
+                if (!validateName(detailedSegmentInput.value)) {
+                    detailedSegmentError.textContent = 'Preencha o campo segmento detalhado!';
+                    detailedSegmentField.addClass('input-error');
                     return false;
                 }
             }
@@ -428,10 +468,12 @@
 </script>
 
 <script>
-	const form = document.getElementById('form');
+    const form = document.getElementById('form');
     const nameInput = document.getElementById('name');
-    const urlInput = document.getElementById('url');
+    const urlField = $('#urlForm');
+    const urlInput = $('#url');
     const segmentInput = document.getElementById('segment');
+    const detailedSegmentInput = document.getElementById('detailedSegment');
     const cpfInput = document.getElementById('cpf');
     const cnpjInput = document.getElementById('cnpj');
     const razaoSocialInput = document.getElementById('razao_social');
@@ -439,43 +481,56 @@
     const nameError = document.getElementById('name-error');
     const urlError = document.getElementById('url-error');
     const segmentError = document.getElementById('segment-error');
+    const detailedSegmentError = document.getElementById('detailed-segment-error');
     const cpfError = document.getElementById('cpf-error');
     const cnpjError = document.getElementById('cnpj-error');
     const razaoSocialError = document.getElementById('razao_social-error');
 
-    nameInput.addEventListener('input', function() {
+    nameInput.addEventListener('input', function () {
         validateName();
     });
 
-    urlInput.addEventListener('input', function() {
+    urlInput.addEventListener('input', function () {
         validateUrl();
     });
 
-    segmentInput.addEventListener('change', function() {
+    segmentInput.addEventListener('change', function () {
         validateSegment();
     });
 
-    cpfInput.addEventListener('input', function() {
+    detailedSegmentInput.addEventListener('change', function () {
+        validateDetailedSegment();
+    });
+
+    cpfInput.addEventListener('input', function () {
         validateCpf();
     });
 
-    cnpjInput.addEventListener('input', function() {
+    cnpjInput.addEventListener('input', function () {
         validateCnpj();
     });
 
-    razaoSocialInput.addEventListener('input', function() {
+    razaoSocialInput.addEventListener('input', function () {
         validateRazaoSocial();
     });
 
     function validateName() {
         const nameField = $(nameInput);
+        urlError.textContent = '';
         nameError.textContent = '';
 
         if (!validateField(nameInput.value)) {
             nameError.textContent = 'Preencha o campo Nome!';
             nameField.addClass('input-error');
+            urlField.removeClass('active');
+        } else if (hasSpecialCharacters(nameInput.value)) {
+            urlError.textContent = 'Inisra uma URL sem caracteres especiais!';
+            urlField.addClass('active');
+            urlInput.removeClass('urlActive');
+            urlInput.addClass('input-error');
         } else {
             nameField.removeClass('input-error');
+            urlField.removeClass('active');
         }
     }
 
@@ -500,6 +555,18 @@
             segmentField.addClass('input-error');
         } else {
             segmentField.removeClass('input-error');
+        }
+    }
+
+    function validateDetailedSegment() {
+        const detailedSegmentField = $(detailedSegmentInput);
+        detailedSegmentError.textContent = '';
+
+        if (!validateField(detailedSegmentInput.value)) {
+            detailedSegmentError.textContent = 'Preencha o campo segmento detalhado.';
+            detailedSegmentField.addClass('input-error');
+        } else {
+            detailedSegmentField.removeClass('input-error');
         }
     }
 
@@ -534,6 +601,9 @@
         if (!validateField(razaoSocialInput.value)) {
             razaoSocialError.textContent = 'Preencha o campo Razão Social!';
             razaoSocialField.addClass('input-error');
+        } else if (hasSpecialCharacters(razaoSocialInput.value)) {
+            razaoSocialError.textContent = 'O campo Razão Social não pode conter caracteres especiais!';
+            razaoSocialField.addClass('input-error');
         } else {
             razaoSocialField.removeClass('input-error');
         }
@@ -541,6 +611,14 @@
 
     function validateField(value) {
         return value.trim().length > 0;
+    }
+
+    // Função para verificar se o texto contém caracteres especiais
+    function hasSpecialCharacters(text) {
+        // Caracteres especiais permitidos: letras acentuadas, cedilha, ponto e espaço
+        var regex = /[áàâãäéèêëíìîïóòôõöúùûüç.,~^´`¨*&]/i;
+
+        return regex.test(text);
     }
 </script>
 

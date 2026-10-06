@@ -80,18 +80,18 @@
 
 <style>
     /* Botao */
-    .btn
+    .btn-success
     {
         background: var(--green-color);
         font-size: .875rem;
         border: none;
         padding: .75rem 1.5rem;
     }
-    .btn:hover
+    .btn-success:hover
     {
         background: var(--dark-green-color);
     }
-    .btn.current
+    .btn-success.current
     {
         color: var(--bs-heading-color);
         background: #e8e9eb !important;
@@ -243,6 +243,9 @@
             <div class="line"></div>
         </div>
         <div class="col-md-5 d-flex flex-column align-items-center">
+            <p class="fw-semibold">Validade do pagamento:</p>
+            <div id="temporizador" class="fs-1 fw-semibold mb-2"></div>
+
             <img src="data:image/png;base64,<?php echo $sub['pix_encodedImage']; ?>" alt="QR Code Pix" class="mb-3" style="width: 250px;">
 
             <input type="hidden" class="form-control" id="meuInput" value="<?php echo $sub['pix_payload']; ?>">
@@ -281,6 +284,58 @@
         });
     });
 </script>
+
+<script>
+    // Função para iniciar o temporizador de 15 minutos
+    function iniciarTemporizador(produtoId) {
+        // Verificar se há um valor armazenado no localStorage
+        var tempoRestante = localStorage.getItem("tempoRestante_" + produtoId);
+
+        // Se não houver valor armazenado ou o valor for menor que 0, começar de novo
+        if (!tempoRestante || tempoRestante < 0) {
+            tempoRestante = 900; // 15 minutos em segundos
+        }
+
+        exibirTemporizador(tempoRestante);
+
+        // Iniciar o temporizador
+        var temporizador = setInterval(function() {
+            tempoRestante--;
+
+            exibirTemporizador(tempoRestante);
+
+            // Salvar o tempo restante no localStorage
+            localStorage.setItem("tempoRestante_" + produtoId, tempoRestante);
+
+            // Quando o temporizador chegar a zero, você pode executar alguma ação aqui
+            if (tempoRestante <= 0) {
+                clearInterval(temporizador);
+                alert("Tempo expirado para o Cobrança ID: " + produtoId);
+
+                // Envia o id para alterar status para cancelado
+                window.location.href = "<?php echo INCLUDE_PATH_DASHBOARD ?>back-end/asaas/pagamento_expirado.php?shop=<?php echo $shop_id; ?>&subs=<?php echo $sub['id']; ?>";
+            }
+        }, 1000); // Atualizar a cada segundo
+    }
+
+    // Função para exibir o temporizador no formato "HH:MM:SS"
+    function exibirTemporizador(segundos) {
+        var minutos = Math.floor((segundos % 360) / 60);
+        var segundosRestantes = segundos % 60;
+
+        // Formatar as horas, minutos e segundos para o formato "MM:SS"
+        var formatoMinutos = minutos < 10 ? "0" + minutos : minutos;
+        var formatoSegundos = segundosRestantes < 10 ? "0" + segundosRestantes : segundosRestantes;
+
+        document.getElementById("temporizador").innerText = formatoMinutos + ":" + formatoSegundos;
+    }
+
+    // Iniciar o temporizador quando a página carregar
+    window.onload = function() {
+        iniciarTemporizador(<?php echo $id; ?>);
+    };
+</script>
+
 <?php
         } else {
             $_SESSION['msg'] = "<p class='red'>Nenhum resultado encontrado.</p>";

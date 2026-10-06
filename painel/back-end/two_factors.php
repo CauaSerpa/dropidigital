@@ -52,6 +52,13 @@
         $_SESSION['2fa'] = true;
         $_SESSION['user_id'] = $_SESSION['user_id_for_2fa'];
 
+        if (!empty($_SESSION['remember_login_pending'])) {
+            setRememberLoginCookie($conn_pdo, (int) $_SESSION['user_id_for_2fa']);
+        } else {
+            clearRememberLoginCookie($conn_pdo);
+        }
+        unset($_SESSION['remember_login_pending']);
+
         header("Location: ".INCLUDE_PATH_DASHBOARD);
     } else {
         $_SESSION['msgcad'] = 'Código inválido!';

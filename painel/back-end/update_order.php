@@ -1,13 +1,23 @@
 <?php
-  if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["order"])) {
-    // Aqui você deve implementar a lógica para atualizar a ordem no banco de dados
-    // O array $_POST["order"] contém a nova ordem dos IDs das linhas
-    // Você pode usar isso para atualizar a ordem no banco de dados usando a cláusula IN do SQL, por exemplo
-    // Certifique-se de validar e sanitizar os dados antes de usá-los no SQL
-    // E retornar uma resposta apropriada, como um JSON com status de sucesso ou erro
-    $response = ["status" => "success"];
-  } else {
-    $response = ["status" => "error", "message" => "Invalid request"];
-  }
-  echo json_encode($response);
-?>
+    session_start();
+    ob_start();
+    include_once('../../config.php');
+
+	// Verifica se os dados foram enviados
+	if (isset($_POST['category_order'])) {
+		$categoryOrder = $_POST['category_order']; // Array de IDs na nova ordem
+
+		// Atualiza o campo 'position' para cada categoria na ordem correta
+		foreach ($categoryOrder as $position => $categoryId) {
+			$stmt = $conn_pdo->prepare("UPDATE tb_categories SET position = :position WHERE id = :id");
+			$stmt->execute([
+				':position' => $position + 1, // Inicia com 1
+				':id' => $categoryId
+			]);
+		}
+
+		echo json_encode(['status' => 'success', 'message' => 'Ordem das categorias atualizada com sucesso.']);
+	} else {
+		echo json_encode(['status' => 'error', 'message' => 'Dados inválidos.']);
+	}
+	?>

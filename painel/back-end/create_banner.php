@@ -82,14 +82,9 @@
             }
         }
 
-        print_r($_FILES['image']);
-        echo "<br>";
-        echo "<br>";
-        print_r($_FILES['mobile']);
-
         $_SESSION['msgcad'] = "<p class='green'>Banner criado com sucesso!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso
-        // header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
+        header("Location: " . INCLUDE_PATH_DASHBOARD . "banners");
     } else {
         $_SESSION['msg'] = "<p class='red'>Erro ao criar o banner!</p>";
         // Redireciona para a página de login ou exibe uma mensagem de sucesso

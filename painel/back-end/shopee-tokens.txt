@@ -1,0 +1,41 @@
+====================================
+SHOPEE OPEN PLATFORM TOKENS
+====================================
+
+SHOP ID:
+1059445504
+
+ACCESS TOKEN:
+705467527a4b4e736b6d736c654d6f6b
+
+REFRESH TOKEN:
+775757414c4d6c6855475a5271616f63
+
+EXPIRE IN:
+14397 segundos
+
+TOKEN EXPIRES AT:
+2026-08-29 22:37:18
+
+REFRESH TOKEN EXPIRE IN:
+0 segundos
+
+REFRESH TOKEN EXPIRES AT:
+2026-08-29 18:37:21
+
+FULL API RESPONSE:
+{
+    "refresh_token": "775757414c4d6c6855475a5271616f63",
+    "access_token": "705467527a4b4e736b6d736c654d6f6b",
+    "expire_in": 14397,
+    "request_id": "e3e3e7f35a33dc04cbbd5658c4eb7500",
+    "merchant_id_list": [],
+    "shop_id_list": [
+        1059445504
+    ],
+    "supplier_id_list": [],
+    "user_id_list": [],
+    "principal_id_list": [],
+    "error": "",
+    "message": ""
+}

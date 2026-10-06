@@ -2,7 +2,7 @@
     <div class="row px-4">
         <?php
             // Valores possíveis para os checkboxes
-            $valoresPossiveis = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+            $valoresPossiveis = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
             // Valores do banco de dados (simulando)
             $valoresDoBanco = $center_highlight_images;
@@ -12,16 +12,18 @@
 
             // Array de URLs de imagens correspondentes aos valores
             $imagens = [
-                "1" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_01.png",
-                "2" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_02.png",
-                "3" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_03.png",
-                "4" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_01.png",
-                "5" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_02.png",
-                "6" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_03.png",
-                "7" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_01.png",
-                "8" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_02.png",
-                "9" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_03.png",
-                "10" => "https://cdn.awsli.com.br/2544/2544943/arquivos/Tarja_Pers_01.png"
+                "1" => INCLUDE_PATH . "assets/loja/tarjas/01.jpg",
+                "2" => INCLUDE_PATH . "assets/loja/tarjas/02.jpg",
+                "3" => INCLUDE_PATH . "assets/loja/tarjas/03.jpg",
+                "4" => INCLUDE_PATH . "assets/loja/tarjas/04.jpg",
+                "5" => INCLUDE_PATH . "assets/loja/tarjas/05.jpg",
+                "6" => INCLUDE_PATH . "assets/loja/tarjas/06.jpg",
+                "7" => INCLUDE_PATH . "assets/loja/tarjas/07.jpg",
+                "8" => INCLUDE_PATH . "assets/loja/tarjas/08.jpg",
+                "9" => INCLUDE_PATH . "assets/loja/tarjas/09.jpg",
+                "10" => INCLUDE_PATH . "assets/loja/tarjas/10.jpg",
+                "11" => INCLUDE_PATH . "assets/loja/tarjas/11.jpg",
+                "12" => INCLUDE_PATH . "assets/loja/tarjas/12.jpg"
             ];
 
             // Função para marcar os checkboxes
@@ -114,7 +116,7 @@
     // Nome da tabela para a busca
     $tabela = 'tb_categories';
 
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY id DESC";
+    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND parent_category = :parent_category ORDER BY position ASC";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
@@ -129,31 +131,50 @@
     if ($categories) {
 ?>
 
-<div id="carouselCategorias" class="container carousel slide" data-bs-ride="carousel">
+<style>
+    #categoriesCarousel.owl-carousel .owl-item img
+    {
+        height: auto;
+    }
+
+    #loaderButton {
+        display: flex;
+        justify-content: center;
+    }
+
+    .loader {
+        width: 16px;
+        height: 16px;
+        border: 2.5px solid #FFF;
+        border-bottom-color: transparent !important;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div class="container">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
-        <h4 class="mb-3">Navegue por Departamento</h4>
+        <h4 class="mb-3"><?= __('browse_departments') ?></h4>
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
-    <div class="carousel-inner">
+    <div class="owl-carousel p-4" id="categoriesCarousel">
         <?php
-            // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
-            $contador = 0;
-
             // Loop através dos categories e exibir todas as colunas
             foreach ($categories as $category) {
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
-
-                // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                if ($contador % 6 == 0) {
-                    echo '<div class="carousel-item ' . $active . '">';
-                    echo '<div class="row p-4">';
-                }
-
-                echo '<div class="col-sm-2">';
+                echo '<div class="item">';
                 echo '<div class="card border-0">';
-                echo '<a href="' . INCLUDE_PATH_LOJA . $category['link'] . '" class="category-link">';
+                echo '<a href="' . INCLUDE_PATH_LOJA . "c/" . $category['link'] . '" class="category-link">';
                 echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/category/' . $shop_id . '/image/' . $category['image'] . '" class="card-img-top rounded-circle" alt="' . $category['name'] . '">';
                 echo '<div class="card-body text-center">';
                 echo '<h5 class="card-title">' . $category['name'] . '</h5>';
@@ -161,30 +182,9 @@
                 echo '</a>';
                 echo '</div>';
                 echo '</div>';
-
-                // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 6 == 5 || $contador == count($categories) - 1) {
-                    echo '</div>';
-                    echo '</div>';
-                }
-
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
-
-                // Incrementar o contador
-                $contador++;
             }
         ?>
     </div>
-
-    <a class="carousel-control-prev" href="#carouselCategorias" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselCategorias" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
-    </a>
 </div>
 
 <?php
@@ -194,16 +194,38 @@
 ?>
 
 <?php
+    // Número de produtos por página (200)
+    $limit = 200;
+    $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+    $offset = ($page - 1) * $limit;
+
     // Nome da tabela para a busca
     $tabela = 'tb_products';
 
-    $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id ASC";
+    $sql = "SELECT id, name, price, discount, link, without_price FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis";
+    
+    if ($languageSegment == 'en/' || $languageSegment == 'de/' || $languageSegment == 'pt/') {
+        $sql .= " AND language = :language";
+    }
+    
+    $sql .= " ORDER BY id ASC LIMIT :limit OFFSET :offset";
 
     // Preparar e executar a consulta
     $stmt = $conn_pdo->prepare($sql);
     $stmt->bindParam(':shop_id', $shop_id);
     $stmt->bindValue(':status', 1);
     $stmt->bindValue(':emphasis', 1);
+    
+    if ($languageSegment == 'en/') {
+    $stmt->bindValue(':language', 'en');
+    } else if ($languageSegment == 'de/') {
+    $stmt->bindValue(':language', 'de');
+    } else if ($languageSegment == 'pt/') {
+    $stmt->bindValue(':language', 'pt');
+    }
+    
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
 
     // Recuperar os resultados
@@ -212,21 +234,25 @@
     if ($resultados) {
 ?>
 
-<div id="carouselProdutos" class="container carousel slide" data-bs-ride="carousel">
+<style>
+    .listProducts .row
+    {
+        --bs-gutter-x: 1rem !important;
+        --bs-gutter-y: 1rem !important;
+    }
+</style>
+
+<div class="listProducts container">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <div class="d-flex justify-content-center">
-            <h4 class="mb-3 me-3">Super Ofertas</h4>
-            <p class="text-black-50">Produtos com preços imperdíveis</p>
+            <h4 class="mb-3 me-3"><?= __('super_offers') ?></h4>
+            <p class="text-black-50"><?= __('super_offers_desc') ?></p>
         </div>
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
 
-    <div class="carousel-inner">
+    <div class="row g-3 p-4" id="product-list">
         <?php
-            // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
-            $contador = 0;
-
             // Loop através dos resultados e exibir todas as colunas
             foreach ($resultados as $product) {
                 // Consulta SQL para selecionar todas as colunas com base no ID
@@ -240,20 +266,28 @@
                 // Recuperar os resultados
                 $imagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+                // Formatacao da moeda
+                $currencySymbol = ($product['language'] == 'pt') ? "R$ " : "$ ";
+
                 // Formatação preço
                 $preco = $product['price'];
 
                 // Transforma o número no formato "R$ 149,90"
-                $price = "R$ " . number_format($preco, 2, ",", ".");
+                $price = $currencySymbol . number_format($preco, 2, ",", ".");
 
                 // Formatação preço com desconto
                 $desconto = $product['discount'];
 
                 // Transforma o número no formato "R$ 149,90"
-                $discount = "R$ " . number_format($desconto, 2, ",", ".");
+                $discount = $currencySymbol . number_format($desconto, 2, ",", ".");
 
                 // Calcula a porcentagem de desconto
-                $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                if ($product['price'] != 0) {
+                    $porcentagemDesconto = (($product['price'] - $product['discount']) / $product['price']) * 100;
+                } else {
+                    // Lógica para lidar com o caso em que $product['price'] é zero
+                    $porcentagemDesconto = 0; // Ou outro valor padrão
+                }
 
                 // Arredonda o resultado para duas casas decimais
                 $porcentagemDesconto = round($porcentagemDesconto, 0);
@@ -269,27 +303,22 @@
                     $discount = $price;
                 }
 
-                // Link do produto
-                $link = INCLUDE_PATH_LOJA . "produto/" . $product['link'];
-
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
-
-                // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                if ($contador % 4 == 0) {
-                    echo '<div class="carousel-item ' . $active . '">';
-                    echo '<div class="row p-4">';
+                if ($product['without_price']) {
+                    $priceAfterDiscount = "<a href='" . $link . "' class='btn btn-dark small px-3 py-1'>Saiba Mais</a>";
                 }
 
-                echo '<div class="col-sm-3">';
-                echo '<a href="' . $link . '" class="product-link">';
+                // Link do produto
+                $link = INCLUDE_PATH_LOJA . $product['link'];
+
+                echo '<div class="col-sm-3 numBanner d-grid">';
+                echo '<a href="' . $link . '" class="product-link d-grid">';
                 echo '<div class="card">';
 
                 if ($imagens) {
                     foreach ($imagens as $imagem) {
                         echo '<div class="product-image">';
                         echo '<span class="card-discount small ' . $activeDiscount . '">' . $porcentagemDesconto . '% OFF</span>';
-                        echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/imagens/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
+                        echo '<img src="' . CDN_BASE_URL . 'products/' . $imagem['usuario_id'] . '/' . $imagem['nome_imagem'] . '" class="card-img-top" alt="' . $product['name'] . '">';
                         echo '</div>';
                     }
                 } else {
@@ -309,31 +338,56 @@
                 echo '</div>';
                 echo '</a>';
                 echo '</div>';
-
-                // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 4 == 3 || $contador == count($resultados) - 1) {
-                    echo '</div>';
-                    echo '</div>';
-                }
-
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
-
-                // Incrementar o contador
-                $contador++;
             }
         ?>
     </div>
 
-    <a class="carousel-control-prev" href="#carouselProdutos" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselProdutos" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
-    </a>
+    <?php if (count($resultados) == $limit) : ?>
+        <div class="d-flex justify-content-center">
+            <button id="load-more" class="btn btn-dark fw-semibold px-4 py-2 d-flex align-items-center"><div class="loader me-2 d-none"></div><?= __('load_more') ?></button>
+        </div>
+    <?php endif; ?>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    var offset = 100; // Começa após os 100 produtos iniciais
+
+    $('#load-more').on('click', function() {
+        // Encontra o loader dentro do botão clicado e remove a classe d-none para mostrá-lo
+        var loader = $(this).find('.loader');
+        loader.removeClass('d-none');
+
+        $.ajax({
+            type: "POST",
+            url: "./back-end/carregar_mais.php", // Substitua pelo caminho do arquivo PHP
+            data: {
+                carregarMais: true,
+                shop_id: "<?php echo $shop_id; ?>",
+                url: "<?php echo INCLUDE_PATH_LOJA; ?>",
+                offset: offset
+            },
+            success: function(response) {
+                // Após o AJAX responder com sucesso, adiciona a classe d-none de volta ao loader para ocultá-lo
+                loader.addClass('d-none');
+
+                $('#product-list').append(response);
+                offset += 100;
+
+                // Verifica se não há mais produtos a serem carregados
+                if (response.trim() === '') {
+                    $('#load-more').addClass('d-none');
+                }
+            },
+            error: function (xhr, status, error) {
+                loader.addClass('d-none'); // Em caso de erro, também oculta o loader
+                alert("Erro ao carregar mais produtos. Por favor, tente novamente mais tarde.");
+            }
+        });
+    });
+});
+</script>
 
 <?php
     }
@@ -354,11 +408,11 @@
     }
 ?>
 
-<div class="container">
+<div class="container <?php echo ($video == "") ? "d-none" : ""; ?>">
     <div class="row p-4">
         <div class="col-sm-12">
             <div id="video-display" class="d-flex justify-content-center">
-                <div class="d-flex justify-content-center">
+                <div class="video-wrapper d-flex justify-content-center">
                     <?php
                         // Função para extrair o código do vídeo do URL do YouTube
                         function getYoutubeEmbedCode($url) {
@@ -367,7 +421,7 @@
                                 $videoCode = $matches[1];
 
                                 // Gera o código de incorporação
-                                $embedCode = '<iframe width="1240" height="527" src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen></iframe>';
+                                $embedCode = '<iframe src="https://www.youtube.com/embed/' . $videoCode . '" frameborder="0" allowfullscreen></iframe>';
 
                                 return $embedCode;
                             } else {
@@ -407,86 +461,78 @@
     if ($resultados) {
 ?>
 
-<div id="carouselDepoimentos" class="container carousel slide" data-bs-ride="carousel">
+<style>
+    #testimonyCarousel.owl-carousel .owl-item img
+    {
+        height: auto;
+    }
+
+    .testimonyContainer
+    {
+        position: relative;
+    }
+    .testimonyContainer .customNavigation .btn
+    {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        color: black;
+        font-size: 4rem;
+    }
+    .testimonyContainer .customNavigation .btn.prev
+    {
+        left: 4px;
+    }
+    .testimonyContainer .customNavigation .btn.next
+    {
+        right: 4px;
+    }
+</style>
+
+<div class="testimonyContainer container">
     <div class="justify-content-center mb-3" style="text-align: -webkit-center;">
         <div class="d-flex justify-content-center">
-            <h4 class="mb-3 me-3">Vejam o que dizem nossos clientes</h4>
-            <p class="text-black-50">Depoimentos</p>
+            <h4 class="mb-3 me-3"><?= __('testimonials_title') ?></h4>
+            <p class="text-black-50"><?= __('testimonials_desc') ?></p>
         </div>
         <div style="width: 100px; height: 5px; background: #000;"></div>
     </div>
 
-    <div class="carousel-inner">
+    <div class="owl-carousel p-4" id="testimonyCarousel">
         <?php
             // Inicialize uma variável de controle e um contador
-            $primeiroElemento = true;
             $contador = 0;
 
             // Loop através dos resultados e exibir todas as colunas
             foreach ($resultados as $product) {
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
-
-                // Se o contador for múltiplo de 4, insira uma nova div carousel-item
-                if ($contador % 3 == 0) {
-                    echo '<div class="carousel-item ' . $active . '">';
-                    echo '<div class="row p-4">';
-                }
-
-                echo '<div class="col-sm-4">';
+                echo '<div class="item">';
                 echo '<div class="card border-0">';
-                echo '<div class="card-body text-center">';
-                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/depositions/' . $product['img'] . '" class="rounded-circle mb-2" alt="Produto 1" style="width: 150px; height: 150px;">';
+                echo '<div class="card-body d-flex flex-column align-items-center text-center">';
+                echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/depositions/' . $product['img'] . '" class="rounded-circle mb-2" alt="Produto 1" style="width: 150px;">';
                 echo '<p class="card-title">' . $product['name'] . '</p>';
                 echo '<p class="card-text small lh-sm text-black-50 mb-2">"' . $product['testimony'] . '"</p>';
-                echo '<div class="rating' . $contador . ' dep-stars text-warning">';
-                
-                // Código JavaScript para gerar as estrelas de classificação com base na coluna 'rating' do banco de dados
-                echo '<script>';
-                echo 'const classificacao' . $contador . ' = ' . $product['qualification'] . ';';
-                echo 'const ratingContainer' . $contador . ' = document.createElement("div");';
-                echo 'ratingContainer' . $contador . '.className = "stars";';
-                echo 'for (let i = 0; i < 5; i++) {';
-                echo '  const star = document.createElement("i");';
-                echo '  if (i < classificacao' . $contador . ') {';
-                echo '    star.className = "bx bxs-star";'; // Estrela ativa
-                echo '  } else {';
-                echo '    star.className = "bx bx-star";'; // Estrela inativa
-                echo '  }';
-                echo '  ratingContainer' . $contador . '.appendChild(star);';
-                echo '}';
-                echo 'document.querySelector(".rating' . $contador . '").appendChild(ratingContainer' . $contador . ');';
-                echo '</script>';
-                
+                echo '<div class="dep-stars text-warning" data-qualification="' . $product['qualification'] . '"></div>';
                 echo '</div>';
                 echo '</div>';
                 echo '</div>';
-                echo '</div>';
-
-                // Se o contador for múltiplo de 4, feche a div row e carousel-item
-                if ($contador % 3 == 2 || $contador == count($resultados) - 1) {
-                    echo '</div>';
-                    echo '</div>';
-                }
-
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
-
-                // Incrementar o contador
-                $contador++;
             }
         ?>
     </div>
-
-    <a class="carousel-control-prev" href="#carouselDepoimentos" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselDepoimentos" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
-    </a>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.dep-stars').forEach(function(ratingContainer) {
+        const qualification = parseInt(ratingContainer.getAttribute('data-qualification'), 10);
+        for (let i = 0; i < 5; i++) {
+            const star = document.createElement("i");
+            star.className = i < qualification ? "bx bxs-star" : "bx bx-star";
+            ratingContainer.appendChild(star);
+        }
+    });
+});
+</script>
 
 <?php
     }

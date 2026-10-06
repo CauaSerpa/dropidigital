@@ -4,7 +4,7 @@
     include_once('../../config.php');
 
     //Tabela que será solicitada
-    $tabela = 'tb_shop';
+    $tabela = 'tb_domains';
 
     if (isset($_POST['name'])) {
         // Criar subdminio do site
@@ -27,9 +27,10 @@
             $url = implode('-', $palavras);
 
             // Verifica se o usuário já existe
-            $sql = "SELECT id FROM $tabela WHERE url = :url";
+            $sql = "SELECT id FROM $tabela WHERE subdomain = :subdomain AND domain = :domain";
             $stmt = $conn_pdo->prepare($sql);
-            $stmt->bindValue(':url', $url);
+            $stmt->bindValue(':subdomain', $url);
+            $stmt->bindValue(':domain', 'dropidigital.com.br');
             $stmt->execute();
     
             if ($stmt->rowCount() > 0) {
@@ -42,9 +43,10 @@
         $url = $_POST['url'];
 
         // Verifica se o usuário já existe
-        $sql = "SELECT id FROM $tabela WHERE url = :url";
+        $sql = "SELECT id FROM $tabela WHERE subdomain = :subdomain AND domain = :domain";
         $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindValue(':url', $url);
+        $stmt->bindValue(':subdomain', $url);
+        $stmt->bindValue(':domain', 'dropidigital.com.br');
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {

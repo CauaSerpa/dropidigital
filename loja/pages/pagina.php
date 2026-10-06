@@ -2,12 +2,12 @@
     <div class="row p-4">
         <nav class="mb-3" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item small"><a href="<?php echo INCLUDE_PATH_LOJA; ?>" class="text-decoration-none">Página inicial</a></li>
+                <li class="breadcrumb-item small"><a href="<?php echo INCLUDE_PATH_LOJA; ?>" class="text-decoration-none"><?= __('home_page') ?></a></li>
                 <li class="breadcrumb-item small fw-semibold text-body-secondary text-decoration-none ms-2 active" aria-current="page"><?php echo $page['name']; ?></li>
             </ol>
         </nav>
         <div class="col-md-4">
-            <h5>Institucional</h5>
+            <h5><?= __('institutional') ?></h5>
             <li class="text-decoration-underline"><?php echo $page['name']; ?></li>
             <?php
                 // Nome da tabela para a busca

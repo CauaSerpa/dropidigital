@@ -13,18 +13,20 @@
         $pinterest = $_POST['pinterest'];
         $instagram = $_POST['instagram'];
         $youtube = $_POST['youtube'];
+        $tiktok = $_POST['tiktok'];
 
         //Tabela que será solicitada
         $tabela = 'tb_shop';
 
         // Insere a categoria no banco de dados da loja
-        $sql = "UPDATE $tabela SET facebook = :facebook, x = :x, pinterest = :pinterest, instagram = :instagram, youtube = :youtube WHERE id = :id";
+        $sql = "UPDATE $tabela SET facebook = :facebook, x = :x, pinterest = :pinterest, instagram = :instagram, youtube = :youtube, tiktok = :tiktok WHERE id = :id";
         $stmt = $conn_pdo->prepare($sql);
         $stmt->bindValue(':facebook', $facebook);
         $stmt->bindValue(':x', $x);
         $stmt->bindValue(':pinterest', $pinterest);
         $stmt->bindValue(':instagram', $instagram);
         $stmt->bindValue(':youtube', $youtube);
+        $stmt->bindValue(':tiktok', $tiktok);
 
         // Id que sera editado
         $stmt->bindValue(':id', $shop_id);

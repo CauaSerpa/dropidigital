@@ -44,160 +44,256 @@
         flex-direction: column;
         justify-content: center;
     }
+
+    @media screen and (max-width: 991px) {
+        /* Carrossel */
+        #blogCarousel
+        {
+            margin-top: <?php echo ($top_highlight_bar == 1) ? "99px" : "67px"; ?> !important;
+        }
+        #blogCarousel .carousel-control-prev
+        {
+            left: 32px;
+        }
+        #blogCarousel .carousel-control-next
+        {
+            right: 30px;
+        }
+
+        .article-carousel .article-item img
+        {
+            height: 300px !important;
+        }
+
+        .article-preview
+        {
+            display: block;
+        }
+
+        .article-preview img
+        {
+            width: 100%;
+            height: auto;
+        }
+    }
 </style>
 
+<?php
+    /*
+     * Campos utilizados nesta página.
+     *
+     * O campo "content" é LONGTEXT e pode representar uma grande
+     * quantidade de dados. Como ele não é utilizado nesta página,
+     * não deve fazer parte das consultas.
+     */
+    $articleFields = 'id, name, image, link, date_create';
+
+    /*
+     * ============================================================
+     * ARTIGOS EM DESTAQUE - CARROSSEL
+     * ============================================================
+     */
+    $sqlFeaturedCarousel = "
+        SELECT $articleFields
+        FROM tb_articles
+        WHERE shop_id = :shop_id
+        AND status = 1
+        AND emphasis = 1
+        ORDER BY id DESC
+        LIMIT 5
+    ";
+
+    $stmtFeaturedCarousel = $conn_pdo->prepare($sqlFeaturedCarousel);
+    $stmtFeaturedCarousel->bindValue(':shop_id', $shop_id, PDO::PARAM_INT);
+    $stmtFeaturedCarousel->execute();
+
+    $featuredCarouselArticles = $stmtFeaturedCarousel->fetchAll(PDO::FETCH_ASSOC);
+
+    /*
+     * ============================================================
+     * ÚLTIMOS ARTIGOS
+     * ============================================================
+     */
+    $sqlLatestArticles = "
+        SELECT $articleFields
+        FROM tb_articles
+        WHERE shop_id = :shop_id
+        AND status = 1
+        ORDER BY id DESC
+        LIMIT 20
+    ";
+
+    $stmtLatestArticles = $conn_pdo->prepare($sqlLatestArticles);
+    $stmtLatestArticles->bindValue(':shop_id', $shop_id, PDO::PARAM_INT);
+    $stmtLatestArticles->execute();
+
+    $latestArticles = $stmtLatestArticles->fetchAll(PDO::FETCH_ASSOC);
+
+    /*
+     * ============================================================
+     * ARTIGOS EM DESTAQUE - LATERAL
+     * ============================================================
+     */
+    $sqlFeaturedArticles = "
+        SELECT $articleFields
+        FROM tb_articles
+        WHERE shop_id = :shop_id
+        AND status = 1
+        AND emphasis = 1
+        ORDER BY id DESC
+        LIMIT 10
+    ";
+
+    $stmtFeaturedArticles = $conn_pdo->prepare($sqlFeaturedArticles);
+    $stmtFeaturedArticles->bindValue(':shop_id', $shop_id, PDO::PARAM_INT);
+    $stmtFeaturedArticles->execute();
+
+    $featuredArticles = $stmtFeaturedArticles->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<?php if (!empty($featuredCarouselArticles)): ?>
+
 <div id="blogCarousel" class="carousel container slide mb-4 px-4" data-bs-ride="carousel" style="margin-top: <?php echo ($top_highlight_bar == 1) ? "186.39px" : "154.39px"; ?>;">
-    <!-- Indicators (pontos de navegação) -->
+
+    <!-- Indicators -->
     <ol class="carousel-indicators">
-    <?php
-        // Nome da tabela para a busca
-        $tabela = 'tb_articles';
-
-        $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id DESC";
-
-        // Preparar e executar a consulta
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindParam(':shop_id', $shop_id);
-        $stmt->bindValue(':status', 1);
-        $stmt->bindValue(':emphasis', 1);
-        $stmt->execute();
-
-        $countBanners = $stmt->rowCount();
-
-        // Inicializa uma variável para contar os IDs
-        $contador = 0;
-
-        // Verifica se há IDs para evitar um loop vazio
-        if ($stmt->rowCount() > 0) {
-            // Faça um loop para contar os IDs sequencialmente
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $currentId = $row['id'];
-
-                $active = ($contador == 0) ? 'active' : ''; // Adicione a classe active ao ID 1
-                echo "<li data-bs-target='#blogCarousel' data-bs-slide-to='" . $contador . "' class='" . $active . "'></li>";
-
-                $contador++;
-            }
-        } else {
-            echo "Nenhum ID encontrado.";
-        }
-    ?>
+        <?php foreach ($featuredCarouselArticles as $index => $article): ?>
+            <li
+                data-bs-target="#blogCarousel"
+                data-bs-slide-to="<?= $index ?>"
+                class="<?= $index === 0 ? 'active' : '' ?>"
+            ></li>
+        <?php endforeach; ?>
     </ol>
 
-    <!-- Slides (itens do carrossel) -->
+    <!-- Slides -->
     <div class="carousel-inner">
-        <?php
-            $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id DESC";
-
-            // Preparar e executar a consulta
-            $stmt = $conn_pdo->prepare($sql);
-            $stmt->bindParam(':shop_id', $shop_id);
-            $stmt->bindValue(':status', 1);
-            $stmt->bindValue(':emphasis', 1);
-            $stmt->execute();
-
-            // Recuperar os resultados
-            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Inicialize uma variável de controle
-            $primeiroElemento = true;
-
-            // Loop através dos resultados e exibir todas as colunas
-            foreach ($resultados as $article) {
-                //Formatacao para data
+        <?php foreach ($featuredCarouselArticles as $index => $article): ?>
+            <?php
                 $date_create = date("d/m/Y", strtotime($article['date_create']));
+                $articleName = htmlspecialchars($article['name'], ENT_QUOTES, 'UTF-8');
+                $articleImage = htmlspecialchars($article['image'], ENT_QUOTES, 'UTF-8');
+                $articleLink = htmlspecialchars($article['link'], ENT_QUOTES, 'UTF-8');
+            ?>
 
-                // Adicione a classe especial apenas ao primeiro elemento
-                $active = $primeiroElemento ? 'active' : '';
+            <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                <div class="article-carousel">
+                    <div class="article-item row g-0">
+                        <img
+                            src="<?= INCLUDE_PATH_DASHBOARD ?>back-end/articles/<?= $article['id'] ?>/<?= $articleImage ?>"
+                            alt="<?= $articleName ?>"
+                            class="col-md-8"
+                            style="height: 535px; object-fit: cover;"
+                        >
 
-                echo '<div class="carousel-item ' . $active . '">';
-                echo     '<div class="article-carousel">';
-                echo         '<div class="article-item row g-0">';
-                echo             '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/articles/' . $article['id'] . '/' . $article['image'] . '" alt="' . $article['name'] . '" class="col-md-8" style="height: 535px; object-fit: cover;">';
-                echo             '<div class="article-info col-md-4">';
-                echo                 '<h4 class="m-0">' . $article['name'] . '</h4>';
-                echo                 '<small class="mb-3">' . $date_create . '</small>';
-                echo                 '<div class="container-button">';
-                echo                     '<a href="' . INCLUDE_PATH_LOJA . 'blog/' . $article['link'] . '" class="btn btn-dark py-1 px-4">Ver mais</a>';
-                echo                 '</div>';
-                echo             '</div>';
-                echo         '</div>';
-                echo     '</div>';
-                echo '</div>';
+                        <div class="article-info col-md-4">
+                            <h4 class="m-0"><?= $articleName ?></h4>
+                            <small class="mb-3"><?= $date_create ?></small>
 
-                // Marque que o primeiro elemento foi processado
-                $primeiroElemento = false;
-            }
-        ?>
+                            <div class="container-button">
+                                <a
+                                    href="<?= INCLUDE_PATH_LOJA ?>blog/<?= $articleLink ?>"
+                                    class="btn btn-dark py-1 px-4"
+                                >
+                                    <?= __('see_more') ?>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 
-    <!-- Controles (setas de navegação) -->
+    <!-- Controles -->
     <a class="carousel-control-prev blog-carousel-control" href="#blogCarousel" role="button" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
+        <span class="visually-hidden"><?= __('prev') ?></span>
     </a>
+
     <a class="carousel-control-next blog-carousel-control" href="#blogCarousel" role="button" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Próximo</span>
+        <span class="visually-hidden"><?= __('next') ?></span>
     </a>
 </div>
+
+<?php endif; ?>
 
 <div class="container">
     <div class="row p-2">
+
         <div class="col-md-8">
-            <h5>Últimos Artigos</h5>
-            <?php
-                // Nome da tabela para a busca
-                $tabela = 'tb_articles';
+            <h5><?= __('latest_articles') ?></h5>
 
-                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status ORDER BY id DESC";
+            <?php if (!empty($latestArticles)): ?>
+                <?php foreach ($latestArticles as $article): ?>
+                    <?php
+                        $articleName = htmlspecialchars($article['name'], ENT_QUOTES, 'UTF-8');
+                        $articleImage = htmlspecialchars($article['image'], ENT_QUOTES, 'UTF-8');
+                        $articleLink = htmlspecialchars($article['link'], ENT_QUOTES, 'UTF-8');
+                    ?>
 
-                // Preparar e executar a consulta
-                $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':shop_id', $shop_id);
-                $stmt->bindValue(':status', 1);
-                $stmt->execute();
+                    <div class="article-preview pb-4 mb-4">
+                        <?php if (!empty($articleImage)): ?>
+                            <img
+                                src="<?= INCLUDE_PATH_DASHBOARD ?>back-end/articles/<?= $article['id'] ?>/<?= $articleImage ?>"
+                                alt="<?= $articleName ?>"
+                            >
+                        <?php endif; ?>
 
-                // Recuperar os resultados
-                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        <div class="article-info">
+                            <h5 class="mb-0"><?= $articleName ?></h5>
 
-                // Loop através dos resultados e exibir todas as colunas
-                foreach ($resultados as $article) {
-                    echo '<div class="article-preview pb-4 mb-4">';
-                    echo '<img src="' . INCLUDE_PATH_DASHBOARD . 'back-end/articles/' . $article['id'] . '/' . $article['image'] . '" alt="' . $article['name'] . '">';
-                    echo '<div class="article-info">';
-                    echo '<h5 class="mb-0">' . $article['name'] . '</h5>';
-                    echo '<div class="container-button">';
-                    echo '<a href="' . INCLUDE_PATH_LOJA . 'blog/' . $article['link'] . '" class="text-decoration-underline">Ver mais</a>';
-                    echo '</div>';
-                    echo '</div>';
-                    echo '</div>';
-                }
-            ?>
+                            <div class="container-button">
+                                <a
+                                    href="<?= INCLUDE_PATH_LOJA ?>blog/<?= $articleLink ?>"
+                                    class="text-decoration-underline"
+                                >
+                                    <?= __('see_more') ?>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
+
         <div class="col-md-4">
-            <h5>Artigos em destaque</h5>
-            <?php
-                // Nome da tabela para a busca
-                $tabela = 'tb_articles';
+            <h5><?= __('featured_articles') ?></h5>
 
-                $sql = "SELECT * FROM $tabela WHERE shop_id = :shop_id AND status = :status AND emphasis = :emphasis ORDER BY id DESC";
+            <?php if (!empty($featuredArticles)): ?>
+                <ul>
+                    <?php foreach ($featuredArticles as $article): ?>
+                        <?php
+                            $articleName = htmlspecialchars($article['name'], ENT_QUOTES, 'UTF-8');
+                            $articleLink = htmlspecialchars($article['link'], ENT_QUOTES, 'UTF-8');
+                        ?>
 
-                // Preparar e executar a consulta
-                $stmt = $conn_pdo->prepare($sql);
-                $stmt->bindParam(':shop_id', $shop_id);
-                $stmt->bindValue(':status', 1);
-                $stmt->bindValue(':emphasis', 1);
-                $stmt->execute();
-
-                // Recuperar os resultados
-                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // Loop através dos resultados e exibir todas as colunas
-                foreach ($resultados as $article) {
-                    echo "<li><a href='" . INCLUDE_PATH_LOJA . "blog/" . $article['link'] . "'>" . $article['name'] . "</a></li>";
-                }
-            ?>
+                        <li>
+                            <a href="<?= INCLUDE_PATH_LOJA ?>blog/<?= $articleLink ?>">
+                                <?= $articleName ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
         </div>
+
     </div>
+
 </div>
+
+<!-- Bootstrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+
+<?php if (!empty($featuredCarouselArticles)): ?>
+
+<script>
+    var blogCarrossel = new bootstrap.Carousel(document.getElementById('blogCarousel'), {
+        interval: 2000,
+        wrap: true
+    });
+</script>
+
+<?php endif; ?>
