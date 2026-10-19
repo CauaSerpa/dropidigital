@@ -1,5 +1,5 @@
 <?php
-if (!in_array($shop_id, [1, 2, 25, 61])) {
+if (!in_array($shop_id, [1, 2, 25, 61, 142])) {
     header('Location: '.INCLUDE_PATH_DASHBOARD);
     exit;
 }
@@ -1375,6 +1375,7 @@ $countScripts = 0;
                                         'aliexpress' => 'AliExpress',
                                         'shopee'     => 'Shopee',
                                         'amazon'     => 'Amazon',
+                                        'awin'       => 'Awin',
                                         default      => ucfirst($provider ?: 'Desconhecido'),
                                     };
 
@@ -1382,6 +1383,7 @@ $countScripts = 0;
                                         'aliexpress' => 'bg-danger',
                                         'shopee'     => 'bg-warning',
                                         'amazon'     => 'bg-primary',
+                                        'awin'       => 'bg-light text-dark',
                                         default      => 'bg-secondary',
                                     };
 
@@ -1738,7 +1740,7 @@ $countScripts = 0;
             $stmt->bindValue(':shop_id', $shop_id);
             $stmt->execute();
 
-            $aliexpressKeywords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $keywords = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             /**
              * Total de fontes cadastradas para a loja
@@ -1767,7 +1769,7 @@ $countScripts = 0;
                 </div>
             </div>
             <div class="card-body">
-                <?php if (empty($aliexpressKeywords)): ?>
+                <?php if (empty($keywords)): ?>
                     <div class="text-center py-5">
                         <div class="mb-3">
                             <i class="bi bi-search fs-1 text-muted"></i>
@@ -1801,7 +1803,7 @@ $countScripts = 0;
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($aliexpressKeywords as $keyword): ?>
+                                <?php foreach ($keywords as $keyword): ?>
                                     <tr>
                                         <td>
                                             <div class="fw-semibold">
@@ -1967,15 +1969,17 @@ foreach ($items as $category) {
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="provider" class="form-label">Provider</label>
+                            <label for="provider" class="form-label">Provedor</label>
                             <select class="form-select" name="provider" id="provider">
-                                <option value="" disabled selected>Selecione um provider</option>
+                                <option value="" disabled selected>Selecione um provedor</option>
                                 <option value="Amazon">Amazon</option>
                                 <option value="AliExpress">AliExpress</option>
                                 <option value="Shopee">Shopee</option>
+                                <option value="Awin">Awin</option>
                             </select>
                         </div>
 
+                        
                         <div class="col-md-6 mb-3">
                             <label for="category_id" class="form-label">Associar a uma Categoria</label>
 
@@ -2012,6 +2016,72 @@ foreach ($items as $category) {
                                     </span>
                                 </span>
                             </label>
+                        </div>
+
+                        <!-- Configurações Awin -->
+                        <div class="col-md-6" id="awinLanguageField" style="display: none;">
+                            <label for="awin_language" class="form-label">
+                                Idioma do Feed
+                            </label>
+
+                            <select
+                                class="form-select"
+                                name="awin_language"
+                                id="awin_language"
+                            >
+                                <option value="" selected disabled>
+                                    Selecione o idioma
+                                </option>
+
+                                <option value="pt_BR">
+                                    Português (Brasil)
+                                </option>
+
+                                <option value="en_US">
+                                    English
+                                </option>
+
+                                <option value="es_ES">
+                                    Español
+                                </option>
+
+                                <option value="de_DE">
+                                    Deutsch
+                                </option>
+
+                                <option value="fr_FR" disabled>
+                                    Français
+                                </option>
+                            </select>
+                        </div>
+
+                        <div
+                            class="col-md-6"
+                            id="awinBrandField"
+                            style="display: none;"
+                        >
+                            <label for="awin_brand_id" class="form-label">
+                                Marca
+                            </label>
+
+                            <select
+                                class="form-select"
+                                name="awin_brand_id"
+                                id="awin_brand_id"
+                                disabled
+                            >
+                                <option value="" selected>
+                                    Selecione uma marca
+                                </option>
+                            </select>
+
+                            <div
+                                id="awinBrandLoading"
+                                class="form-text"
+                                style="display: none;"
+                            >
+                                Carregando marcas...
+                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -2082,6 +2152,245 @@ foreach ($items as $category) {
         </div>
     </div>
 </div>
+
+<!-- Select2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function () {
+
+    const $provider = $('#provider');
+
+    const $languageField = $('#awinLanguageField');
+    const $brandField = $('#awinBrandField');
+
+    const $language = $('#awin_language');
+    const $brand = $('#awin_brand_id');
+
+    const $brandLoading = $('#awinBrandLoading');
+
+    const $saveProviderCategories = $('#save_provider_categories');
+
+
+    /**
+    * ==========================================
+    * SELECT2 - MARCAS AWIN
+    * ==========================================
+    */
+
+    $brand.select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: 'Selecione uma marca',
+        allowClear: true,
+        dropdownParent: $('#modalNovaImportacao')
+    });
+
+    $brand.val(null).trigger('change');
+
+
+    /**
+     * ==========================================
+     * ALTERAÇÃO DO PROVEDOR
+     * ==========================================
+     */
+
+    $provider.on('change', function () {
+
+        const provider = $(this).val();
+
+
+        if (provider === 'Awin') {
+
+            $languageField.show();
+            $brandField.show();
+
+            // Desabilita e desmarca o checkbox
+            $saveProviderCategories
+                .prop('checked', false)
+                .prop('disabled', true);
+
+            resetAwinBrands();
+
+        } else {
+
+            $languageField.hide();
+            $brandField.hide();
+
+            // Reabilita o checkbox
+            $saveProviderCategories.prop('disabled', false);
+
+            resetAwinFields();
+
+        }
+
+    });
+
+
+    /**
+     * ==========================================
+     * ALTERAÇÃO DO IDIOMA
+     * ==========================================
+     */
+
+    $language.on('change', function () {
+
+        const language = $(this).val();
+
+        if (!language) {
+
+            resetAwinBrands();
+
+            return;
+
+        }
+
+        loadAwinBrands(language);
+
+    });
+
+
+    /**
+     * ==========================================
+     * CARREGA MARCAS
+     * ==========================================
+     */
+
+    function loadAwinBrands(language) {
+        $brand
+            .prop('disabled', true)
+            .html(
+                '<option value="">Carregando marcas...</option>'
+            );
+
+        $brandLoading.show();
+
+        $.ajax({
+
+            url: '<?= INCLUDE_PATH_DASHBOARD; ?>back-end/awin-brands.php',
+            method: 'GET',
+            dataType: 'json',
+            data: {
+                language: language
+            },
+            success: function (response) {
+                if (
+                    !response
+                    || response.success !== true
+                ) {
+                    resetAwinBrands();
+
+                    alert(
+                        response?.message
+                        || 'Não foi possível carregar as marcas.'
+                    );
+
+                    return;
+                }
+
+                const brands =
+                    Array.isArray(response.brands)
+                        ? response.brands
+                        : [];
+
+                $brand.empty();
+
+                if (brands.length === 0) {
+                    $brand
+                        .append(
+                            '<option value="">Nenhuma marca encontrada</option>'
+                        )
+                        .prop('disabled', true);
+
+                    return;
+                }
+
+                $brand.append(
+                    $('<option>', {
+                        value: '',
+                        text: 'Selecione uma marca'
+                    })
+                );
+
+                /*
+                $brand.append(
+                    $('<option>', {
+                        value: '',
+                        text: 'Todas as marcas'
+                    })
+                );
+                */
+
+                brands.forEach(function (brand) {
+                    $brand.append(
+                        $('<option>', {
+                            value: brand.brand_id,
+                            text:
+                                brand.name
+                                + ' ('
+                                + brand.products
+                                + ' produtos)'
+                        })
+                    );
+                });
+
+                $brand.prop(
+                    'disabled',
+                    false
+                );
+            },
+
+            error: function (xhr) {
+                resetAwinBrands();
+                alert(
+                    xhr.responseJSON?.message
+                    || 'Erro ao carregar as marcas.'
+                );
+            },
+
+            complete: function () {
+                $brandLoading.hide();
+            }
+        });
+    }
+
+    /**
+     * ==========================================
+     * RESET MARCAS
+     * ==========================================
+     */
+
+    function resetAwinBrands() {
+
+        $brand
+            .prop('disabled', true)
+            .html(
+                '<option value="">Selecione uma marca</option>'
+            );
+
+        $brandLoading.hide();
+
+    }
+
+    /**
+     * ==========================================
+     * RESET CAMPOS AWIN
+     * ==========================================
+     */
+
+    function resetAwinFields() {
+
+        $language
+            .val('');
+
+        resetAwinBrands();
+
+    }
+
+});
+</script>
 
 <script>
 // document.addEventListener('DOMContentLoaded', function () {

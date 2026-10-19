@@ -3,7 +3,7 @@
     ob_start();
     include_once('../../config.php');
 
-    if (!isset($_SESSION['user_id']) || !in_array($_SESSION['shop_id'], [2, 25, 61])) {
+    if (!isset($_SESSION['user_id']) || !in_array($_SESSION['shop_id'], [2, 25, 61, 142])) {
         header('Location: ' . INCLUDE_PATH_DASHBOARD);
         exit;
     }
@@ -21,6 +21,51 @@
         $auto_publish = isset($_POST['auto_publish']) ? (int) $_POST['auto_publish'] : 0;
         $update_existing = isset($_POST['update_existing']) ? (int) $_POST['update_existing'] : 0;
         $observations = $_POST['observations'] ?? '';
+
+        // Dados awin
+        $awin_language = trim($_POST['awin_language'] ?? '');
+        $awin_brand_id = trim($_POST['awin_brand_id'] ?? '');
+        $awin_brand_name = null;
+
+        if ($provider === 'Awin') {
+            if ($awin_language === '') {
+                $_SESSION['msg'] = "<p class='red'>Selecione o idioma do feed Awin.</p>";
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "importacao-produtos");
+                exit;
+            }
+
+            if ($awin_brand_id === '') {
+                $_SESSION['msg'] = "<p class='red'>Selecione uma marca Awin.</p>";
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "importacao-produtos");
+                exit;
+            }
+
+            // Busca o nome da marca diretamente no banco
+            $stmtBrand = $conn_pdo->prepare("
+                SELECT brand_name
+                FROM tb_awin_brands
+                WHERE brand_id = :brand_id
+                AND language = :language
+                AND active = 1
+                LIMIT 1
+            ");
+
+            $stmtBrand->bindValue(':brand_id', $awin_brand_id);
+            $stmtBrand->bindValue(':language', $awin_language);
+            $stmtBrand->execute();
+
+            $awin_brand_name = $stmtBrand->fetchColumn();
+
+            if (!$awin_brand_name) {
+                $_SESSION['msg'] = "<p class='red'>A marca Awin selecionada não foi encontrada.</p>";
+                header("Location: " . INCLUDE_PATH_DASHBOARD . "importacao-produtos");
+                exit;
+            }
+        } else {
+            $awin_language = null;
+            $awin_brand_id = null;
+            $awin_brand_name = null;
+        }
 
         // Valida provider
         if ($provider === '') {
@@ -43,6 +88,9 @@
         $sql = "INSERT INTO $tabela (
             shop_id,
             provider,
+            awin_language,
+            awin_brand_id,
+            awin_brand_name,
             category_id,
             save_provider_categories,
             product_limit,
@@ -55,6 +103,9 @@
         ) VALUES (
             :shop_id,
             :provider,
+            :awin_language,
+            :awin_brand_id,
+            :awin_brand_name,
             :category_id,
             :save_provider_categories,
             :product_limit,
@@ -70,6 +121,25 @@
 
         $stmt->bindValue(':shop_id', $_SESSION['shop_id']);
         $stmt->bindValue(':provider', $provider);
+    
+        if ($awin_language === null) {
+            $stmt->bindValue(':awin_language', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':awin_language', $awin_language);
+        }
+
+        if ($awin_brand_id === null) {
+            $stmt->bindValue(':awin_brand_id', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':awin_brand_id', $awin_brand_id);
+        }
+
+        if ($awin_brand_name === null) {
+            $stmt->bindValue(':awin_brand_name', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':awin_brand_name', $awin_brand_name);
+        }
+
         $stmt->bindValue(':category_id', $category_id);
         $stmt->bindValue(':save_provider_categories', $save_provider_categories);
         $stmt->bindValue(':product_limit', $product_limit);

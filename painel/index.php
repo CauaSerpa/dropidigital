@@ -2318,7 +2318,7 @@
     ?>
 
     <?php
-        if ($permissions == 0 && in_array($shop_id, [2, 25, 61])):
+        if ($permissions == 0 && in_array($shop_id, [2, 25, 61, 142]) && 1==0): // Desabilitado
 
         // ============================================
         // PRODUTOS
@@ -2670,7 +2670,7 @@
     <!-- Assets -->
     <script src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/js/form-steps.js"></script>
     <script src="<?php echo INCLUDE_PATH_DASHBOARD; ?>assets/js/main.js"></script>
-    <?php if ($url !== 'editar-artigo' && $url !== 'criar-artigo'): ?>
+    <?php if ($url !== 'editar-artigo' && $url !== 'criar-artigo' && $url !== 'importacao-produtos'): ?>
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <?php endif; ?>
