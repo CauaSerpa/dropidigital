@@ -2030,27 +2030,27 @@
 
 
 
-<div class="card__container grid one tabPanel mb-4" style="display: grid;">
-    <div class="card card__box p-0">
+<div class="card__container row g-3 mb-4">
+    <div class="card card__box col-sm-12 col-lg-7 p-0">
         <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between p-4 pb-2">
             <h3 class="title h5 fw-semibold mb-0">Produtos Cadastrados</h3>
             <a href="<?php echo INCLUDE_PATH_DASHBOARD; ?>produtos" class="link text-nowrap">Ver Mais</a>
         </div>
         <div class="card-body table pt-0 pb-0">
-    <?php
-        // Nome da tabela para a busca
-        $tabela = 'tb_products';
+            <?php
+                // Nome da tabela para a busca
+                $tabela = 'tb_products';
 
-        $sql = "SELECT COUNT(*) FROM $tabela WHERE shop_id = :shop_id";
+                $sql = "SELECT COUNT(*) FROM $tabela WHERE shop_id = :shop_id";
 
-        $stmt = $conn_pdo->prepare($sql);
-        $stmt->bindValue(':shop_id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+                $stmt = $conn_pdo->prepare($sql);
+                $stmt->bindValue(':shop_id', $id, PDO::PARAM_INT);
+                $stmt->execute();
 
-        $countProduct = (int) $stmt->fetchColumn();
+                $countProduct = (int) $stmt->fetchColumn();
 
-        if ($stmt->rowCount() > 0) {
-    ?>
+                if ($stmt->rowCount() > 0) {
+            ?>
             <table>
                 <thead>
                     <tr>
@@ -2195,6 +2195,372 @@
             }
         ?>
     </div>
+
+
+    <?php
+    if (
+        isset($permissions, $shop_id, $conn_pdo)
+        && (int) $permissions === 0
+        && in_array((int) $shop_id, [2, 25, 61, 142], true)
+    ) {
+        // ============================================
+        // RELATÓRIO DE CONTEÚDO GERADO COM IA
+        // ============================================
+
+        // Total de produtos cadastrados na loja.
+        $stmt = $conn_pdo->prepare("
+            SELECT COUNT(*)
+            FROM tb_products
+            WHERE shop_id = :shop_id
+        ");
+        $stmt->bindValue(':shop_id', (int) $shop_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $totalProductsAI = (int) $stmt->fetchColumn();
+
+        // Total de categorias existentes na loja
+        $stmt = $conn_pdo->prepare("
+            SELECT COUNT(*)
+            FROM tb_categories
+            WHERE shop_id = :shop_id
+        ");
+
+        $stmt->execute([
+            ':shop_id' => $shop_id
+        ]);
+
+        $totalCategoriesAI = (int) $stmt->fetchColumn();
+
+        // Produtos com descrição concluída pelo worker de IA.
+        $stmt = $conn_pdo->prepare("
+            SELECT COUNT(*)
+            FROM tb_products
+            WHERE shop_id = :shop_id
+            AND description IS NOT NULL
+            AND description <> ''
+            AND ai_status = 'done'
+        ");
+        $stmt->bindValue(':shop_id', (int) $shop_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $processedProductsAI = (int) $stmt->fetchColumn();
+
+        // Total de artigos associados à geração por IA.
+        $stmt = $conn_pdo->prepare("
+            SELECT COUNT(*)
+            FROM tb_articles
+            WHERE shop_id = :shop_id
+            AND source_type = 'product_ai'
+        ");
+        $stmt->bindValue(':shop_id', (int) $shop_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $processedArticlesAI = (int) $stmt->fetchColumn();
+
+        // Percentuais de processamento.
+        $processedProductsPercentAI = $totalProductsAI > 0
+            ? min(100, round(
+                ($processedProductsAI / $totalProductsAI) * 100
+            ))
+            : 0;
+
+        $processedArticlesPercentAI = $totalProductsAI > 0
+            ? min(100, round(
+                ($processedArticlesAI / $totalProductsAI) * 100
+            ))
+            : 0;
+
+        // Evita exibir números de processamento superiores
+        // ao total de produtos cadastrados.
+        $processedProductsAI = min(
+            $processedProductsAI,
+            $totalProductsAI
+        );
+
+        // Descrições de categorias geradas por IA
+        // Temporariamente zerado até a implementação do ai_status
+        $processedCategoriesAI = 0;
+        $processedCategoriesPercentAI = 0;
+
+        if ($totalCategoriesAI > 0) {
+            $processedCategoriesPercentAI = round(
+                ($processedCategoriesAI / $totalCategoriesAI) * 100,
+                1
+            );
+        }
+
+        // Identificador exclusivo para os estilos deste widget.
+        $aiWidgetId = 'ai-content-widget-' . (int) $shop_id;
+    ?>
+
+    <style>
+        .ai-content-widget .ai-widget-icon {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(1, 200, 155, 0.12);
+            color: #01c89b;
+        }
+
+        .ai-content-widget .ai-widget-icon i {
+            font-size: 1.5rem;
+        }
+
+        .ai-content-widget .ai-widget-description {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        .ai-content-widget .ai-widget-stat {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 0.25rem;
+        }
+
+        .ai-content-widget .ai-widget-muted {
+            font-size: 0.8125rem;
+            color: #6c757d;
+        }
+
+        .ai-content-widget .ai-widget-progress {
+            height: 8px;
+            overflow: hidden;
+            background: #eceff3;
+            border-radius: 999px;
+        }
+
+        .ai-content-widget .ai-widget-progress-fill {
+            height: 100%;
+            background: #01c89b;
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ai-content-widget .ai-widget-progress-fill {
+                transition: none;
+            }
+        }
+    </style>
+
+    <div
+        id="<?= htmlspecialchars($aiWidgetId, ENT_QUOTES, 'UTF-8'); ?>"
+        class="card__box shop__info col-sm-12 col-lg-5 ai-content-widget"
+    >
+        <div class="card grid">
+
+            <div class="card__header">
+                <h3 class="title">Conteúdo gerado com IA</h3>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="ai-widget-icon">
+                    <i class="bx bxs-magic-wand" aria-hidden="true"></i>
+                </div>
+
+                <div>
+                    <p class="fw-semibold mb-1">
+                        Relatório de geração
+                    </p>
+
+                    <p class="text-muted ai-widget-description">
+                        Acompanhe os produtos processados e os artigos gerados pela IA.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+
+                <div class="col-4">
+                    <div class="border rounded-3 p-3 h-100">
+                        <p class="text-muted small mb-1">
+                            Produtos processados
+                        </p>
+
+                        <h4 class="ai-widget-stat">
+                            <?= number_format(
+                                $processedProductsAI,
+                                0,
+                                ',',
+                                '.'
+                            ); ?>
+                        </h4>
+
+                        <span class="ai-widget-muted">
+                            de <?= number_format(
+                                $totalProductsAI,
+                                0,
+                                ',',
+                                '.'
+                            ); ?> produtos
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="border rounded-3 p-3 h-100">
+                        <p class="text-muted small mb-1">
+                            Artigos gerados
+                        </p>
+
+                        <h4 class="ai-widget-stat">
+                            <?= number_format(
+                                $processedArticlesAI,
+                                0,
+                                ',',
+                                '.'
+                            ); ?>
+                        </h4>
+
+                        <span class="ai-widget-muted">
+                            <?= $processedArticlesPercentAI; ?>% do total de produtos
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="border rounded-3 p-3 h-100">
+                        <p class="text-muted small mb-1">
+                            Categorias processados
+                        </p>
+
+                        <h4 class="ai-widget-stat">
+                            <?= number_format(
+                                $processedCategoriesAI,
+                                0,
+                                ',',
+                                '.'
+                            ); ?>
+                        </h4>
+
+                        <span class="ai-widget-muted">
+                            de <?= number_format(
+                                $totalCategoriesAI,
+                                0,
+                                ',',
+                                '.'
+                            ); ?> categorias
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mb-3">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold small">
+                        Descrições de produtos
+                    </span>
+
+                    <span class="text-muted small">
+                        <?= number_format($processedProductsAI, 0, ',', '.'); ?>
+                        /
+                        <?= number_format($totalProductsAI, 0, ',', '.'); ?>
+                    </span>
+                </div>
+
+                <div
+                    class="ai-widget-progress"
+                    role="progressbar"
+                    aria-label="Produtos com descrição gerada por IA"
+                    aria-valuenow="<?= $processedProductsPercentAI; ?>"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                >
+                    <div
+                        class="ai-widget-progress-fill"
+                        style="width: <?= $processedProductsPercentAI; ?>%;"
+                    ></div>
+                </div>
+
+                <p class="ai-widget-muted mt-1 mb-0">
+                    <?= $processedProductsPercentAI; ?>% dos produtos processados
+                </p>
+
+            </div>
+
+            <div class="mb-3">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold small">
+                        Artigos gerados
+                    </span>
+
+                    <span class="text-muted small">
+                        <?= number_format($processedArticlesAI, 0, ',', '.'); ?>
+                        /
+                        <?= number_format($totalProductsAI, 0, ',', '.'); ?>
+                    </span>
+                </div>
+
+                <div
+                    class="ai-widget-progress"
+                    role="progressbar"
+                    aria-label="Artigos gerados por IA em relação ao total de produtos"
+                    aria-valuenow="<?= $processedArticlesPercentAI; ?>"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                >
+                    <div
+                        class="ai-widget-progress-fill"
+                        style="width: <?= $processedArticlesPercentAI; ?>%;"
+                    ></div>
+                </div>
+
+                <p class="ai-widget-muted mt-1 mb-0">
+                    <?= $processedArticlesPercentAI; ?>% em relação ao total de produtos
+                </p>
+
+            </div>
+
+            <div class="mb-0">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold small">
+                        Descrições de categorias
+                    </span>
+
+                    <span class="text-muted small">
+                        <?= number_format($processedCategoriesAI, 0, ',', '.'); ?>
+                        /
+                        <?= number_format($totalCategoriesAI, 0, ',', '.'); ?>
+                    </span>
+                </div>
+
+                <div
+                    class="ai-widget-progress"
+                    role="progressbar"
+                    aria-label="Categorias com descrição gerada por IA"
+                    aria-valuenow="<?= $processedCategoriesPercentAI; ?>"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                >
+                    <div
+                        class="ai-widget-progress-fill"
+                        style="width: <?= $processedCategoriesPercentAI; ?>%;"
+                    ></div>
+                </div>
+
+                <p class="ai-widget-muted mt-1 mb-0">
+                    <?= $processedCategoriesPercentAI; ?>% das categorias processadas
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+
+    <?php
+    }
+    ?>
+
 </div>
 
 <?php
