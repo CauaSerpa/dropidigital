@@ -1,13 +1,13 @@
 <?php
 
-require_once dirname(__DIR__, 1) . '/config.php';
+require_once dirname(__DIR__, 2) . '/config.php';
 
-require_once dirname(__DIR__, 1) . 'painel/back-end/google/App/GoogleCrypto.php';
-require_once dirname(__DIR__, 1) . 'painel/back-end/google/App/GoogleAnalyticsRepository.php';
-require_once dirname(__DIR__, 1) . 'painel/back-end/google/App/GoogleAnalyticsAuth.php';
-require_once dirname(__DIR__, 1) . 'painel/back-end/google/App/GoogleAnalyticsData.php';
-require_once dirname(__DIR__, 1) . 'painel/back-end/google/App/GoogleAnalyticsSync.php';
-require_once dirname(__DIR__, 1) . 'painel/back-end/google/App/GoogleAnalyticsCron.php';
+require_once dirname(__DIR__, 2) . '/painel/back-end/google/App/GoogleCrypto.php';
+require_once dirname(__DIR__, 2) . '/painel/back-end/google/App/GoogleAnalyticsRepository.php';
+require_once dirname(__DIR__, 2) . '/painel/back-end/google/App/GoogleAnalyticsAuth.php';
+require_once dirname(__DIR__, 2) . '/painel/back-end/google/App/GoogleAnalyticsData.php';
+require_once dirname(__DIR__, 2) . '/painel/back-end/google/App/GoogleAnalyticsSync.php';
+require_once dirname(__DIR__, 2) . '/painel/back-end/google/App/GoogleAnalyticsCron.php';
 
 
 $startedAt =
