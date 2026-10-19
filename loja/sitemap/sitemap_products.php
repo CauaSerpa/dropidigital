@@ -12,22 +12,7 @@ $page = isset($_GET['page'])
     ? max(1, (int) $_GET['page'])
     : 1;
 
-// ----------------------------------------------------------
-// BUSCA shop_id
-// ----------------------------------------------------------
-$sql = "
-    SELECT shop_id 
-    FROM tb_domains 
-    WHERE subdomain = :subdomain 
-      AND domain = :domain
-";
-$stmt = $conn_pdo->prepare($sql);
-$stmt->bindValue(':subdomain', $subdomain);
-$stmt->bindValue(':domain', $domain);
-$stmt->execute();
-
-$shop_id = $stmt->fetchColumn();
-
+// Busca shop_id
 if (!$shop_id) {
     http_response_code(404);
     exit;
@@ -114,7 +99,9 @@ $sqlProds = "
         link,
         language,
         last_modification,
-        date_create
+        date_create,
+        description,
+        ai_status
     FROM tb_products FORCE INDEX (idx_products_shop_status_id)
     WHERE shop_id = :shop_id
       AND status = 1
@@ -153,6 +140,17 @@ $stmtProds->bindValue(
 $stmtProds->execute();
 
 while ($prod = $stmtProds->fetch(PDO::FETCH_ASSOC)) {
+    // ==========================================
+    // FILTRAGEM: O MESMO CRITÉRIO DO NOINDEX
+    // ==========================================
+    $cleanDescription = trim(strip_tags($prod['description'] ?? ''));
+    $descLength = mb_strlen($cleanDescription, 'UTF-8');
+    $aiStatus = trim($prod['ai_status'] ?? '');
+
+    // Se NÃO for 'done' E a descrição tiver 300 caracteres ou menos, removemos do sitemap
+    if ($shop_id == 142 && $aiStatus !== 'done' && $descLength <= 300) {
+        continue;
+    }
 
     $datetime = $prod['last_modification']
         ?: $prod['date_create'];

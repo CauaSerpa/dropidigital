@@ -1,24 +1,12 @@
 <?php
-// ----------------------------------------------------------
-// 1) BUSCA shop_id PELO DOMÍNIO
-// ----------------------------------------------------------
-$tabela = "tb_domains";
-$sql = "SELECT shop_id FROM $tabela WHERE subdomain = :subdomain AND domain = :domain";
-$stmt = $conn_pdo->prepare($sql);
-$stmt->bindParam(':subdomain', $subdomain, PDO::PARAM_STR);
-$stmt->bindParam(':domain', $domain, PDO::PARAM_STR);
-$stmt->execute();
-$shopData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$shopData || empty($shopData['shop_id'])) {
+// Busca shop_id
+if (!$shop_id) {
     http_response_code(404);
     exit;
 }
 
-$shop_id = (int) $shopData['shop_id'];
-
 // ----------------------------------------------------------
-// 2) BUSCA DADOS DA SHOP
+// 1) BUSCA DADOS DA SHOP
 // ----------------------------------------------------------
 $tabela = 'tb_shop';
 $sql = "SELECT * FROM $tabela WHERE id = :id";
@@ -40,6 +28,7 @@ $sqlCount = "
     FROM tb_products
     WHERE shop_id = :shop_id
       AND status = 1
+      AND (ai_status = 'done' OR CHAR_LENGTH(REPLACE(REPLACE(description, '<p>', ''), '</p>', '')) > 300)
 ";
 $stmtCount = $conn_pdo->prepare($sqlCount);
 $stmtCount->bindParam(':shop_id', $shop_id, PDO::PARAM_INT);

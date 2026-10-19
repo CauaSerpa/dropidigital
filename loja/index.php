@@ -122,72 +122,6 @@
 
     require __DIR__ . '/includes/lang.php';
 
-
-    // Sitemap
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    $uri = $_SERVER['REQUEST_URI'];
-    
-    $requestUri = $_SERVER['REQUEST_URI'];
-
-    // ================================
-    // SITEMAPS
-    // ================================
-    // if ($requestUri === '/sitemap.xml') {
-    //     include './sitemap/sitemap.php';
-    //     exit;
-    // }
-    
-    if ($requestUri === '/sitemap_index.xml') {
-        include './sitemap/sitemap_index.php';
-        exit;
-    }
-    
-    if ($requestUri === '/sitemap_pages.xml') {
-        include './sitemap/sitemap_pages.php';
-        exit;
-    }
-    
-    if ($requestUri === '/sitemap_categories.xml') {
-        include './sitemap/sitemap_categories.php';
-        exit;
-    }
-    
-    if ($requestUri === '/sitemap_blog.xml') {
-        include './sitemap/sitemap_blog.php';
-        exit;
-    }
-
-    // // sitemap_products.xml (página 1)
-    // if ($requestUri === '/sitemap_products.xml') {
-    //     $_GET['page'] = 1;
-    //     include './sitemap/sitemap_products.php';
-    //     exit;
-    // }
-
-    // sitemap_products_2.xml, sitemap_products_3.xml ...
-    if (preg_match('/^\/sitemap_products_(\d+)\.xml$/', $requestUri, $matches)) {
-        $_GET['page'] = max(1, (int) $matches[1]);
-        include './sitemap/sitemap_products.php';
-        exit;
-    }
-
-    // ================================
-    // ROBOTS.TXT
-    // ================================
-    if ($requestUri === '/robots.txt') {
-        include('./robots.txt.php');
-        exit;
-    }
-
-    // ================================
-    // ADS.TXT
-    // ================================
-    if ($requestUri === '/ads.txt') {
-        include('./ads.txt');
-        exit;
-    }
-
     // Pesquisar dominio
     // Tabela que sera feita a consulta
     $tabela = "tb_domains";
@@ -210,6 +144,180 @@
 
     if ($resultado) {
         $shop_id = $resultado['shop_id'];
+    }
+
+    // Sitemap
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $uri = $_SERVER['REQUEST_URI'];
+    
+    $requestUri = $_SERVER['REQUEST_URI'];
+
+    /**
+     * SITEMAPS
+     *
+     * Prioridade:
+     * 1. Sitemap estático da loja, quando estiver concluído.
+     * 2. Geradores PHP atuais, como fallback.
+     */
+
+    $requestPath = parse_url(
+        $_SERVER['REQUEST_URI'] ?? '/',
+        PHP_URL_PATH
+    );
+
+    $requestPath = '/' . ltrim((string) $requestPath, '/');
+
+    // Identifica arquivos de sitemap que podem existir no diretório estático.
+    $staticFilename = null;
+
+    if ($requestPath === '/sitemap_index.xml') {
+        $staticFilename = 'sitemap_index.xml';
+
+    // Sitemaps de páginas
+    } elseif ($requestPath === '/sitemap_pages.xml') {
+        $staticFilename = 'sitemap_pages.xml';
+
+    } 
+
+    // Sitemaps de categorias: sitemap_categories_1.xml etc.
+    elseif (
+        preg_match(
+            '#^/sitemap_categories_(\d+)\.xml$#',
+            $requestPath,
+            $matches
+        )
+    ) {
+        $page = max(1, (int) $matches[1]);
+        $staticFilename = "sitemap_categories_{$page}.xml";
+    }
+
+    // Sitemaps do blog: sitemap_blog_1.xml etc.
+    elseif (
+        preg_match(
+            '#^/sitemap_blog_(\d+)\.xml$#',
+            $requestPath,
+            $matches
+        )
+    ) {
+        $page = max(1, (int) $matches[1]);
+        $staticFilename = "sitemap_blog_{$page}.xml";
+    }
+
+    // Sitemaps de produtos: sitemap_products_1.xml etc.
+    elseif (
+        preg_match(
+            '#^/sitemap_products_(\d+)\.xml$#',
+            $requestPath,
+            $matches
+        )
+    ) {
+        $page = max(1, (int) $matches[1]);
+        $staticFilename = "sitemap_products_{$page}.xml";
+
+    }
+
+    elseif ($requestPath === '/sitemap_categories.xml') {
+        // Compatibilidade com a URL antiga da primeira página.
+        $staticFilename = 'sitemap_categories_1.xml';
+    }
+
+    elseif ($requestPath === '/sitemap_blog.xml') {
+        // Compatibilidade com a URL antiga da primeira página.
+        $staticFilename = 'sitemap_blog_1.xml';
+    }
+
+    elseif ($requestPath === '/sitemap_products.xml') {
+        // Compatibilidade com a URL antiga da primeira página.
+        $staticFilename = 'sitemap_products_1.xml';
+    }
+
+    // Tenta servir o sitemap estático da loja identificada.
+    if ($shop_id !== null && $staticFilename !== null) {
+        $stmt = $conn_pdo->prepare("
+            SELECT status
+            FROM tb_sitemap_static
+            WHERE shop_id = ?
+            LIMIT 1
+        ");
+
+        $stmt->execute([$shop_id]);
+
+        $sitemapState = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $staticDirectory = __DIR__ . '/sitemap/static/' . $shop_id;
+        $staticFile = $staticDirectory . '/' . $staticFilename;
+
+        if (
+            $sitemapState
+            && $sitemapState['status'] === 'completed'
+            && is_file($staticFile)
+            && is_readable($staticFile)
+        ) {
+            header('Content-Type: application/xml; charset=UTF-8');
+            header('X-Content-Type-Options: nosniff');
+            header('Cache-Control: public, max-age=21600');
+
+            header('Content-Length: ' . filesize($staticFile));
+
+            readfile($staticFile);
+            exit;
+        }
+    }
+
+    // Fallback: os geradores dinâmicos existentes continuam funcionando.
+    if ($requestPath === '/sitemap_index.xml') {
+        include './sitemap/sitemap_index.php';
+        exit;
+    }
+
+    if ($requestPath === '/sitemap_pages.xml') {
+        include './sitemap/sitemap_pages.php';
+        exit;
+    }
+
+    if ($requestPath === '/sitemap_categories.xml') {
+        include './sitemap/sitemap_categories.php';
+        exit;
+    }
+
+    if ($requestPath === '/sitemap_blog.xml') {
+        include './sitemap/sitemap_blog.php';
+        exit;
+    }
+
+    if ($requestPath === '/sitemap_products.xml') {
+        $_GET['page'] = 1;
+        include './sitemap/sitemap_products.php';
+        exit;
+    }
+
+    if (
+        preg_match(
+            '#^/sitemap_products_(\d+)\.xml$#',
+            $requestPath,
+            $matches
+        )
+    ) {
+        $_GET['page'] = max(1, (int) $matches[1]);
+        include './sitemap/sitemap_products.php';
+        exit;
+    }
+
+    // ================================
+    // ROBOTS.TXT
+    // ================================
+    if ($requestUri === '/robots.txt') {
+        include('./robots.txt.php');
+        exit;
+    }
+
+    // ================================
+    // ADS.TXT
+    // ================================
+    if ($requestUri === '/ads.txt') {
+        include('./ads.txt');
+        exit;
     }
 
     // Pesquisar Loja
@@ -525,6 +633,8 @@
                 link,
                 seo_name,
                 seo_description,
+                description,
+                ai_status,
                 language
             FROM tb_products
             WHERE shop_id = :shop_id
@@ -597,7 +707,24 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="robots" content="index, follow">
+
+    <?php
+        // Define o padrão como index, follow
+        $robotsMeta = "index, follow";
+
+        if ($isProductPage && $product) {
+            // Remove tags HTML da descrição para contar apenas os caracteres reais do texto
+            $cleanDescription = trim(strip_tags($product['description'] ?? ''));
+            $descLength = mb_strlen($cleanDescription, 'UTF-8');
+            $aiStatus = trim($product['ai_status'] ?? '');
+
+            // Se o ai_status NÃO for 'done' E a descrição tiver 300 caracteres ou menos
+            if ($shop_id == 142 && $aiStatus !== 'done' && $descLength <= 300) {
+                $robotsMeta = "noindex, follow";
+            }
+        }
+    ?>
+    <meta name="robots" content="<?php echo $robotsMeta; ?>">
 
     <?php if ($isProductPage): ?>
 

@@ -18,17 +18,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 // Base URL absoluta
 $baseUrl = rtrim(INCLUDE_PATH_LOJA, '/') . '/';
 
-// ----------------------------------------------------------
-// 1) BUSCA shop_id PELO DOMÍNIO
-// ----------------------------------------------------------
-$sql = "SELECT shop_id FROM tb_domains WHERE subdomain = :subdomain AND domain = :domain";
-$stmt = $conn_pdo->prepare($sql);
-$stmt->bindParam(':subdomain', $subdomain, PDO::PARAM_STR);
-$stmt->bindParam(':domain', $domain, PDO::PARAM_STR);
-$stmt->execute();
-
-$shop_id = $stmt->fetch(PDO::FETCH_ASSOC)['shop_id'] ?? null;
-
+// Busca shop_id
 if (!$shop_id) {
     http_response_code(404);
     exit;

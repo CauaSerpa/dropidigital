@@ -1,30 +1,12 @@
 <?php
-// ----------------------------------------------------------
-// 1) BUSCA shop_id PELO DOMÍNIO
-// ----------------------------------------------------------
-$sql = "
-    SELECT shop_id
-    FROM tb_domains
-    WHERE subdomain = :subdomain
-      AND domain = :domain
-    LIMIT 1
-";
-
-$stmt = $conn_pdo->prepare($sql);
-$stmt->bindValue(':subdomain', $subdomain, PDO::PARAM_STR);
-$stmt->bindValue(':domain', $domain, PDO::PARAM_STR);
-$stmt->execute();
-
-$shop_id = $stmt->fetchColumn();
-
+// Busca shop_id
 if (!$shop_id) {
-    die('<error>Shop ID não encontrado</error>');
+    http_response_code(404);
+    exit;
 }
 
-$shop_id = (int) $shop_id;
-
 // ----------------------------------------------------------
-// 2) BUSCA DADOS DA SHOP
+// 1) BUSCA DADOS DA SHOP
 // ----------------------------------------------------------
 $sql = "
     SELECT *
@@ -44,7 +26,7 @@ if (!$shop) {
 }
 
 // ----------------------------------------------------------
-// 3) CONTAGEM TOTAL DE PRODUTOS ATIVOS
+// 2) CONTAGEM TOTAL DE PRODUTOS ATIVOS
 // ----------------------------------------------------------
 $sqlCount = "
     SELECT COUNT(*)
@@ -60,7 +42,7 @@ $stmtCount->execute();
 $totalProducts = (int) $stmtCount->fetchColumn();
 
 // ----------------------------------------------------------
-// 4) CABEÇALHO DO XML
+// 3) CABEÇALHO DO XML
 // ----------------------------------------------------------
 header("Content-Type: application/xml; charset=utf-8");
 
@@ -78,7 +60,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
     <?php
     // ----------------------------------------------------------
-    // 5) DATA DE lastmod DA PÁGINA PRINCIPAL DA SHOP
+    // 4) DATA DE lastmod DA PÁGINA PRINCIPAL DA SHOP
     // ----------------------------------------------------------
     // IMPORTANTE:
     // Não fazemos JOIN entre produtos, categorias e artigos.
@@ -186,7 +168,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     }
 
     // ----------------------------------------------------------
-    // 6) BUSCA IDIOMAS DISPONÍVEIS
+    // 5) BUSCA IDIOMAS DISPONÍVEIS
     // ----------------------------------------------------------
     $sqlLangs = "
         SELECT DISTINCT language
@@ -214,7 +196,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     $singleLang = count($langs) === 1;
 
     // ----------------------------------------------------------
-    // 6.1) GERAÇÃO DOS PRODUTOS
+    // 5.1) GERAÇÃO DOS PRODUTOS
     // ----------------------------------------------------------
     foreach ($langs as $lang) {
         $prefix = $singleLang ? '' : ($lang . '/');
@@ -272,7 +254,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     }
 
     // ----------------------------------------------------------
-    // 7) GERAÇÃO DE CATEGORIAS
+    // 6) GERAÇÃO DE CATEGORIAS
     // ----------------------------------------------------------
     $sqlCategories = "
         SELECT
@@ -317,7 +299,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     $stmtCategories->closeCursor();
 
     // ----------------------------------------------------------
-    // 8) GERAÇÃO DE ARTIGOS
+    // 7) GERAÇÃO DE ARTIGOS
     // ----------------------------------------------------------
     $sqlArticles = "
         SELECT

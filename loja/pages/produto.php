@@ -393,7 +393,7 @@
                 
                 // Verifica se existe no array
                 if (array_key_exists($related, $plataformas)) {
-                    echo "<small>Vendido por <a href='" . $product['redirect_link'] . "' target='_blank'><b>" . $plataformas[$related] . "</b></a></small>";
+                    echo "<small>Vendido por <a href='" . $product['redirect_link'] . "' target='_blank' rel='sponsored nofollow noopener noreferrer'><b>" . $plataformas[$related] . "</b></a></small>";
                     echo "<br>";
                 }
             ?>
@@ -446,7 +446,7 @@
                 echo '<h4 class="card-text mb-3">' . $priceAfterDiscount . '</h4>';
             ?>
             
-            <a href="<?php echo $product['redirect_link']; ?>" target="_blank" class="btn btn-dark d-inline-flex align-items-center fs-5 py-2 px-4 mb-3">
+            <a href="<?php echo $product['redirect_link']; ?>" target="_blank" rel="sponsored nofollow noopener noreferrer" class="btn btn-dark d-inline-flex align-items-center fs-5 py-2 px-4 mb-3">
                 <?php
                     if ($product['button_type'] == 1) {
                         echo __('buy');
@@ -479,14 +479,14 @@
 
                 <!-- Enviado pela plataforma -->
                 <div class="col-2">
-                    <a href="<?php echo $product['redirect_link']; ?>" class="d-flex flex-column align-items-center">
+                    <a href="<?php echo $product['redirect_link']; ?>" target="_blank" rel="sponsored nofollow noopener noreferrer" class="d-flex flex-column align-items-center">
                         <img src="<?= INCLUDE_PATH; ?>assets/images/loja/product_icon_2.jpeg" 
                             style="width:35px;height:35px;object-fit:contain;" alt="Envio">
 
                         <small class="text-black mt-2" style="font-size: 12px; line-height: normal;">
                             <?php
                             if (array_key_exists($related, $plataformas)) {
-                                echo 'Enviado por <a href="' . $product['redirect_link'] . '" target="_blank" class="text-black"><b>' . $plataformas[$related] . '</b></a>';
+                                echo 'Enviado por <a href="' . $product['redirect_link'] . '"  target="_blank" rel="sponsored nofollow noopener noreferrer" class="text-black"><b>' . $plataformas[$related] . '</b></a>';
                             } else {
                                 echo 'Envio garantido';
                             }
@@ -555,7 +555,7 @@
 
                     <a href="<?= htmlspecialchars($product['redirect_link']); ?>"
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="sponsored nofollow noopener noreferrer"
                     class="btn btn-dark d-inline-flex align-items-center px-4 py-2">
 
                         <?php
@@ -952,7 +952,7 @@ document.addEventListener('DOMContentLoaded', function () {
       sessionStorage.setItem(modalKey, true);
 
       const openLinkAndClose = function () {
-        window.open(productLink, "_blank");
+        window.open(productLink, "_blank", "noopener,noreferrer");
         discountModal.hide();
         document.body.removeEventListener("click", clickHandler);
         document.getElementById("discountBtn").removeEventListener("click", openLinkAndClose);
